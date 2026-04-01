@@ -56,3 +56,50 @@ def compare_basic_statement_presence(
         "form": payload.get("form"),
         "expected_forms": expected_forms or [],
     }
+
+
+def validate_xbrl_fact_presence(
+    *,
+    cik: str,
+    accession_no: str,
+    source_fact_count: int,
+    mapped_silver_count: int,
+) -> dict[str, Any]:
+    """
+    EdgarTools 추출 fact 수 vs canonical 매핑된 silver 건수 (validation assist).
+    Arelle 전체 로드·대조는 후속; 미설치 시에도 구조 필드는 채운다.
+    """
+    base: dict[str, Any] = {
+        "cik": cik,
+        "accession_no": accession_no,
+        "source_fact_count": source_fact_count,
+        "mapped_silver_count": mapped_silver_count,
+    }
+    if not _check_arelle():
+        return {"status": "skipped", "reason": "arelle_not_installed", **base}
+    return {
+        "status": "arelle_assist_pending",
+        "reason": "phase2_placeholder_no_instance_compare",
+        **base,
+    }
+
+
+def compare_statement_concept_presence(
+    *,
+    cik: str,
+    accession_no: str,
+    canonical_present: list[str],
+) -> dict[str, Any]:
+    """canonical 후보 집합 기록. Arelle statement 대비는 설치 시 확장."""
+    base: dict[str, Any] = {
+        "cik": cik,
+        "accession_no": accession_no,
+        "canonical_present": list(canonical_present),
+    }
+    if not _check_arelle():
+        return {"status": "skipped", "reason": "arelle_not_installed", **base}
+    return {
+        "status": "arelle_assist_pending",
+        "reason": "phase2_placeholder_statement_compare",
+        **base,
+    }

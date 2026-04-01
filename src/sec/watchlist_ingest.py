@@ -16,7 +16,7 @@ from sec.ingest_pipeline import ingest_filing_payload
 
 logger = logging.getLogger(__name__)
 
-RUN_TYPE = "sec_company_watchlist_ingest"
+RUN_TYPE = "sec_watchlist_metadata_ingest"
 
 
 def run_watchlist_ingest(

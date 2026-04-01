@@ -161,3 +161,167 @@ def smoke_db_select_one(client: Client) -> bool:
     """연결 확인용: issuer_master 0건이어도 성공하면 True."""
     client.table("issuer_master").select("id").limit(1).execute()
     return True
+
+
+def raw_xbrl_fact_exists(client: Client, *, cik: str, accession_no: str, dedupe_key: str) -> bool:
+    r = (
+        client.table("raw_xbrl_facts")
+        .select("id")
+        .eq("cik", cik)
+        .eq("accession_no", accession_no)
+        .eq("dedupe_key", dedupe_key)
+        .limit(1)
+        .execute()
+    )
+    return bool(r.data)
+
+
+def insert_raw_xbrl_fact(client: Client, row: dict[str, Any]) -> None:
+    client.table("raw_xbrl_facts").insert(row).execute()
+
+
+def silver_xbrl_fact_exists(
+    client: Client,
+    *,
+    cik: str,
+    accession_no: str,
+    canonical_concept: str,
+    revision_no: int,
+    fact_period_key: str,
+) -> bool:
+    r = (
+        client.table("silver_xbrl_facts")
+        .select("id")
+        .eq("cik", cik)
+        .eq("accession_no", accession_no)
+        .eq("canonical_concept", canonical_concept)
+        .eq("revision_no", revision_no)
+        .eq("fact_period_key", fact_period_key)
+        .limit(1)
+        .execute()
+    )
+    return bool(r.data)
+
+
+def insert_silver_xbrl_fact(client: Client, row: dict[str, Any]) -> None:
+    client.table("silver_xbrl_facts").insert(row).execute()
+
+
+def upsert_issuer_quarter_snapshot(client: Client, row: dict[str, Any]) -> Dict[str, bool]:
+    cik = row["cik"]
+    fy = row["fiscal_year"]
+    fp = row["fiscal_period"]
+    acc = row["accession_no"]
+    r = (
+        client.table("issuer_quarter_snapshots")
+        .select("id")
+        .eq("cik", cik)
+        .eq("fiscal_year", fy)
+        .eq("fiscal_period", fp)
+        .eq("accession_no", acc)
+        .limit(1)
+        .execute()
+    )
+    if r.data:
+        oid = r.data[0]["id"]
+        upd = {k: v for k, v in row.items() if k not in ("created_at",)}
+        client.table("issuer_quarter_snapshots").update(upd).eq("id", oid).execute()
+        return {"inserted": False, "updated": True}
+    client.table("issuer_quarter_snapshots").insert(row).execute()
+    return {"inserted": True, "updated": False}
+
+
+def fetch_raw_xbrl_facts_for_filing(
+    client: Client, *, cik: str, accession_no: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("raw_xbrl_facts")
+        .select("*")
+        .eq("cik", cik)
+        .eq("accession_no", accession_no)
+        .execute()
+    )
+    return list(r.data or [])
+
+
+def fetch_silver_xbrl_facts_for_filing(
+    client: Client, *, cik: str, accession_no: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("silver_xbrl_facts")
+        .select("*")
+        .eq("cik", cik)
+        .eq("accession_no", accession_no)
+        .execute()
+    )
+    return list(r.data or [])
+
+
+def smoke_facts_db(client: Client) -> bool:
+    """raw_xbrl_facts 테이블 도달 확인."""
+    client.table("raw_xbrl_facts").select("id").limit(1).execute()
+    return True
+
+
+def fetch_cik_for_ticker(client: Client, *, ticker: str) -> Optional[str]:
+    r = (
+        client.table("issuer_master")
+        .select("cik")
+        .eq("ticker", ticker.upper().strip())
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return str(r.data[0]["cik"])
+
+
+def fetch_issuer_quarter_snapshots_for_cik(client: Client, *, cik: str) -> list[dict[str, Any]]:
+    r = client.table("issuer_quarter_snapshots").select("*").eq("cik", cik).execute()
+    return list(r.data or [])
+
+
+def factor_panel_exists(
+    client: Client,
+    *,
+    cik: str,
+    fiscal_year: int,
+    fiscal_period: str,
+    accession_no: str,
+    factor_version: str,
+) -> bool:
+    q = (
+        client.table("issuer_quarter_factor_panels")
+        .select("id")
+        .eq("cik", cik)
+        .eq("fiscal_year", fiscal_year)
+        .eq("fiscal_period", fiscal_period)
+        .eq("accession_no", accession_no)
+        .eq("factor_version", factor_version)
+        .limit(1)
+        .execute()
+    )
+    return bool(q.data)
+
+
+def insert_factor_panel(client: Client, row: dict[str, Any]) -> None:
+    client.table("issuer_quarter_factor_panels").insert(row).execute()
+
+
+def fetch_factor_panels_for_cik(
+    client: Client, *, cik: str, limit: int = 5
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("issuer_quarter_factor_panels")
+        .select("*")
+        .eq("cik", cik)
+        .order("updated_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return list(r.data or [])
+
+
+def smoke_factor_panels_db(client: Client) -> bool:
+    client.table("issuer_quarter_factor_panels").select("id").limit(1).execute()
+    return True

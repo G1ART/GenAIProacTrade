@@ -81,7 +81,7 @@ def test_ingest_run_lifecycle() -> None:
     ins.return_value = MagicMock(data=[{"id": "run-uuid-1"}])
     rid = ingest_run_create_started(
         client,
-        run_type="sec_company_watchlist_ingest",
+        run_type="sec_watchlist_metadata_ingest",
         target_count=3,
         metadata_json={"tickers": ["A"]},
     )
