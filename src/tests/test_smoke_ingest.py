@@ -3,8 +3,6 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from config import load_settings
 from models.raw_filing import RawSecFilingRow
 from models.silver_filing import SilverSecFilingRow
@@ -20,6 +18,25 @@ SAMPLE_PAYLOAD = {
     "filing_date": "2024-06-01",
     "acceptance_datetime": "2024-06-01T20:00:00+00:00",
     "source_url": "https://www.sec.gov/example-index.html",
+}
+
+_PIPE_OK = {
+    "cik": SAMPLE_PAYLOAD["cik"],
+    "accession_no": SAMPLE_PAYLOAD["accession_no"],
+    "issuer_upserted": True,
+    "filing_index_inserted": True,
+    "filing_index_updated": False,
+    "raw_inserted": True,
+    "silver_inserted": True,
+    "arelle_validation": {"status": "skipped"},
+}
+
+_PIPE_SKIP = {
+    **_PIPE_OK,
+    "raw_inserted": False,
+    "silver_inserted": False,
+    "filing_index_inserted": False,
+    "filing_index_updated": True,
 }
 
 
@@ -72,12 +89,7 @@ def test_run_sample_ingest_mocked_inserts() -> None:
     settings = load_settings()
     client = MagicMock()
 
-    with (
-        patch("sec.ingest_company_sample.raw_filing_exists", return_value=False),
-        patch("sec.ingest_company_sample.silver_filing_exists", return_value=False),
-        patch("sec.ingest_company_sample.insert_raw_filing") as ir,
-        patch("sec.ingest_company_sample.insert_silver_filing") as is_,
-    ):
+    with patch("sec.ingest_company_sample.ingest_filing_payload", return_value=_PIPE_OK) as pipe:
         out = run_sample_ingest(
             "AAPL",
             settings,
@@ -85,26 +97,17 @@ def test_run_sample_ingest_mocked_inserts() -> None:
             fetch_fn=lambda: dict(SAMPLE_PAYLOAD),
         )
 
+    pipe.assert_called_once()
     assert out["raw_inserted"] is True
     assert out["silver_inserted"] is True
     assert out["accession_no"] == SAMPLE_PAYLOAD["accession_no"]
-    ir.assert_called_once()
-    is_.assert_called_once()
-    raw_arg = ir.call_args[0][1]
-    assert raw_arg["cik"] == SAMPLE_PAYLOAD["cik"]
-    assert raw_arg["payload_json"]["form"] == "10-Q"
 
 
 def test_run_sample_ingest_skips_when_exists() -> None:
     settings = load_settings()
     client = MagicMock()
 
-    with (
-        patch("sec.ingest_company_sample.raw_filing_exists", return_value=True),
-        patch("sec.ingest_company_sample.silver_filing_exists", return_value=True),
-        patch("sec.ingest_company_sample.insert_raw_filing") as ir,
-        patch("sec.ingest_company_sample.insert_silver_filing") as is_,
-    ):
+    with patch("sec.ingest_company_sample.ingest_filing_payload", return_value=_PIPE_SKIP) as pipe:
         out = run_sample_ingest(
             "AAPL",
             settings,
@@ -112,7 +115,6 @@ def test_run_sample_ingest_skips_when_exists() -> None:
             fetch_fn=lambda: dict(SAMPLE_PAYLOAD),
         )
 
+    pipe.assert_called_once()
     assert out["raw_inserted"] is False
     assert out["silver_inserted"] is False
-    ir.assert_not_called()
-    is_.assert_not_called()

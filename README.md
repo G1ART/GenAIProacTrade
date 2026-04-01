@@ -1,28 +1,39 @@
-# GenAIProacTrade — Phase 0
+# GenAIProacTrade — Phase 0–1 (SEC truth spine)
 
-미국 SEC 공시 메타데이터를 **원본(raw)** 과 **정규화(silver)** 로 나누어 Supabase에 쌓는 Python 워커의 최소 뼈대입니다. Phase 0는 완성 제품이 아니라 이후 Phase(issuer master, 팩터 엔진, AI harness)를 올릴 **source-of-truth spine** 입니다.
+미국 SEC 공시 메타데이터를 **issuer / filing identity / raw / silver** 로 분리해 Supabase에 쌓는 Python 워커입니다. Phase 1에서 워치리스트 배치 ingest·`ingest_runs` 감사·idempotency를 강화했습니다. 팩터·AI·가격 데이터는 포함하지 않습니다.
 
-## 현재 구현 범위
+## Phase 1 목표
 
-- 환경변수 로딩 및 필수 키 검증 (`src/config.py`)
-- Supabase service-role 클라이언트 (`src/db/client.py`)
-- `raw_sec_filings` / `silver_sec_filings` 테이블용 SQL 마이그레이션 (`supabase/migrations/`)
-- edgartools로 티커 1개의 **최근 공시 1건** 메타데이터 수집 및 DB 적재 (`src/sec/ingest_company_sample.py`)
-- 최소 정규화 규칙 (`src/sec/normalize.py`)
-- pytest: config / normalize / ingest(mock) / Supabase payload 형태 검증 (`src/tests/`)
+- **Issuer 중심** 운영: `issuer_master`에 CIK canonical, 티커는 관측값.
+- **Filing identity** 독립: `filing_index`로 공시 존재 여부를 raw와 별도 조회.
+- **감사**: `ingest_runs`로 배치 실행별 성공/실패·메타 보존.
+- **워치리스트** 소규모 다종목 ingest (순차·rate-limit 친화).
+- **Arelle**: `src/sec/validation/arelle_check.py` 스켈레톤만 (미설치 시 skip).
 
-## 아직 구현하지 않은 것
+## 데이터 계층
 
-- 팩터 계산, 백테스트, state-change 엔진, AI 에이전트
-- Railway 배포, 알림, UI
-- 대량 백필·스케줄 잡
-- issuer master / 다중 소스 ingest
+| 계층 | 테이블 | 설명 |
+|------|--------|------|
+| Issuer identity | `issuer_master` | CIK 유니크, 티커·회사명·SIC·거래소 등 |
+| Filing identity | `filing_index` | `(cik, accession_no)` 유니크 |
+| Raw truth | `raw_sec_filings` | 원문 JSON, **불변** |
+| Normalized | `silver_sec_filings` | 정규화 요약, `revision_no` |
+| Audit | `ingest_runs` | run_type, status, 성공/실패 건수 |
+
+상세 idempotency 정책은 [`src/db/schema_notes.md`](src/db/schema_notes.md) 참고.
+
+## Idempotency 정책 (한 줄 요약)
+
+- **raw**: 동일 `(cik, accession_no)` 이미 있으면 insert 안 함 (덮어쓰기 없음).
+- **filing_index**: 동일 키면 메타·`last_seen_at` 갱신.
+- **silver**: Phase 1은 `revision_no=1`만; 이미 있으면 insert 안 함.
+- **issuer**: CIK 기준 upsert, `first_seen_at` 유지.
 
 ## 사전 요구사항
 
-- Python **3.9+** (3.9에서도 동작하도록 타입 힌트 구성)
-- [Supabase](https://supabase.com) 프로젝트 (URL + **service_role** 키)
-- SEC [EDGAR](https://www.sec.gov/os/accessing-edgar-data) 정책에 맞는 `EDGAR_IDENTITY` (이름 또는 이메일)
+- Python **3.9+**
+- Supabase 프로젝트 + **service_role** 키
+- `EDGAR_IDENTITY` (SEC 정책)
 
 ## 로컬 설정
 
@@ -30,51 +41,143 @@
 cd /path/to/GenAIProacTrade
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-# .env 를 편집해 실제 SUPABASE_* , EDGAR_IDENTITY 를 채움 (비밀값은 Git에 올리지 말 것)
-```
-
-edgartools 데이터·HTTP 캐시는 프로젝트 루트의 `.edgar_cache` 아래로 맞춰 둡니다 (`~/.edgar` 의존 완화).
-
-### 문제 해결: `hishel` / `FileStorage` / 티커 조회 실패
-
-`module 'hishel' has no attribute 'FileStorage'` 또는 `Both data sources are unavailable` 가 나오면, **hishel 1.x** 가 깔린 경우가 많습니다. `requirements.txt` 에서 `hishel<1` 을 고정했으므로 아래로 맞춰 설치하세요.
-
-```bash
 python3 -m pip install -r requirements.txt
+cp .env.example .env
 ```
+
+`.env`에 실제 키를 넣고 **Git에 커밋하지 마세요.**
+
+### hishel / `FileStorage` 오류
+
+`requirements.txt`의 `hishel>=0.1.3,<1` 을 유지한 뒤 `python3 -m pip install -r requirements.txt` 로 맞춥니다.
 
 ## Supabase 마이그레이션 적용 순서
 
-1. Supabase 대시보드 → **SQL Editor**
-2. `supabase/migrations/20250401000000_phase0_raw_silver_sec_filings.sql` 파일 내용을 붙여 넣고 실행
+SQL Editor에서 아래를 **순서대로** 실행합니다.
 
-또는 Supabase CLI를 쓰는 경우:
+1. `supabase/migrations/20250401000000_phase0_raw_silver_sec_filings.sql`
+2. `supabase/migrations/20250402120000_phase1_issuer_filing_ingest_runs.sql`
 
-```bash
-supabase db push
-```
+## CLI (복붙용)
 
-(로컬에 CLI와 프로젝트 연결이 이미 구성되어 있어야 합니다.)
-
-## 샘플 ingest 실행
+프로젝트 루트에서, 가상환경 활성화 후:
 
 ```bash
 cd /path/to/GenAIProacTrade
 source .venv/bin/activate
-PYTHONPATH=src python3 src/main.py --ticker AAPL
+export PYTHONPATH=src
 ```
 
-다른 티커:
+### 단일 티커 ingest
 
 ```bash
-PYTHONPATH=src python3 src/main.py --ticker MSFT
+python3 src/main.py ingest-single --ticker NVDA
 ```
 
-성공 시 JSON으로 `raw_inserted` / `silver_inserted` 등 요약이 출력됩니다. 동일 `accession`은 raw/silver 각각 idempotency 규칙에 따라 재실행 시 insert를 건너뛸 수 있습니다.
+### 워치리스트 배치 ingest
 
-## 테스트 실행
+기본 파일: `config/watchlist.json` (`tickers`, `filings_per_issuer`).
+
+```bash
+python3 src/main.py ingest-watchlist
+```
+
+다른 파일:
+
+```bash
+python3 src/main.py ingest-watchlist --watchlist /path/to/watchlist.json
+```
+
+환경변수 `WATCHLIST_PATH`로 기본 경로를 바꿀 수 있습니다. 티커 간 대기는 `--sleep` 또는 `INGEST_TICKER_SLEEP_SEC`.
+
+### 스모크
+
+```bash
+python3 src/main.py smoke-sec
+python3 src/main.py smoke-db
+```
+
+- `smoke-sec`: SEC에 접속 (네트워크 필요).
+- `smoke-db`: Supabase `issuer_master`에 대한 단순 select.
+
+## 로컬에서 실제 워치리스트 ingest 1회 + DB 확인 (복붙 절차)
+
+**전제**: Supabase SQL Editor에서 Phase 0 → Phase 1 마이그레이션을 이미 실행했고, 루트에 `.env`에 `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `EDGAR_IDENTITY`가 채워져 있어야 합니다.
+
+### 1) 터미널에서 한 번에 (macOS / zsh)
+
+아래에서 첫 줄 `cd`만 본인 프로젝트 경로로 바꿉니다.
+
+```bash
+cd /Users/hyunminkim/GenAIProacTrade
+source .venv/bin/activate
+export PYTHONPATH=src
+```
+
+### 2) 연결 확인 (순서 권장)
+
+```bash
+python3 src/main.py smoke-sec
+python3 src/main.py smoke-db
+```
+
+- `smoke-sec` 실패: 네트워크·`EDGAR_IDENTITY` 확인.
+- `smoke-db` 실패: `.env`의 Supabase URL/키·마이그레이션(테이블 존재) 확인.
+
+### 3) 워치리스트 ingest 1회 (실제 SEC 호출 + DB 적재)
+
+```bash
+python3 src/main.py ingest-watchlist
+```
+
+티커 사이에 더 쉬고 싶으면 (초 단위):
+
+```bash
+python3 src/main.py ingest-watchlist --sleep 1.0
+```
+
+종료 시 터미널에 JSON 요약이 출력됩니다. `ingest_runs`에 이번 run이 남고, 티커별로 issuer / filing_index / raw / silver가 쌓입니다.
+
+### 4) Supabase에서 행 확인
+
+**방법 A — Table Editor**: Dashboard → **Table Editor** → `ingest_runs`, `issuer_master`, `filing_index`, `raw_sec_filings`, `silver_sec_filings` 순으로 열어 최근 행 확인.
+
+**방법 B — SQL Editor**에서 아래를 붙여넣어 실행:
+
+```sql
+-- 최근 ingest run
+select id, run_type, status, target_count, success_count, failure_count, started_at, completed_at
+from ingest_runs
+order by started_at desc
+limit 5;
+
+-- 건수 요약
+select (select count(*) from issuer_master) as issuer_master_rows,
+       (select count(*) from filing_index) as filing_index_rows,
+       (select count(*) from raw_sec_filings) as raw_rows,
+       (select count(*) from silver_sec_filings) as silver_rows;
+```
+
+같은 명령을 다시 실행해도 **멱등** 정책상 raw/silver가 무한히 늘지 않고, issuer·filing_index는 upsert·갱신 위주입니다. 상세는 [`src/db/schema_notes.md`](src/db/schema_notes.md) 참고.
+
+## 워치리스트 파일 형식
+
+`config/watchlist.json` 예:
+
+```json
+{
+  "tickers": ["NVDA", "MSFT", "AAPL"],
+  "filings_per_issuer": 1
+}
+```
+
+## Optional Arelle 검증 경로
+
+- 모듈: `src/sec/validation/arelle_check.py`
+- Arelle 미설치 시 `validate_filing_identity` 등은 `status: skipped` 반환.
+- Phase 2+에서 실제 XBRL 교차검증을 붙일 때 사용.
+
+## 테스트
 
 ```bash
 cd /path/to/GenAIProacTrade
@@ -82,39 +185,39 @@ source .venv/bin/activate
 pytest
 ```
 
-외부 네트워크 없이 동작하는 단위/모킹 테스트만 포함합니다. SEC·Supabase에 실제로 붙는 검증은 위 **샘플 ingest** 명령으로 수동 확인합니다.
+외부 네트워크 없이 mock 위주입니다.
 
 ## 환경변수
 
 | 변수 | 필수 | 설명 |
 |------|------|------|
 | `SUPABASE_URL` | 예 | 프로젝트 URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | 예 | 서버(워커)용 service role 키 |
-| `EDGAR_IDENTITY` | 예 | SEC 요청 시 식별 문자열 |
-| `OPENAI_API_KEY` | 아니오 | 이후 Phase용 (Phase 0 미사용) |
+| `SUPABASE_SERVICE_ROLE_KEY` | 예 | service role |
+| `EDGAR_IDENTITY` | 예 | SEC 식별 |
+| `WATCHLIST_PATH` | 아니오 | 워치리스트 JSON 경로 |
+| `INGEST_TICKER_SLEEP_SEC` | 아니오 | 배치 티커 간 sleep (초) |
+| `OPENAI_API_KEY` | 아니오 | 예약 |
 | `SENTRY_DSN` | 아니오 | 예약 |
-| `EDGAR_LOCAL_DATA_DIR` | 아니오 | 캐시 경로 (미설정 시 `.edgar_cache`) |
 
 ## 프로젝트 구조 (요약)
 
 ```
-GenAIProacTrade/
-  README.md
-  HANDOFF.md
-  .env.example
-  requirements.txt
-  pytest.ini
-  supabase/migrations/
-  src/
-    main.py
-    config.py
-    logging_utils.py
-    db/
-    sec/
-    models/
-    tests/
+config/watchlist.json
+supabase/migrations/
+src/
+  main.py              # CLI 서브커맨드
+  config.py
+  watchlist_config.py
+  db/
+  sec/
+    ingest_pipeline.py
+    ingest_company_sample.py
+    watchlist_ingest.py
+    validation/arelle_check.py
+  models/
+  tests/
 ```
 
 ## 운영 문서
 
-상위 기준: 제품 스펙 → Cursor Agent Protocol → Plan Mode Roadmap → Phase 0 Work Order. 구현 판단이 어긋나면 상위 문서를 우선합니다.
+제품 스펙 → Cursor Agent Protocol → Plan Mode Roadmap → Phase Work Order 순으로 상위 문서를 우선합니다.

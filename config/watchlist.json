@@ -1,0 +1,4 @@
+{
+  "tickers": ["NVDA", "MSFT", "AAPL"],
+  "filings_per_issuer": 1
+}
