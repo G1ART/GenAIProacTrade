@@ -1,0 +1,7 @@
+edgartools>=3.0.0
+# edgartools 4.x는 hishel.FileStorage API에 의존; hishel 1.x는 해당 심볼을 제거해 티커 조회가 실패함
+hishel>=0.1.3,<1.0.0
+supabase>=2.0.0
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+pytest>=8.0.0
