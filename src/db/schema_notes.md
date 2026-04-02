@@ -29,6 +29,8 @@
 | `issuer_state_change_components` | 발행일·신호 long-form 구성요소(level/velocity/…). `(run_id, cik, as_of_date, signal_name)` 유니크. |
 | `issuer_state_change_scores` | 발행일 단위 투명 합성 점수. `(run_id, cik, as_of_date)` 유니크. |
 | `state_change_candidates` | 조사 후보(실행 신호 아님). `(run_id, cik, as_of_date, candidate_rank)` 유니크. |
+| `backfill_orchestration_runs` | **유니버스 백필** 상위 실행 메타. `mode`·`universe_name`·`summary_json`(retry_tickers 등). |
+| `backfill_stage_events` | 백필 **스테이지별** 행 수·에러·`notes_json`. `ingest_runs` 와 별도 감사. |
 
 ## ingest_runs `run_type`
 
@@ -105,6 +107,7 @@
 - `universe_memberships`: 보통 **새 `as_of_date` 배치 insert** (같은 as_of 재실행 시 유니크 충돌 가능—운영 시 같은 날 재실행 주의).
 - **Phase 5** `factor_validation_runs`: 매 실행 **새 행 insert**; 자식 요약·분위·커버리지는 해당 `run_id`에 insert. 재실행 시 이전 run 보존(감사 비교용).
 - **Phase 6** `state_change_runs`: 매 실행 **새 행 insert**; components/scores/candidates는 해당 `run_id`에 insert. 동일 입력 재현은 동일 코드·동일 DB 스냅샷 전제.
+- **Backfill** `backfill_orchestration_runs` / `backfill_stage_events`: 오케스트레이션마다 **새 parent run** + 스테이지별 자식 행 insert.
 
 ## Factor panel JSON
 
@@ -131,3 +134,4 @@ Service role 키는 RLS를 우회한다. 로컬 워커는 service role 전제.
 5. `20250405100000_phase4_market_validation.sql`
 6. `20250406100000_phase5_factor_validation_research.sql`
 7. `20250407100000_phase6_state_change_engine.sql`
+8. `20250408100000_backfill_orchestration.sql` — `backfill_*` 테이블 + `backfill_coverage_counts()` RPC

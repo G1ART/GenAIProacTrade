@@ -540,14 +540,26 @@ def fetch_quarter_snapshot_by_accession(
 def fetch_factor_panels_all(
     client: Client, *, limit: int = 5000
 ) -> list[dict[str, Any]]:
-    r = (
-        client.table("issuer_quarter_factor_panels")
-        .select("*")
-        .order("created_at", desc=False)
-        .limit(limit)
-        .execute()
-    )
-    return list(r.data or [])
+    """PostgREST 페이지 상한을 넘길 수 있도록 range 로 순회."""
+    out: list[dict[str, Any]] = []
+    page = min(500, max(1, limit))
+    offset = 0
+    while len(out) < limit:
+        r = (
+            client.table("issuer_quarter_factor_panels")
+            .select("*")
+            .order("created_at", desc=False)
+            .range(offset, offset + page - 1)
+            .execute()
+        )
+        batch = list(r.data or [])
+        if not batch:
+            break
+        out.extend(batch)
+        if len(batch) < page:
+            break
+        offset += page
+    return out[:limit]
 
 
 def upsert_factor_market_validation_panel(
@@ -952,3 +964,120 @@ def fetch_state_change_candidates_for_run(
         .execute()
     )
     return list(r.data or [])
+
+
+# --- Backfill orchestration (20250408100000) ---
+
+
+def smoke_backfill_tables(client: Client) -> None:
+    client.table("backfill_orchestration_runs").select("id").limit(1).execute()
+
+
+def rpc_backfill_coverage_counts(client: Client) -> Optional[dict[str, Any]]:
+    try:
+        r = client.rpc("backfill_coverage_counts").execute()
+        if r.data is None:
+            return None
+        if isinstance(r.data, dict):
+            return dict(r.data)
+        return None
+    except Exception:
+        return None
+
+
+def backfill_orch_insert_started(
+    client: Client,
+    *,
+    mode: str,
+    universe_name: str,
+    requested_symbol_count: Optional[int],
+    resolved_symbol_count: Optional[int],
+    config_json: dict[str, Any],
+) -> str:
+    row: dict[str, Any] = {
+        "mode": mode,
+        "universe_name": universe_name,
+        "requested_symbol_count": requested_symbol_count,
+        "resolved_symbol_count": resolved_symbol_count,
+        "status": "running",
+        "config_json": config_json,
+    }
+    res = client.table("backfill_orchestration_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("backfill_orchestration_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def backfill_orch_finalize(
+    client: Client,
+    *,
+    run_id: str,
+    status: str,
+    summary_json: Optional[dict[str, Any]] = None,
+    error_json: Optional[dict[str, Any]] = None,
+) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    upd: dict[str, Any] = {
+        "status": status,
+        "finished_at": now,
+    }
+    if summary_json is not None:
+        upd["summary_json"] = summary_json
+    if error_json is not None:
+        upd["error_json"] = error_json
+    client.table("backfill_orchestration_runs").update(upd).eq("id", run_id).execute()
+
+
+def insert_backfill_stage_event(
+    client: Client,
+    *,
+    orchestration_run_id: str,
+    stage_name: str,
+    stage_status: str,
+    inserted_rows: int = 0,
+    updated_rows: int = 0,
+    skipped_rows: int = 0,
+    warning_count: int = 0,
+    error_count: int = 0,
+    notes_json: Optional[dict[str, Any]] = None,
+) -> None:
+    row: dict[str, Any] = {
+        "orchestration_run_id": orchestration_run_id,
+        "stage_name": stage_name,
+        "stage_status": stage_status,
+        "inserted_rows": inserted_rows,
+        "updated_rows": updated_rows,
+        "skipped_rows": skipped_rows,
+        "warning_count": warning_count,
+        "error_count": error_count,
+        "notes_json": notes_json or {},
+        "finished_at": datetime.now(timezone.utc).isoformat(),
+    }
+    client.table("backfill_stage_events").insert(row).execute()
+
+
+def fetch_backfill_orchestration_run(
+    client: Client, *, run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("backfill_orchestration_runs")
+        .select("*")
+        .eq("id", run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_latest_backfill_orchestration(
+    client: Client, *, universe_name: Optional[str] = None
+) -> Optional[dict[str, Any]]:
+    q = client.table("backfill_orchestration_runs").select("*")
+    if universe_name:
+        q = q.eq("universe_name", universe_name)
+    r = q.order("started_at", desc=True).limit(1).execute()
+    if not r.data:
+        return None
+    return dict(r.data[0])

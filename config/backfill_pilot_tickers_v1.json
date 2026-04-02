@@ -1,0 +1,11 @@
+{
+  "description": "재현 가능한 pilot 30종 — 섹터 혼합(기술·금융·소비·에너지·헬스 등). universe_memberships 와 교집합 후 사용.",
+  "tickers": [
+    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA",
+    "JPM", "BAC", "WFC", "XOM", "CVX",
+    "WMT", "COST", "PG", "KO", "PEP",
+    "JNJ", "UNH", "MRK", "ABBV", "PFE",
+    "CAT", "BA", "UPS", "RTX", "SPGI",
+    "DIS", "NKE", "MCD", "TMO", "LIN"
+  ]
+}

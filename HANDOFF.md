@@ -1,6 +1,23 @@
-# HANDOFF — Phase 6 완료 시점 (state change engine v1)
+# HANDOFF — Phase 6 + Universe Backfill
 
-## 현재 완료 범위
+## Universe Backfill 오케스트레이션 (신규)
+
+- **마이그레이션** `20250408100000_backfill_orchestration.sql`: `backfill_orchestration_runs`, `backfill_stage_events`, RPC `backfill_coverage_counts()`
+- **모듈** `src/backfill/`: `universe_resolver`, `backfill_runner`, `join_diagnostics`, `coverage_report`, `status_report`, `cli_report`, `normalize`, `pilot_tickers`
+- **설정** `config/backfill_pilot_tickers_v1.json` — pilot 30종(유니버스와 교집합)
+- **CLI**: `smoke-backfill`, `backfill-universe`, `report-backfill-status`
+- **SEC/facts 리팩터**: `run_sec_ingest_for_tickers`, `run_facts_extract_for_tickers`, `run_quarter_snapshot_build_tickers`
+- **records**: `fetch_factor_panels_all` 페이지네이션(대량 forward/validation 빌드), backfill CRUD·RPC 래퍼
+- **pytest** `src/tests/test_backfill_orchestration.py`
+- **문서**: README `## Full Universe Backfill` 복붙 (1)–(14), `schema_notes` 마이그레이션 8
+
+**하지 않는 것**: 수동 SQL/CSV로 데이터 채우기, 웹 매크로, 가짜 placeholder row, 백테스트·전략·AI harness.
+
+**재시도**: `summary_json.retry_tickers_all` + `--retry-failed-only --from-orchestration-run-id <UUID>`
+
+---
+
+## Phase 6 완료 범위 (state change)
 
 - **마이그레이션** `20250407100000_phase6_state_change_engine.sql`: `state_change_runs`, `issuer_state_change_components`, `issuer_state_change_scores`, `state_change_candidates`
 - **모듈** `src/state_change/`: `signal_registry`, `universe_scope`, `loaders`, `transforms`, `components`, `scoring`, `candidates`, `runner`, `reports`, `cli_report`, `__init__.py`

@@ -461,6 +461,77 @@ def _cmd_smoke_state_change(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_smoke_backfill(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db.records import smoke_backfill_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_backfill_tables(client)
+    print(json.dumps({"db_backfill_orchestration": "ok"}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_backfill_universe(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from backfill.backfill_runner import run_backfill_universe
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    fv = args.factor_version or os.environ.get("FACTOR_VERSION", "v1")
+    out = run_backfill_universe(
+        settings,
+        client,
+        mode=str(args.mode),
+        universe_name=str(args.universe),
+        symbol_limit=args.symbol_limit,
+        start_stage=args.start_stage,
+        end_stage=args.end_stage,
+        dry_run=bool(args.dry_run),
+        retry_failed_only=bool(args.retry_failed_only),
+        from_orchestration_run_id=args.from_orchestration_run_id,
+        rerun_phase5=bool(args.rerun_phase5),
+        rerun_phase6=bool(args.rerun_phase6),
+        sleep_sec=float(args.sleep),
+        factor_version=str(fv),
+        market_lookback_days=int(args.market_lookback_days),
+    )
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("status") == "completed" else 1
+
+
+def _cmd_report_backfill_status(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from backfill.cli_report import emit_backfill_report
+    from backfill.status_report import build_backfill_status_payload
+    from db.client import get_supabase_client
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    payload = build_backfill_status_payload(
+        client,
+        mode=str(args.mode),
+        universe_name=str(args.universe),
+        symbol_limit=args.symbol_limit,
+        include_diagnostics=not args.no_diagnostics,
+        thin_threshold=int(args.thin_threshold),
+        orchestration_run_id=args.orchestration_run_id,
+    )
+    if args.write_diagnostics:
+        p = Path(args.write_diagnostics).expanduser()
+        diag = payload.get("join_diagnostics") or {}
+        p.write_text(
+            json.dumps(diag, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+    emit_backfill_report(payload, output_json=bool(args.output_json))
+    return 0
+
+
 def _cmd_smoke_facts(_args: argparse.Namespace) -> int:
     """DB facts 테이블 도달 + (선택) 단일 티커 XBRL 로드 가능 여부."""
     import sec.ingest_company_sample  # noqa: F401
@@ -771,6 +842,102 @@ def build_parser() -> argparse.ArgumentParser:
         help="Phase 6 state_change_* 테이블 도달 (DB·마이그레이션 필요)",
     )
     ssc.set_defaults(func=_cmd_smoke_state_change)
+
+    sbk = sub.add_parser(
+        "smoke-backfill",
+        help="backfill_orchestration_* 테이블 도달 (DB·마이그레이션 필요)",
+    )
+    sbk.set_defaults(func=_cmd_smoke_backfill)
+
+    bfu = sub.add_parser(
+        "backfill-universe",
+        help="유니버스 단위 deterministic 백필 (SEC→facts→snapshots→factors→시장→선행→검증패널)",
+    )
+    bfu.add_argument(
+        "--mode",
+        required=True,
+        choices=("smoke", "pilot", "full", "extended"),
+        help="smoke≈5티커, pilot≈pilot JSON∩유니버스, full/extended=유니버스(캡 가능)",
+    )
+    bfu.add_argument(
+        "--universe",
+        required=True,
+        help="sp500_current | sp500_proxy_candidates_v1 | combined_largecap_research_v1",
+    )
+    bfu.add_argument(
+        "--symbol-limit",
+        type=int,
+        default=None,
+        help="full/extended 에서 처리 상한(미지정 시 유니버스 전체)",
+    )
+    bfu.add_argument(
+        "--start-stage",
+        default=None,
+        help="resolve|sec|xbrl|snapshots|factors|market_prices|forward_returns|validation_panel|phase5|phase6",
+    )
+    bfu.add_argument("--end-stage", default=None, help="start-stage 와 동일 집합")
+    bfu.add_argument("--dry-run", action="store_true")
+    bfu.add_argument(
+        "--retry-failed-only",
+        action="store_true",
+        help="이전 오케스트레이션 summary 의 retry_tickers_all 만 재시도",
+    )
+    bfu.add_argument(
+        "--from-orchestration-run-id",
+        default=None,
+        dest="from_orchestration_run_id",
+        help="retry-failed-only 시 필수",
+    )
+    bfu.add_argument("--rerun-phase5", action="store_true")
+    bfu.add_argument("--rerun-phase6", action="store_true")
+    bfu.add_argument(
+        "--sleep",
+        type=float,
+        default=float(os.getenv("INGEST_TICKER_SLEEP_SEC", "0.55")),
+    )
+    bfu.add_argument("--factor-version", default=None)
+    bfu.add_argument(
+        "--market-lookback-days",
+        type=int,
+        default=int(os.getenv("MARKET_PRICE_LOOKBACK_DAYS", "400")),
+    )
+    bfu.add_argument("--output-json", action="store_true", help="항상 JSON 출력(기본도 JSON)")
+    bfu.set_defaults(func=_cmd_backfill_universe)
+
+    rbs = sub.add_parser(
+        "report-backfill-status",
+        help="RPC 커버리지·조인 진단·최근 backfill run 요약",
+    )
+    rbs.add_argument(
+        "--mode",
+        default="pilot",
+        choices=("smoke", "pilot", "full", "extended"),
+        help="진단에 쓸 티커 해석 모드",
+    )
+    rbs.add_argument(
+        "--universe",
+        default="sp500_current",
+        help="sp500_current | sp500_proxy_candidates_v1 | combined_largecap_research_v1",
+    )
+    rbs.add_argument("--symbol-limit", type=int, default=None)
+    rbs.add_argument(
+        "--no-diagnostics",
+        action="store_true",
+        help="조인·thin issuer 조회 생략(빠른 카운트만)",
+    )
+    rbs.add_argument("--thin-threshold", type=int, default=4)
+    rbs.add_argument(
+        "--orchestration-run-id",
+        default=None,
+        help="특정 오케스트레이션 run 상세",
+    )
+    rbs.add_argument(
+        "--write-diagnostics",
+        default=None,
+        help="join_diagnostics JSON 저장 경로",
+    )
+    rbs.add_argument("--output-json", action="store_true")
+    rbs.set_defaults(func=_cmd_report_backfill_status)
 
     return p
 

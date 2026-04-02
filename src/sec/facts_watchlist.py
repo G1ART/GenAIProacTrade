@@ -18,27 +18,27 @@ logger = logging.getLogger(__name__)
 RUN_TYPE = "sec_facts_extract"
 
 
-def run_facts_watchlist(
+def run_facts_extract_for_tickers(
     settings: Settings,
     *,
-    client: Any = None,
-    watchlist_path: Optional[Path] = None,
+    tickers: list[str],
+    client: Any,
     sleep_seconds: float = 0.65,
     forms: tuple[str, ...] = ("10-Q", "10-K"),
+    metadata_extra: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
-    tickers, _per = load_watchlist(watchlist_path)
-    if client is None:
-        client = get_supabase_client(settings)
-
-    meta = {
-        "tickers": tickers,
-        "watchlist_path": str(watchlist_path or default_watchlist_path()),
+    tnorm = [str(t).upper().strip() for t in tickers if str(t).strip()]
+    meta: dict[str, Any] = {
+        "tickers": tnorm,
         "forms": list(forms),
+        "source": "ticker_list",
     }
+    if metadata_extra:
+        meta.update(metadata_extra)
     run_id = ingest_run_create_started(
         client,
         run_type=RUN_TYPE,
-        target_count=len(tickers),
+        target_count=len(tnorm),
         metadata_json=meta,
     )
 
@@ -47,7 +47,7 @@ def run_facts_watchlist(
     errors: list[dict[str, Any]] = []
     details: list[dict[str, Any]] = []
 
-    for t in tickers:
+    for t in tnorm:
         try:
             out = run_facts_extract_for_ticker(
                 client,
@@ -87,10 +87,33 @@ def run_facts_watchlist(
         "run_id": run_id,
         "run_type": RUN_TYPE,
         "status": status,
-        "target_count": len(tickers),
+        "target_count": len(tnorm),
         "success_count": success_count,
         "failure_count": failure_count,
-        "tickers": tickers,
+        "tickers": tnorm,
         "details": details,
         "errors": errors,
     }
+
+
+def run_facts_watchlist(
+    settings: Settings,
+    *,
+    client: Any = None,
+    watchlist_path: Optional[Path] = None,
+    sleep_seconds: float = 0.65,
+    forms: tuple[str, ...] = ("10-Q", "10-K"),
+) -> dict[str, Any]:
+    tickers, _per = load_watchlist(watchlist_path)
+    if client is None:
+        client = get_supabase_client(settings)
+    return run_facts_extract_for_tickers(
+        settings,
+        tickers=tickers,
+        client=client,
+        sleep_seconds=sleep_seconds,
+        forms=forms,
+        metadata_extra={
+            "watchlist_path": str(watchlist_path or default_watchlist_path()),
+        },
+    )

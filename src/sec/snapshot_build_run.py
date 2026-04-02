@@ -127,3 +127,42 @@ def run_quarter_snapshot_build(
         "results": results,
         "errors": errors,
     }
+
+
+def run_quarter_snapshot_build_tickers(
+    settings: Settings,
+    *,
+    tickers: list[str],
+    limit_per_ticker: int = 80,
+    client: Any = None,
+    sleep_seconds: float = 0.15,
+) -> dict[str, Any]:
+    """티커별 silver_xbrl_facts 기반 분기 스냅샷 배치 (백필 오케스트레이션용)."""
+    import time
+
+    if client is None:
+        client = get_supabase_client(settings)
+    tnorm = [str(t).upper().strip() for t in tickers if str(t).strip()]
+    details: list[dict[str, Any]] = []
+    total_ok = 0
+    total_fail = 0
+    for t in tnorm:
+        out = run_quarter_snapshot_build(
+            settings,
+            client=client,
+            ticker=t,
+            limit=max(1, int(limit_per_ticker)),
+        )
+        details.append(out)
+        total_ok += int(out.get("success_count") or 0)
+        total_fail += int(out.get("failure_count") or 0)
+        time.sleep(sleep_seconds)
+    st = "completed" if total_fail == 0 else ("completed" if total_ok > 0 else "failed")
+    return {
+        "run_type": RUN_TYPE,
+        "status": st,
+        "tickers": tnorm,
+        "success_count": total_ok,
+        "failure_count": total_fail,
+        "details": details,
+    }

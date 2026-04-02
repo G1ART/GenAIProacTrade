@@ -1,4 +1,4 @@
-# GenAIProacTrade — Phase 0–6 (SEC + XBRL + 회계 팩터 + 시장 검증 + 연구 검증 + 상태변화 스파인)
+# GenAIProacTrade — Phase 0–6 + Universe Backfill (SEC + XBRL + 팩터 + 시장 + 연구 + 상태변화 + 오케스트레이션)
 
 미국 SEC **공시 메타데이터**·**XBRL fact**·**분기 스냅샷**·**회계 팩터**에 이어, Phase 4에서 **시장 가격·선행 수익률·무위험 이자율**을 **provider 추상화**로 적재하고 **`factor_market_validation_panels`** 까지 조인합니다. **Phase 5**에서는 그 패널 위에 **결정적 기술 검증·분위 기술통계**를 쌓는 **`factor_validation_*` 연구 레이어**(백테스트·전략·실행 아님)를 추가합니다.
 
@@ -229,6 +229,143 @@ python3 src/main.py run-state-change --universe combined_largecap_research_v1 --
 python3 src/main.py report-state-change-summary --run-id <UUID>
 ```
 
+## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
+
+**목적**: 시장 가격만 넓고 SEC/XBRL/스냅샷/팩터/검증 스파인이 샘플 수준일 때, **수동 INSERT 없이** 기존 파이프라인을 순서대로 묶어 `issuer_master` → `factor_market_validation_panels` 까지 채움. **백테스트·포트폴리오·AI harness·UI 확장 아님.**
+
+**전제**: Supabase에 `20250408100000_backfill_orchestration.sql` 적용. `universe_memberships`·`risk_free_rates_daily`·(가격) `silver_market_prices_daily` 등 선행 데이터는 기존 README 절차대로.
+
+**모듈**: `src/backfill/` — `backfill_runner`, `universe_resolver`, `join_diagnostics`, `coverage_report`, `status_report`, `config/backfill_pilot_tickers_v1.json`(pilot 30종).
+
+**CLI**: `smoke-backfill`, `backfill-universe`, `report-backfill-status`.
+
+### (1) 현재 row count 확인 SQL (SQL Editor)
+
+```sql
+select 'issuer_master' as table_name, count(*) as rows from issuer_master
+union all select 'filing_index', count(*) from filing_index
+union all select 'raw_xbrl_facts', count(*) from raw_xbrl_facts
+union all select 'silver_xbrl_facts', count(*) from silver_xbrl_facts
+union all select 'issuer_quarter_snapshots', count(*) from issuer_quarter_snapshots
+union all select 'issuer_quarter_factor_panels', count(*) from issuer_quarter_factor_panels
+union all select 'forward_returns_daily_horizons', count(*) from forward_returns_daily_horizons
+union all select 'factor_market_validation_panels', count(*) from factor_market_validation_panels
+union all select 'state_change_candidates', count(*) from state_change_candidates;
+```
+
+```sql
+select 'issuer_quarter_factor_panels' as table_name, count(distinct cik) as distinct_cik
+from issuer_quarter_factor_panels
+union all select 'factor_market_validation_panels', count(distinct cik) from factor_market_validation_panels
+union all select 'state_change_candidates', count(distinct cik) from state_change_candidates;
+```
+
+### (2) smoke-backfill
+
+```bash
+cd ~/GenAIProacTrade
+source .venv/bin/activate
+export PYTHONPATH=src
+python3 src/main.py smoke-backfill
+```
+
+### (3) pilot backfill (30종 근처, 유니버스와 교집합)
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py backfill-universe --mode pilot --universe sp500_current --dry-run
+python3 src/main.py backfill-universe --mode pilot --universe sp500_current
+```
+
+### (4) pilot coverage report
+
+```bash
+python3 src/main.py report-backfill-status --mode pilot --universe sp500_current --output-json
+python3 src/main.py report-backfill-status --mode pilot --universe sp500_current --write-diagnostics /tmp/join_diag.json
+```
+
+### (5) full backfill (캡 없이 유니버스 전체는 시간·SEC rate limit 큼; 먼저 `--symbol-limit` 권장)
+
+```bash
+python3 src/main.py backfill-universe --mode full --universe sp500_current --symbol-limit 120
+# 멤버십 최신화 후:
+python3 src/main.py refresh-universe --universe sp500_current
+python3 src/main.py backfill-universe --mode full --universe sp500_current
+```
+
+### (6) validation panel row count 확인
+
+```sql
+select count(*) from factor_market_validation_panels;
+```
+
+### (7) thin coverage issuer (SQL 예시)
+
+```sql
+select cik, count(*) as factor_rows
+from issuer_quarter_factor_panels
+group by 1
+having count(*) < 4
+order by factor_rows asc
+limit 100;
+```
+
+### (8) rerun Phase 5
+
+```bash
+python3 src/main.py run-factor-validation --universe sp500_current --horizon next_month
+python3 src/main.py run-factor-validation --universe sp500_current --horizon next_quarter
+```
+
+### (9) rerun Phase 6
+
+```bash
+python3 src/main.py run-state-change --universe sp500_current --limit 500 --output-json
+```
+
+### (10) candidate / report 확인
+
+```bash
+python3 src/main.py report-state-change-summary --universe sp500_current
+```
+
+### (11)–(14) git
+
+```bash
+git status
+git add -A
+git commit -m "chore: add deterministic universe backfill orchestration"
+git push origin main
+```
+
+### 한 번에 선행·검증까지 (옵션)
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py backfill-universe --mode pilot --universe sp500_current --rerun-phase5 --rerun-phase6
+```
+
+### 실패 티커만 재시도
+
+이전 실행 `summary_json.retry_tickers_all` 에 티커가 있을 때:
+
+```bash
+python3 src/main.py backfill-universe --mode pilot --universe sp500_current \
+  --retry-failed-only --from-orchestration-run-id <ORCH_UUID> \
+  --start-stage sec --end-stage factors
+```
+
+### 스테이지 범위·dry-run
+
+- `--start-stage` / `--end-stage`: `resolve` · `sec` · `xbrl` · `snapshots` · `factors` · `market_prices` · `forward_returns` · `validation_panel` · `phase5` · `phase6`
+- `--dry-run`: resolve 메타만 DB에 남기고 이후 스테이지는 기록만 `skipped_dry_run`
+- `phase5` / `phase6` 는 각각 `--rerun-phase5` / `--rerun-phase6` 가 있을 때만 실행
+
+### 리스크
+
+- **full** 모드는 SEC/네트워크·시간·Rate limit 부담이 큼. pilot·`--symbol-limit` 로 먼저 검증.
+- `forward_returns` / `validation_panel` 은 DB에 있는 **모든** 팩터 패널(상한 `limit_panels`)을 순회; `fetch_factor_panels_all` 은 페이지네이션으로 대량 로드.
+
 ## Phase 3 목표
 
 - **팩터 truth layer**: `issuer_quarter_snapshots` → `issuer_quarter_factor_panels` (가격 데이터 전 단계).
@@ -290,6 +427,7 @@ python3 src/main.py report-state-change-summary --run-id <UUID>
 | Validation panel | `factor_market_validation_panels` | 팩터+시장 조인(검증용) |
 | Validation research | `factor_validation_runs`, `factor_validation_summaries`, `factor_quantile_results`, `factor_coverage_reports` | Phase 5 기술 검증·분위·커버리지(전략 아님) |
 | State change (Phase 6) | `state_change_runs`, `issuer_state_change_components`, `issuer_state_change_scores`, `state_change_candidates` | 조사 후보 스파인(실행 신호·선행라벨 feature 아님) |
+| Backfill orchestration | `backfill_orchestration_runs`, `backfill_stage_events` | 유니버스 단위 파이프라인 오케스트레이션(수동 DB 입력 아님) |
 | Audit | `ingest_runs` | 메타 / facts / 스냅샷 / factor_panel / **시장·검증** 등 |
 
 상세 idempotency·run_type은 [`src/db/schema_notes.md`](src/db/schema_notes.md) 참고.
