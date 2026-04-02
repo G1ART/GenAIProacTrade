@@ -183,6 +183,8 @@ python3 src/main.py run-state-change --universe sp500_proxy_candidates_v1 --limi
 python3 src/main.py run-state-change --universe sp500_proxy_candidates_v1 --limit 15 --output-json
 ```
 
+`status=no_observations` 이고 `run_id`가 null이면, 해당 유니버스 CIK에 **`issuer_quarter_factor_panels` 행이 없는 것**이 흔한 원인입니다. 이 경우 DB에 `state_change_runs`가 만들어지지 않아 **`report-state-change-summary --universe`는 `no_completed_run_found`로 끝납니다.** 먼저 팩터 패널을 적재하세요. 예: **`python3 src/main.py compute-factors-watchlist`** 는 인자 없이 **`config/watchlist.json`** 을 씁니다. 다른 목록을 쓰려면 **`--watchlist`에 실제 존재하는 JSON 경로**를 넣거나 `WATCHLIST_PATH`를 설정하세요. 프록시 유니버스 티커만 필요하면 `compute-factors-single --ticker LCID` 처럼 티커별로 돌릴 수 있습니다.
+
 **(4) report-state-change-summary** (`--universe` 로 해당 유니버스 최근 completed run)
 
 ```bash

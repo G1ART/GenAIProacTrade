@@ -248,11 +248,17 @@ def run_state_change(
     if not observations:
         return {
             "run_id": None,
-            "status": "completed",
+            "status": "no_observations",
             "observations": 0,
             "warnings": warnings,
             "dry_run": dry_run,
             "message": "no_observations_after_filters",
+            "hint": (
+                "유니버스에 매핑된 issuer에 대해 issuer_quarter_factor_panels 행이 없거나, "
+                "--as-of-date/--start-date/--end-date 필터로 전부 제외되었습니다. "
+                "예: compute-factors-watchlist (기본 config/watchlist.json) 또는 "
+                "compute-factors-single --ticker TICKER 로 패널을 적재한 뒤 재실행하세요."
+            ),
         }
 
     # 동일 (cik, as_of_date) 는 시계열 상 가장 최신 분기(큰 idx) 하나만 유지 → 유니크 제약·중복 점수 방지

@@ -403,6 +403,8 @@ def _cmd_run_state_change(args: argparse.Namespace) -> int:
                 out.get("warnings"),
             )
         )
+        if out.get("hint"):
+            print("hint:", out.get("hint"), file=sys.stderr)
     st = str(out.get("status") or "")
     if st == "failed":
         return 1
@@ -424,12 +426,18 @@ def _cmd_report_state_change_summary(args: argparse.Namespace) -> int:
         client, universe_name=args.universe, run_id=args.run_id
     )
     if not rid:
-        print(
-            json.dumps(
-                {"ok": False, "error": "no_completed_run_found"},
-                ensure_ascii=False,
-            )
-        )
+        payload = {
+            "ok": False,
+            "error": "no_completed_run_found",
+            "hint": (
+                "해당 universe에 status=completed 인 state_change_runs 가 없습니다. "
+                "run-state-change 가 observations=0 으로 끝나면 run 행이 생기지 않습니다. "
+                "issuer_quarter_factor_panels 를 채운 뒤 run-state-change 를 다시 실행하거나, "
+                "이미 있는 run 이 있다면 --run-id 로 지정하세요."
+            ),
+        }
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+        print(payload["hint"], file=sys.stderr)
         return 1
     payload = build_state_change_run_report(
         client,
@@ -546,7 +554,11 @@ def build_parser() -> argparse.ArgumentParser:
     p9.set_defaults(func=_cmd_compute_factors_single)
 
     p10 = sub.add_parser("compute-factors-watchlist", help="워치리스트 티커별 factor panel 적재")
-    p10.add_argument("--watchlist", default=None)
+    p10.add_argument(
+        "--watchlist",
+        default=None,
+        help="tickers가 든 JSON 경로. 생략 시 WATCHLIST_PATH, 둘 다 없으면 config/watchlist.json",
+    )
     p10.add_argument(
         "--sleep",
         type=float,
