@@ -263,6 +263,32 @@ def smoke_facts_db(client: Client) -> bool:
     return True
 
 
+def fetch_cik_map_for_tickers(client: Client, tickers: list[str]) -> dict[str, Optional[str]]:
+    """
+    티커(대문자) -> CIK. issuer_master 일괄 조회(ingest-market-prices N+1 방지).
+    청크로 나눠 PostgREST URL 한도를 피한다.
+    """
+    if not tickers:
+        return {}
+    uniq = sorted({str(t).upper().strip() for t in tickers if t and str(t).strip()})
+    out: dict[str, Optional[str]] = {u: None for u in uniq}
+    step = 120
+    for i in range(0, len(uniq), step):
+        part = uniq[i : i + step]
+        r = (
+            client.table("issuer_master")
+            .select("ticker,cik")
+            .in_("ticker", part)
+            .execute()
+        )
+        for row in r.data or []:
+            t = str(row.get("ticker") or "").upper().strip()
+            cik = row.get("cik")
+            if t:
+                out[t] = str(cik) if cik is not None else None
+    return out
+
+
 def fetch_cik_for_ticker(client: Client, *, ticker: str) -> Optional[str]:
     r = (
         client.table("issuer_master")
@@ -325,3 +351,208 @@ def fetch_factor_panels_for_cik(
 def smoke_factor_panels_db(client: Client) -> bool:
     client.table("issuer_quarter_factor_panels").select("id").limit(1).execute()
     return True
+
+
+# --- Phase 4: market / universe / validation ---
+
+
+def smoke_market_tables(client: Client) -> bool:
+    client.table("universe_memberships").select("id").limit(1).execute()
+    client.table("silver_market_prices_daily").select("id").limit(1).execute()
+    return True
+
+
+def smoke_validation_panel_table(client: Client) -> bool:
+    client.table("factor_market_validation_panels").select("id").limit(1).execute()
+    return True
+
+
+def insert_universe_memberships_batch(
+    client: Client, rows: list[dict[str, Any]]
+) -> None:
+    if not rows:
+        return
+    client.table("universe_memberships").insert(rows).execute()
+
+
+def fetch_max_as_of_universe(client: Client, *, universe_name: str) -> Optional[str]:
+    r = (
+        client.table("universe_memberships")
+        .select("as_of_date")
+        .eq("universe_name", universe_name)
+        .order("as_of_date", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    v = r.data[0].get("as_of_date")
+    return str(v)[:10] if v else None
+
+
+def fetch_symbols_universe_as_of(
+    client: Client, *, universe_name: str, as_of_date: str
+) -> list[str]:
+    r = (
+        client.table("universe_memberships")
+        .select("symbol")
+        .eq("universe_name", universe_name)
+        .eq("as_of_date", as_of_date)
+        .execute()
+    )
+    out = [str(row["symbol"]).upper().strip() for row in (r.data or [])]
+    return sorted(set(out))
+
+
+def upsert_market_symbol_registry(client: Client, row: dict[str, Any]) -> None:
+    sym = str(row["symbol"]).upper().strip()
+    row = {**row, "symbol": sym}
+    r = (
+        client.table("market_symbol_registry")
+        .select("id,first_seen_at")
+        .eq("symbol", sym)
+        .limit(1)
+        .execute()
+    )
+    if r.data:
+        oid = r.data[0]["id"]
+        upd = {k: v for k, v in row.items() if k not in ("id", "created_at", "first_seen_at")}
+        client.table("market_symbol_registry").update(upd).eq("id", oid).execute()
+    else:
+        client.table("market_symbol_registry").insert(row).execute()
+
+
+def fetch_ticker_for_cik(client: Client, *, cik: str) -> Optional[str]:
+    q = (
+        client.table("issuer_master")
+        .select("ticker")
+        .eq("cik", cik)
+        .limit(1)
+        .execute()
+    )
+    if not q.data or not q.data[0].get("ticker"):
+        return None
+    return str(q.data[0]["ticker"]).upper().strip()
+
+
+def upsert_raw_market_prices_batch(
+    client: Client, rows: list[dict[str, Any]]
+) -> None:
+    if not rows:
+        return
+    client.table("raw_market_prices_daily").upsert(
+        rows, on_conflict="symbol,trade_date,source_name"
+    ).execute()
+
+
+def upsert_silver_market_prices_batch(
+    client: Client, rows: list[dict[str, Any]]
+) -> None:
+    if not rows:
+        return
+    client.table("silver_market_prices_daily").upsert(
+        rows, on_conflict="symbol,trade_date"
+    ).execute()
+
+
+def fetch_silver_prices_for_symbol_range(
+    client: Client,
+    *,
+    symbol: str,
+    start_date: str,
+    end_date: str,
+) -> list[dict[str, Any]]:
+    sym = symbol.upper().strip()
+    r = (
+        client.table("silver_market_prices_daily")
+        .select("*")
+        .eq("symbol", sym)
+        .gte("trade_date", start_date)
+        .lte("trade_date", end_date)
+        .order("trade_date")
+        .execute()
+    )
+    return list(r.data or [])
+
+
+def upsert_market_metadata_latest(client: Client, row: dict[str, Any]) -> None:
+    if not row:
+        return
+    client.table("market_metadata_latest").upsert(
+        row, on_conflict="symbol,source_name"
+    ).execute()
+
+
+def upsert_risk_free_rates_batch(
+    client: Client,
+    rows: list[dict[str, Any]],
+    *,
+    chunk_size: int = 200,
+) -> None:
+    """행이 많을 때 단일 요청이 장시간 걸리지 않도록 청크 upsert."""
+    if not rows:
+        return
+    step = max(1, chunk_size)
+    for i in range(0, len(rows), step):
+        chunk = rows[i : i + step]
+        client.table("risk_free_rates_daily").upsert(
+            chunk, on_conflict="rate_date,source_name"
+        ).execute()
+
+
+def fetch_risk_free_range(
+    client: Client, *, start_date: str, end_date: str, source_name: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("risk_free_rates_daily")
+        .select("rate_date,annualized_rate")
+        .eq("source_name", source_name)
+        .gte("rate_date", start_date)
+        .lte("rate_date", end_date)
+        .order("rate_date")
+        .execute()
+    )
+    return list(r.data or [])
+
+
+def upsert_forward_return_row(client: Client, row: dict[str, Any]) -> None:
+    client.table("forward_returns_daily_horizons").upsert(
+        row, on_conflict="symbol,signal_date,horizon_type"
+    ).execute()
+
+
+def fetch_quarter_snapshot_by_accession(
+    client: Client, *, cik: str, accession_no: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("issuer_quarter_snapshots")
+        .select("*")
+        .eq("cik", cik)
+        .eq("accession_no", accession_no)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_factor_panels_all(
+    client: Client, *, limit: int = 5000
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("issuer_quarter_factor_panels")
+        .select("*")
+        .order("created_at", desc=False)
+        .limit(limit)
+        .execute()
+    )
+    return list(r.data or [])
+
+
+def upsert_factor_market_validation_panel(
+    client: Client, row: dict[str, Any]
+) -> None:
+    client.table("factor_market_validation_panels").upsert(
+        row, on_conflict="cik,accession_no,factor_version"
+    ).execute()

@@ -1,0 +1,4 @@
+{
+  "_comment": "MVP 프록시 후보: sp500_current(최신 refresh)에 없는 심볼만 DB에 candidate로 들어감. 아래 종목은 시점에 따라 편입될 수 있으니 0건이면 교체. 공식 S&P 편입 후보 아님.",
+  "symbols": ["RIVN", "LCID", "HOOD", "U", "PATH"]
+}

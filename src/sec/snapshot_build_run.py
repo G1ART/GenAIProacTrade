@@ -16,20 +16,34 @@ RUN_TYPE = "sec_quarter_snapshot_build"
 
 
 def _distinct_filings_from_silver(client: Any, *, cik: Optional[str], limit: int) -> list[tuple[str, str]]:
-    q = client.table("silver_xbrl_facts").select("cik, accession_no")
-    if cik:
-        q = q.eq("cik", cik)
-    r = q.execute()
-    pairs: list[tuple[str, str]] = []
+    """
+    silver_xbrl_facts 행 단위로 select 하면 한 공시가 수천 행을 차지해
+    첫 페이지(기본 max_rows)만 읽을 때 고유 (cik, accession)가 1개로 끝날 수 있다.
+    페이지를 넘기며 limit 개의 서로 다른 공시까지 수집한다.
+    """
     seen: set[tuple[str, str]] = set()
-    for row in r.data or []:
-        key = (row["cik"], row["accession_no"])
-        if key in seen:
-            continue
-        seen.add(key)
-        pairs.append(key)
-        if len(pairs) >= limit:
+    pairs: list[tuple[str, str]] = []
+    page_size = 1000
+    offset = 0
+    while len(pairs) < limit:
+        q = client.table("silver_xbrl_facts").select("cik, accession_no")
+        if cik:
+            q = q.eq("cik", cik)
+        r = q.range(offset, offset + page_size - 1).execute()
+        rows = r.data or []
+        if not rows:
             break
+        for row in rows:
+            key = (row["cik"], row["accession_no"])
+            if key in seen:
+                continue
+            seen.add(key)
+            pairs.append(key)
+            if len(pairs) >= limit:
+                return pairs
+        if len(rows) < page_size:
+            break
+        offset += page_size
     return pairs
 
 

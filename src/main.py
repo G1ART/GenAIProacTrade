@@ -198,6 +198,130 @@ def _cmd_show_factor_panel(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_refresh_universe(args: argparse.Namespace) -> int:
+    from market.run_types import UNIVERSE_SP500_CURRENT
+    from market.universe_refresh import run_universe_refresh_sp500
+
+    settings = load_settings()
+    configure_logging()
+    u = (args.universe or UNIVERSE_SP500_CURRENT).strip()
+    if u != UNIVERSE_SP500_CURRENT:
+        print(json.dumps({"error": "unsupported_universe", "universe": u}, indent=2))
+        return 1
+    out = run_universe_refresh_sp500(settings)
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("status") == "completed" else 1
+
+
+def _cmd_build_candidate_universe(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from market.candidate_universe_build import run_build_candidate_universe
+
+    settings = load_settings()
+    configure_logging()
+    seed = Path(args.seed).expanduser() if args.seed else None
+    out = run_build_candidate_universe(settings, seed_path=seed)
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("status") == "completed" else 1
+
+
+def _cmd_ingest_market_prices(args: argparse.Namespace) -> int:
+    from datetime import date
+
+    from market.price_ingest import run_market_prices_ingest
+
+    settings = load_settings()
+    configure_logging()
+    start = date.fromisoformat(args.start) if args.start else None
+    end = date.fromisoformat(args.end) if args.end else None
+    out = run_market_prices_ingest(
+        settings,
+        universe_name=args.universe.strip(),
+        start_date=start,
+        end_date=end,
+        lookback_days=int(args.lookback_days),
+    )
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("status") == "completed" else 1
+
+
+def _cmd_refresh_market_metadata(args: argparse.Namespace) -> int:
+    from market.price_ingest import run_market_metadata_refresh
+
+    settings = load_settings()
+    configure_logging()
+    out = run_market_metadata_refresh(settings, universe_name=args.universe.strip())
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("status") == "completed" else 1
+
+
+def _cmd_ingest_risk_free(args: argparse.Namespace) -> int:
+    from datetime import date
+
+    from market.risk_free_ingest import run_risk_free_ingest
+
+    settings = load_settings()
+    configure_logging()
+    start = date.fromisoformat(args.start) if args.start else None
+    end = date.fromisoformat(args.end) if args.end else None
+    out = run_risk_free_ingest(
+        settings,
+        start_date=start,
+        end_date=end,
+        lookback_years=int(args.lookback_years),
+        fred_http_timeout_sec=int(args.fred_timeout),
+        fred_retries=int(args.fred_retries),
+    )
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("status") == "completed" else 1
+
+
+def _cmd_build_forward_returns(args: argparse.Namespace) -> int:
+    from market.forward_returns_run import run_forward_returns_build
+
+    settings = load_settings()
+    configure_logging()
+    out = run_forward_returns_build(
+        settings,
+        limit_panels=int(args.limit_panels),
+        price_lookahead_days=int(args.price_lookahead_days),
+    )
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("status") == "completed" else 1
+
+
+def _cmd_build_validation_panel(args: argparse.Namespace) -> int:
+    from market.validation_panel_run import run_validation_panel_build
+
+    settings = load_settings()
+    configure_logging()
+    out = run_validation_panel_build(settings, limit_panels=int(args.limit_panels))
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("status") == "completed" else 1
+
+
+def _cmd_smoke_market(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from market.smoke_market import run_smoke_market
+
+    settings = load_settings()
+    configure_logging()
+    out = run_smoke_market(settings)
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_smoke_validation(_args: argparse.Namespace) -> int:
+    from market.smoke_market import run_smoke_validation
+
+    settings = load_settings()
+    configure_logging()
+    out = run_smoke_validation(settings)
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
 def _cmd_smoke_facts(_args: argparse.Namespace) -> int:
     """DB facts 테이블 도달 + (선택) 단일 티커 XBRL 로드 가능 여부."""
     import sec.ingest_company_sample  # noqa: F401
@@ -310,6 +434,98 @@ def build_parser() -> argparse.ArgumentParser:
     p12.add_argument("--ticker", required=True)
     p12.add_argument("--limit", type=int, default=5)
     p12.set_defaults(func=_cmd_show_factor_panel)
+
+    pu = sub.add_parser(
+        "refresh-universe",
+        help="S&P 500 current → universe_memberships (네트워크: 위키/프로바이더)",
+    )
+    pu.add_argument(
+        "--universe",
+        default="sp500_current",
+        help="현재는 sp500_current 만 지원",
+    )
+    pu.set_defaults(func=_cmd_refresh_universe)
+
+    pc = sub.add_parser(
+        "build-candidate-universe",
+        help="sp500_proxy_candidates_v1 시드 기반 후보 유니버스 (공식 후보 아님)",
+    )
+    pc.add_argument(
+        "--seed",
+        default=None,
+        help="JSON 시드 경로 (기본: config/sp500_proxy_candidates_v1.json)",
+    )
+    pc.set_defaults(func=_cmd_build_candidate_universe)
+
+    pp = sub.add_parser(
+        "ingest-market-prices",
+        help="유니버스 심볼 일봉 → raw/silver (프로바이더 네트워크)",
+    )
+    pp.add_argument(
+        "--universe",
+        required=True,
+        help="sp500_current | sp500_proxy_candidates_v1",
+    )
+    pp.add_argument("--start", default=None, help="YYYY-MM-DD (선택)")
+    pp.add_argument("--end", default=None, help="YYYY-MM-DD (선택)")
+    pp.add_argument(
+        "--lookback-days",
+        type=int,
+        default=int(os.getenv("MARKET_PRICE_LOOKBACK_DAYS", "400")),
+    )
+    pp.set_defaults(func=_cmd_ingest_market_prices)
+
+    pm = sub.add_parser(
+        "refresh-market-metadata",
+        help="프로바이더 메타(있을 때만) → market_metadata_latest",
+    )
+    pm.add_argument("--universe", required=True)
+    pm.set_defaults(func=_cmd_refresh_market_metadata)
+
+    pr = sub.add_parser(
+        "ingest-risk-free",
+        help="FRED DTB3 CSV → risk_free_rates_daily (네트워크)",
+    )
+    pr.add_argument("--start", default=None, help="YYYY-MM-DD")
+    pr.add_argument("--end", default=None, help="YYYY-MM-DD")
+    pr.add_argument("--lookback-years", type=int, default=3)
+    pr.add_argument(
+        "--fred-timeout",
+        type=int,
+        default=240,
+        help="FRED CSV httpx read 타임아웃(초). 느린 네트워크면 300~600",
+    )
+    pr.add_argument(
+        "--fred-retries",
+        type=int,
+        default=3,
+        help="FRED 다운로드 실패 시 재시도 횟수",
+    )
+    pr.set_defaults(func=_cmd_ingest_risk_free)
+
+    pf = sub.add_parser(
+        "build-forward-returns",
+        help="factor panels + silver 가격 + 무위험 → forward_returns_daily_horizons",
+    )
+    pf.add_argument("--limit-panels", type=int, default=2000)
+    pf.add_argument("--price-lookahead-days", type=int, default=400)
+    pf.set_defaults(func=_cmd_build_forward_returns)
+
+    pv = sub.add_parser(
+        "build-validation-panel",
+        help="factor + forward + 메타 → factor_market_validation_panels",
+    )
+    pv.add_argument("--limit-panels", type=int, default=2000)
+    pv.set_defaults(func=_cmd_build_validation_panel)
+
+    sm = sub.add_parser(
+        "smoke-market",
+        help="Phase 4 시장 테이블 + 스텁 프로바이더 형태 (DB 필요)",
+    )
+    sm.set_defaults(func=_cmd_smoke_market)
+
+    sv = sub.add_parser("smoke-validation", help="validation 패널 테이블 도달 (DB 필요)")
+    sv.set_defaults(func=_cmd_smoke_validation)
 
     return p
 

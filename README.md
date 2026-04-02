@@ -1,8 +1,27 @@
-# GenAIProacTrade — Phase 0–3 (SEC 메타 + XBRL + 회계 팩터 spine)
+# GenAIProacTrade — Phase 0–4 (SEC + XBRL + 회계 팩터 + 시장 검증 패널)
 
-미국 SEC **공시 메타데이터**·**XBRL fact**·**분기 스냅샷**을 쌓은 뒤, Phase 3에서 **결정적 회계 팩터 패널**(`issuer_quarter_factor_panels`)을 만드는 Python 워커입니다.
+미국 SEC **공시 메타데이터**·**XBRL fact**·**분기 스냅샷**·**회계 팩터**에 이어, Phase 4에서 **시장 가격·선행 수익률·무위험 이자율**을 **provider 추상화**로 적재하고 **`factor_market_validation_panels`** 까지 조인하는 Python 워커입니다.
 
-**포함하지 않는 것 (Phase 3 기준)**: 가격/수익률/시총 결합, 팩터 랭킹·알파, 백테스트, 롱숏 로직, AI 메시지, 상태변화 엔진, 알림, 뉴스·거시 API, Railway·cron·UI, 팩터 남발(zoo).
+**Phase 4에서도 포함하지 않는 것**: 팩터 **랭킹·알파 점수**, 포트폴리오·롱숏 바스켓, **백테스트 리포트**, 상태변화 엔진, **OpenAI/AI 하네스**, 알림·Slack·email, Railway·**스케줄러/cron**·**UI**, “공식 S&P 편입 후보” 포장. (GDELT/FINRA 등 확장 API는 무위험 FRED 최소 수준만.)
+
+## Phase 4 목표 (market validation layer)
+
+- **Provider 추상화**: `src/market/providers/base.py`의 `MarketDataProvider`. 기본 구현 `yahoo_chart`(일봉 JSON + 위키 S&P 표, urllib) 및 테스트용 `stub`(`MARKET_DATA_PROVIDER=stub`).
+- **유니버스**: `sp500_current`(구성종목, `membership_status=constituent`)와 **`sp500_proxy_candidates_v1`**(시드 `config/sp500_proxy_candidates_v1.json` 기반 **비공식 프록시 후보**, 공식 위원회 후보 아님).
+- **가격 계층**: `raw_market_prices_daily`(원문) → `silver_market_prices_daily`(정규화, **조정종가 우선**, `daily_return`).
+- **무위험**: `risk_free_rates_daily` — 기본 소스 **FRED DTB3** graph CSV (`src/market/risk_free_fred.py`): URL에 **cosd/coed**로 요청 구간을 한정해 CSV 부하·**504** 가능성을 줄이고, **httpx** + **5xx/429 재시도**, `source_name=fred_dtb3_graph_csv`. 여전히 504면 FRED 측 게이트웨이 이슈일 수 있으니 잠시 후 `ingest-risk-free`를 다시 실행하면 됩니다.
+- **선행 수익률**: `forward_returns_daily_horizons`, `horizon_type` = `next_month`(약 21거래일) / `next_quarter`(약 63거래일). **raw**와 **excess** 모두 저장.
+- **검증 패널**: `factor_market_validation_panels` — 팩터 패널 + 시그널일 + 선행수익률 + (있으면) 메타. **research/backtest 아님.**
+
+### Phase 4: raw vs excess 정의
+
+- **raw_forward_return**: `silver` 기준 가격(조정종가 우선)으로, 시그널일 이후 첫 거래일 종가 → 각 지평 종가까지의 총수익률.
+- **excess_forward_return**: 동일 구간 거래일 수 `n`에 대해, 해당 기간 일별 무위험 **연율화(%) 평균**으로 `period_rf ≈ (1+r_avg/100)^(n/252)−1` 를 두고 `(1+raw)/(1+period_rf)−1` (단순화, `return_basis_json`에 메타).
+
+### Phase 4: 시그널일·no-lookahead (보수적)
+
+- `signal_available_date` = `issuer_quarter_snapshots`의 **`accepted_at`이 있으면 그 UTC 날짜의 다음 날부터 첫 평일**, 없으면 **`filed_at`** 동일. **접수 당일 종가는 사용하지 않음.** 캘린더는 MVP로 **주말만 제외**(NYSE 휴장일 전체 반영 아님 — `schema_notes` 동일).
+- 가격·무위험·선행수익률·검증 패널 빌드는 `ingest_runs`에 각각 `universe_refresh`, `universe_candidate_build`, `market_prices_ingest`, `market_metadata_refresh`, `risk_free_ingest`, `forward_return_build`, `factor_market_validation_build` 로 남김.
 
 ## Phase 3 목표
 
@@ -56,7 +75,14 @@
 | Silver XBRL facts | `silver_xbrl_facts` | canonical + `fact_period_key` + `revision_no` |
 | Quarter snapshot | `issuer_quarter_snapshots` | `(cik, fiscal_year, fiscal_period, accession_no)` 유니크 |
 | Factor panel | `issuer_quarter_factor_panels` | 스냅샷 기반 회계 팩터, `(cik, fy, fp, accession, factor_version)` 유니크 |
-| Audit | `ingest_runs` | 메타 / facts / 스냅샷 / **factor_panel_build** 등 |
+| Universe | `universe_memberships` | `sp500_current` / `sp500_proxy_candidates_v1` 등 |
+| Symbol registry | `market_symbol_registry` | 심볼·CIK·거래소 메타 |
+| Raw/Silver market | `raw_market_prices_daily`, `silver_market_prices_daily` | 시세 원문·정규화 |
+| Market meta | `market_metadata_latest` | 시총·거래량 등(프로바이더가 줄 때만) |
+| Risk-free | `risk_free_rates_daily` | 일별 연율화 무위험(%) |
+| Forward returns | `forward_returns_daily_horizons` | 시그널일 기준 선행 raw/excess |
+| Validation panel | `factor_market_validation_panels` | 팩터+시장 조인(검증용) |
+| Audit | `ingest_runs` | 메타 / facts / 스냅샷 / factor_panel / **시장·검증** 등 |
 
 상세 idempotency·run_type은 [`src/db/schema_notes.md`](src/db/schema_notes.md) 참고.
 
@@ -107,6 +133,7 @@ SQL Editor에서 아래를 **순서대로** 실행합니다.
 2. `supabase/migrations/20250402120000_phase1_issuer_filing_ingest_runs.sql`
 3. `supabase/migrations/20250403100000_phase2_xbrl_facts_snapshots.sql`
 4. `supabase/migrations/20250404100000_phase3_factor_panels.sql`
+5. `supabase/migrations/20250405100000_phase4_market_validation.sql`
 
 ## CLI (복붙용)
 
@@ -153,6 +180,115 @@ python3 src/main.py smoke-db
 - `smoke-db`: Supabase `issuer_master`에 대한 단순 select.
 - `smoke-facts`: `raw_xbrl_facts` 테이블 도달 + AAPL 등으로 XBRL fact 로드 프로브 (네트워크).
 - `smoke-factors`: `issuer_quarter_factor_panels` 테이블 도달 + accruals 공식 sanity (DB·`.env` 필요, SEC 호출 없음).
+- `smoke-market`: Phase 4 시장 테이블 도달 + 스텁 프로바이더 형태 (DB·`.env` 필요, 외부 호출 없음).
+- `smoke-validation`: `factor_market_validation_panels` 테이블 도달 (DB·`.env`).
+
+### Phase 4 시장·검증 (복붙 순서 예시)
+
+**전제**: Phase 4 마이그레이션 적용, `.env` 설정, `export PYTHONPATH=src`.
+
+```bash
+cd /path/to/GenAIProacTrade
+source .venv/bin/activate
+export PYTHONPATH=src
+```
+
+**1) 스모크 (네트워크 없음, DB 필요)**
+
+```bash
+python3 src/main.py smoke-market
+python3 src/main.py smoke-validation
+```
+
+**2) S&P 500 유니버스 갱신 (네트워크: 위키 + Yahoo 등)**
+
+```bash
+python3 src/main.py refresh-universe --universe sp500_current
+```
+
+**3) 프록시 후보 유니버스 (시드; 공식 후보 아님)**
+
+```bash
+python3 src/main.py build-candidate-universe
+```
+
+`build-candidate-universe` 는 **어디에 가입하는 것이 아니라**, `config/sp500_proxy_candidates_v1.json` 시드에서 **당시 `sp500_current` 에 이미 들어 있는 티커를 뺀 뒤** 남은 심볼만 `universe_memberships` 에 `candidate` 로 넣는다. 시드가 전부 S&P 구성이면 `candidate_count: 0` 이 되고 실패로 끝나니, JSON 심볼을 **지금 인덱스에 없는 티커**로 바꾸면 된다.
+
+**4) 무위험 이자율 (FRED, 네트워크)**
+
+다운로드는 **httpx**(긴 read 타임아웃) + **재시도**(`--fred-retries`, 기본 3). 행이 0이면 **`status: failed`**·exit code 1 (이전에는 completed 로 헷갈릴 수 있었음).
+
+```bash
+python3 src/main.py ingest-risk-free --lookback-years 3
+```
+
+느리거나 끊기면:
+
+```bash
+python3 src/main.py ingest-risk-free --lookback-years 1 --fred-timeout 600 --fred-retries 5
+```
+
+**7)·8) 전 보강 (복붙)** — `risk_free_rates_daily` 비어 있음 / `next_quarter` 실패 / 팩터 패널이 한 티커뿐일 때:
+
+```bash
+cd /path/to/GenAIProacTrade
+source .venv/bin/activate
+export PYTHONPATH=src
+```
+
+**액션 A — 무위험 적재(FRED)**
+
+```bash
+python3 src/main.py ingest-risk-free --lookback-years 1 --fred-timeout 600 --fred-retries 5
+```
+
+Supabase `risk_free_rates_daily` 행 수 확인. 회사 방화벽이 `fred.stlouisfed.org` 를 막으면 다른 네트워크/VPN에서 동일 명령.
+
+**액션 B — 1분기(63거래일) 선행수익에 일봉 부족**
+
+시그널일 이후 거래일이 충분히 쌓이도록 S&P 일봉 lookback 을 키운 뒤 선행·패널 재빌드:
+
+```bash
+python3 src/main.py ingest-market-prices --universe sp500_current --lookback-days 400
+python3 src/main.py build-forward-returns --limit-panels 500
+python3 src/main.py build-validation-panel --limit-panels 500
+```
+
+**액션 C — 팩터 패널 종목 수 늘리기 (Phase 3)**
+
+워치리스트에 티커를 넣고 스냅샷·팩터까지 돌린 뒤 7)·8) 재실행:
+
+```bash
+python3 src/main.py compute-factors-watchlist
+python3 src/main.py build-forward-returns --limit-panels 500
+python3 src/main.py build-validation-panel --limit-panels 500
+```
+
+**5) 일봉 수집 (심볼 수 많음·시간 소요; 개발 시 `--start`/`--end` 또는 `MARKET_PRICE_LOOKBACK_DAYS`로 구간 축소)**
+
+`sp500_proxy_candidates_v1` 은 **반드시 위 3) `build-candidate-universe` 를 먼저** 돌려 `universe_memberships` 에 행이 있어야 한다. (`refresh-universe` 만으로는 후보 유니버스가 생기지 않는다.)
+
+```bash
+python3 src/main.py ingest-market-prices --universe sp500_current --lookback-days 120
+python3 src/main.py ingest-market-prices --universe sp500_proxy_candidates_v1 --lookback-days 120
+```
+
+**6) (선택) 메타 — Yahoo chart 전용 구현은 보통 빈 결과; 다른 프로바이더 붙이면 채워짐**
+
+```bash
+python3 src/main.py refresh-market-metadata --universe sp500_current
+```
+
+**7) 선행 수익률 → 검증 패널 (팩터 패널·스냅샷·가격·무위험이 갖춰져 있어야 함)**
+
+```bash
+python3 src/main.py build-forward-returns --limit-panels 500
+python3 src/main.py build-validation-panel --limit-panels 500
+```
+
+**macOS에서 `refresh-universe`가 `SSL: CERTIFICATE_VERIFY_FAILED` 로 실패할 때**: `python3 -m pip install -r requirements.txt` 로 **`certifi`** 를 확보한 뒤 다시 실행한다(코드가 urllib TLS에 `certifi` 번들을 사용). 그래도 실패하면 python.org 설치본의 **Install Certificates.command** 실행을 고려.
+
+**로컬/CI에서 외부 API 끄기**: `export MARKET_DATA_PROVIDER=stub` (유니버스 refresh는 스텁 목록만 적재).
 
 ### 회계 팩터 패널 (Phase 3)
 
@@ -242,6 +378,8 @@ python3 src/main.py extract-facts-watchlist --sleep 1.0
 python3 src/main.py build-quarter-snapshots
 python3 src/main.py build-quarter-snapshots --ticker NVDA --limit 5
 ```
+
+- **고유 공시 수집**: 한 accession의 silver 행이 매우 많아서, 예전 구현은 API 첫 페이지만 읽으면 **서로 다른 공시가 1건으로만 잡히는** 경우가 있었다. 지금은 페이지를 넘기며 `--limit`개의 **서로 다른 (cik, accession)** 까지 모은 뒤 스냅샷을 만든다.
 
 ## Canonical mapping v1 (지원 범위)
 
