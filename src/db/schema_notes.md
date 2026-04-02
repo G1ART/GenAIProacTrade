@@ -1,4 +1,4 @@
-# DB 스키마 메모 (Phase 0–4)
+# DB 스키마 메모 (Phase 0–5)
 
 ## 데이터 계층 역할
 
@@ -21,6 +21,10 @@
 | `risk_free_rates_daily` | **무위험 연율(%)**. FRED DTB3 graph CSV 등. `(rate_date, source_name)` 유니크. |
 | `forward_returns_daily_horizons` | **선행 수익률**. `(symbol, signal_date, horizon_type)` 유니크 upsert. `horizon_type`: `next_month` \| `next_quarter`. |
 | `factor_market_validation_panels` | **팩터–시장 검증 조인**. `(cik, accession_no, factor_version)` 유니크 upsert. 랭킹·백테스트 없음. |
+| `factor_validation_runs` | Phase 5 검증 **실행** 메타. `run_type` 기본 `factor_validation_research`. `ingest_runs`와 별도. |
+| `factor_validation_summaries` | 팩터×지평×유니버스×`return_basis(raw\|excess)` 기술 요약(상관·평균 등). 전략 아님. |
+| `factor_quantile_results` | 분위별 기술 통계. `(run_id, factor_name, horizon_type, universe_name, quantile_index, return_basis)` 유니크. |
+| `factor_coverage_reports` | 슬라이스 내 팩터 값 가용성. `(run_id, factor_name, universe_name)` 유니크. |
 
 ## ingest_runs `run_type`
 
@@ -37,6 +41,8 @@
 | `risk_free_ingest` | FRED 등 → `risk_free_rates_daily` |
 | `forward_return_build` | 스냅샷 시그널일 + silver + 무위험 → `forward_returns_daily_horizons` |
 | `factor_market_validation_build` | 팩터 패널 + 선행수익률 + 메타 → `factor_market_validation_panels` |
+
+`factor_validation_runs.run_type` 기본값은 **`factor_validation_research`** (별도 테이블; `ingest_runs` 아님).
 
 ## 시그널일·선행수익률 (Phase 4, no-lookahead)
 
@@ -93,6 +99,7 @@
 - `forward_returns_daily_horizons`: `(symbol, signal_date, horizon_type)` upsert.
 - `factor_market_validation_panels`: `(cik, accession_no, factor_version)` upsert.
 - `universe_memberships`: 보통 **새 `as_of_date` 배치 insert** (같은 as_of 재실행 시 유니크 충돌 가능—운영 시 같은 날 재실행 주의).
+- **Phase 5** `factor_validation_runs`: 매 실행 **새 행 insert**; 자식 요약·분위·커버리지는 해당 `run_id`에 insert. 재실행 시 이전 run 보존(감사 비교용).
 
 ## Factor panel JSON
 
@@ -117,3 +124,4 @@ Service role 키는 RLS를 우회한다. 로컬 워커는 service role 전제.
 3. `20250403100000_phase2_xbrl_facts_snapshots.sql`
 4. `20250404100000_phase3_factor_panels.sql`
 5. `20250405100000_phase4_market_validation.sql`
+6. `20250406100000_phase5_factor_validation_research.sql`

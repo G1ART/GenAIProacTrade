@@ -1,8 +1,8 @@
-# GenAIProacTrade — Phase 0–4 (SEC + XBRL + 회계 팩터 + 시장 검증 패널)
+# GenAIProacTrade — Phase 0–5 (SEC + XBRL + 회계 팩터 + 시장 검증 + 연구용 팩터 검증)
 
-미국 SEC **공시 메타데이터**·**XBRL fact**·**분기 스냅샷**·**회계 팩터**에 이어, Phase 4에서 **시장 가격·선행 수익률·무위험 이자율**을 **provider 추상화**로 적재하고 **`factor_market_validation_panels`** 까지 조인하는 Python 워커입니다.
+미국 SEC **공시 메타데이터**·**XBRL fact**·**분기 스냅샷**·**회계 팩터**에 이어, Phase 4에서 **시장 가격·선행 수익률·무위험 이자율**을 **provider 추상화**로 적재하고 **`factor_market_validation_panels`** 까지 조인합니다. **Phase 5**에서는 그 패널 위에 **결정적 기술 검증·분위 기술통계**를 쌓는 **`factor_validation_*` 연구 레이어**(백테스트·전략·실행 아님)를 추가합니다.
 
-**Phase 4에서도 포함하지 않는 것**: 팩터 **랭킹·알파 점수**, 포트폴리오·롱숏 바스켓, **백테스트 리포트**, 상태변화 엔진, **OpenAI/AI 하네스**, 알림·Slack·email, Railway·**스케줄러/cron**·**UI**, “공식 S&P 편입 후보” 포장. (GDELT/FINRA 등 확장 API는 무위험 FRED 최소 수준만.)
+**Phase 4–5에서도 포함하지 않는 것**: 팩터 **랭킹·알파 점수**, 포트폴리오·롱숏 바스켓, **백테스트 리포트**, 상태변화 엔진, **OpenAI/AI 하네스**, 알림·Slack·email, Railway·**스케줄러/cron**·**UI**, “공식 S&P 편입 후보” 포장. (GDELT/FINRA 등 확장 API는 무위험 FRED 최소 수준만.)
 
 ## Phase 4 목표 (market validation layer)
 
@@ -22,6 +22,128 @@
 
 - `signal_available_date` = `issuer_quarter_snapshots`의 **`accepted_at`이 있으면 그 UTC 날짜의 다음 날부터 첫 평일**, 없으면 **`filed_at`** 동일. **접수 당일 종가는 사용하지 않음.** 캘린더는 MVP로 **주말만 제외**(NYSE 휴장일 전체 반영 아님 — `schema_notes` 동일).
 - 가격·무위험·선행수익률·검증 패널 빌드는 `ingest_runs`에 각각 `universe_refresh`, `universe_candidate_build`, `market_prices_ingest`, `market_metadata_refresh`, `risk_free_ingest`, `forward_return_build`, `factor_market_validation_build` 로 남김.
+
+## Phase 5 목표 (research validation layer — 실행·백테스트 아님)
+
+- **입력**: `factor_market_validation_panels` + `issuer_quarter_factor_panels`(조인으로 팩터 값) + 유니버스 슬라이스(`universe_memberships` 최신 `as_of_date` 배치).
+- **산출 테이블**: `factor_validation_runs`, `factor_validation_summaries`, `factor_quantile_results`, `factor_coverage_reports` — **기술 통계·상관·분위 기술요약**만. **p-value·과신적 해석·전략 수익·알파·포트폴리오** 없음.
+- **검증 대상 팩터(6개)**: `src/research/validation_registry.py` — `accruals`, `gross_profitability`, `asset_growth`, `capex_intensity`, `rnd_intensity`, `financial_strength_score_v1`(DB 컬럼 `financial_strength_score`).
+- **수익 기준**: 각 실행에서 **`raw`와 `excess`를 각각** 요약·분위 행으로 저장(`return_basis`).
+- **유니버스 슬라이스**:
+  - `sp500_current` — 최신 `as_of_date`의 S&P 구성 심볼.
+  - `sp500_proxy_candidates_v1` — 최신 배치의 프록시 후보 심볼.
+  - `combined_largecap_research_v1` — 위 둘의 **결정적 합집합**(대문자 정렬).
+- **분위**: 기본 **5분위(quintile)**. 표본이 작으면 자동으로 분위 수 축소 또는 분위 스킵(`quantiles` 모듈).
+- **표준화**: 검증용 **z-score**·선택적 **winsorize(1%/99%)** — truth 테이블의 팩터 컬럼은 변경하지 않음.
+- **단순 OLS**(선택, `--ols`): `return ~ factor` 및 `return ~ zscore(factor)` 요약만 `summary_json`에 기록. **Robust SE, 패널 회귀, Fama–MacBeth 미구현**(README 명시).
+- **상·하 분위 spread**: `factor_quantile_results`·`summary_json`에 **기술적** top/bottom 평균 수익 차이만 — **전략·백테스트·alpha 표현 금지**.
+
+### Phase 5: SQL 적용 **이후** 액션 (잘게 쪼갠 복붙)
+
+**전제**: Supabase SQL Editor에서 `20250406100000_phase5_factor_validation_research.sql` 실행 완료.  
+**데이터 전제**: `factor_market_validation_panels`에 검증할 행이 있어야 함(없으면 Phase 4의 `build-forward-returns` → `build-validation-panel` 먼저).
+
+아래에서 `/path/to/GenAIProacTrade` 를 본인 프로젝트 루트로 바꿉니다.
+
+**0) (선택) Phase 4 패널이 비어 있을 때만** — 이미 채워져 있으면 건너뜀.
+
+```bash
+cd /path/to/GenAIProacTrade
+source .venv/bin/activate
+export PYTHONPATH=src
+
+python3 src/main.py build-forward-returns --limit-panels 500
+python3 src/main.py build-validation-panel --limit-panels 500
+```
+
+**1) 터미널 공통 준비** (매 세션 또는 스크립트 맨 위)
+
+```bash
+cd /path/to/GenAIProacTrade
+source .venv/bin/activate
+export PYTHONPATH=src
+```
+
+**2) Phase 5 테이블 스모크** (DB·`.env`·마이그레이션 확인)
+
+```bash
+python3 src/main.py smoke-research
+```
+
+**3) 검증 실행 — S&P 슬라이스·1개월 지평**
+
+```bash
+python3 src/main.py run-factor-validation --universe sp500_current --horizon next_month
+```
+
+**4) 검증 실행 — S&P 슬라이스·1분기 지평**
+
+```bash
+python3 src/main.py run-factor-validation --universe sp500_current --horizon next_quarter
+```
+
+**5) 검증 실행 — 프록시 후보만** (`build-candidate-universe` 후 멤버십이 있을 때)
+
+```bash
+python3 src/main.py run-factor-validation --universe sp500_proxy_candidates_v1 --horizon next_month
+```
+
+**6) 검증 실행 — 합집합 슬라이스** (`sp500_current` ∪ `sp500_proxy_candidates_v1`)
+
+```bash
+python3 src/main.py run-factor-validation --universe combined_largecap_research_v1 --horizon next_month
+```
+
+**7) (선택) OLS + winsorize 보조 요약까지**
+
+```bash
+python3 src/main.py run-factor-validation --universe sp500_current --horizon next_month --ols --winsorize
+```
+
+**8) 터미널 요약 보기 — raw 기준**
+
+```bash
+python3 src/main.py report-factor-summary --factor accruals --universe sp500_current --horizon next_month --return-basis raw
+```
+
+**9) 터미널 요약 보기 — excess 기준**
+
+```bash
+python3 src/main.py report-factor-summary --factor accruals --universe sp500_current --horizon next_month --return-basis excess
+```
+
+**10) 다른 팩터 요약** (`gross_profitability`, `asset_growth`, `capex_intensity`, `rnd_intensity`, `financial_strength_score_v1`)
+
+```bash
+python3 src/main.py report-factor-summary --factor gross_profitability --universe sp500_current --horizon next_month
+```
+
+**11) Git — 원격에 반영** (브랜치명은 저장소에 맞게 수정)
+
+```bash
+cd /path/to/GenAIProacTrade
+git status
+git pull --rebase origin main
+git add -A
+git commit -m "Phase 5: factor validation research layer and docs."
+git push origin main
+```
+
+원격·브랜치가 없으면:
+
+```bash
+cd /path/to/GenAIProacTrade
+git init
+git add -A
+git commit -m "Initial commit"
+git remote add origin https://github.com/YOUR_USER/YOUR_REPO.git
+git branch -M main
+git push -u origin main
+```
+
+### Phase 5에서 하지 않는 것
+
+- 포트폴리오 구성, 롱/숏 바스켓 엔진, 백테스트, 퍼포먼스 티어시트, 알파·복합 매매 점수, 상태변화 엔진, AI 하네스, 알림, 자동매매, UI/대시보드, 과도한 계량경제 추론.
 
 ## Phase 3 목표
 
@@ -82,6 +204,7 @@
 | Risk-free | `risk_free_rates_daily` | 일별 연율화 무위험(%) |
 | Forward returns | `forward_returns_daily_horizons` | 시그널일 기준 선행 raw/excess |
 | Validation panel | `factor_market_validation_panels` | 팩터+시장 조인(검증용) |
+| Validation research | `factor_validation_runs`, `factor_validation_summaries`, `factor_quantile_results`, `factor_coverage_reports` | Phase 5 기술 검증·분위·커버리지(전략 아님) |
 | Audit | `ingest_runs` | 메타 / facts / 스냅샷 / factor_panel / **시장·검증** 등 |
 
 상세 idempotency·run_type은 [`src/db/schema_notes.md`](src/db/schema_notes.md) 참고.
@@ -134,6 +257,7 @@ SQL Editor에서 아래를 **순서대로** 실행합니다.
 3. `supabase/migrations/20250403100000_phase2_xbrl_facts_snapshots.sql`
 4. `supabase/migrations/20250404100000_phase3_factor_panels.sql`
 5. `supabase/migrations/20250405100000_phase4_market_validation.sql`
+6. `supabase/migrations/20250406100000_phase5_factor_validation_research.sql`
 
 ## CLI (복붙용)
 
@@ -182,6 +306,7 @@ python3 src/main.py smoke-db
 - `smoke-factors`: `issuer_quarter_factor_panels` 테이블 도달 + accruals 공식 sanity (DB·`.env` 필요, SEC 호출 없음).
 - `smoke-market`: Phase 4 시장 테이블 도달 + 스텁 프로바이더 형태 (DB·`.env` 필요, 외부 호출 없음).
 - `smoke-validation`: `factor_market_validation_panels` 테이블 도달 (DB·`.env`).
+- `smoke-research`: Phase 5 `factor_validation_runs` 테이블 도달 (DB·마이그레이션·`.env`).
 
 ### Phase 4 시장·검증 (복붙 순서 예시)
 

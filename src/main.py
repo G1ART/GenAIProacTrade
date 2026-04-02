@@ -322,6 +322,55 @@ def _cmd_smoke_validation(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_run_factor_validation(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from research.validation_runner import run_factor_validation_research
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = run_factor_validation_research(
+        client,
+        universe_name=str(args.universe),
+        horizon_type=str(args.horizon),
+        factor_version=str(args.factor_version or "v1"),
+        panel_limit=int(args.panel_limit),
+        include_ols=bool(args.ols),
+        apply_winsorize=bool(args.winsorize),
+        n_quantiles=int(args.n_quantiles),
+    )
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("status") == "completed" else 1
+
+
+def _cmd_report_factor_summary(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from research.cli_report import print_factor_summary_cli
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    return print_factor_summary_cli(
+        client,
+        factor_name=str(args.factor),
+        universe_name=str(args.universe),
+        horizon_type=str(args.horizon),
+        return_basis=str(args.return_basis or "raw"),
+    )
+
+
+def _cmd_smoke_research(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db.records import smoke_research_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_research_tables(client)
+    print(json.dumps({"db_factor_validation_research": "ok"}, indent=2, ensure_ascii=False))
+    return 0
+
+
 def _cmd_smoke_facts(_args: argparse.Namespace) -> int:
     """DB facts 테이블 도달 + (선택) 단일 티커 XBRL 로드 가능 여부."""
     import sec.ingest_company_sample  # noqa: F401
@@ -526,6 +575,60 @@ def build_parser() -> argparse.ArgumentParser:
 
     sv = sub.add_parser("smoke-validation", help="validation 패널 테이블 도달 (DB 필요)")
     sv.set_defaults(func=_cmd_smoke_validation)
+
+    prv = sub.add_parser(
+        "run-factor-validation",
+        help="Phase 5: factor_market_validation_panels 기반 기술 검증 적재 (연구용)",
+    )
+    prv.add_argument(
+        "--universe",
+        required=True,
+        help="sp500_current | sp500_proxy_candidates_v1 | combined_largecap_research_v1",
+    )
+    prv.add_argument(
+        "--horizon",
+        required=True,
+        choices=("next_month", "next_quarter"),
+        help="선행 지평",
+    )
+    prv.add_argument("--factor-version", default="v1")
+    prv.add_argument("--panel-limit", type=int, default=8000)
+    prv.add_argument(
+        "--ols",
+        action="store_true",
+        help="단순 OLS 보조 요약(summary_json); robust/FM 미구현",
+    )
+    prv.add_argument(
+        "--winsorize",
+        action="store_true",
+        help="팩터 winsorize(1%%/99%%) 후 상관·분위",
+    )
+    prv.add_argument("--n-quantiles", type=int, default=5)
+    prv.set_defaults(func=_cmd_run_factor_validation)
+
+    prp = sub.add_parser(
+        "report-factor-summary",
+        help="최근 completed 검증 run 기준 터미널 요약 (투자 추천 아님)",
+    )
+    prp.add_argument("--factor", required=True, help="예: accruals")
+    prp.add_argument("--universe", required=True)
+    prp.add_argument(
+        "--horizon",
+        required=True,
+        choices=("next_month", "next_quarter"),
+    )
+    prp.add_argument(
+        "--return-basis",
+        default="raw",
+        choices=("raw", "excess"),
+    )
+    prp.set_defaults(func=_cmd_report_factor_summary)
+
+    srr = sub.add_parser(
+        "smoke-research",
+        help="Phase 5 factor_validation_* 테이블 도달 (DB·마이그레이션 필요)",
+    )
+    srr.set_defaults(func=_cmd_smoke_research)
 
     return p
 

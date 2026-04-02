@@ -556,3 +556,173 @@ def upsert_factor_market_validation_panel(
     client.table("factor_market_validation_panels").upsert(
         row, on_conflict="cik,accession_no,factor_version"
     ).execute()
+
+
+def fetch_factor_market_validation_panels_for_symbols(
+    client: Client, *, symbols: list[str], limit: int = 8000
+) -> list[dict[str, Any]]:
+    """대문자 심볼 목록으로 검증 패널 조회(배치 in_)."""
+    if not symbols:
+        return []
+    sym_u = [s.upper().strip() for s in symbols if s and str(s).strip()]
+    if not sym_u:
+        return []
+    out: list[dict[str, Any]] = []
+    chunk_size = 80
+    for i in range(0, len(sym_u), chunk_size):
+        chunk = sym_u[i : i + chunk_size]
+        r = (
+            client.table("factor_market_validation_panels")
+            .select("*")
+            .in_("symbol", chunk)
+            .limit(max(1, limit - len(out)))
+            .execute()
+        )
+        out.extend(r.data or [])
+        if len(out) >= limit:
+            break
+    return out[:limit]
+
+
+def fetch_issuer_quarter_factor_panels_for_ciks(
+    client: Client, *, ciks: list[str], limit: int = 8000
+) -> dict[tuple[str, str, str], dict[str, Any]]:
+    """(cik, accession_no, factor_version) → 행."""
+    m: dict[tuple[str, str, str], dict[str, Any]] = {}
+    if not ciks:
+        return m
+    uniq = sorted(set(ciks))
+    chunk_size = 40
+    for i in range(0, len(uniq), chunk_size):
+        chunk = uniq[i : i + chunk_size]
+        r = (
+            client.table("issuer_quarter_factor_panels")
+            .select("*")
+            .in_("cik", chunk)
+            .limit(limit)
+            .execute()
+        )
+        for row in r.data or []:
+            k = (str(row["cik"]), str(row["accession_no"]), str(row["factor_version"]))
+            m[k] = dict(row)
+    return m
+
+
+def factor_validation_run_insert_started(
+    client: Client,
+    *,
+    run_type: str,
+    factor_version: str,
+    universe_name: str,
+    horizon_type: str,
+    metadata_json: dict[str, Any],
+    target_count: Optional[int],
+) -> str:
+    now = datetime.now(timezone.utc).isoformat()
+    row = {
+        "run_type": run_type,
+        "factor_version": factor_version,
+        "universe_name": universe_name,
+        "horizon_type": horizon_type,
+        "started_at": now,
+        "status": "running",
+        "target_count": target_count,
+        "success_count": 0,
+        "failure_count": 0,
+        "metadata_json": metadata_json,
+    }
+    res = client.table("factor_validation_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("factor_validation_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def factor_validation_run_finalize(
+    client: Client,
+    *,
+    run_id: str,
+    status: str,
+    success_count: int,
+    failure_count: int,
+    error_json: Optional[dict[str, Any]] = None,
+) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    upd: dict[str, Any] = {
+        "completed_at": now,
+        "status": status,
+        "success_count": success_count,
+        "failure_count": failure_count,
+    }
+    if error_json is not None:
+        upd["error_json"] = error_json
+    client.table("factor_validation_runs").update(upd).eq("id", run_id).execute()
+
+
+def insert_factor_validation_summary(client: Client, row: dict[str, Any]) -> None:
+    client.table("factor_validation_summaries").insert(row).execute()
+
+
+def insert_factor_quantile_result(client: Client, row: dict[str, Any]) -> None:
+    client.table("factor_quantile_results").insert(row).execute()
+
+
+def insert_factor_coverage_report(client: Client, row: dict[str, Any]) -> None:
+    client.table("factor_coverage_reports").insert(row).execute()
+
+
+def smoke_research_tables(client: Client) -> None:
+    client.table("factor_validation_runs").select("id").limit(1).execute()
+
+
+def fetch_latest_factor_validation_summaries(
+    client: Client,
+    *,
+    factor_name: str,
+    universe_name: str,
+    horizon_type: str,
+) -> tuple[Optional[str], list[dict[str, Any]]]:
+    """가장 최근 completed run 기준 요약(raw+excess)."""
+    r = (
+        client.table("factor_validation_runs")
+        .select("id,completed_at,status")
+        .eq("universe_name", universe_name)
+        .eq("horizon_type", horizon_type)
+        .eq("status", "completed")
+        .order("completed_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None, []
+    rid = str(r.data[0]["id"])
+    s = (
+        client.table("factor_validation_summaries")
+        .select("*")
+        .eq("run_id", rid)
+        .eq("factor_name", factor_name)
+        .execute()
+    )
+    return rid, list(s.data or [])
+
+
+def fetch_factor_quantiles_for_run(
+    client: Client,
+    *,
+    run_id: str,
+    factor_name: str,
+    universe_name: str,
+    horizon_type: str,
+    return_basis: str,
+) -> list[dict[str, Any]]:
+    q = (
+        client.table("factor_quantile_results")
+        .select("*")
+        .eq("run_id", run_id)
+        .eq("factor_name", factor_name)
+        .eq("universe_name", universe_name)
+        .eq("horizon_type", horizon_type)
+        .eq("return_basis", return_basis)
+        .order("quantile_index")
+        .execute()
+    )
+    return list(q.data or [])
