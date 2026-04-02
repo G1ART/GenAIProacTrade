@@ -1,4 +1,4 @@
-# DB 스키마 메모 (Phase 0–5)
+# DB 스키마 메모 (Phase 0–6)
 
 ## 데이터 계층 역할
 
@@ -25,6 +25,10 @@
 | `factor_validation_summaries` | 팩터×지평×유니버스×`return_basis(raw\|excess)` 기술 요약(상관·평균 등). 전략 아님. |
 | `factor_quantile_results` | 분위별 기술 통계. `(run_id, factor_name, horizon_type, universe_name, quantile_index, return_basis)` 유니크. |
 | `factor_coverage_reports` | 슬라이스 내 팩터 값 가용성. `(run_id, factor_name, universe_name)` 유니크. |
+| `state_change_runs` | Phase 6 **state change 실행** 메타. `run_type` 예: `state_change_engine_v1`. |
+| `issuer_state_change_components` | 발행일·신호 long-form 구성요소(level/velocity/…). `(run_id, cik, as_of_date, signal_name)` 유니크. |
+| `issuer_state_change_scores` | 발행일 단위 투명 합성 점수. `(run_id, cik, as_of_date)` 유니크. |
+| `state_change_candidates` | 조사 후보(실행 신호 아님). `(run_id, cik, as_of_date, candidate_rank)` 유니크. |
 
 ## ingest_runs `run_type`
 
@@ -100,6 +104,7 @@
 - `factor_market_validation_panels`: `(cik, accession_no, factor_version)` upsert.
 - `universe_memberships`: 보통 **새 `as_of_date` 배치 insert** (같은 as_of 재실행 시 유니크 충돌 가능—운영 시 같은 날 재실행 주의).
 - **Phase 5** `factor_validation_runs`: 매 실행 **새 행 insert**; 자식 요약·분위·커버리지는 해당 `run_id`에 insert. 재실행 시 이전 run 보존(감사 비교용).
+- **Phase 6** `state_change_runs`: 매 실행 **새 행 insert**; components/scores/candidates는 해당 `run_id`에 insert. 동일 입력 재현은 동일 코드·동일 DB 스냅샷 전제.
 
 ## Factor panel JSON
 
@@ -125,3 +130,4 @@ Service role 키는 RLS를 우회한다. 로컬 워커는 service role 전제.
 4. `20250404100000_phase3_factor_panels.sql`
 5. `20250405100000_phase4_market_validation.sql`
 6. `20250406100000_phase5_factor_validation_research.sql`
+7. `20250407100000_phase6_state_change_engine.sql`

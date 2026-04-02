@@ -371,6 +371,88 @@ def _cmd_smoke_research(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_run_state_change(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from state_change.runner import run_state_change
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    fv = args.factor_version or os.getenv("FACTOR_VERSION") or "v1"
+    out = run_state_change(
+        client,
+        universe_name=str(args.universe),
+        factor_version=str(fv),
+        as_of_date=args.as_of_date,
+        start_date=args.start_date,
+        end_date=args.end_date,
+        limit=int(args.limit),
+        dry_run=bool(args.dry_run),
+        include_nullable_overlays=bool(args.include_nullable_overlays),
+    )
+    if args.output_json:
+        print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    else:
+        print(
+            "status={} run_id={} components={} scores={} candidates={} warnings={}".format(
+                out.get("status"),
+                out.get("run_id"),
+                out.get("components_written", out.get("components", "?")),
+                out.get("scores_written", out.get("scores", "?")),
+                out.get("candidates_written", out.get("candidates", "?")),
+                out.get("warnings"),
+            )
+        )
+    st = str(out.get("status") or "")
+    if st == "failed":
+        return 1
+    return 0
+
+
+def _cmd_report_state_change_summary(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from state_change.cli_report import emit_state_change_summary
+    from state_change.reports import build_state_change_run_report, resolve_report_run_id
+
+    if not args.run_id and not args.universe:
+        print("오류: --run-id 또는 --universe 중 하나를 지정하세요.", file=sys.stderr)
+        return 1
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rid = resolve_report_run_id(
+        client, universe_name=args.universe, run_id=args.run_id
+    )
+    if not rid:
+        print(
+            json.dumps(
+                {"ok": False, "error": "no_completed_run_found"},
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    payload = build_state_change_run_report(
+        client,
+        run_id=rid,
+        scores_limit=int(args.scores_limit),
+        candidates_limit=int(args.candidates_limit),
+    )
+    emit_state_change_summary(payload, output_json=bool(args.output_json))
+    return 0 if payload.get("ok") else 1
+
+
+def _cmd_smoke_state_change(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db.records import smoke_state_change_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_state_change_tables(client)
+    print(json.dumps({"db_state_change_phase6": "ok"}, indent=2, ensure_ascii=False))
+    return 0
+
+
 def _cmd_smoke_facts(_args: argparse.Namespace) -> int:
     """DB facts 테이블 도달 + (선택) 단일 티커 XBRL 로드 가능 여부."""
     import sec.ingest_company_sample  # noqa: F401
@@ -629,6 +711,54 @@ def build_parser() -> argparse.ArgumentParser:
         help="Phase 5 factor_validation_* 테이블 도달 (DB·마이그레이션 필요)",
     )
     srr.set_defaults(func=_cmd_smoke_research)
+
+    psc = sub.add_parser(
+        "run-state-change",
+        help="Phase 6: deterministic issuer-date state change (검증 패널·선행수익 미입력)",
+    )
+    psc.add_argument(
+        "--universe",
+        required=True,
+        help="sp500_current | sp500_proxy_candidates_v1 | combined_largecap_research_v1",
+    )
+    psc.add_argument("--factor-version", default=None)
+    psc.add_argument("--as-of-date", default=None, help="단일 as_of_date 필터 YYYY-MM-DD")
+    psc.add_argument("--start-date", default=None)
+    psc.add_argument("--end-date", default=None)
+    psc.add_argument("--limit", type=int, default=200, help="처리 issuer 상한")
+    psc.add_argument("--dry-run", action="store_true")
+    psc.add_argument(
+        "--include-nullable-overlays",
+        action="store_true",
+        help="contamination 등 nullable 오버레이 메타 포함(점수는 여전히 결정적)",
+    )
+    psc.add_argument(
+        "--output-json",
+        action="store_true",
+        help="전체 결과 JSON; 생략 시 한 줄 요약",
+    )
+    psc.set_defaults(func=_cmd_run_state_change)
+
+    prs = sub.add_parser(
+        "report-state-change-summary",
+        help="Phase 6: 최근(또는 지정) state change run 요약",
+    )
+    prs.add_argument("--run-id", default=None, help="우선 사용할 run UUID")
+    prs.add_argument(
+        "--universe",
+        default=None,
+        help="run-id 없을 때 completed 최신 run 조회용 유니버스명",
+    )
+    prs.add_argument("--scores-limit", type=int, default=15)
+    prs.add_argument("--candidates-limit", type=int, default=20)
+    prs.add_argument("--output-json", action="store_true")
+    prs.set_defaults(func=_cmd_report_state_change_summary)
+
+    ssc = sub.add_parser(
+        "smoke-state-change",
+        help="Phase 6 state_change_* 테이블 도달 (DB·마이그레이션 필요)",
+    )
+    ssc.set_defaults(func=_cmd_smoke_state_change)
 
     return p
 

@@ -1,39 +1,62 @@
-# HANDOFF — Phase 5 완료 시점
+# HANDOFF — Phase 6 완료 시점 (state change engine v1)
 
 ## 현재 완료 범위
 
-- **마이그레이션** `20250406100000_phase5_factor_validation_research.sql`: `factor_validation_runs`, `factor_validation_summaries`, `factor_quantile_results`, `factor_coverage_reports`
-- **연구 모듈**: `src/research/validation_registry.py`, `universe_slices.py`, `standardize.py`, `metrics.py`, `quantiles.py`, `summaries.py`, `validation_runner.py`, `cli_report.py`
-- **DB**: `src/db/records.py` — 검증 패널 심볼 조회, 팩터 패널 맵, 검증 run·자식 insert, smoke-research, `report-factor-summary` 조회
-- **CLI**: `run-factor-validation`, `report-factor-summary`, `smoke-research`
-- **문서**: `README.md`(Phase 5 목적·슬라이스·미구현·복붙), `src/db/schema_notes.md`
-- **pytest**: **81 passed** (기존 + Phase 5, 네트워크 없음 기본)
+- **마이그레이션** `20250407100000_phase6_state_change_engine.sql`: `state_change_runs`, `issuer_state_change_components`, `issuer_state_change_scores`, `state_change_candidates`
+- **모듈** `src/state_change/`: `signal_registry`, `universe_scope`, `loaders`, `transforms`, `components`, `scoring`, `candidates`, `runner`, `reports`, `cli_report`, `__init__.py`
+- **DB** `src/db/records.py`: issuer/패널/스냅샷 조회, state change run insert/finalize, 배치 insert, smoke, 최근 run·점수·후보·run 단건·후보 class 집계
+- **CLI**: `run-state-change`, `report-state-change-summary`, `smoke-state-change`
+- **문서**: `README.md`(Phase 6 목적·Phase 5 차이·복붙 1–10·CLI), `src/db/schema_notes.md`
+- **pytest**: `src/tests/test_state_change_phase6.py` — 결정성·누수 방지(state_change 패키지가 validation 패널 테이블 미조회)·lag·null 처리·방향 매핑·후보 정렬·요약 포맷·CLI `-h`
 
-## Phase 6 진입 제안 기준
+## State change의 정의 (이번 Phase)
 
-- [ ] Supabase에 **Phase 5** SQL 적용 완료
-- [ ] `smoke-research` 성공
-- [ ] `build-validation-panel` 후 `run-factor-validation`(최소 한 유니버스·한 지평) 성공·`factor_validation_summaries` 샘플 확인
-- [ ] `report-factor-summary`로 Spearman·coverage·분위 요약이 사람이 읽을 수 있는지 확인
+- **입력**: 분기 팩터 패널·스냅샷·유니버스·(선택) 무위험 이자율로 **동시점 단면 z** 및 **lag 기반 velocity/acceleration/persistence** 등을 계산해 issuer–`as_of_date` 단위로 적재.
+- **출력**: 구성요소 long-form, 투명 가중 합성 점수, **조사 후보** 분류(`investigate_now` 등). **트레이드 추천·알파·포트폴리오 아님.**
+
+## 새 테이블 4종
+
+| 테이블 | 역할 |
+|--------|------|
+| `state_change_runs` | 실행 메타(`run_type`, 유니버스, 기간, `config_version`, `input_snapshot_json`, 상태) |
+| `issuer_state_change_components` | 신호별 level/velocity/acceleration/persistence·nullable contamination/regime |
+| `issuer_state_change_scores` | 일자별 합성 `state_change_score_v1`, 방향, 신뢰 구간, 게이트, `normalized_weight_sum` |
+| `state_change_candidates` | 순위·분류·사유 JSON·우선순위(휴먼 리뷰용) |
+
+## 새 CLI 3종
+
+- `smoke-state-change` — 테이블 도달
+- `run-state-change` — `--universe`, `--as-of-date`, `--start-date`, `--end-date`, `--limit`, `--dry-run`, `--include-nullable-overlays`, `--output-json`
+- `report-state-change-summary` — `--run-id` 또는 `--universe`(최근 completed), `--output-json`
+
+## 아직 하지 않는 것 (Phase 6 범위 밖)
+
+- AI 하네스·메시지 레이어, 알림, UI, 포트폴리오, 백테스트 확장, execution signal
+- `factor_market_validation_panels`의 **forward/excess return·horizon outcome** 을 state change **feature**로 사용 (금지; 코드상 `src/state_change/*` 에서 해당 테이블 조회 없음)
+
+## 대표 수동 액션
+
+1. Phase 6 SQL 적용 후 `smoke-state-change`
+2. `run-state-change --limit` 소규모 → `report-state-change-summary`
+3. SQL로 `run_id`별 row count·상위 후보 확인(README 복붙)
+
+## 다음 Phase (AI harness / message layer) 진입 조건 제안
+
+- [ ] Phase 6 마이그레이션 적용·`smoke-state-change` 성공
+- [ ] 최소 1회 `run-state-change` completed·`state_change_candidates` 샘플 확인
+- [ ] 조사 워크플로에 맞는 후보 필터·우선순위를 사람이 검토해 피드백 반영 여부 결정
 - [ ] `.env`·service role 미커밋 유지
-
-## 대표님이 직접 해야 하는 작업
-
-1. SQL Editor에서 `20250406100000_phase5_factor_validation_research.sql` 실행 (Phase 4 다음).
-2. `export PYTHONPATH=src` 후 `python3 src/main.py smoke-research`.
-3. Phase 4 파이프라인으로 `factor_market_validation_panels`를 채운 뒤 `run-factor-validation` 실행.
-
-## 알려진 리스크 / 한계
-
-- **표본**: 워치리스트만 팩터가 있으면 S&P 슬라이스에서 패널 행이 거의 없을 수 있음.
-- **OLS / 상관**: 단면 기술통계; 다중비교·구조적 변동 미보정; **robust SE·FM·패널 회귀 미구현**.
-- **분위**: 소표본 시 분위 수 자동 축소; 극소 표본은 분위 행 없음.
-- **커버리지 누락 이유**: `coverage_json`·`quality_flags` 기반 휴리스틱; 완전 감사 분해는 아님.
 
 ## 이번 패치에서 추가·수정한 주요 파일
 
-- `supabase/migrations/20250406100000_phase5_factor_validation_research.sql`
-- `src/research/**`
+- `supabase/migrations/20250407100000_phase6_state_change_engine.sql`
+- `src/state_change/**`
 - `src/db/records.py`, `src/main.py`
-- `src/tests/test_research_phase5.py`
+- `src/tests/test_state_change_phase6.py`
 - `README.md`, `HANDOFF.md`, `src/db/schema_notes.md`
+
+## 알려진 리스크
+
+- 유니버스에 팩터 패널이 거의 없으면 관측 0·빈 run.
+- contamination v1은 결정적 proxy 없이 null·메타만(regime은 무위험 맥락 최소 태깅).
+- 동일 `(cik, as_of_date)` 패널 중복 시 **최대 분기 인덱스** 한 행만 유지.

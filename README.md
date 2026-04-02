@@ -1,8 +1,10 @@
-# GenAIProacTrade — Phase 0–5 (SEC + XBRL + 회계 팩터 + 시장 검증 + 연구용 팩터 검증)
+# GenAIProacTrade — Phase 0–6 (SEC + XBRL + 회계 팩터 + 시장 검증 + 연구 검증 + 상태변화 스파인)
 
 미국 SEC **공시 메타데이터**·**XBRL fact**·**분기 스냅샷**·**회계 팩터**에 이어, Phase 4에서 **시장 가격·선행 수익률·무위험 이자율**을 **provider 추상화**로 적재하고 **`factor_market_validation_panels`** 까지 조인합니다. **Phase 5**에서는 그 패널 위에 **결정적 기술 검증·분위 기술통계**를 쌓는 **`factor_validation_*` 연구 레이어**(백테스트·전략·실행 아님)를 추가합니다.
 
-**Phase 4–5에서도 포함하지 않는 것**: 팩터 **랭킹·알파 점수**, 포트폴리오·롱숏 바스켓, **백테스트 리포트**, 상태변화 엔진, **OpenAI/AI 하네스**, 알림·Slack·email, Railway·**스케줄러/cron**·**UI**, “공식 S&P 편입 후보” 포장. (GDELT/FINRA 등 확장 API는 무위험 FRED 최소 수준만.)
+**Phase 4–6에서도 포함하지 않는 것**: 팩터 **랭킹·알파 점수**, 포트폴리오·롱숏 바스켓, **백테스트 리포트**, **OpenAI/AI 하네스**, 알림·Slack·email, Railway·**스케줄러/cron**·**UI**, “공식 S&P 편입 후보” 포장. (GDELT/FINRA 등 확장 API는 무위험 FRED 최소 수준만.)
+
+**Phase 6 한 줄**: “좋은 팩터 연구”가 아니라, truth spine + Phase 5와 **분리된** **issuer–날짜 단위 상태변화 후보 스파인**(`state_change_*`). **매수·매도·전략 점수·추천 메시지 없음** — `investigate_*` 등 **조사 후보 분류**만.
 
 ## Phase 4 목표 (market validation layer)
 
@@ -143,7 +145,87 @@ git push -u origin main
 
 ### Phase 5에서 하지 않는 것
 
-- 포트폴리오 구성, 롱/숏 바스켓 엔진, 백테스트, 퍼포먼스 티어시트, 알파·복합 매매 점수, 상태변화 엔진, AI 하네스, 알림, 자동매매, UI/대시보드, 과도한 계량경제 추론.
+- 포트폴리오 구성, 롱/숏 바스켓 엔진, 백테스트, 퍼포먼스 티어시트, 알파·복합 매매 점수, AI 하네스, 알림, 자동매매, UI/대시보드, 과도한 계량경제 추론.
+
+## Phase 6 목표 (state change engine v1 — 실행·선행라벨 입력 금지)
+
+- **Phase 5와 차이**: Phase 5는 `factor_market_validation_panels` 위 **선행 수익률 라벨**로 기술 검증(상관·분위 등). Phase 6은 **그 라벨을 feature로 쓰지 않음** — 입력은 `issuer_quarter_factor_panels`, `issuer_quarter_snapshots`, `universe_memberships`, `market_symbol_registry`, `market_metadata_latest`, `risk_free_rates_daily` 및 **시점 합법적인** 맥락만. `factor_market_validation_panels`는 **검증/감사 참고용**일 뿐 state change의 SSOT가 아님.
+- **산출 테이블**: `state_change_runs`, `issuer_state_change_components`, `issuer_state_change_scores`, `state_change_candidates`.
+- **코드**: `src/state_change/` — `signal_registry.py`(방향·변환 규칙), `runner.py`, `scoring.py`(투명 가중 합성; 누락 축은 제외·`missing_component_count`·`normalized_weight_sum` 기록).
+- **CLI**: `smoke-state-change`, `run-state-change`, `report-state-change-summary`.
+- **하지 않는 것**: AI 하네스, 알림, 대시보드, 포트폴리오, 백테스트 확장, long/short·trade 추천 언어, Phase 5 결과를 실행 엔진처럼 포장.
+
+### Phase 6: SQL 적용 **이후** 복붙 절차 (대표님용)
+
+**전제**: Supabase SQL Editor에서 `20250407100000_phase6_state_change_engine.sql` 실행 완료.  
+**데이터 전제**: 조사 대상 유니버스에 맞는 `issuer_quarter_factor_panels` 행이 있을 것(워치리스트만 있으면 `sp500_current` 슬라이스는 빈 결과일 수 있음).
+
+`/path/to/GenAIProacTrade` 를 본인 루트로 바꿉니다.
+
+```bash
+cd /path/to/GenAIProacTrade
+source .venv/bin/activate
+export PYTHONPATH=src
+```
+
+**(1) migration 적용** — 위 SQL 파일을 SQL Editor에서 실행(로컬에만 있다면 동일 내용 붙여넣기).
+
+**(2) smoke-state-change**
+
+```bash
+python3 src/main.py smoke-state-change
+```
+
+**(3) run-state-change 소규모 샘플** (`--dry-run` 으로 DB 미적재 확인 가능)
+
+```bash
+python3 src/main.py run-state-change --universe sp500_proxy_candidates_v1 --limit 15 --dry-run --output-json
+python3 src/main.py run-state-change --universe sp500_proxy_candidates_v1 --limit 15 --output-json
+```
+
+**(4) report-state-change-summary** (`--universe` 로 해당 유니버스 최근 completed run)
+
+```bash
+python3 src/main.py report-state-change-summary --universe sp500_proxy_candidates_v1
+python3 src/main.py report-state-change-summary --universe sp500_proxy_candidates_v1 --output-json
+```
+
+**(5) 결과 row count 확인 SQL** (Supabase SQL Editor)
+
+```sql
+select count(*) from issuer_state_change_components where run_id = '<RUN_UUID>';
+select count(*) from issuer_state_change_scores where run_id = '<RUN_UUID>';
+select count(*) from state_change_candidates where run_id = '<RUN_UUID>';
+```
+
+**(6) 상위 candidate 20개 확인 SQL**
+
+```sql
+select candidate_rank, candidate_class, cik, ticker, as_of_date, confidence_band
+from state_change_candidates
+where run_id = '<RUN_UUID>'
+order by candidate_rank
+limit 20;
+```
+
+**(7)–(10) git** (브랜치 `phase6-state-change-v1` 등 저장소에 맞게 조정)
+
+```bash
+git status
+git checkout -b phase6-state-change-v1
+git add -A
+git commit -m "phase6: add deterministic state change engine v1"
+git push -u origin phase6-state-change-v1
+```
+
+### Phase 6 CLI 예시 (요약)
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-state-change
+python3 src/main.py run-state-change --universe combined_largecap_research_v1 --limit 50 --start-date 2022-01-01 --end-date 2024-12-31
+python3 src/main.py report-state-change-summary --run-id <UUID>
+```
 
 ## Phase 3 목표
 
@@ -205,6 +287,7 @@ git push -u origin main
 | Forward returns | `forward_returns_daily_horizons` | 시그널일 기준 선행 raw/excess |
 | Validation panel | `factor_market_validation_panels` | 팩터+시장 조인(검증용) |
 | Validation research | `factor_validation_runs`, `factor_validation_summaries`, `factor_quantile_results`, `factor_coverage_reports` | Phase 5 기술 검증·분위·커버리지(전략 아님) |
+| State change (Phase 6) | `state_change_runs`, `issuer_state_change_components`, `issuer_state_change_scores`, `state_change_candidates` | 조사 후보 스파인(실행 신호·선행라벨 feature 아님) |
 | Audit | `ingest_runs` | 메타 / facts / 스냅샷 / factor_panel / **시장·검증** 등 |
 
 상세 idempotency·run_type은 [`src/db/schema_notes.md`](src/db/schema_notes.md) 참고.

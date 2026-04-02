@@ -726,3 +726,229 @@ def fetch_factor_quantiles_for_run(
         .execute()
     )
     return list(q.data or [])
+
+
+# --- Phase 6: state change (입력으로 factor_market_validation_panels 미사용) ---
+
+
+def fetch_issuer_master_rows_for_tickers(
+    client: Client, tickers: list[str]
+) -> list[dict[str, Any]]:
+    if not tickers:
+        return []
+    uniq: list[str] = []
+    seen: set[str] = set()
+    for t in tickers:
+        u = str(t).upper().strip()
+        if u and u not in seen:
+            seen.add(u)
+            uniq.append(u)
+    by_ticker: dict[str, dict[str, Any]] = {}
+    chunk_size = 80
+    for i in range(0, len(uniq), chunk_size):
+        chunk = uniq[i : i + chunk_size]
+        r = (
+            client.table("issuer_master")
+            .select("id,cik,ticker")
+            .in_("ticker", chunk)
+            .execute()
+        )
+        for row in r.data or []:
+            t = str(row.get("ticker") or "").upper().strip()
+            if t:
+                by_ticker[t] = dict(row)
+    return [by_ticker[t] for t in uniq if t in by_ticker]
+
+
+def fetch_all_factor_panels_for_cik_version(
+    client: Client, *, cik: str, factor_version: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("issuer_quarter_factor_panels")
+        .select("*")
+        .eq("cik", cik)
+        .eq("factor_version", factor_version)
+        .execute()
+    )
+    return list(r.data or [])
+
+
+def fetch_snapshots_by_ids(
+    client: Client, ids: list[str]
+) -> dict[str, dict[str, Any]]:
+    if not ids:
+        return {}
+    uniq = list({str(x) for x in ids if x})
+    out: dict[str, dict[str, Any]] = {}
+    chunk_size = 40
+    for i in range(0, len(uniq), chunk_size):
+        chunk = uniq[i : i + chunk_size]
+        r = (
+            client.table("issuer_quarter_snapshots")
+            .select("*")
+            .in_("id", chunk)
+            .execute()
+        )
+        for row in r.data or []:
+            out[str(row["id"])] = dict(row)
+    return out
+
+
+def state_change_run_insert_started(
+    client: Client,
+    *,
+    run_type: str,
+    universe_name: str,
+    as_of_date_start: Optional[str],
+    as_of_date_end: Optional[str],
+    factor_version: str,
+    config_version: str,
+    input_snapshot_json: dict[str, Any],
+) -> str:
+    now = datetime.now(timezone.utc).isoformat()
+    row: dict[str, Any] = {
+        "run_type": run_type,
+        "universe_name": universe_name,
+        "as_of_date_start": as_of_date_start,
+        "as_of_date_end": as_of_date_end,
+        "factor_version": factor_version,
+        "config_version": config_version,
+        "input_snapshot_json": input_snapshot_json,
+        "row_count": 0,
+        "warning_count": 0,
+        "status": "running",
+        "started_at": now,
+    }
+    res = client.table("state_change_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("state_change_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def state_change_run_finalize(
+    client: Client,
+    *,
+    run_id: str,
+    status: str,
+    row_count: int,
+    warning_count: int,
+    error_json: Optional[dict[str, Any]] = None,
+) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    upd: dict[str, Any] = {
+        "status": status,
+        "finished_at": now,
+        "row_count": row_count,
+        "warning_count": warning_count,
+    }
+    if error_json is not None:
+        upd["error_json"] = error_json
+    client.table("state_change_runs").update(upd).eq("id", run_id).execute()
+
+
+def insert_state_change_components_batch(
+    client: Client, rows: list[dict[str, Any]], *, chunk_size: int = 80
+) -> None:
+    if not rows:
+        return
+    step = max(1, chunk_size)
+    for i in range(0, len(rows), step):
+        client.table("issuer_state_change_components").insert(rows[i : i + step]).execute()
+
+
+def insert_state_change_scores_batch(
+    client: Client, rows: list[dict[str, Any]], *, chunk_size: int = 80
+) -> None:
+    if not rows:
+        return
+    step = max(1, chunk_size)
+    for i in range(0, len(rows), step):
+        client.table("issuer_state_change_scores").insert(rows[i : i + step]).execute()
+
+
+def insert_state_change_candidates_batch(
+    client: Client, rows: list[dict[str, Any]], *, chunk_size: int = 80
+) -> None:
+    if not rows:
+        return
+    step = max(1, chunk_size)
+    for i in range(0, len(rows), step):
+        client.table("state_change_candidates").insert(rows[i : i + step]).execute()
+
+
+def smoke_state_change_tables(client: Client) -> None:
+    client.table("state_change_runs").select("id").limit(1).execute()
+
+
+def fetch_state_change_run(client: Client, *, run_id: str) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("state_change_runs")
+        .select("*")
+        .eq("id", run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_state_change_candidate_class_counts(
+    client: Client, *, run_id: str
+) -> dict[str, int]:
+    r = (
+        client.table("state_change_candidates")
+        .select("candidate_class")
+        .eq("run_id", run_id)
+        .execute()
+    )
+    counts: dict[str, int] = {}
+    for row in r.data or []:
+        c = str(row.get("candidate_class") or "")
+        counts[c] = counts.get(c, 0) + 1
+    return counts
+
+
+def fetch_latest_state_change_run_id(
+    client: Client, *, universe_name: str
+) -> Optional[str]:
+    r = (
+        client.table("state_change_runs")
+        .select("id,finished_at,status")
+        .eq("universe_name", universe_name)
+        .eq("status", "completed")
+        .order("finished_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return str(r.data[0]["id"])
+
+
+def fetch_state_change_scores_for_run(
+    client: Client, *, run_id: str, limit: int = 500
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("issuer_state_change_scores")
+        .select("*")
+        .eq("run_id", run_id)
+        .order("state_change_score_v1", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return list(r.data or [])
+
+
+def fetch_state_change_candidates_for_run(
+    client: Client, *, run_id: str, limit: int = 100
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("state_change_candidates")
+        .select("*")
+        .eq("run_id", run_id)
+        .order("candidate_rank")
+        .limit(limit)
+        .execute()
+    )
+    return list(r.data or [])
