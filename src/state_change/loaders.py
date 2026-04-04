@@ -28,7 +28,9 @@ def load_factor_panels_for_cik(
     cik: str,
     factor_version: str,
 ) -> list[dict[str, Any]]:
-    return dbrec.fetch_all_factor_panels_for_cik_version(client, cik, factor_version)
+    return dbrec.fetch_all_factor_panels_for_cik_version(
+        client, cik=cik, factor_version=factor_version
+    )
 
 
 def load_snapshots_for_ids(

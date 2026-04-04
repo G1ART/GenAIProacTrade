@@ -229,6 +229,23 @@ python3 src/main.py run-state-change --universe combined_largecap_research_v1 --
 python3 src/main.py report-state-change-summary --run-id <UUID>
 ```
 
+## Phase 7 목표 (AI Harness Minimum / Message Layer Minimum)
+
+- **역할**: `state_change_candidates` 등 **결정적 산출**을 바탕으로 **조사용 1p 메모**(thesis + **필수** 반론 + 합성)와 **운영자 리뷰 큐**를 제공. 진실 테이블(Phase 0–6)은 **읽기만** 하고 **AI가 점수를 덮어쓰지 않음**.
+- **산출 테이블**: `ai_harness_candidate_inputs`, `investigation_memos`, `investigation_memo_claims`, `operator_review_queue`; 스텁 `hypothesis_registry`, `promotion_gate_events`.
+- **코드**: `src/harness/` — `input_materializer.py`, `roles/deterministic_agents.py`, `referee/gate.py`, `memo_builder/pipeline.py`, `run_batch.py`; 라우팅 우선순위 문서 `harness/routing_policy_doc.py`; 미래 봉인 `docs/phase7_future_seams.md`, `src/research_lab/`.
+- **CLI**: `smoke-harness`, `build-ai-harness-inputs`, `generate-investigation-memos`, `report-review-queue`.
+- **마이그레이션**: `20250409100000_phase7_ai_harness_minimum.sql` (SQL Editor에서 Phase 6 이후 순서로 적용).
+- **하지 않는 것**: 매매·포트폴리오·실행 자동화·알파 홍보·백테스트 실적 주장·LLM 수치 조작·선행수익을 **모델 피처**로 주입(Phase 6 금지 유지).
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-harness
+python3 src/main.py build-ai-harness-inputs --universe sp500_current --limit 200
+python3 src/main.py generate-investigation-memos --universe sp500_current --limit 200
+python3 src/main.py report-review-queue --limit 50
+```
+
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
 
 **목적**: 시장 가격만 넓고 SEC/XBRL/스냅샷/팩터/검증 스파인이 샘플 수준일 때, **수동 INSERT 없이** 기존 파이프라인을 순서대로 묶어 `issuer_master` → `factor_market_validation_panels` 까지 채움. **백테스트·포트폴리오·AI harness·UI 확장 아님.**
@@ -360,11 +377,166 @@ python3 src/main.py backfill-universe --mode pilot --universe sp500_current \
 - `--start-stage` / `--end-stage`: `resolve` · `sec` · `xbrl` · `snapshots` · `factors` · `market_prices` · `forward_returns` · `validation_panel` · `phase5` · `phase6`
 - `--dry-run`: resolve 메타만 DB에 남기고 이후 스테이지는 기록만 `skipped_dry_run`
 - `phase5` / `phase6` 는 각각 `--rerun-phase5` / `--rerun-phase6` 가 있을 때만 실행
+- **`--coverage-stage`**: `stage_a` · `stage_b` · `full` — 유니버스 심볼을 **티커 오름차순**으로 앞에서부터 고정 코호트(무작위 없음). 기본 목표: `stage_a`→150, `stage_b`→300, `full`→전체. `sp500_current`가 부족하면 `combined_largecap_research_v1`로 보강. 지정 시 SEC/스냅/팩터 한도는 **full**과 동일(`--mode full` 권장).
+- `--issuer-target`: `coverage-stage`와 함께 목표 issuer 수.
+- `--write-coverage-checkpoint PATH`: 백필 성공 시 커버리지 스냅샷 JSON 저장.
 
 ### 리스크
 
 - **full** 모드는 SEC/네트워크·시간·Rate limit 부담이 큼. pilot·`--symbol-limit` 로 먼저 검증.
 - `forward_returns` / `validation_panel` 은 DB에 있는 **모든** 팩터 패널(상한 `limit_panels`)을 순회; `fetch_factor_panels_all` 은 페이지네이션으로 대량 로드.
+
+## Staged Coverage Expansion — SQL 적용 이후 복붙 절차 (대표님용)
+
+**전제**: `20250408100000_backfill_orchestration.sql` RPC `backfill_coverage_counts` 적용. **수동 INSERT/CSV/placeholder 금지.** Phase 7·백테스트·대시보드 착수 아님.
+
+**성공 기준(참고)** — Stage A: issuer≥150, 팩터 distinct CIK≥100, 검증 distinct≥80, state change scores≥250 등. Stage B: issuer≥300, 팩터 distinct≥200, 검증 distinct≥150, scores≥800 등.
+
+### (1) 현재 row count 확인 SQL
+
+```sql
+select 'issuer_master' as table_name, count(*) as rows from issuer_master
+union all
+select 'issuer_quarter_snapshots', count(*) from issuer_quarter_snapshots
+union all
+select 'issuer_quarter_factor_panels', count(*) from issuer_quarter_factor_panels
+union all
+select 'forward_returns_daily_horizons', count(*) from forward_returns_daily_horizons
+union all
+select 'factor_market_validation_panels', count(*) from factor_market_validation_panels
+union all
+select 'issuer_state_change_scores', count(*) from issuer_state_change_scores
+union all
+select 'state_change_candidates', count(*) from state_change_candidates;
+```
+
+### (2) distinct issuer coverage
+
+```sql
+select 'issuer_quarter_factor_panels' as table_name, count(distinct cik) as distinct_cik from issuer_quarter_factor_panels
+union all
+select 'factor_market_validation_panels', count(distinct cik) from factor_market_validation_panels
+union all
+select 'issuer_state_change_scores', count(distinct cik) from issuer_state_change_scores;
+```
+
+### (3) thin coverage issuer (팩터 행 < 4)
+
+```sql
+select p.cik, m.ticker, count(*) as factor_rows
+from issuer_quarter_factor_panels p
+left join issuer_master m on m.cik = p.cik
+group by p.cik, m.ticker
+having count(*) < 4
+order by factor_rows asc, m.ticker asc nulls last
+limit 100;
+```
+
+### (4) 상위 state change 후보
+
+`state_change_candidates`에는 합성 점수 컬럼이 없습니다. 점수는 `issuer_state_change_scores`를 보세요.
+
+```sql
+select ticker, as_of_date, candidate_class, confidence_band, candidate_rank
+from state_change_candidates
+order by as_of_date desc, candidate_rank asc
+limit 50;
+```
+
+```sql
+select ticker, as_of_date, state_change_score_v1, confidence_band, state_change_direction
+from issuer_state_change_scores
+order by as_of_date desc
+limit 50;
+```
+
+### (5) Stage A 실행 (30 → ~150 issuer)
+
+```bash
+cd ~/GenAIProacTrade
+source .venv/bin/activate
+export PYTHONPATH=src
+python3 src/main.py backfill-universe --mode full --universe sp500_current \
+  --coverage-stage stage_a \
+  --rerun-phase5 --rerun-phase6 \
+  --write-coverage-checkpoint /tmp/coverage_checkpoint_stage_a.json
+```
+
+### (6) Stage A coverage report 확인
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py report-backfill-status --mode full --universe sp500_current \
+  --coverage-stage stage_a \
+  --include-coverage-checkpoint
+```
+
+### (7) thin issuer / join 진단 파일 저장
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py report-backfill-status --mode full --universe sp500_current \
+  --coverage-stage stage_a \
+  --include-sparse-diagnostics \
+  --write-sparse-diagnostics /tmp/sparse_stage_a.json \
+  --write-diagnostics /tmp/join_diag_stage_a.json
+```
+
+### (8) Stage B 실행 (~300 issuer)
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py backfill-universe --mode full --universe sp500_current \
+  --coverage-stage stage_b \
+  --rerun-phase5 --rerun-phase6 \
+  --write-coverage-checkpoint /tmp/coverage_checkpoint_stage_b.json
+```
+
+### (9) Stage B coverage report 확인
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py report-backfill-status --mode full --universe sp500_current \
+  --coverage-stage stage_b \
+  --include-coverage-checkpoint \
+  --include-sparse-diagnostics
+```
+
+### (10) Phase 5 / 6 단독 재실행 (백필에 이미 포함했으면 생략 가능)
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py run-factor-validation --universe sp500_current --horizon next_month
+python3 src/main.py run-factor-validation --universe sp500_current --horizon next_quarter
+python3 src/main.py run-state-change --universe sp500_current --limit 2000 --output-json
+```
+
+### (11) 요약 리포트
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py report-factor-summary
+python3 src/main.py report-state-change-summary --universe sp500_current
+```
+
+### (12)–(14) git
+
+```bash
+git status
+git add -A
+git commit -m "chore: expand coverage from 30 to 300+ issuers"
+git push origin main
+```
+
+**실패 티커만 재시도** (`retry_tickers_all`가 있을 때):
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py backfill-universe --mode full --universe sp500_current \
+  --coverage-stage stage_b \
+  --retry-failed-only --from-orchestration-run-id <ORCH_UUID> \
+  --start-stage sec --end-stage factors
+```
 
 ## Phase 3 목표
 

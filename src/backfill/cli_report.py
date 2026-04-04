@@ -37,6 +37,33 @@ def format_backfill_status_text(payload: dict[str, Any]) -> str:
     thin = payload.get("thin_factor_issuers")
     if isinstance(thin, list):
         lines.append(f"thin_factor_issuers (n<{payload.get('thin_threshold', 4)}): {len(thin)} shown")
+    cs = payload.get("coverage_stage")
+    if cs:
+        lines.append(f"coverage_stage: {cs}")
+    ck = payload.get("coverage_checkpoint")
+    if isinstance(ck, dict):
+        lines.append("coverage_checkpoint (subset):")
+        for key in (
+            "issuer_master_rows",
+            "issuer_quarter_factor_panels_distinct_cik",
+            "factor_market_validation_panels_distinct_cik",
+            "issuer_state_change_scores_distinct_cik",
+        ):
+            if key in ck:
+                lines.append(f"  {key}: {ck[key]}")
+    sp = payload.get("sparse_issuer_diagnostics")
+    if isinstance(sp, dict):
+        lines.append("sparse_issuer_diagnostics (issuer_count):")
+        for key in (
+            "issuer_master_no_filing_index",
+            "filing_index_no_silver_facts",
+            "snapshots_no_factor_panels",
+            "factor_panels_no_validation",
+            "validation_panels_no_state_change_score",
+        ):
+            block = sp.get(key)
+            if isinstance(block, dict) and "issuer_count" in block:
+                lines.append(f"  {key}: {block['issuer_count']}")
     return "\n".join(lines)
 
 

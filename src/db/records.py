@@ -717,6 +717,24 @@ def fetch_latest_factor_validation_summaries(
     return rid, list(s.data or [])
 
 
+def fetch_latest_factor_validation_run_id(
+    client: Client, *, universe_name: str, horizon_type: str
+) -> Optional[str]:
+    r = (
+        client.table("factor_validation_runs")
+        .select("id")
+        .eq("universe_name", universe_name)
+        .eq("horizon_type", horizon_type)
+        .eq("status", "completed")
+        .order("completed_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return str(r.data[0]["id"])
+
+
 def fetch_factor_quantiles_for_run(
     client: Client,
     *,
@@ -1081,3 +1099,148 @@ def fetch_latest_backfill_orchestration(
     if not r.data:
         return None
     return dict(r.data[0])
+
+
+# --- Phase 7 AI Harness (overlay) ---
+
+
+def smoke_harness_tables(client: Client) -> None:
+    client.table("ai_harness_candidate_inputs").select("id").limit(1).execute()
+
+
+def upsert_ai_harness_candidate_input(
+    client: Client,
+    *,
+    candidate_id: str,
+    state_change_run_id: str,
+    contract_version: str,
+    payload_json: dict[str, Any],
+    payload_hash: str,
+) -> str:
+    row: dict[str, Any] = {
+        "candidate_id": candidate_id,
+        "state_change_run_id": state_change_run_id,
+        "contract_version": contract_version,
+        "payload_json": payload_json,
+        "payload_hash": payload_hash,
+    }
+    res = (
+        client.table("ai_harness_candidate_inputs")
+        .upsert(row, on_conflict="candidate_id,contract_version")
+        .execute()
+    )
+    if not res.data:
+        raise RuntimeError("ai_harness_candidate_inputs upsert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_ai_harness_input_for_candidate(
+    client: Client, *, candidate_id: str, contract_version: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("ai_harness_candidate_inputs")
+        .select("*")
+        .eq("candidate_id", candidate_id)
+        .eq("contract_version", contract_version)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_ai_harness_inputs_for_run(
+    client: Client, *, run_id: str, limit: int = 500
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("ai_harness_candidate_inputs")
+        .select("*")
+        .eq("state_change_run_id", run_id)
+        .order("built_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_max_memo_version(client: Client, *, candidate_id: str) -> int:
+    r = (
+        client.table("investigation_memos")
+        .select("memo_version")
+        .eq("candidate_id", candidate_id)
+        .order("memo_version", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return 0
+    return int(r.data[0]["memo_version"])
+
+
+def insert_investigation_memo(
+    client: Client,
+    *,
+    candidate_id: str,
+    input_id: Optional[str],
+    memo_version: int,
+    generation_mode: str,
+    memo_json: dict[str, Any],
+    referee_passed: bool,
+    referee_flags_json: list[Any],
+) -> str:
+    row: dict[str, Any] = {
+        "candidate_id": candidate_id,
+        "input_id": input_id,
+        "memo_version": memo_version,
+        "generation_mode": generation_mode,
+        "memo_json": memo_json,
+        "referee_passed": referee_passed,
+        "referee_flags_json": referee_flags_json,
+    }
+    res = client.table("investigation_memos").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("investigation_memos insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def insert_investigation_memo_claims_batch(
+    client: Client, rows: list[dict[str, Any]]
+) -> None:
+    if not rows:
+        return
+    step = 80
+    for i in range(0, len(rows), step):
+        client.table("investigation_memo_claims").insert(rows[i : i + step]).execute()
+
+
+def upsert_operator_review_queue(
+    client: Client,
+    *,
+    candidate_id: str,
+    issuer_id: Optional[str],
+    cik: str,
+    as_of_date: str,
+    status: str,
+    memo_id: Optional[str],
+) -> None:
+    row: dict[str, Any] = {
+        "candidate_id": candidate_id,
+        "issuer_id": issuer_id,
+        "cik": cik,
+        "as_of_date": as_of_date,
+        "status": status,
+        "memo_id": memo_id,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    client.table("operator_review_queue").upsert(row, on_conflict="candidate_id").execute()
+
+
+def fetch_operator_review_queue(
+    client: Client, *, status: Optional[str] = None, limit: int = 200
+) -> list[dict[str, Any]]:
+    q = client.table("operator_review_queue").select("*")
+    if status:
+        q = q.eq("status", status)
+    r = q.order("as_of_date", desc=True).limit(limit).execute()
+    return [dict(x) for x in (r.data or [])]

@@ -1,17 +1,65 @@
-# HANDOFF — Phase 6 + Universe Backfill
+# HANDOFF — Phase 6–7 + Universe Backfill
 
-## Universe Backfill 오케스트레이션 (신규)
+## Phase 7 완료 범위 (AI Harness Minimum)
+
+- **마이그레이션** `20250409100000_phase7_ai_harness_minimum.sql`: `ai_harness_candidate_inputs`, `investigation_memos`, `investigation_memo_claims`, `operator_review_queue`, 스텁 `hypothesis_registry`, `promotion_gate_events`.
+- **입력 계약** `ai_harness_input_v1`: `harness/input_materializer.py` — candidate + score + components + issuer + factor panel + validation panel join + filing handles + Phase 5 요약(연구 맥락만, 피처 아님).
+- **메모 스키마** `investigation_memo_v1`: `memo_builder/pipeline.py` — deterministic_signal_summary, thesis, **mandatory** strongest_counter_argument(대체해석·데이터 부족·오염/레짐·무의미 가능성·반증 조건), synthesis(이견 보존), uncertainty_labels, evidence_blocks, limitations, source_trace, referee_result.
+- **역할** `roles/deterministic_agents.py`: ThesisAgent / ChallengeAgent / SynthesisAgent (현재 **결정적 스켈레톤**; LLM 연결은 이후 옵션).
+- **RefereeGate** `referee/gate.py`: 매매·포트폴리오·과장 수익 문구 차단; 반론·uncertainty·합성 이견 검사.
+- **배치** `harness/run_batch.py`: 메모 생성 → claims 적재 → `operator_review_queue` upsert (`pending`).
+- **DB** `src/db/records.py`: harness CRUD, `fetch_latest_factor_validation_run_id`.
+- **CLI**: `smoke-harness`, `build-ai-harness-inputs`, `generate-investigation-memos`, `report-review-queue`.
+- **문서**: `README.md` Phase 7 절, `docs/founder-surface-contract.md`, `docs/phase7_future_seams.md`, `src/db/schema_notes.md` (Phase 7 테이블).
+- **pytest**: `src/tests/test_harness_phase7.py`.
+
+### Founder north-star (문서·구조에 반영된 것)
+
+- **대립적이되 협력적인 하네스**: thesis vs challenge를 합성에서 평탄화하지 않음.
+- **내부 R&D / discovery 레인**: `hypothesis_registry`·`research_lab/`·`phase7_future_seams.md`로 **프로덕션 스코어링과 분리**.
+- **장기 벤치마 포부**: 시뮬레이션 엔진은 **구현 안 함**; 평가 규율은 “설명 ≠ 예측력”으로 문서화.
+- **지평·레짐별 툴킷**: `routing_policy_doc.py` + `phase7_future_seams.md`에 훅만.
+- **크로스 도메인**: 어댑터 철학은 문서만; 본 패치에서 ingestion 확장 없음.
+
+### 운영 명령 (end-to-end)
+
+```bash
+cd ~/GenAIProacTrade && source .venv/bin/activate && export PYTHONPATH=src
+python3 src/main.py smoke-harness
+python3 src/main.py build-ai-harness-inputs --universe sp500_current --limit 200
+python3 src/main.py generate-investigation-memos --universe sp500_current --limit 200
+python3 src/main.py report-review-queue --limit 50
+```
+
+`--run-id <UUID>` 로 특정 `state_change_runs` 지정 가능.
+
+### Phase 7에서 의도적으로 안 한 것
+
+- LLM 프로바이더 연동, UI, 알림, 실거래, 포트폴리오, 백테스트 실적, 자동 승격, 연구 샌드박스 실구현, walk-forward 엔진, 도메인 어댑터 코드.
+
+### 남은 리스크
+
+- 메모 본문이 **템플릿 기반**이라 운영 품질은 후속 LLM·편집 레이어에서 강화 필요.
+- Supabase **upsert** API가 환경에 따라 `on_conflict` 문자열 요구가 다를 수 있음 — 실패 시 마이그레이션/클라이언트 버전 확인.
+- `factor_market_validation_panels`의 forward 컬럼 **존재 여부**는 입력의 `coverage_flags`에만 반영; 피처로 사용하지 않음.
+
+### 다음 권장 단계
+
+- 운영자 피드백 후 Referee 규칙·메모 톤 조정.
+- (선택) OpenAI 등으로 Challenge/Thesis **문장만** 보강하되 수치는 입력에서만 인용.
+- 리뷰 큐 상태 전환을 위한 소규모 CLI 또는 내부 도구.
+
+---
+
+## Universe Backfill 오케스트레이션
 
 - **마이그레이션** `20250408100000_backfill_orchestration.sql`: `backfill_orchestration_runs`, `backfill_stage_events`, RPC `backfill_coverage_counts()`
-- **모듈** `src/backfill/`: `universe_resolver`, `backfill_runner`, `join_diagnostics`, `coverage_report`, `status_report`, `cli_report`, `normalize`, `pilot_tickers`
+- **모듈** `src/backfill/`: `universe_resolver`, `backfill_runner`, `join_diagnostics`, `coverage_report`, `status_report`, `cli_report`, `normalize`, `pilot_tickers`, **`staged_cohort`**, **`checkpoint_report`**, **`sparse_diagnostics`**
+- **Staged coverage expansion**: `backfill-universe --coverage-stage stage_a|stage_b|full --issuer-target N` — `sp500_current` 티커 **오름차순** 고정 코호트(무작위 없음), 부족 시 `combined_largecap_research_v1` 보강. SEC/스냅/팩터 한도는 full과 동일(`--mode full` 권장). 완료 시 `coverage_checkpoint` JSON·`--write-coverage-checkpoint PATH`. `report-backfill-status --include-coverage-checkpoint`, `--include-sparse-diagnostics`, `--write-sparse-diagnostics PATH`.
 - **설정** `config/backfill_pilot_tickers_v1.json` — pilot 30종(유니버스와 교집합)
 - **CLI**: `smoke-backfill`, `backfill-universe`, `report-backfill-status`
-- **SEC/facts 리팩터**: `run_sec_ingest_for_tickers`, `run_facts_extract_for_tickers`, `run_quarter_snapshot_build_tickers`
-- **records**: `fetch_factor_panels_all` 페이지네이션(대량 forward/validation 빌드), backfill CRUD·RPC 래퍼
-- **pytest** `src/tests/test_backfill_orchestration.py`
-- **문서**: README `## Full Universe Backfill` 복붙 (1)–(14), `schema_notes` 마이그레이션 8
-
-**하지 않는 것**: 수동 SQL/CSV로 데이터 채우기, 웹 매크로, 가짜 placeholder row, 백테스트·전략·AI harness.
+- **pytest** `src/tests/test_backfill_orchestration.py`, `src/tests/test_staged_coverage.py`
+- **문서**: README `## Full Universe Backfill`, `## Staged Coverage Expansion`
 
 **재시도**: `summary_json.retry_tickers_all` + `--retry-failed-only --from-orchestration-run-id <UUID>`
 
@@ -20,60 +68,20 @@
 ## Phase 6 완료 범위 (state change)
 
 - **마이그레이션** `20250407100000_phase6_state_change_engine.sql`: `state_change_runs`, `issuer_state_change_components`, `issuer_state_change_scores`, `state_change_candidates`
-- **모듈** `src/state_change/`: `signal_registry`, `universe_scope`, `loaders`, `transforms`, `components`, `scoring`, `candidates`, `runner`, `reports`, `cli_report`, `__init__.py`
-- **DB** `src/db/records.py`: issuer/패널/스냅샷 조회, state change run insert/finalize, 배치 insert, smoke, 최근 run·점수·후보·run 단건·후보 class 집계
+- **모듈** `src/state_change/`
 - **CLI**: `run-state-change`, `report-state-change-summary`, `smoke-state-change`
-- **문서**: `README.md`(Phase 6 목적·Phase 5 차이·복붙 1–10·CLI), `src/db/schema_notes.md`
-- **pytest**: `src/tests/test_state_change_phase6.py` — 결정성·누수 방지(state_change 패키지가 validation 패널 테이블 미조회)·lag·null 처리·방향 매핑·후보 정렬·요약 포맷·CLI `-h`
+- **pytest**: `src/tests/test_state_change_phase6.py`
 
-## State change의 정의 (이번 Phase)
+**하지 않는 것**: `factor_market_validation_panels`의 forward 라벨을 state change **feature**로 사용 (금지).
 
-- **입력**: 분기 팩터 패널·스냅샷·유니버스·(선택) 무위험 이자율로 **동시점 단면 z** 및 **lag 기반 velocity/acceleration/persistence** 등을 계산해 issuer–`as_of_date` 단위로 적재.
-- **출력**: 구성요소 long-form, 투명 가중 합성 점수, **조사 후보** 분류(`investigate_now` 등). **트레이드 추천·알파·포트폴리오 아님.**
+---
 
-## 새 테이블 4종
+## 이번 저장소에서 최근 추가·수정한 주요 파일 (Phase 7)
 
-| 테이블 | 역할 |
-|--------|------|
-| `state_change_runs` | 실행 메타(`run_type`, 유니버스, 기간, `config_version`, `input_snapshot_json`, 상태) |
-| `issuer_state_change_components` | 신호별 level/velocity/acceleration/persistence·nullable contamination/regime |
-| `issuer_state_change_scores` | 일자별 합성 `state_change_score_v1`, 방향, 신뢰 구간, 게이트, `normalized_weight_sum` |
-| `state_change_candidates` | 순위·분류·사유 JSON·우선순위(휴먼 리뷰용) |
-
-## 새 CLI 3종
-
-- `smoke-state-change` — 테이블 도달
-- `run-state-change` — `--universe`, `--as-of-date`, `--start-date`, `--end-date`, `--limit`, `--dry-run`, `--include-nullable-overlays`, `--output-json`
-- `report-state-change-summary` — `--run-id` 또는 `--universe`(최근 completed), `--output-json`
-
-## 아직 하지 않는 것 (Phase 6 범위 밖)
-
-- AI 하네스·메시지 레이어, 알림, UI, 포트폴리오, 백테스트 확장, execution signal
-- `factor_market_validation_panels`의 **forward/excess return·horizon outcome** 을 state change **feature**로 사용 (금지; 코드상 `src/state_change/*` 에서 해당 테이블 조회 없음)
-
-## 대표 수동 액션
-
-1. Phase 6 SQL 적용 후 `smoke-state-change`
-2. `run-state-change --limit` 소규모 → `report-state-change-summary`
-3. SQL로 `run_id`별 row count·상위 후보 확인(README 복붙)
-
-## 다음 Phase (AI harness / message layer) 진입 조건 제안
-
-- [ ] Phase 6 마이그레이션 적용·`smoke-state-change` 성공
-- [ ] 최소 1회 `run-state-change` completed·`state_change_candidates` 샘플 확인
-- [ ] 조사 워크플로에 맞는 후보 필터·우선순위를 사람이 검토해 피드백 반영 여부 결정
-- [ ] `.env`·service role 미커밋 유지
-
-## 이번 패치에서 추가·수정한 주요 파일
-
-- `supabase/migrations/20250407100000_phase6_state_change_engine.sql`
-- `src/state_change/**`
+- `supabase/migrations/20250409100000_phase7_ai_harness_minimum.sql`
+- `src/harness/**`, `src/research_lab/__init__.py`, `src/harness/routing_policy_doc.py`
+- `src/harness/run_batch.py`
 - `src/db/records.py`, `src/main.py`
-- `src/tests/test_state_change_phase6.py`
+- `src/tests/test_harness_phase7.py`
+- `docs/founder-surface-contract.md`, `docs/phase7_future_seams.md`
 - `README.md`, `HANDOFF.md`, `src/db/schema_notes.md`
-
-## 알려진 리스크
-
-- 유니버스에 팩터 패널이 거의 없으면 관측 0·빈 run.
-- contamination v1은 결정적 proxy 없이 null·메타만(regime은 무위험 맥락 최소 태깅).
-- 동일 `(cik, as_of_date)` 패널 중복 시 **최대 분기 인덱스** 한 행만 유지.

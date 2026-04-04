@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import logging
+from pathlib import Path
 from typing import Any, Optional
 
 from backfill import STAGE_ORDER
+from backfill.checkpoint_report import build_coverage_checkpoint_report
+from backfill.staged_cohort import resolve_staged_coverage_tickers
 from backfill.universe_resolver import resolve_backfill_tickers
 from db import records as dbrec
 from factors.panel_build import run_factor_panels_watchlist
@@ -55,6 +59,12 @@ def _panel_limit(mode: str) -> int:
     )
 
 
+def _limits_mode(mode: str, coverage_stage: Optional[str]) -> str:
+    if coverage_stage:
+        return "full"
+    return mode
+
+
 def run_backfill_universe(
     settings: Any,
     client: Any,
@@ -72,10 +82,15 @@ def run_backfill_universe(
     sleep_sec: float = 0.55,
     factor_version: str = "v1",
     market_lookback_days: int = 400,
+    coverage_stage: Optional[str] = None,
+    issuer_target: Optional[int] = None,
+    write_coverage_checkpoint: Optional[str] = None,
 ) -> dict[str, Any]:
     si, ei = _stage_range(start_stage, end_stage)
     stage_results: dict[str, Any] = {}
     retry_tickers: set[str] = set()
+    lim_mode = _limits_mode(mode, coverage_stage)
+    requested_target: Optional[int] = None
 
     if retry_failed_only:
         if not from_orchestration_run_id:
@@ -96,6 +111,14 @@ def run_backfill_universe(
             "retry_from": from_orchestration_run_id,
             "resolved_symbol_count": len(tickers),
         }
+    elif coverage_stage:
+        tickers, resolve_meta = resolve_staged_coverage_tickers(
+            client,
+            universe_name=universe_name,
+            coverage_stage=coverage_stage,
+            issuer_target=issuer_target,
+        )
+        requested_target = resolve_meta.get("requested_issuer_target")
     else:
         tickers, resolve_meta = resolve_backfill_tickers(
             client,
@@ -103,12 +126,17 @@ def run_backfill_universe(
             universe_name=universe_name,
             symbol_limit=symbol_limit,
         )
+        requested_target = symbol_limit
+
+    orch_req = (
+        requested_target if coverage_stage else symbol_limit
+    )
 
     orch_id = dbrec.backfill_orch_insert_started(
         client,
         mode=mode,
         universe_name=universe_name,
-        requested_symbol_count=symbol_limit,
+        requested_symbol_count=orch_req,
         resolved_symbol_count=len(tickers),
         config_json={
             "start_stage": start_stage or STAGE_ORDER[0],
@@ -117,6 +145,8 @@ def run_backfill_universe(
             "retry_failed_only": retry_failed_only,
             "rerun_phase5": rerun_phase5,
             "rerun_phase6": rerun_phase6,
+            "coverage_stage": coverage_stage,
+            "issuer_target": issuer_target,
             "tickers_preview": tickers[:20],
         },
     )
@@ -154,9 +184,9 @@ def run_backfill_universe(
             )
             stage_results["resolve"] = {"tickers": tickers, "meta": resolve_meta}
 
-        filings = _filings_per_issuer(mode)
-        snap_lim = _snapshot_limit(mode)
-        plim = _panel_limit(mode)
+        filings = _filings_per_issuer(lim_mode)
+        snap_lim = _snapshot_limit(lim_mode)
+        plim = _panel_limit(lim_mode)
 
         if _in_range(STAGE_ORDER.index("sec"), si, ei):
             if dry_run:
@@ -257,11 +287,18 @@ def run_backfill_universe(
                     end_date=None,
                     lookback_days=market_lookback_days,
                 )
+                miss = m_out.get("missing")
+                if isinstance(miss, list):
+                    miss_err = len(miss)
+                elif miss is None:
+                    miss_err = 0
+                else:
+                    miss_err = int(miss)
                 _record(
                     "market_prices",
                     str(m_out.get("status") or "completed"),
                     ins=int(m_out.get("symbols_with_data") or 0),
-                    err=len(m_out.get("missing") or []),
+                    err=miss_err,
                     notes={
                         "silver_rows": m_out.get("silver_rows"),
                         "symbols_requested": m_out.get("symbols_requested"),
@@ -345,7 +382,23 @@ def run_backfill_universe(
             "tickers": tickers,
             "stage_results_keys": list(stage_results.keys()),
             "retry_tickers_all": sorted(retry_tickers),
+            "coverage_stage": coverage_stage,
+            "issuer_target": issuer_target,
         }
+        checkpoint = build_coverage_checkpoint_report(
+            client,
+            requested_issuer_target=requested_target
+            if coverage_stage
+            else symbol_limit,
+            resolved_issuer_count=len(tickers),
+            coverage_stage=coverage_stage,
+        )
+        if write_coverage_checkpoint:
+            p = Path(write_coverage_checkpoint).expanduser()
+            p.write_text(
+                json.dumps(checkpoint, indent=2, ensure_ascii=False, default=str),
+                encoding="utf-8",
+            )
         dbrec.backfill_orch_finalize(
             client,
             run_id=orch_id,
@@ -357,6 +410,7 @@ def run_backfill_universe(
             "orchestration_run_id": orch_id,
             "summary": summary,
             "stage_results": stage_results,
+            "coverage_checkpoint": checkpoint,
         }
     except Exception as ex:  # noqa: BLE001
         logger.exception("backfill failed")

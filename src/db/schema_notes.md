@@ -1,4 +1,4 @@
-# DB 스키마 메모 (Phase 0–6)
+# DB 스키마 메모 (Phase 0–7)
 
 ## 데이터 계층 역할
 
@@ -29,6 +29,12 @@
 | `issuer_state_change_components` | 발행일·신호 long-form 구성요소(level/velocity/…). `(run_id, cik, as_of_date, signal_name)` 유니크. |
 | `issuer_state_change_scores` | 발행일 단위 투명 합성 점수. `(run_id, cik, as_of_date)` 유니크. |
 | `state_change_candidates` | 조사 후보(실행 신호 아님). `(run_id, cik, as_of_date, candidate_rank)` 유니크. |
+| `ai_harness_candidate_inputs` | Phase 7 **AI Harness 입력 계약** JSON. `(candidate_id, contract_version)` 유니크 upsert. 진실 테이블 비변경. |
+| `investigation_memos` | 조사 메모 오버레이. `(candidate_id, memo_version)` 유니크. thesis+challenge+synthesis+referee 메타. |
+| `investigation_memo_claims` | 클레임·근거·`uncertainty_label`(confirmed\|plausible_hypothesis\|unverifiable). |
+| `operator_review_queue` | 운영자 리뷰 큐. `candidate_id` 유니크. 상태: pending\|reviewed\|needs_followup\|blocked_insufficient_data. |
+| `hypothesis_registry` | **스텁** — 미래 연구 가설; 스코어링 미연동. |
+| `promotion_gate_events` | **스텁** — 미래 승격 게이트; 자동 승격 없음. |
 | `backfill_orchestration_runs` | **유니버스 백필** 상위 실행 메타. `mode`·`universe_name`·`summary_json`(retry_tickers 등). |
 | `backfill_stage_events` | 백필 **스테이지별** 행 수·에러·`notes_json`. `ingest_runs` 와 별도 감사. |
 
@@ -135,3 +141,4 @@ Service role 키는 RLS를 우회한다. 로컬 워커는 service role 전제.
 6. `20250406100000_phase5_factor_validation_research.sql`
 7. `20250407100000_phase6_state_change_engine.sql`
 8. `20250408100000_backfill_orchestration.sql` — `backfill_*` 테이블 + `backfill_coverage_counts()` RPC
+9. `20250409100000_phase7_ai_harness_minimum.sql` — harness 입력·메모·리뷰 큐·R&D 스텁

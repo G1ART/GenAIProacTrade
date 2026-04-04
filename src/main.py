@@ -497,6 +497,9 @@ def _cmd_backfill_universe(args: argparse.Namespace) -> int:
         sleep_sec=float(args.sleep),
         factor_version=str(fv),
         market_lookback_days=int(args.market_lookback_days),
+        coverage_stage=args.coverage_stage,
+        issuer_target=args.issuer_target,
+        write_coverage_checkpoint=args.write_coverage_checkpoint,
     )
     print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0 if out.get("status") == "completed" else 1
@@ -512,6 +515,9 @@ def _cmd_report_backfill_status(args: argparse.Namespace) -> int:
     settings = load_settings()
     configure_logging()
     client = get_supabase_client(settings)
+    include_sparse = bool(args.include_sparse_diagnostics) or bool(
+        args.write_sparse_diagnostics
+    )
     payload = build_backfill_status_payload(
         client,
         mode=str(args.mode),
@@ -520,6 +526,10 @@ def _cmd_report_backfill_status(args: argparse.Namespace) -> int:
         include_diagnostics=not args.no_diagnostics,
         thin_threshold=int(args.thin_threshold),
         orchestration_run_id=args.orchestration_run_id,
+        coverage_stage=args.coverage_stage,
+        issuer_target=args.issuer_target,
+        include_coverage_checkpoint=bool(args.include_coverage_checkpoint),
+        include_sparse_diagnostics=include_sparse,
     )
     if args.write_diagnostics:
         p = Path(args.write_diagnostics).expanduser()
@@ -528,7 +538,88 @@ def _cmd_report_backfill_status(args: argparse.Namespace) -> int:
             json.dumps(diag, indent=2, ensure_ascii=False, default=str),
             encoding="utf-8",
         )
+    if args.write_sparse_diagnostics:
+        p2 = Path(args.write_sparse_diagnostics).expanduser()
+        sp = payload.get("sparse_issuer_diagnostics") or {}
+        p2.write_text(
+            json.dumps(sp, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
     emit_backfill_report(payload, output_json=bool(args.output_json))
+    return 0
+
+
+def _cmd_smoke_harness(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db.records import smoke_harness_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_harness_tables(client)
+    print(json.dumps({"phase7_harness_tables": "ok"}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_build_ai_harness_inputs(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db import records as dbrec
+    from harness.input_materializer import materialize_inputs_for_run
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rid = args.run_id or dbrec.fetch_latest_state_change_run_id(
+        client, universe_name=args.universe
+    )
+    if not rid:
+        print(
+            json.dumps(
+                {"error": "no_completed_state_change_run", "universe": args.universe},
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    out = materialize_inputs_for_run(client, run_id=rid, limit=int(args.limit))
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_generate_investigation_memos(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db import records as dbrec
+    from harness.run_batch import generate_memos_for_run
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rid = args.run_id or dbrec.fetch_latest_state_change_run_id(
+        client, universe_name=args.universe
+    )
+    if not rid:
+        print(
+            json.dumps(
+                {"error": "no_completed_state_change_run", "universe": args.universe},
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    out = generate_memos_for_run(client, run_id=rid, limit=int(args.limit))
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_review_queue(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db.records import fetch_operator_review_queue
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rows = fetch_operator_review_queue(
+        client, status=args.status, limit=int(args.limit)
+    )
+    print(json.dumps({"count": len(rows), "items": rows}, indent=2, ensure_ascii=False, default=str))
     return 0
 
 
@@ -901,6 +992,25 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=int(os.getenv("MARKET_PRICE_LOOKBACK_DAYS", "400")),
     )
+    bfu.add_argument(
+        "--coverage-stage",
+        default=None,
+        choices=("stage_a", "stage_b", "full"),
+        help="결정적 코호트 확장: stage_a≈150·stage_b≈300·full=전체(issuer-target로 캡 가능). "
+        "지정 시 티커는 유니버스 정렬 앞쪽부터 채움(--mode full 권장).",
+    )
+    bfu.add_argument(
+        "--issuer-target",
+        type=int,
+        default=None,
+        help="coverage-stage 와 함께: 목표 issuer 수(미지정 시 stage_a=150, stage_b=300, full=전체).",
+    )
+    bfu.add_argument(
+        "--write-coverage-checkpoint",
+        default=None,
+        metavar="PATH",
+        help="완료 시 coverage_checkpoint JSON을 파일로 저장",
+    )
     bfu.add_argument("--output-json", action="store_true", help="항상 JSON 출력(기본도 JSON)")
     bfu.set_defaults(func=_cmd_backfill_universe)
 
@@ -936,8 +1046,76 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="join_diagnostics JSON 저장 경로",
     )
+    rbs.add_argument(
+        "--coverage-stage",
+        default=None,
+        choices=("stage_a", "stage_b", "full"),
+        help="resolve·join_diagnostics 에 staged 코호트 사용",
+    )
+    rbs.add_argument(
+        "--issuer-target",
+        type=int,
+        default=None,
+        help="coverage-stage 와 함께 목표 issuer 수",
+    )
+    rbs.add_argument(
+        "--include-coverage-checkpoint",
+        action="store_true",
+        help="페이로드에 coverage_checkpoint 포함",
+    )
+    rbs.add_argument(
+        "--include-sparse-diagnostics",
+        action="store_true",
+        help="페이로드에 sparse_issuer_diagnostics 포함",
+    )
+    rbs.add_argument(
+        "--write-sparse-diagnostics",
+        default=None,
+        metavar="PATH",
+        help="sparse_issuer_diagnostics JSON 저장(자동으로 포함 조회)",
+    )
     rbs.add_argument("--output-json", action="store_true")
     rbs.set_defaults(func=_cmd_report_backfill_status)
+
+    sh7 = sub.add_parser(
+        "smoke-harness",
+        help="Phase 7 ai_harness_* 테이블 도달 (마이그레이션 필요)",
+    )
+    sh7.set_defaults(func=_cmd_smoke_harness)
+
+    hai = sub.add_parser(
+        "build-ai-harness-inputs",
+        help="state_change_candidates → ai_harness_candidate_inputs 결정적 적재",
+    )
+    hai.add_argument(
+        "--universe",
+        default="sp500_current",
+        help="run-id 미지정 시 최근 completed state_change_runs 기준",
+    )
+    hai.add_argument("--run-id", default=None, dest="run_id")
+    hai.add_argument("--limit", type=int, default=500)
+    hai.set_defaults(func=_cmd_build_ai_harness_inputs)
+
+    gim = sub.add_parser(
+        "generate-investigation-memos",
+        help="harness input → investigation_memos + operator_review_queue",
+    )
+    gim.add_argument("--universe", default="sp500_current")
+    gim.add_argument("--run-id", default=None, dest="run_id")
+    gim.add_argument("--limit", type=int, default=500)
+    gim.set_defaults(func=_cmd_generate_investigation_memos)
+
+    rrq = sub.add_parser(
+        "report-review-queue",
+        help="operator_review_queue 조회 JSON",
+    )
+    rrq.add_argument(
+        "--status",
+        default=None,
+        choices=("pending", "reviewed", "needs_followup", "blocked_insufficient_data"),
+    )
+    rrq.add_argument("--limit", type=int, default=200)
+    rrq.set_defaults(func=_cmd_report_review_queue)
 
     return p
 
