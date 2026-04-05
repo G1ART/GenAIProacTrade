@@ -666,12 +666,29 @@ def _cmd_export_phase7_evidence_bundle(args: argparse.Namespace) -> int:
         )
         ids = [str(x["id"]) for x in (r.data or [])]
     if len(ids) < 1:
-        print(
-            json.dumps(
-                {"error": "no_candidate_ids", "hint": "--candidate-ids or --from-run"},
-                ensure_ascii=False,
+        if args.from_run and not args.candidate_ids:
+            print(
+                json.dumps(
+                    {
+                        "error": "from_run_returned_zero_candidates",
+                        "run_id_used": str(args.from_run),
+                        "hint": "This UUID must be state_change_runs.id (not a git SHA). "
+                        "Confirm rows: select count(*) from state_change_candidates "
+                        "where run_id = '<id>';",
+                    },
+                    ensure_ascii=False,
+                )
             )
-        )
+        else:
+            print(
+                json.dumps(
+                    {
+                        "error": "no_candidate_ids",
+                        "hint": "Pass --candidate-ids uuid,uuid or --from-run <state_change_runs.id>",
+                    },
+                    ensure_ascii=False,
+                )
+            )
         return 1
 
     out_dir = Path(args.out_dir).expanduser()
