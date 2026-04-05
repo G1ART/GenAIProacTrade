@@ -318,6 +318,23 @@ python3 src/main.py report-source-registry
 python3 src/main.py report-overlay-gap
 ```
 
+## Phase 11 목표 (단일 벤더 트랜스크립트 PoC — FMP)
+
+- **역할**: Phase 10 오버레이 seam에 **실제 1경로**(Financial Modeling Prep `earning_call_transcript` v3)만 연결. `FMP_API_KEY` 없으면 **가짜 성공 없이** `not_configured` / `configuration_error` 감사. 공개 SEC/XBRL 스파인·점수 로직 **비변경**.
+- **저장소**: `20250414100000_phase11_transcripts_fmp_poc.sql` — `transcript_ingest_runs`, `raw_transcript_payloads_fmp`, `normalized_transcripts`, `daily_watchlist_entries.transcript_enrichment_json`.
+- **코드**: `src/sources/fmp_transcript_client.py`, `transcripts_provider_binding.py`, `transcripts_normalizer.py`, `transcripts_ingest.py`; 스캐너 `src/scanner/transcript_enrichment.py` + `daily_build`에서 `message_why_matters` 선택 보강.
+- **CLI**: `probe-transcripts-provider`, `ingest-transcripts-sample`, `report-transcripts-overlay-status`, (선택) `export-transcript-normalization-sample`.
+- **증거**: `docs/phase11_evidence.md`.
+
+```bash
+export PYTHONPATH=src
+# .env 에 FMP_API_KEY 설정 후 (없으면 exit≠0 및 operational_failures 에 사유)
+python3 src/main.py probe-transcripts-provider
+python3 src/main.py ingest-transcripts-sample --symbol AAPL --year 2020 --quarter 3
+python3 src/main.py report-transcripts-overlay-status
+python3 src/main.py export-transcript-normalization-sample --ticker AAPL
+```
+
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
 
 **목적**: 시장 가격만 넓고 SEC/XBRL/스냅샷/팩터/검증 스파인이 샘플 수준일 때, **수동 INSERT 없이** 기존 파이프라인을 순서대로 묶어 `issuer_master` → `factor_market_validation_panels` 까지 채움. **백테스트·포트폴리오·AI harness·UI 확장 아님.**

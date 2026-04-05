@@ -41,11 +41,19 @@ def test_tag_field_provenance() -> None:
     assert t["origin_lane"] == "public_truth_spine"
 
 
-def test_transcripts_adapter_probe() -> None:
+def test_transcripts_adapter_probe(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("FMP_API_KEY", raising=False)
     p = TranscriptsAdapter().probe()
     validate_probe_result(p)
     assert p.availability == "not_available_yet"
     assert TranscriptsAdapter().fetch_normalized() == []
+
+
+def test_transcripts_adapter_probe_with_key_unverified(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("FMP_API_KEY", "test_key_placeholder")
+    p = TranscriptsAdapter().probe()
+    validate_probe_result(p)
+    assert p.availability == "partial"
 
 
 def test_estimates_and_price_adapters() -> None:

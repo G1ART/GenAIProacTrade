@@ -1895,3 +1895,163 @@ def insert_source_overlay_gap_report(
     if not res.data:
         raise RuntimeError("source_overlay_gap_reports insert 응답이 비어 있습니다.")
     return str(res.data[0]["id"])
+
+
+# --- Phase 11: FMP transcript PoC (single vendor) ---
+
+
+def fetch_source_overlay_availability_by_key(
+    client: Client, *, overlay_key: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("source_overlay_availability")
+        .select("*")
+        .eq("overlay_key", overlay_key)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def merge_update_source_overlay_availability(
+    client: Client,
+    *,
+    overlay_key: str,
+    availability: Optional[str],
+    metadata_patch: dict[str, Any],
+) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    row = fetch_source_overlay_availability_by_key(client, overlay_key=overlay_key)
+    base_meta: dict[str, Any] = {}
+    if row and isinstance(row.get("metadata_json"), dict):
+        base_meta = dict(row["metadata_json"])
+    merged = {**base_meta, **metadata_patch, "phase11_last_touch_utc": now}
+    upd: dict[str, Any] = {
+        "last_checked_at": now,
+        "metadata_json": merged,
+        "updated_at": now,
+    }
+    if availability is not None:
+        upd["availability"] = availability
+    client.table("source_overlay_availability").update(upd).eq("overlay_key", overlay_key).execute()
+
+
+def insert_transcript_ingest_run(
+    client: Client,
+    *,
+    provider_code: str,
+    operation: str,
+    status: str,
+    probe_status: Optional[str] = None,
+    detail_json: Optional[dict[str, Any]] = None,
+) -> str:
+    row = {
+        "provider_code": provider_code,
+        "operation": operation,
+        "probe_status": probe_status,
+        "status": status,
+        "detail_json": detail_json or {},
+    }
+    res = client.table("transcript_ingest_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("transcript_ingest_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def insert_source_overlay_run_row(
+    client: Client,
+    *,
+    run_type: str,
+    status: str = "completed",
+    payload_json: dict[str, Any],
+) -> str:
+    res = (
+        client.table("source_overlay_runs")
+        .insert({"run_type": run_type, "status": status, "payload_json": payload_json})
+        .execute()
+    )
+    if not res.data:
+        raise RuntimeError("source_overlay_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def patch_data_source_registry_activation(
+    client: Client, *, source_id: str, activation_status: str
+) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    client.table("data_source_registry").update(
+        {"activation_status": activation_status, "updated_at": now}
+    ).eq("source_id", source_id).execute()
+
+
+def upsert_raw_transcript_payload_fmp(
+    client: Client,
+    *,
+    symbol: str,
+    fiscal_year: int,
+    fiscal_quarter: int,
+    http_status: Optional[int],
+    raw_response_json: Any,
+    ingest_run_id: Optional[str] = None,
+) -> str:
+    row = {
+        "symbol": symbol.upper().strip(),
+        "fiscal_year": int(fiscal_year),
+        "fiscal_quarter": int(fiscal_quarter),
+        "http_status": http_status,
+        "raw_response_json": raw_response_json,
+        "ingest_run_id": ingest_run_id,
+    }
+    res = (
+        client.table("raw_transcript_payloads_fmp")
+        .upsert(row, on_conflict="symbol,fiscal_year,fiscal_quarter")
+        .select("id")
+        .execute()
+    )
+    if not res.data:
+        raise RuntimeError("raw_transcript_payloads_fmp upsert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def upsert_normalized_transcript(client: Client, row: dict[str, Any]) -> str:
+    res = (
+        client.table("normalized_transcripts")
+        .upsert(row, on_conflict="provider_name,ticker,fiscal_period")
+        .select("id")
+        .execute()
+    )
+    if not res.data:
+        raise RuntimeError("normalized_transcripts upsert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_latest_normalized_transcript_for_ticker(
+    client: Client, *, ticker: str, provider_name: str = "financial_modeling_prep"
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("normalized_transcripts")
+        .select("*")
+        .eq("ticker", ticker.upper().strip())
+        .eq("provider_name", provider_name)
+        .order("ingested_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_issuer_id_for_ticker(client: Client, *, ticker: str) -> Optional[str]:
+    r = (
+        client.table("issuer_master")
+        .select("id")
+        .eq("ticker", ticker.upper().strip())
+        .limit(1)
+        .execute()
+    )
+    if not r.data or not r.data[0].get("id"):
+        return None
+    return str(r.data[0]["id"])

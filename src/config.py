@@ -28,6 +28,8 @@ class Settings(BaseModel):
     edgar_identity: str = Field(alias="EDGAR_IDENTITY")
     openai_api_key: Optional[str] = Field(default=None, alias="OPENAI_API_KEY")
     sentry_dsn: Optional[str] = Field(default=None, alias="SENTRY_DSN")
+    fmp_api_key: Optional[str] = Field(default=None, alias="FMP_API_KEY")
+    transcripts_provider: Optional[str] = Field(default=None, alias="TRANSCRIPTS_PROVIDER")
 
     model_config = {"populate_by_name": True}
 
@@ -66,5 +68,7 @@ def load_settings(*, env_path: Optional[Path] = None) -> Settings:
         "EDGAR_IDENTITY": os.environ["EDGAR_IDENTITY"].strip(),
         "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY", "").strip() or None,
         "SENTRY_DSN": os.getenv("SENTRY_DSN", "").strip() or None,
+        "FMP_API_KEY": os.getenv("FMP_API_KEY", "").strip() or None,
+        "TRANSCRIPTS_PROVIDER": os.getenv("TRANSCRIPTS_PROVIDER", "fmp").strip() or None,
     }
     return Settings.model_validate(data)

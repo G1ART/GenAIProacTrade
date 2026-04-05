@@ -1281,6 +1281,193 @@ def _cmd_export_source_roi_matrix(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_probe_transcripts_provider(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from observability.run_logger import OperationalRunSession
+    from sources import transcripts_provider_binding as bind
+    from sources.transcripts_ingest import run_fmp_probe_and_update_overlay
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    with OperationalRunSession(
+        client,
+        run_type="transcript_overlay",
+        component="fmp_transcript_probe",
+        metadata_json={"cli": "probe-transcripts-provider"},
+    ) as op:
+        try:
+            out = run_fmp_probe_and_update_overlay(
+                client, settings, operational_run_id=op.operational_run_id
+            )
+        except Exception as e:
+            op.finish_failed(
+                error_class="execution_error",
+                error_code="probe_exception",
+                message=str(e),
+                failure_category="execution_error",
+            )
+            print(json.dumps({"ok": False, "error": str(e), "probe": None}, indent=2))
+            return 1
+        ps = out.get("probe_status")
+        if ps == bind.NOT_CONFIGURED:
+            op.finish_failed(
+                error_class="configuration_error",
+                error_code=str(out.get("detail") or "not_configured"),
+                message="Transcript provider not configured for FMP probe",
+                failure_category="configuration_error",
+            )
+            print(json.dumps({"ok": True, "truthful_blocked": True, "probe": out}, indent=2))
+            return 1
+        if ps == bind.FAILED_RIGHTS_OR_AUTH:
+            op.finish_failed(
+                error_class="auth_or_rights",
+                error_code="fmp_http_auth_or_subscription",
+                message="FMP returned auth/subscription/rights failure",
+                failure_category="other",
+            )
+            print(json.dumps({"ok": False, "probe": out}, indent=2))
+            return 1
+        if ps == bind.FAILED_NETWORK:
+            op.finish_failed(
+                error_class="network_error",
+                error_code="fmp_network",
+                message=str(out.get("detail") or "network"),
+                failure_category="other",
+            )
+            print(json.dumps({"ok": False, "probe": out}, indent=2))
+            return 1
+        if ps == bind.CONFIGURED_BUT_UNVERIFIED:
+            op.finish_warning(
+                rows_read=1,
+                rows_written=1,
+                message="unexpected_response_shape",
+                trace_json={"probe": out},
+            )
+            print(json.dumps({"ok": True, "probe": out}, indent=2))
+            return 0
+        if ps == bind.PARTIAL:
+            op.finish_warning(
+                rows_read=1,
+                rows_written=1,
+                message="partial_transcript_probe",
+                trace_json={"probe": out},
+            )
+            print(json.dumps({"ok": True, "probe": out}, indent=2))
+            return 0
+        op.finish_success(
+            rows_read=1,
+            rows_written=1,
+            trace_json={"probe": out},
+        )
+        print(json.dumps({"ok": True, "probe": out}, indent=2))
+        return 0
+
+
+def _cmd_ingest_transcripts_sample(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from observability.run_logger import OperationalRunSession
+    from sources import transcripts_provider_binding as bind
+    from sources.transcripts_ingest import run_fmp_sample_ingest
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    if not bind.fmp_api_key_present(settings):
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": "FMP_API_KEY_not_configured",
+                    "truthful_blocked": True,
+                },
+                indent=2,
+            )
+        )
+        return 1
+    with OperationalRunSession(
+        client,
+        run_type="transcript_overlay",
+        component="fmp_transcript_ingest_sample",
+        metadata_json={
+            "cli": "ingest-transcripts-sample",
+            "symbol": args.symbol,
+            "year": args.year,
+            "quarter": args.quarter,
+        },
+    ) as op:
+        try:
+            out = run_fmp_sample_ingest(
+                client,
+                settings,
+                symbol=args.symbol,
+                year=int(args.year),
+                quarter=int(args.quarter),
+                operational_run_id=op.operational_run_id,
+            )
+        except Exception as e:
+            op.finish_failed(
+                error_class="execution_error",
+                error_code="ingest_exception",
+                message=str(e),
+                failure_category="execution_error",
+            )
+            print(json.dumps({"ok": False, "error": str(e)}, indent=2))
+            return 1
+        if out.get("classify") == bind.FAILED_RIGHTS_OR_AUTH:
+            op.finish_failed(
+                error_class="auth_or_rights",
+                error_code="fmp_ingest_auth",
+                message="ingest_http_auth_or_rights",
+                failure_category="other",
+            )
+            print(json.dumps({"ok": False, "ingest": out}, indent=2))
+            return 1
+        if out.get("overlay_availability") == "available" and out.get(
+            "normalization_status"
+        ) == "ok":
+            op.finish_success(rows_read=1, rows_written=2, trace_json={"ingest": out})
+        else:
+            op.finish_warning(
+                rows_read=1,
+                rows_written=2,
+                message="partial_or_empty_transcript_ingest",
+                trace_json={"ingest": out},
+            )
+        print(json.dumps({"ok": True, "ingest": out}, indent=2))
+        return 0
+
+
+def _cmd_report_transcripts_overlay_status(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from sources.transcripts_ingest import report_transcripts_overlay_status
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    print(json.dumps(report_transcripts_overlay_status(client), indent=2, default=str))
+    return 0
+
+
+def _cmd_export_transcript_normalization_sample(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db import records as dbrec
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    t = args.ticker.upper().strip()
+    row = dbrec.fetch_latest_normalized_transcript_for_ticker(client, ticker=t)
+    if not row:
+        print(json.dumps({"ok": False, "error": "no_row", "ticker": t}, indent=2))
+        return 1
+    redacted = {k: v for k, v in row.items() if k != "transcript_text"}
+    redacted["transcript_text_len"] = len(str(row.get("transcript_text") or ""))
+    redacted["transcript_text_prefix_120"] = str(row.get("transcript_text") or "")[:120]
+    print(json.dumps({"ok": True, "row": redacted}, indent=2, default=str))
+    return 0
+
+
 def _cmd_smoke_facts(_args: argparse.Namespace) -> int:
     """DB facts 테이블 도달 + (선택) 단일 티커 XBRL 로드 가능 여부."""
     import sec.ingest_company_sample  # noqa: F401
@@ -1958,6 +2145,34 @@ def build_parser() -> argparse.ArgumentParser:
         help="코드 내장 ROI 순위 행렬 JSON (DB 불필요)",
     )
     esr.set_defaults(func=_cmd_export_source_roi_matrix)
+
+    p11a = sub.add_parser(
+        "probe-transcripts-provider",
+        help="Phase 11: FMP earning_call_transcript 프로브 + source_overlay_availability 갱신",
+    )
+    p11a.set_defaults(func=_cmd_probe_transcripts_provider)
+
+    p11b = sub.add_parser(
+        "ingest-transcripts-sample",
+        help="Phase 11: 단일 심볼·분기 샘플 ingest (raw_transcript_payloads_fmp + normalized_transcripts)",
+    )
+    p11b.add_argument("--symbol", default="AAPL", help="거래 심볼")
+    p11b.add_argument("--year", type=int, default=2020)
+    p11b.add_argument("--quarter", type=int, default=3)
+    p11b.set_defaults(func=_cmd_ingest_transcripts_sample)
+
+    p11c = sub.add_parser(
+        "report-transcripts-overlay-status",
+        help="Phase 11: earnings_call_transcripts 오버레이 행 + 메타 JSON",
+    )
+    p11c.set_defaults(func=_cmd_report_transcripts_overlay_status)
+
+    p11d = sub.add_parser(
+        "export-transcript-normalization-sample",
+        help="Phase 11: 정규화 행 샘플 (본문 길이·접두만; 전문 미공개)",
+    )
+    p11d.add_argument("--ticker", default="AAPL")
+    p11d.set_defaults(func=_cmd_export_transcript_normalization_sample)
 
     return p
 

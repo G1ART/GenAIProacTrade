@@ -1,4 +1,4 @@
-# DB 스키마 메모 (Phase 0–10)
+# DB 스키마 메모 (Phase 0–11)
 
 ## 데이터 계층 역할
 
@@ -41,7 +41,7 @@
 | `outlier_casebook_entries` | 이상치 사례 메모리: discrepancy·expected/observed·uncertainty·message 필드·`is_heuristic`·Phase 10 `overlay_awareness_json`(오버레이 유무 명시). |
 | `scanner_runs` | 일일 스캐너 실행; `policy_json`(top_n, floor 등). |
 | `daily_signal_snapshots` | 스캐너 run당 1행 집계 `stats_json`. |
-| `daily_watchlist_entries` | 저잡음 우선순위 워치리스트; thesis/challenge/uncertainty + message 필드·Phase 10 `overlay_awareness_json`. |
+| `daily_watchlist_entries` | 저잡음 우선순위 워치리스트; thesis/challenge/uncertainty + message 필드·Phase 10 `overlay_awareness_json`·Phase 11 `transcript_enrichment_json`(선택 메시지 보강; 스코어 비사용). |
 | `data_source_registry` | Phase 10 **소스 카탈로그**: `source_class`(public\|premium\|…), `data_family`, PIT·라이선스·`provenance_policy_json`. 진실 스파인 오염 금지. |
 | `source_access_profiles` | 소스별 접근 프로필(`access_mechanism`, 자격 필요 여부). |
 | `source_entitlements` | 권한/스코프 라벨(`active\|pending\|none` 등). |
@@ -50,6 +50,9 @@
 | `source_overlay_availability` | 프리미엄 오버레이 키별 `not_available_yet`\|partial\|available. |
 | `source_overlay_runs` | (선택) 오버레이 스모크/감사 run 메타. |
 | `source_overlay_gap_reports` | `report-overlay-gap --persist` 저장용 ROI/갭 JSON. |
+| `transcript_ingest_runs` | Phase 11 FMP PoC: 프로브/ingest 감사(`provider_code`, `operation`, `probe_status`, `detail_json`). |
+| `raw_transcript_payloads_fmp` | FMP `earning_call_transcript` 원문 JSON(`symbol`,`fiscal_year`,`fiscal_quarter` 유니크). |
+| `normalized_transcripts` | PIT 메타 포함 정규화 본문(`provider_name`,`ticker`,`fiscal_period` 유니크); 결정적 스파인과 분리. |
 | `backfill_orchestration_runs` | **유니버스 백필** 상위 실행 메타. `mode`·`universe_name`·`summary_json`(retry_tickers 등). |
 | `backfill_stage_events` | 백필 **스테이지별** 행 수·에러·`notes_json`. `ingest_runs` 와 별도 감사. |
 

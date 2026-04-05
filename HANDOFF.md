@@ -1,50 +1,47 @@
-# HANDOFF — Phase 10 (소스 레지스트리 · 프리미엄 오버레이 seam · 권리/계보)
+# HANDOFF — Phase 11 (단일 벤더 트랜스크립트 PoC — FMP)
 
-## HEAD / 마이그레이션
+## 벤더 / 바인딩
 
-- 패치 후 `git rev-parse HEAD` 로 SHA 기록.
-- **Phase 10 마이그레이션**: `20250413100000_phase10_source_registry_overlays.sql` (Phase 9 이후).
+- **선택 경로**: **Financial Modeling Prep** — `earning_call_transcript` **v3** 단일 구현 (`src/sources/fmp_transcript_client.py`).
+- **환경 변수**: `FMP_API_KEY` (필수로 실제 호출), `TRANSCRIPTS_PROVIDER` 기본값 `fmp`.
+- **자격이 없으면**: CLI는 **가짜 성공을 내지 않음** — `probe-transcripts-provider`는 구성 실패로 `operational_runs`/`operational_failures`에 기록될 수 있고, `ingest-transcripts-sample`은 즉시 실패.
 
-## 로드맵 코어 vs Phase 10
+## `partial` vs `available` (earnings_call_transcripts)
 
-- **원 로드맵에서 이미 닫힌 축**(구현 현실): 공개 우선 결정적 스파인, 검증·state change, harness/casebook/scanner 백엔드, 관측성·연구 레지스트리, 실DB 증거(Phase 8–9 문서).
-- **Phase 10이 추가하는 것**(로드맵을 넓히되 철학 유지): **공개 데이터 상한**을 인정하고, 프리미엄·독점·내부·파트너 소스를 **등록·분류·권리 메타**로 묶은 뒤, **고ROI 오버레이**(콜 트랜스크립트, 컨센서스 추정, 고품질 가격/인트라데이, 선택적 옵션)를 **모델링만** 하고 자격이 없으면 `not_available_yet`로 둠. 벤더 대량 연동·UI·실행 **비범위**.
+- **available**: 샘플 분기에 대해 HTTP 200 + 유효 세그먼트 텍스트 + 정규화 `ok` — 오버레이가 “본문 수준으로 쓸 수 있음”을 의미.
+- **partial**: 엔드포인트/파이프라인은 확인됐으나 해당 심볼·분기에 빈 응답·빈 세그먼트·형식 이슈 등으로 **완전 샘플은 아님** — 그래도 Phase 10 placeholder만이 아닌 **실측 근거**가 메타에 남음.
 
-## 현재 웨지 (제품 서술)
+## 다운스트림 (트랜스크립트 인지)
 
-- 공개 결정적 스파인 + 불일치 보존 메시지 계층 + 잔차/이상치 케이스북 + **자동 승격 없는** 연구 진화 경로.
-- Phase 10 이후: 동일 웨지에 **소스 권리·계보·선택적 오버레이 준비**가 얹힘.
+- **일일 워치리스트** (`daily_watchlist_entries`): `transcript_enrichment_json` + 정규화 행이 준비된 경우에만 `message_why_matters`에 **짧은 문장** 추가. **결정적 점수·랭킹에는 미사용**; 트랜스크립트 없어도 빌드 실패하지 않음.
 
-## Phase 10에서 닫힌 것
+## 마이그레이션 / 테이블
 
-1. **소스 레지스트리** 및 위성 테이블(access / entitlements / coverage / rights notes / overlay availability / gap report 저장).
-2. **ROI 순위 행렬**(코드 `OVERLAY_ROI_RANKED` + `export-source-roi-matrix` + `report-overlay-gap`).
-3. **어댑터 seam**(transcripts / estimates / price_quality) — `probe()`·정규화 타깃·PIT·실패 동작·권리 메타; `fetch_normalized`는 자격 없을 때 빈 결과.
-4. **다운스트림 인지**: `overlay_awareness_json` on casebook entries & watchlist rows; `PREMIUM_OVERLAY_SEAMS_DEFAULT`.
-5. **CLI**: `seed-source-registry`, `report-source-registry`, `report-overlay-gap`, `smoke-source-adapters`, `export-source-roi-matrix`.
-6. **문서/테스트**: `docs/phase10_evidence.md`, `src/tests/test_phase10_sources.py`, `src/db/schema_notes.md`, README Phase 10 절.
+- `20250414100000_phase11_transcripts_fmp_poc.sql` — `data_source_registry` 행 `fmp_earning_call_transcripts_poc`, `transcript_ingest_runs`, `raw_transcript_payloads_fmp`, `normalized_transcripts`, `daily_watchlist_entries.transcript_enrichment_json`.
 
-## 프리미엄 오버레이 우선순위 (요약)
+## CLI
 
-1. Earnings call transcripts — 메모/케이스북 서사 대 filing 긴장.
-2. Analyst estimates — 기대 vs 실현 잔차.
-3. Higher-quality price / intraday — 시그널일·품질 (스파인 **대체** 아님).
-4. (선택) Options / microstructure — 연구 레인.
+- `probe-transcripts-provider`, `ingest-transcripts-sample`, `report-transcripts-overlay-status`, `export-transcript-normalization-sample`.
+
+## 관측성
+
+- `operational_runs`: `run_type=transcript_overlay`, `component` = `fmp_transcript_probe` | `fmp_transcript_ingest_sample`.
+- `source_overlay_runs`: 프로브/ingest 페이로드 요약.
 
 ## 의도적으로 없는 것
 
-- 다수 벤더 병렬 ingest, 가짜 프리미엄 샘플, 코크핏 확장, 매매/포트폴리오, 벤치마크 마케팅, **없는 프리미엄을 생산 스코어에 자동 전환**, 공개 스파인 오염.
+- 두 번째 트랜스크립트 벤더, estimates/price-quality 실연동(동일 패치), 코크핏·실행, 스파인 병합, 점수 오염.
 
-## 다음 권장 단계
+## 다음 권장
 
-- 단일 벤더 PoC(예: 트랜스크립트) 선택 → 계약·PIT·정규화 어댑터 **한 줄** 구현 → `source_overlay_availability`를 `partial`/`available`로 갱신하는 절차만 추가.
+- **트랜스크립트**: 더 많은 심볼·분기 샘플 + 라이선스 범위 내 재배포 정책 정리, 또는 **analyst estimates** 단일 PoC로 동일 패턴 복제.
 
 ---
 
-## Phase 9 (요약)
+## Phase 10 (요약)
 
-- `operational_runs`, 연구 레지스트리, Phase 8 실DB 증거: `docs/phase9_evidence.md`.
+- 소스 레지스트리, 오버레이 가용성, 어댑터 seam, `overlay_awareness_json`, `docs/phase10_evidence.md`.
 
-## Phase 8 이전
+## Phase 9 이전
 
 - README·이전 절 참고.

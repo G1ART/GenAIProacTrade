@@ -14,6 +14,10 @@ from scanner.prioritizer import (
     DEFAULT_TOP_N,
     rank_watchlist_candidates,
 )
+from scanner.transcript_enrichment import (
+    build_transcript_enrichment_for_ticker,
+    optional_why_matters_transcript_clause,
+)
 
 
 def _memo_json(memo: Optional[dict[str, Any]]) -> dict[str, Any]:
@@ -145,6 +149,13 @@ def run_daily_scanner_build(
             if lim:
                 regime_w = lim[:500]
 
+        tenr = build_transcript_enrichment_for_ticker(client, ticker=ticker)
+        why_base = (
+            f"Ranks in top-{top_n} deterministic attention slice for {universe_name} "
+            "without implying price direction."
+        )
+        why = why_base + optional_why_matters_transcript_clause(tenr)
+
         watch_rows.append(
             {
                 "scanner_run_id": sid,
@@ -165,10 +176,7 @@ def run_daily_scanner_build(
                     "memo_id": memo.get("id") if memo else None,
                 },
                 "message_short_title": f"Watch: {ticker} ({as_of_d})",
-                "message_why_matters": (
-                    f"Ranks in top-{top_n} deterministic attention slice for {universe_name} "
-                    "without implying price direction."
-                ),
+                "message_why_matters": why,
                 "message_what_could_wrong": challenge[:800],
                 "message_unknown": unc[:800],
                 "message_plain_language": (
@@ -177,6 +185,7 @@ def run_daily_scanner_build(
                 ),
                 "overlay_future_seams_json": dict(OVERLAY_FUTURE_SEAMS_DEFAULT),
                 "overlay_awareness_json": overlay_snap,
+                "transcript_enrichment_json": tenr,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             }
         )
