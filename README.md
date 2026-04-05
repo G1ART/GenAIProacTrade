@@ -234,16 +234,28 @@ python3 src/main.py report-state-change-summary --run-id <UUID>
 - **역할**: `state_change_candidates` 등 **결정적 산출**을 바탕으로 **조사용 1p 메모**(thesis + **필수** 반론 + 합성)와 **운영자 리뷰 큐**를 제공. 진실 테이블(Phase 0–6)은 **읽기만** 하고 **AI가 점수를 덮어쓰지 않음**.
 - **산출 테이블**: `ai_harness_candidate_inputs`, `investigation_memos`, `investigation_memo_claims`, `operator_review_queue`; 스텁 `hypothesis_registry`, `promotion_gate_events`.
 - **코드**: `src/harness/` — `input_materializer.py`, `roles/deterministic_agents.py`, `referee/gate.py`, `memo_builder/pipeline.py`, `run_batch.py`; 라우팅 우선순위 문서 `harness/routing_policy_doc.py`; 미래 봉인 `docs/phase7_future_seams.md`, `src/research_lab/`.
-- **CLI**: `smoke-harness`, `build-ai-harness-inputs`, `generate-investigation-memos`, `report-review-queue`.
-- **마이그레이션**: `20250409100000_phase7_ai_harness_minimum.sql` (SQL Editor에서 Phase 6 이후 순서로 적용).
+- **CLI**: `smoke-harness`, `build-ai-harness-inputs`, `generate-investigation-memos`, `report-review-queue`, `set-review-queue-status`, `export-phase7-evidence-bundle`.
+- **마이그레이션**: `20250409100000_phase7_ai_harness_minimum.sql` → `20250410100000_phase71_harness_hardening.sql` (순서대로 적용).
 - **하지 않는 것**: 매매·포트폴리오·실행 자동화·알파 홍보·백테스트 실적 주장·LLM 수치 조작·선행수익을 **모델 피처**로 주입(Phase 6 금지 유지).
+
+### Phase 7.1 (마감 / 하드닝)
+
+- **클레임 행**: `investigation_memo_claims`에 `claim_id`, `claim_role`, `statement`, `support_summary`, `counter_evidence_summary`, `trace_refs`, `needs_verification`, `verdict`, `candidate_id` 등 — 메모 전체가 아니라 **주장 단위** 추적.
+- **재실행**: 동일 `payload_hash` + 동일 `generation_mode`이면 **최신 메모 행 in-place 갱신** + 클레임 전량 삭제 후 재삽입; 입력이 바뀌면 `memo_version = max+1` 신규 행. `--force-new-memo-version`이면 항상 신규 버전.
+- **리뷰 큐**: `reviewed` / `needs_followup` / `blocked_insufficient_data`는 메모 재생성 시 **상태 유지**(memo_id만 최신으로). 신규 행은 referee 실패 시 `needs_followup`, 성공 시 `pending`.
+- **Referee**: 반론 차원 누락, 합성에서 이견 구조 미보존, 한계 서술 과소, thesis 내 허용되지 않은 수치 등 **구조 검사** 추가.
+- **최상위 스펙 MD**: `docs/spec/*.md` (`scripts/docx_to_spec_md.py`로 `.docx` 재생성 가능).
+- **실데이터 번들**: `docs/phase7_evidence_bundle.md` 참고 후 `export-phase7-evidence-bundle` 실행 → `docs/phase7_real_samples/latest/` 등에 JSON 스냅샷.
 
 ```bash
 export PYTHONPATH=src
 python3 src/main.py smoke-harness
 python3 src/main.py build-ai-harness-inputs --universe sp500_current --limit 200
 python3 src/main.py generate-investigation-memos --universe sp500_current --limit 200
+python3 src/main.py generate-investigation-memos --universe sp500_current --candidate-ids <UUID>,<UUID>
 python3 src/main.py report-review-queue --limit 50
+python3 src/main.py set-review-queue-status --candidate-id <UUID> --status reviewed --reason "initial operator pass"
+python3 src/main.py export-phase7-evidence-bundle --from-run <STATE_CHANGE_RUN_UUID> --sample-n 3 --out-dir docs/phase7_real_samples/latest
 ```
 
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)

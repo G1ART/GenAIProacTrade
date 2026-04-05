@@ -1,87 +1,59 @@
-# HANDOFF — Phase 6–7 + Universe Backfill
+# HANDOFF — Phase 7.1 마감 (하네스 하드닝)
 
-## Phase 7 완료 범위 (AI Harness Minimum)
+## HEAD / 마이그레이션 진실
 
-- **마이그레이션** `20250409100000_phase7_ai_harness_minimum.sql`: `ai_harness_candidate_inputs`, `investigation_memos`, `investigation_memo_claims`, `operator_review_queue`, 스텁 `hypothesis_registry`, `promotion_gate_events`.
-- **입력 계약** `ai_harness_input_v1`: `harness/input_materializer.py` — candidate + score + components + issuer + factor panel + validation panel join + filing handles + Phase 5 요약(연구 맥락만, 피처 아님).
-- **메모 스키마** `investigation_memo_v1`: `memo_builder/pipeline.py` — deterministic_signal_summary, thesis, **mandatory** strongest_counter_argument(대체해석·데이터 부족·오염/레짐·무의미 가능성·반증 조건), synthesis(이견 보존), uncertainty_labels, evidence_blocks, limitations, source_trace, referee_result.
-- **역할** `roles/deterministic_agents.py`: ThesisAgent / ChallengeAgent / SynthesisAgent (현재 **결정적 스켈레톤**; LLM 연결은 이후 옵션).
-- **RefereeGate** `referee/gate.py`: 매매·포트폴리오·과장 수익 문구 차단; 반론·uncertainty·합성 이견 검사.
-- **배치** `harness/run_batch.py`: 메모 생성 → claims 적재 → `operator_review_queue` upsert (`pending`).
-- **DB** `src/db/records.py`: harness CRUD, `fetch_latest_factor_validation_run_id`.
-- **CLI**: `smoke-harness`, `build-ai-harness-inputs`, `generate-investigation-memos`, `report-review-queue`.
-- **문서**: `README.md` Phase 7 절, `docs/founder-surface-contract.md`, `docs/phase7_future_seams.md`, `src/db/schema_notes.md` (Phase 7 테이블).
-- **pytest**: `src/tests/test_harness_phase7.py`.
+- **패치 적용 후** `git rev-parse HEAD` 로 SHA 확인·기록 (main-only 운영).
+- **마이그레이션 순서**: `20250409100000_phase7_ai_harness_minimum.sql` → `20250410100000_phase71_harness_hardening.sql`.
 
-### Founder north-star (문서·구조에 반영된 것)
+## Phase 7.1에서 닫힌 것
 
-- **대립적이되 협력적인 하네스**: thesis vs challenge를 합성에서 평탄화하지 않음.
-- **내부 R&D / discovery 레인**: `hypothesis_registry`·`research_lab/`·`phase7_future_seams.md`로 **프로덕션 스코어링과 분리**.
-- **장기 벤치마 포부**: 시뮬레이션 엔진은 **구현 안 함**; 평가 규율은 “설명 ≠ 예측력”으로 문서화.
-- **지평·레짐별 툴킷**: `routing_policy_doc.py` + `phase7_future_seams.md`에 훅만.
-- **크로스 도메인**: 어댑터 철학은 문서만; 본 패치에서 ingestion 확장 없음.
+1. **클레임 단위 추적**: `investigation_memo_claims` 확장 — `claim_id`, `claim_role`, `statement`, `support_summary`, `counter_evidence_summary`, `trace_refs`, `needs_verification`, `verdict`, `claim_revision`, `candidate_id`; `(memo_id, claim_id)` 유니크.
+2. **재실행 정책**: 동일 `input_payload_hash` + `GENERATION_MODE` → **in-place** 메모 갱신 + 해당 메모의 클레임 **전부 삭제 후 재삽입**; 해시/모드 불일치 또는 `--force-new-memo-version` → `memo_version = max+1` 신규 행.
+3. **리뷰 큐 의미**: `reviewed` / `needs_followup` / `blocked_insufficient_data` 는 메모 재생성 시 **유지**; 신규 큐 행은 referee 통과 시 `pending`, 실패 시 `needs_followup`. `status_reason`, `reviewed_at` 컬럼.
+4. **Referee 강화**: 반론 차원 누락, synthesis의 `thesis_preserved`/`challenge_preserved`, 한계 서술 과소(heuristic), thesis 내 허용 컨텍스트 밖 수치, 기존 매매·과장·반론·uncertainty·합성 검사 유지.
+5. **CLI**: `set-review-queue-status`, `export-phase7-evidence-bundle`; `generate-investigation-memos` 에 `--candidate-ids`, `--force-new-memo-version`.
+6. **스펙 MD**: `docs/spec/*.md` + `scripts/docx_to_spec_md.py` (원본 docx는 `~/Downloads`).
+7. **실데이터 번들 절차**: `docs/phase7_evidence_bundle.md`, 출력 디렉터리 `docs/phase7_real_samples/` (JSON은 운영자 실행으로 생성; 가짜 샘플 금지).
+8. **테스트**: `src/tests/test_harness_phase71.py` + 기존 Phase 7 테스트 갱신.
 
-### 운영 명령 (end-to-end)
+## Founder north-star (문서·구조, Phase 7과 동일)
+
+- 대립·협력 하네스, R&D 레인 분리, 평가 사다리(설명≠예측), 지평·레짐 툴킷 훅, 크로스 도메인 철학 — `docs/phase7_future_seams.md`, `docs/spec/` 블루프린트 참고.
+
+## 운영 명령 (요약)
 
 ```bash
 cd ~/GenAIProacTrade && source .venv/bin/activate && export PYTHONPATH=src
 python3 src/main.py smoke-harness
 python3 src/main.py build-ai-harness-inputs --universe sp500_current --limit 200
 python3 src/main.py generate-investigation-memos --universe sp500_current --limit 200
+python3 src/main.py export-phase7-evidence-bundle --from-run <RUN_UUID> --sample-n 3 --out-dir docs/phase7_real_samples/latest
+python3 src/main.py set-review-queue-status --candidate-id <UUID> --status reviewed --reason "audit note"
 python3 src/main.py report-review-queue --limit 50
 ```
 
-`--run-id <UUID>` 로 특정 `state_change_runs` 지정 가능.
+## 의도적으로 아직 안 한 것 (다음 단계 전 금지/비범위)
 
-### Phase 7에서 의도적으로 안 한 것
+- LLM 연동, UI/대시보드, 알림, 실거래, 포트폴리오, walk-forward 실구현, 연구 샌드박스 조합 엔진, 벤치마크 마케팅.
 
-- LLM 프로바이더 연동, UI, 알림, 실거래, 포트폴리오, 백테스트 실적, 자동 승격, 연구 샌드박스 실구현, walk-forward 엔진, 도메인 어댑터 코드.
+## 남은 리스크
 
-### 남은 리스크
+- **마이그레이션 미적용** 환경에서는 새 클레임 컬럼 insert 실패.
+- Referee **수치·한계** 검사는 휴리스틱이며 오탐/미탐 가능.
+- `export-phase7-evidence-bundle` 은 DB에 harness 입력이 없는 후보는 스킵/불완전할 수 있음 — 먼저 `build-ai-harness-inputs` 확인.
 
-- 메모 본문이 **템플릿 기반**이라 운영 품질은 후속 LLM·편집 레이어에서 강화 필요.
-- Supabase **upsert** API가 환경에 따라 `on_conflict` 문자열 요구가 다를 수 있음 — 실패 시 마이그레이션/클라이언트 버전 확인.
-- `factor_market_validation_panels`의 forward 컬럼 **존재 여부**는 입력의 `coverage_flags`에만 반영; 피처로 사용하지 않음.
+## 다음 권장 단계
 
-### 다음 권장 단계
-
-- 운영자 피드백 후 Referee 규칙·메모 톤 조정.
-- (선택) OpenAI 등으로 Challenge/Thesis **문장만** 보강하되 수치는 입력에서만 인용.
-- 리뷰 큐 상태 전환을 위한 소규모 CLI 또는 내부 도구.
+- 운영 DB에서 번들 생성 후 `manifest.json` 의 실제 `candidate_id` 3건을 이슈/핸드오프에 첨부.
+- (선택) LLM은 **문장 보강**만, 수치는 입력에서만 인용.
 
 ---
 
-## Universe Backfill 오케스트레이션
+## Universe Backfill (변경 없음)
 
-- **마이그레이션** `20250408100000_backfill_orchestration.sql`: `backfill_orchestration_runs`, `backfill_stage_events`, RPC `backfill_coverage_counts()`
-- **모듈** `src/backfill/`: `universe_resolver`, `backfill_runner`, `join_diagnostics`, `coverage_report`, `status_report`, `cli_report`, `normalize`, `pilot_tickers`, **`staged_cohort`**, **`checkpoint_report`**, **`sparse_diagnostics`**
-- **Staged coverage expansion**: `backfill-universe --coverage-stage stage_a|stage_b|full --issuer-target N` — `sp500_current` 티커 **오름차순** 고정 코호트(무작위 없음), 부족 시 `combined_largecap_research_v1` 보강. SEC/스냅/팩터 한도는 full과 동일(`--mode full` 권장). 완료 시 `coverage_checkpoint` JSON·`--write-coverage-checkpoint PATH`. `report-backfill-status --include-coverage-checkpoint`, `--include-sparse-diagnostics`, `--write-sparse-diagnostics PATH`.
-- **설정** `config/backfill_pilot_tickers_v1.json` — pilot 30종(유니버스와 교집합)
-- **CLI**: `smoke-backfill`, `backfill-universe`, `report-backfill-status`
-- **pytest** `src/tests/test_backfill_orchestration.py`, `src/tests/test_staged_coverage.py`
-- **문서**: README `## Full Universe Backfill`, `## Staged Coverage Expansion`
+- 마이그레이션 `20250408100000_backfill_orchestration.sql`, 모듈 `src/backfill/`, CLI `smoke-backfill`, `backfill-universe`, `report-backfill-status`.
+- README `## Full Universe Backfill`, `## Staged Coverage Expansion`.
 
-**재시도**: `summary_json.retry_tickers_all` + `--retry-failed-only --from-orchestration-run-id <UUID>`
+## Phase 6 (변경 없음)
 
----
-
-## Phase 6 완료 범위 (state change)
-
-- **마이그레이션** `20250407100000_phase6_state_change_engine.sql`: `state_change_runs`, `issuer_state_change_components`, `issuer_state_change_scores`, `state_change_candidates`
-- **모듈** `src/state_change/`
-- **CLI**: `run-state-change`, `report-state-change-summary`, `smoke-state-change`
-- **pytest**: `src/tests/test_state_change_phase6.py`
-
-**하지 않는 것**: `factor_market_validation_panels`의 forward 라벨을 state change **feature**로 사용 (금지).
-
----
-
-## 이번 저장소에서 최근 추가·수정한 주요 파일 (Phase 7)
-
-- `supabase/migrations/20250409100000_phase7_ai_harness_minimum.sql`
-- `src/harness/**`, `src/research_lab/__init__.py`, `src/harness/routing_policy_doc.py`
-- `src/harness/run_batch.py`
-- `src/db/records.py`, `src/main.py`
-- `src/tests/test_harness_phase7.py`
-- `docs/founder-surface-contract.md`, `docs/phase7_future_seams.md`
-- `README.md`, `HANDOFF.md`, `src/db/schema_notes.md`
+- `20250407100000_phase6_state_change_engine.sql`, `src/state_change/`, `run-state-change`, `report-state-change-summary`, `smoke-state-change`.

@@ -30,9 +30,9 @@
 | `issuer_state_change_scores` | 발행일 단위 투명 합성 점수. `(run_id, cik, as_of_date)` 유니크. |
 | `state_change_candidates` | 조사 후보(실행 신호 아님). `(run_id, cik, as_of_date, candidate_rank)` 유니크. |
 | `ai_harness_candidate_inputs` | Phase 7 **AI Harness 입력 계약** JSON. `(candidate_id, contract_version)` 유니크 upsert. 진실 테이블 비변경. |
-| `investigation_memos` | 조사 메모 오버레이. `(candidate_id, memo_version)` 유니크. thesis+challenge+synthesis+referee 메타. |
-| `investigation_memo_claims` | 클레임·근거·`uncertainty_label`(confirmed\|plausible_hypothesis\|unverifiable). |
-| `operator_review_queue` | 운영자 리뷰 큐. `candidate_id` 유니크. 상태: pending\|reviewed\|needs_followup\|blocked_insufficient_data. |
+| `investigation_memos` | 조사 메모 오버레이. `(candidate_id, memo_version)` 유니크. `input_payload_hash`(재실행/idempotency용). thesis+challenge+synthesis+referee 메타. |
+| `investigation_memo_claims` | Phase 7.1 **주장 단위** 추적: `claim_id`, `claim_role`(thesis\|challenge\|synthesis\|referee\|evidence), `statement`, `support_summary`, `counter_evidence_summary`, `trace_refs`, `needs_verification`, `verdict`(pending\|…), `candidate_id`. `(memo_id, claim_id)` 유니크. |
+| `operator_review_queue` | 운영자 리뷰 큐. `candidate_id` 유니크. `status_reason`, `reviewed_at`. 상태: pending\|reviewed\|needs_followup\|blocked_insufficient_data. |
 | `hypothesis_registry` | **스텁** — 미래 연구 가설; 스코어링 미연동. |
 | `promotion_gate_events` | **스텁** — 미래 승격 게이트; 자동 승격 없음. |
 | `backfill_orchestration_runs` | **유니버스 백필** 상위 실행 메타. `mode`·`universe_name`·`summary_json`(retry_tickers 등). |
@@ -142,3 +142,10 @@ Service role 키는 RLS를 우회한다. 로컬 워커는 service role 전제.
 7. `20250407100000_phase6_state_change_engine.sql`
 8. `20250408100000_backfill_orchestration.sql` — `backfill_*` 테이블 + `backfill_coverage_counts()` RPC
 9. `20250409100000_phase7_ai_harness_minimum.sql` — harness 입력·메모·리뷰 큐·R&D 스텁
+10. `20250410100000_phase71_harness_hardening.sql` — 클레임 스키마 확장, `input_payload_hash`, 큐 감사 컬럼, 인덱스
+
+## Phase 7 / 7.1 재실행 정책 (요약)
+
+- **`ai_harness_candidate_inputs`**: `(candidate_id, contract_version)` 유니크 **upsert**. PostgREST `on_conflict="candidate_id,contract_version"` (쉼표 구분, 공백 없음).
+- **`generate-investigation-memos`**: 최신 메모의 `input_payload_hash`·`generation_mode`가 현재 입력과 같으면 **동일 `memo_version`/`id`로 `investigation_memos` 업데이트**, 기존 `investigation_memo_claims`는 해당 `memo_id` **삭제 후 재삽입**. 해시가 다르면 `memo_version = max+1` **INSERT** (감사 이력).
+- **`operator_review_queue`**: `candidate_id` 기준 **upsert**; 운영자 확정 상태(`reviewed` 등)는 재생성 시 **유지**하도록 애플리케이션에서 `status`를 덮어쓰지 않음(구현: `resolve_queue_status_on_memo_regen`).

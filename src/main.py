@@ -604,8 +604,156 @@ def _cmd_generate_investigation_memos(args: argparse.Namespace) -> int:
             )
         )
         return 1
-    out = generate_memos_for_run(client, run_id=rid, limit=int(args.limit))
+    cfilter: set[str] | None = None
+    if getattr(args, "candidate_ids", None):
+        cfilter = {x.strip() for x in str(args.candidate_ids).split(",") if x.strip()}
+    out = generate_memos_for_run(
+        client,
+        run_id=rid,
+        limit=int(args.limit),
+        force_new_memo_version=bool(args.force_new_memo_version),
+        candidate_ids=cfilter,
+    )
     print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_set_review_queue_status(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db import records as dbrec
+    from harness.rerun_policy import assert_valid_queue_transition
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    cid = str(args.candidate_id)
+    existing = dbrec.fetch_operator_review_queue_row(client, candidate_id=cid)
+    assert_valid_queue_transition(
+        existing.get("status") if existing else None, str(args.status)
+    )
+    dbrec.update_operator_review_queue_status(
+        client,
+        candidate_id=cid,
+        status=str(args.status),
+        status_reason=args.reason,
+    )
+    row = dbrec.fetch_operator_review_queue_row(client, candidate_id=cid)
+    print(json.dumps({"ok": True, "row": row}, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_phase7_evidence_bundle(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from db import records as dbrec
+    from harness.run_batch import generate_memos_for_run
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+
+    ids: list[str] = []
+    if args.candidate_ids:
+        ids = [x.strip() for x in args.candidate_ids.split(",") if x.strip()]
+    elif args.from_run:
+        r = (
+            client.table("state_change_candidates")
+            .select("id")
+            .eq("run_id", str(args.from_run))
+            .limit(int(args.sample_n))
+            .execute()
+        )
+        ids = [str(x["id"]) for x in (r.data or [])]
+    if len(ids) < 1:
+        print(
+            json.dumps(
+                {"error": "no_candidate_ids", "hint": "--candidate-ids or --from-run"},
+                ensure_ascii=False,
+            )
+        )
+        return 1
+
+    out_dir = Path(args.out_dir).expanduser()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    manifest: list[dict[str, object]] = []
+
+    for cid in ids:
+        cand = dbrec.fetch_state_change_candidate(client, candidate_id=cid)
+        if not cand:
+            manifest.append({"candidate_id": cid, "error": "candidate_not_found"})
+            continue
+        run_id = str(cand["run_id"])
+        sub = out_dir / cid
+        sub.mkdir(parents=True, exist_ok=True)
+        inp = dbrec.fetch_ai_harness_input_for_candidate(
+            client, candidate_id=cid, contract_version="ai_harness_input_v1"
+        )
+        (sub / "state_change_candidate.json").write_text(
+            json.dumps(cand, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+        (sub / "ai_harness_input.json").write_text(
+            json.dumps(inp or {}, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+
+        g1 = generate_memos_for_run(
+            client,
+            run_id=run_id,
+            limit=2000,
+            candidate_ids={cid},
+            force_new_memo_version=False,
+        )
+        g2 = generate_memos_for_run(
+            client,
+            run_id=run_id,
+            limit=2000,
+            candidate_ids={cid},
+            force_new_memo_version=False,
+        )
+        (sub / "rerun_generate_summary.json").write_text(
+            json.dumps({"first": g1, "second": g2}, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+
+        memo = dbrec.fetch_latest_memo_for_candidate(client, candidate_id=cid)
+        qrow = dbrec.fetch_operator_review_queue_row(client, candidate_id=cid)
+        claims: list[dict[str, object]] = []
+        if memo:
+            claims = dbrec.fetch_investigation_memo_claims(
+                client, memo_id=str(memo["id"])
+            )
+        (sub / "investigation_memo.json").write_text(
+            json.dumps(memo or {}, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+        (sub / "investigation_memo_claims.json").write_text(
+            json.dumps(claims, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+        (sub / "operator_review_queue.json").write_text(
+            json.dumps(qrow or {}, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+        pj = (inp or {}).get("payload_json") if isinstance(inp, dict) else None
+        ticker_hint = pj.get("ticker") if isinstance(pj, dict) else None
+        manifest.append(
+            {
+                "candidate_id": cid,
+                "run_id": run_id,
+                "ticker_hint": ticker_hint,
+                "memo_id": (memo or {}).get("id"),
+                "referee_passed": (memo or {}).get("referee_passed"),
+                "claims_count": len(claims),
+            }
+        )
+
+    (out_dir / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    print(json.dumps({"out_dir": str(out_dir), "manifest": manifest}, indent=2, ensure_ascii=False, default=str))
     return 0
 
 
@@ -1103,7 +1251,54 @@ def build_parser() -> argparse.ArgumentParser:
     gim.add_argument("--universe", default="sp500_current")
     gim.add_argument("--run-id", default=None, dest="run_id")
     gim.add_argument("--limit", type=int, default=500)
+    gim.add_argument(
+        "--candidate-ids",
+        default=None,
+        help="쉼표 구분 candidate_id만 처리(해당 run의 harness input 행이 있어야 함)",
+    )
+    gim.add_argument(
+        "--force-new-memo-version",
+        action="store_true",
+        help="항상 memo_version=max+1로 신규 행 삽입(감사용; 기본은 동일 hash면 in-place 치환)",
+    )
     gim.set_defaults(func=_cmd_generate_investigation_memos)
+
+    srq = sub.add_parser(
+        "set-review-queue-status",
+        help="operator_review_queue 상태 변경(감사 reason 권장)",
+    )
+    srq.add_argument("--candidate-id", required=True, dest="candidate_id")
+    srq.add_argument(
+        "--status",
+        required=True,
+        choices=("pending", "reviewed", "needs_followup", "blocked_insufficient_data"),
+    )
+    srq.add_argument("--reason", default=None, help="status_reason 텍스트")
+    srq.set_defaults(func=_cmd_set_review_queue_status)
+
+    ep7 = sub.add_parser(
+        "export-phase7-evidence-bundle",
+        help="실데이터 후보별 입력·메모·클레임·큐·재실행 요약 JSON 덤프",
+    )
+    ep7.add_argument(
+        "--candidate-ids",
+        default=None,
+        help="쉼표 구분 UUID (3개 이상 권장)",
+    )
+    ep7.add_argument(
+        "--from-run",
+        default=None,
+        dest="from_run",
+        metavar="RUN_ID",
+        help="state_change_runs.id — 앞에서 sample_n개 후보 선택",
+    )
+    ep7.add_argument("--sample-n", type=int, default=3, dest="sample_n")
+    ep7.add_argument(
+        "--out-dir",
+        default="docs/phase7_real_samples/latest",
+        help="출력 디렉터리",
+    )
+    ep7.set_defaults(func=_cmd_export_phase7_evidence_bundle)
 
     rrq = sub.add_parser(
         "report-review-queue",

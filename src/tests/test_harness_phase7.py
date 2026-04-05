@@ -93,6 +93,8 @@ def test_cli_help_harness_commands() -> None:
         "build-ai-harness-inputs",
         "generate-investigation-memos",
         "report-review-queue",
+        "set-review-queue-status",
+        "export-phase7-evidence-bundle",
     ):
         r = subprocess.run(
             [sys.executable, str(root / "src" / "main.py"), cmd, "-h"],

@@ -1108,6 +1108,21 @@ def smoke_harness_tables(client: Client) -> None:
     client.table("ai_harness_candidate_inputs").select("id").limit(1).execute()
 
 
+def fetch_state_change_candidate(
+    client: Client, *, candidate_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("state_change_candidates")
+        .select("*")
+        .eq("id", candidate_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
 def upsert_ai_harness_candidate_input(
     client: Client,
     *,
@@ -1178,6 +1193,22 @@ def fetch_max_memo_version(client: Client, *, candidate_id: str) -> int:
     return int(r.data[0]["memo_version"])
 
 
+def fetch_latest_memo_for_candidate(
+    client: Client, *, candidate_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("investigation_memos")
+        .select("*")
+        .eq("candidate_id", candidate_id)
+        .order("memo_version", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
 def insert_investigation_memo(
     client: Client,
     *,
@@ -1188,6 +1219,7 @@ def insert_investigation_memo(
     memo_json: dict[str, Any],
     referee_passed: bool,
     referee_flags_json: list[Any],
+    input_payload_hash: Optional[str] = None,
 ) -> str:
     row: dict[str, Any] = {
         "candidate_id": candidate_id,
@@ -1198,10 +1230,38 @@ def insert_investigation_memo(
         "referee_passed": referee_passed,
         "referee_flags_json": referee_flags_json,
     }
+    if input_payload_hash is not None:
+        row["input_payload_hash"] = input_payload_hash
     res = client.table("investigation_memos").insert(row).execute()
     if not res.data:
         raise RuntimeError("investigation_memos insert 응답이 비어 있습니다.")
     return str(res.data[0]["id"])
+
+
+def update_investigation_memo(
+    client: Client,
+    *,
+    memo_id: str,
+    input_id: Optional[str],
+    memo_json: dict[str, Any],
+    referee_passed: bool,
+    referee_flags_json: list[Any],
+    input_payload_hash: Optional[str] = None,
+) -> None:
+    patch: dict[str, Any] = {
+        "memo_json": memo_json,
+        "referee_passed": referee_passed,
+        "referee_flags_json": referee_flags_json,
+    }
+    if input_id is not None:
+        patch["input_id"] = input_id
+    if input_payload_hash is not None:
+        patch["input_payload_hash"] = input_payload_hash
+    client.table("investigation_memos").update(patch).eq("id", memo_id).execute()
+
+
+def delete_investigation_memo_claims_for_memo(client: Client, *, memo_id: str) -> None:
+    client.table("investigation_memo_claims").delete().eq("memo_id", memo_id).execute()
 
 
 def insert_investigation_memo_claims_batch(
@@ -1214,6 +1274,53 @@ def insert_investigation_memo_claims_batch(
         client.table("investigation_memo_claims").insert(rows[i : i + step]).execute()
 
 
+def fetch_investigation_memo_claims(
+    client: Client, *, memo_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("investigation_memo_claims")
+        .select("*")
+        .eq("memo_id", memo_id)
+        .order("claim_id")
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_operator_review_queue_row(
+    client: Client, *, candidate_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("operator_review_queue")
+        .select("*")
+        .eq("candidate_id", candidate_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def update_operator_review_queue_status(
+    client: Client,
+    *,
+    candidate_id: str,
+    status: str,
+    status_reason: Optional[str] = None,
+    memo_id: Optional[str] = None,
+) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    patch: dict[str, Any] = {"status": status, "updated_at": now}
+    if status_reason is not None:
+        patch["status_reason"] = status_reason
+    if memo_id is not None:
+        patch["memo_id"] = memo_id
+    if status == "reviewed":
+        patch["reviewed_at"] = now
+    client.table("operator_review_queue").update(patch).eq("candidate_id", candidate_id).execute()
+
+
 def upsert_operator_review_queue(
     client: Client,
     *,
@@ -1223,6 +1330,7 @@ def upsert_operator_review_queue(
     as_of_date: str,
     status: str,
     memo_id: Optional[str],
+    status_reason: Optional[str] = None,
 ) -> None:
     row: dict[str, Any] = {
         "candidate_id": candidate_id,
@@ -1233,6 +1341,8 @@ def upsert_operator_review_queue(
         "memo_id": memo_id,
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }
+    if status_reason is not None:
+        row["status_reason"] = status_reason
     client.table("operator_review_queue").upsert(row, on_conflict="candidate_id").execute()
 
 
