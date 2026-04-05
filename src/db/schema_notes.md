@@ -35,6 +35,11 @@
 | `operator_review_queue` | 운영자 리뷰 큐. `candidate_id` 유니크. `status_reason`, `reviewed_at`. 상태: pending\|reviewed\|needs_followup\|blocked_insufficient_data. |
 | `hypothesis_registry` | **스텁** — 미래 연구 가설; 스코어링 미연동. |
 | `promotion_gate_events` | **스텁** — 미래 승격 게이트; 자동 승격 없음. |
+| `outlier_casebook_runs` | Phase 8 배치 메타; `detection_logic_version`, `policy_json`. |
+| `outlier_casebook_entries` | 이상치 사례 메모리: discrepancy·expected/observed·uncertainty·message 필드·`is_heuristic`. |
+| `scanner_runs` | 일일 스캐너 실행; `policy_json`(top_n, floor 등). |
+| `daily_signal_snapshots` | 스캐너 run당 1행 집계 `stats_json`. |
+| `daily_watchlist_entries` | 저잡음 우선순위 워치리스트; thesis/challenge/uncertainty + message 필드. |
 | `backfill_orchestration_runs` | **유니버스 백필** 상위 실행 메타. `mode`·`universe_name`·`summary_json`(retry_tickers 등). |
 | `backfill_stage_events` | 백필 **스테이지별** 행 수·에러·`notes_json`. `ingest_runs` 와 별도 감사. |
 
@@ -143,6 +148,12 @@ Service role 키는 RLS를 우회한다. 로컬 워커는 service role 전제.
 8. `20250408100000_backfill_orchestration.sql` — `backfill_*` 테이블 + `backfill_coverage_counts()` RPC
 9. `20250409100000_phase7_ai_harness_minimum.sql` — harness 입력·메모·리뷰 큐·R&D 스텁
 10. `20250410100000_phase71_harness_hardening.sql` — 클레임 스키마 확장, `input_payload_hash`, 큐 감사 컬럼, 인덱스
+11. `20250411100000_phase8_casebook_scanner.sql` — 아웃라이어 케이스북 + 일일 스캐너/워치리스트
+
+## Phase 8 저잡음 워치리스트 정책 (요약)
+
+- 기본: `top_n=15`, `min_priority_score=20`, `max_candidate_rank=60`, 후보 클래스 `investigate_now` \| `investigate_watch` \| `recheck_later` 만 게이트 통과 후 우선순위 점수 내림차순.
+- 임계 미달 시 **빈 워치리스트 허용** (스팸 금지).
 
 ## Phase 7 / 7.1 재실행 정책 (요약)
 

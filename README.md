@@ -258,6 +258,26 @@ python3 src/main.py set-review-queue-status --candidate-id <UUID> --status revie
 python3 src/main.py export-phase7-evidence-bundle --from-run <STATE_CHANGE_RUN_UUID> --sample-n 3 --out-dir docs/phase7_real_samples/latest
 ```
 
+## Phase 8 목표 (Outlier Casebook + Daily Scanner)
+
+- **역할**: 결정적 스파인·메모·검증 조인에서 **불일치/이상 패턴**을 `outlier_casebook_*`에 축적하고, **일일 저잡음 워치리스트**(`scanner_runs`, `daily_signal_snapshots`, `daily_watchlist_entries`)로 운영 우선순위를 만든다. **매매·포트폴리오·실행·대시보드 UI 아님.**
+- **탐지**: `outlier_heuristic_v1` — 반응 갭(검증 패널/선행수익 조인), 메모/referee 긴장, 데이터 스트레스, 레짐/지속성 휴리스틱 등. **`is_heuristic=true`** 명시.
+- **메시지 계약**: 각 케이스/워치 행에 `message_short_title`, `message_why_matters`, `message_what_could_wrong`, `message_unknown`, `message_plain_language` + 구조 필드 유지.
+- **오버레이 스텁**: `overlay_future_seams_json` — 뉴스/지분/포지션/거시는 `not_available_yet` (가짜 데이터 없음).
+- **코드**: `src/casebook/`, `src/scanner/`, `src/message_contract/`.
+- **CLI**: `smoke-phase8`, `build-outlier-casebook`, `build-daily-signal-snapshot`, `report-daily-watchlist`, `export-casebook-samples`.
+- **마이그레이션**: `20250411100000_phase8_casebook_scanner.sql` (Phase 7.1 이후).
+- **증거 절차**: `docs/phase8_evidence.md`, 샘플 출력 `docs/phase8_samples/` (로컬 DB에서 생성).
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-phase8
+python3 src/main.py build-outlier-casebook --universe sp500_current --candidate-limit 600
+python3 src/main.py export-casebook-samples --state-change-run-id <STATE_CHANGE_RUN_UUID> --limit 20 --out-dir docs/phase8_samples/latest
+python3 src/main.py build-daily-signal-snapshot --universe sp500_current --top-n 15 --min-priority-score 20
+python3 src/main.py report-daily-watchlist
+```
+
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
 
 **목적**: 시장 가격만 넓고 SEC/XBRL/스냅샷/팩터/검증 스파인이 샘플 수준일 때, **수동 INSERT 없이** 기존 파이프라인을 순서대로 묶어 `issuer_master` → `factor_market_validation_panels` 까지 채움. **백테스트·포트폴리오·AI harness·UI 확장 아님.**

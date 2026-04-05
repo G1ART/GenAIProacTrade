@@ -788,6 +788,174 @@ def _cmd_report_review_queue(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_smoke_phase8(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db.records import smoke_phase8_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_phase8_tables(client)
+    print(json.dumps({"phase8_tables": "ok"}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_build_outlier_casebook(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db import records as dbrec
+    from casebook.build_run import run_outlier_casebook_build
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rid = args.run_id or dbrec.fetch_latest_state_change_run_id(
+        client, universe_name=args.universe
+    )
+    if not rid:
+        print(
+            json.dumps(
+                {"error": "no_completed_state_change_run", "universe": args.universe},
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    out = run_outlier_casebook_build(
+        client,
+        state_change_run_id=rid,
+        universe_name=args.universe,
+        candidate_limit=int(args.candidate_limit),
+    )
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_build_daily_signal_snapshot(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db import records as dbrec
+    from scanner.daily_build import run_daily_scanner_build
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rid = args.run_id or dbrec.fetch_latest_state_change_run_id(
+        client, universe_name=args.universe
+    )
+    if not rid:
+        print(
+            json.dumps(
+                {"error": "no_completed_state_change_run", "universe": args.universe},
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    out = run_daily_scanner_build(
+        client,
+        state_change_run_id=rid,
+        universe_name=args.universe,
+        as_of_calendar_date=args.as_of_date,
+        candidate_scan_limit=int(args.candidate_limit),
+        top_n=int(args.top_n),
+        min_priority_score=float(args.min_priority_score),
+        max_candidate_rank=int(args.max_candidate_rank),
+    )
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_daily_watchlist(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db import records as dbrec
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    sid = args.scanner_run_id
+    if not sid:
+        latest = dbrec.fetch_latest_scanner_run(
+            client, universe_name=args.universe or None
+        )
+        if not latest:
+            print(json.dumps({"error": "no_scanner_runs"}, ensure_ascii=False))
+            return 1
+        sid = str(latest["id"])
+    run_row = dbrec.fetch_scanner_run(client, scanner_run_id=sid)
+    snap = dbrec.fetch_daily_snapshot_for_scanner(client, scanner_run_id=sid)
+    wl = dbrec.fetch_watchlist_for_scanner(client, scanner_run_id=sid, limit=200)
+    print(
+        json.dumps(
+            {
+                "scanner_run_id": sid,
+                "scanner_run": run_row,
+                "daily_signal_snapshot": snap,
+                "watchlist": wl,
+            },
+            indent=2,
+            ensure_ascii=False,
+            default=str,
+        )
+    )
+    return 0
+
+
+def _cmd_export_casebook_samples(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from db import records as dbrec
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    crid = args.casebook_run_id
+    if not crid and args.state_change_run_id:
+        r = (
+            client.table("outlier_casebook_runs")
+            .select("id")
+            .eq("state_change_run_id", str(args.state_change_run_id))
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if r.data:
+            crid = str(r.data[0]["id"])
+    if not crid:
+        print(
+            json.dumps(
+                {
+                    "error": "no_casebook_run",
+                    "hint": "--casebook-run-id or --state-change-run-id",
+                },
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    rows = dbrec.fetch_outlier_casebook_entries_for_run(
+        client, casebook_run_id=crid, limit=int(args.limit)
+    )
+    out_dir = Path(args.out_dir).expanduser()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "casebook_run_id.txt").write_text(crid, encoding="utf-8")
+    (out_dir / "entries.json").write_text(
+        json.dumps(rows, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    manifest = [
+        {
+            "entry_id": x.get("id"),
+            "candidate_id": x.get("candidate_id"),
+            "outlier_type": x.get("outlier_type"),
+            "ticker": x.get("ticker"),
+        }
+        for x in rows[: int(args.limit)]
+    ]
+    (out_dir / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    print(json.dumps({"out_dir": str(out_dir), "count": len(rows), "manifest": manifest}, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
 def _cmd_smoke_facts(_args: argparse.Namespace) -> int:
     """DB facts 테이블 도달 + (선택) 단일 티커 XBRL 로드 가능 여부."""
     import sec.ingest_company_sample  # noqa: F401
@@ -1328,6 +1496,70 @@ def build_parser() -> argparse.ArgumentParser:
     )
     rrq.add_argument("--limit", type=int, default=200)
     rrq.set_defaults(func=_cmd_report_review_queue)
+
+    sp8 = sub.add_parser(
+        "smoke-phase8",
+        help="Phase 8 casebook/scanner 테이블 도달 (마이그레이션 필요)",
+    )
+    sp8.set_defaults(func=_cmd_smoke_phase8)
+
+    boc = sub.add_parser(
+        "build-outlier-casebook",
+        help="state_change run → outlier_casebook_runs + entries (휴리스틱 v1)",
+    )
+    boc.add_argument("--universe", default="sp500_current")
+    boc.add_argument("--run-id", default=None, dest="run_id")
+    boc.add_argument("--candidate-limit", type=int, default=600, dest="candidate_limit")
+    boc.set_defaults(func=_cmd_build_outlier_casebook)
+
+    bds = sub.add_parser(
+        "build-daily-signal-snapshot",
+        help="일일 스냅샷 + 저잡음 우선순위 워치리스트 (scanner_runs + daily_*)",
+    )
+    bds.add_argument("--universe", default="sp500_current")
+    bds.add_argument("--run-id", default=None, dest="run_id")
+    bds.add_argument("--as-of-date", default=None, dest="as_of_date")
+    bds.add_argument("--candidate-limit", type=int, default=500, dest="candidate_limit")
+    bds.add_argument("--top-n", type=int, default=15, dest="top_n")
+    bds.add_argument(
+        "--min-priority-score",
+        type=float,
+        default=20.0,
+        dest="min_priority_score",
+    )
+    bds.add_argument(
+        "--max-candidate-rank",
+        type=int,
+        default=60,
+        dest="max_candidate_rank",
+    )
+    bds.set_defaults(func=_cmd_build_daily_signal_snapshot)
+
+    rdw = sub.add_parser(
+        "report-daily-watchlist",
+        help="최근 또는 지정 scanner_run의 스냅샷 + 워치리스트 JSON",
+    )
+    rdw.add_argument("--scanner-run-id", default=None, dest="scanner_run_id")
+    rdw.add_argument(
+        "--universe",
+        default=None,
+        help="scanner_run_id 없을 때 최신 run 필터(선택)",
+    )
+    rdw.set_defaults(func=_cmd_report_daily_watchlist)
+
+    ecs = sub.add_parser(
+        "export-casebook-samples",
+        help="casebook 엔트리 JSON을 디렉터리에 덤프 (실데이터 증거용)",
+    )
+    ecs.add_argument("--casebook-run-id", default=None, dest="casebook_run_id")
+    ecs.add_argument("--state-change-run-id", default=None, dest="state_change_run_id")
+    ecs.add_argument("--limit", type=int, default=50)
+    ecs.add_argument(
+        "--out-dir",
+        default="docs/phase8_samples/latest",
+        help="출력 디렉터리",
+    )
+    ecs.set_defaults(func=_cmd_export_casebook_samples)
 
     return p
 

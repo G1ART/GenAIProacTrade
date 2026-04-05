@@ -1354,3 +1354,276 @@ def fetch_operator_review_queue(
         q = q.eq("status", status)
     r = q.order("as_of_date", desc=True).limit(limit).execute()
     return [dict(x) for x in (r.data or [])]
+
+
+# --- Phase 8: outlier casebook + daily scanner ---
+
+
+def smoke_phase8_tables(client: Client) -> None:
+    client.table("outlier_casebook_entries").select("id").limit(1).execute()
+    client.table("scanner_runs").select("id").limit(1).execute()
+
+
+def fetch_state_change_score_for_cik_date(
+    client: Client, *, run_id: str, cik: str, as_of_date: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("issuer_state_change_scores")
+        .select("*")
+        .eq("run_id", run_id)
+        .eq("cik", cik)
+        .eq("as_of_date", as_of_date)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_state_change_components_for_cik_date(
+    client: Client, *, run_id: str, cik: str, as_of_date: str, limit: int = 300
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("issuer_state_change_components")
+        .select("*")
+        .eq("run_id", run_id)
+        .eq("cik", cik)
+        .eq("as_of_date", as_of_date)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_validation_panel_best_before(
+    client: Client, *, cik: str, as_of_date: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("factor_market_validation_panels")
+        .select("*")
+        .eq("cik", cik)
+        .not_.is_("signal_available_date", "null")
+        .lte("signal_available_date", as_of_date)
+        .order("signal_available_date", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if r.data:
+        return dict(r.data[0])
+    r2 = (
+        client.table("factor_market_validation_panels")
+        .select("*")
+        .eq("cik", cik)
+        .order("created_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if r2.data:
+        return dict(r2.data[0])
+    return None
+
+
+def fetch_forward_return_for_signal(
+    client: Client,
+    *,
+    symbol: str,
+    signal_date: str,
+    horizon_type: str = "next_month",
+) -> Optional[dict[str, Any]]:
+    sym = str(symbol or "").strip().upper()
+    if not sym:
+        return None
+    r = (
+        client.table("forward_returns_daily_horizons")
+        .select("*")
+        .eq("symbol", sym)
+        .eq("signal_date", signal_date)
+        .eq("horizon_type", horizon_type)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_issuer_company_name(
+    client: Client, *, issuer_id: Optional[Any]
+) -> str:
+    if not issuer_id:
+        return ""
+    r = (
+        client.table("issuer_master")
+        .select("company_name")
+        .eq("id", str(issuer_id))
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return ""
+    return str(r.data[0].get("company_name") or "")
+
+
+def insert_outlier_casebook_run(
+    client: Client,
+    *,
+    state_change_run_id: str,
+    universe_name: str,
+    detection_logic_version: str,
+    policy_json: dict[str, Any],
+) -> str:
+    row: dict[str, Any] = {
+        "state_change_run_id": state_change_run_id,
+        "universe_name": universe_name,
+        "detection_logic_version": detection_logic_version,
+        "policy_json": policy_json,
+        "entries_created": 0,
+    }
+    res = client.table("outlier_casebook_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("outlier_casebook_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def finalize_outlier_casebook_run(
+    client: Client, *, casebook_run_id: str, entries_created: int
+) -> None:
+    client.table("outlier_casebook_runs").update(
+        {"entries_created": entries_created}
+    ).eq("id", casebook_run_id).execute()
+
+
+def insert_outlier_casebook_entries_batch(
+    client: Client, rows: list[dict[str, Any]]
+) -> None:
+    if not rows:
+        return
+    step = 40
+    for i in range(0, len(rows), step):
+        client.table("outlier_casebook_entries").insert(rows[i : i + step]).execute()
+
+
+def fetch_outlier_casebook_entries_for_run(
+    client: Client, *, casebook_run_id: str, limit: int = 500
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("outlier_casebook_entries")
+        .select("*")
+        .eq("casebook_run_id", casebook_run_id)
+        .order("outlier_severity", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_latest_outlier_casebook_run(
+    client: Client, *, state_change_run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("outlier_casebook_runs")
+        .select("*")
+        .eq("state_change_run_id", state_change_run_id)
+        .order("created_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def insert_scanner_run(
+    client: Client,
+    *,
+    as_of_calendar_date: str,
+    state_change_run_id: str,
+    universe_name: str,
+    policy_json: dict[str, Any],
+) -> str:
+    row: dict[str, Any] = {
+        "as_of_calendar_date": as_of_calendar_date,
+        "state_change_run_id": state_change_run_id,
+        "universe_name": universe_name,
+        "policy_json": policy_json,
+        "status": "completed",
+    }
+    res = client.table("scanner_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("scanner_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def insert_daily_signal_snapshot(
+    client: Client, *, scanner_run_id: str, stats_json: dict[str, Any]
+) -> str:
+    row = {"scanner_run_id": scanner_run_id, "stats_json": stats_json}
+    res = client.table("daily_signal_snapshots").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("daily_signal_snapshots insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def insert_daily_watchlist_entries_batch(
+    client: Client, rows: list[dict[str, Any]]
+) -> None:
+    if not rows:
+        return
+    step = 40
+    for i in range(0, len(rows), step):
+        client.table("daily_watchlist_entries").insert(rows[i : i + step]).execute()
+
+
+def fetch_latest_scanner_run(
+    client: Client, *, universe_name: Optional[str] = None
+) -> Optional[dict[str, Any]]:
+    q = client.table("scanner_runs").select("*")
+    if universe_name:
+        q = q.eq("universe_name", universe_name)
+    r = q.order("created_at", desc=True).limit(1).execute()
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_watchlist_for_scanner(
+    client: Client, *, scanner_run_id: str, limit: int = 100
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("daily_watchlist_entries")
+        .select("*")
+        .eq("scanner_run_id", scanner_run_id)
+        .order("priority_rank")
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_scanner_run(client: Client, *, scanner_run_id: str) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("scanner_runs")
+        .select("*")
+        .eq("id", scanner_run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_daily_snapshot_for_scanner(
+    client: Client, *, scanner_run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("daily_signal_snapshots")
+        .select("*")
+        .eq("scanner_run_id", scanner_run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
