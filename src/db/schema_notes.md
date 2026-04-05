@@ -1,4 +1,4 @@
-# DB 스키마 메모 (Phase 0–7)
+# DB 스키마 메모 (Phase 0–9)
 
 ## 데이터 계층 역할
 
@@ -33,8 +33,10 @@
 | `investigation_memos` | 조사 메모 오버레이. `(candidate_id, memo_version)` 유니크. `input_payload_hash`(재실행/idempotency용). thesis+challenge+synthesis+referee 메타. |
 | `investigation_memo_claims` | Phase 7.1 **주장 단위** 추적: `claim_id`, `claim_role`(thesis\|challenge\|synthesis\|referee\|evidence), `statement`, `support_summary`, `counter_evidence_summary`, `trace_refs`, `needs_verification`, `verdict`(pending\|…), `candidate_id`. `(memo_id, claim_id)` 유니크. |
 | `operator_review_queue` | 운영자 리뷰 큐. `candidate_id` 유니크. `status_reason`, `reviewed_at`. 상태: pending\|reviewed\|needs_followup\|blocked_insufficient_data. |
-| `hypothesis_registry` | **스텁** — 미래 연구 가설; 스코어링 미연동. |
-| `promotion_gate_events` | **스텁** — 미래 승격 게이트; 자동 승격 없음. |
+| `hypothesis_registry` | Phase 9 **연구 레지스트리**: `title`, `research_item_status`, `source_scope`, `intended_use`, `leakage_review_status`, `promotion_decision`, `rejection_reason`, `linked_artifacts`. 프로덕션 스코어링이 자동 조회하지 않음(거버넌스 전용). |
+| `promotion_gate_events` | 승격/거부 감사: `hypothesis_id`, `event_type`, `decision_summary`, `rationale`, `actor`, `metadata_json`. |
+| `operational_runs` | Phase 9 **운영 실행** 감사: `run_type`, `component`, `status`(running\|success\|warning\|failed\|empty_valid), 행 수, `tokens_used`(null 가능), `trace_json`. |
+| `operational_failures` | 실행별 **쿼리 가능** 실패/경고 분류: `failure_category`(configuration_error, db_migration_missing, source_data_missing, empty_but_valid, heuristic_low_confidence, execution_error, other). |
 | `outlier_casebook_runs` | Phase 8 배치 메타; `detection_logic_version`, `policy_json`. |
 | `outlier_casebook_entries` | 이상치 사례 메모리: discrepancy·expected/observed·uncertainty·message 필드·`is_heuristic`. |
 | `scanner_runs` | 일일 스캐너 실행; `policy_json`(top_n, floor 등). |

@@ -278,6 +278,28 @@ python3 src/main.py build-daily-signal-snapshot --universe sp500_current --top-n
 python3 src/main.py report-daily-watchlist
 ```
 
+## Phase 9 목표 (운영 가시성 · 실패 추적 · 연구 레지스트리)
+
+- **역할**: 실행 단위로 **쿼리 가능한** 감사(`operational_runs` / `operational_failures`), 연구 가설의 **등록·승격 거버넌스**(`hypothesis_registry`, `promotion_gate_events`), Phase 8 파이프라인과 동일 CLI에 **관측 로그 연동**. 코크핏/UI·실행·포트폴리오·자동 연구 승격 **아님**.
+- **상태 구분**: `success`, `warning`, `failed`, **`empty_valid`**(의도적 0출력 vs 깨짐 구분).
+- **코드**: `src/observability/`, `src/research_registry/`, `src/db/records.py`(operational·registry 헬퍼).
+- **CLI**: `smoke-phase9-observability`, `report-run-health`, `report-failures`, `report-research-registry`, `seed-phase9-research-samples`.
+- **마이그레이션**: `20250412100000_phase9_observability_research_registry.sql` (Phase 8 이후). 미적용 원격 DB에서는 스모크가 `operational_runs` 부재로 실패할 수 있음.
+- **증거**: `docs/phase9_evidence.md`, 샘플 디렉터리 `docs/phase9_samples/`.
+- **진실성**: `src/message_contract/__init__.py` 의 `MESSAGE_LAYER_TRUTH_GUARDS` — 휴리스틱·결손·오버레이 `not_available_yet` 원칙 유지.
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-phase9-observability
+python3 src/main.py seed-phase9-research-samples
+python3 src/main.py build-outlier-casebook --universe sp500_current --candidate-limit 600
+python3 src/main.py build-daily-signal-snapshot --universe sp500_current
+python3 src/main.py report-daily-watchlist
+python3 src/main.py report-run-health --limit 50
+python3 src/main.py report-failures --limit 50
+python3 src/main.py report-research-registry --limit 50
+```
+
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
 
 **목적**: 시장 가격만 넓고 SEC/XBRL/스냅샷/팩터/검증 스파인이 샘플 수준일 때, **수동 INSERT 없이** 기존 파이프라인을 순서대로 묶어 `issuer_master` → `factor_market_validation_panels` 까지 채움. **백테스트·포트폴리오·AI harness·UI 확장 아님.**

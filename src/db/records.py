@@ -1627,3 +1627,214 @@ def fetch_daily_snapshot_for_scanner(
     if not r.data:
         return None
     return dict(r.data[0])
+
+
+# --- Phase 9: observability + research registry ---
+
+
+def smoke_phase9_observability_tables(client: Client) -> None:
+    client.table("operational_runs").select("id").limit(1).execute()
+    client.table("hypothesis_registry").select("id").limit(1).execute()
+
+
+def insert_operational_run_started(
+    client: Client,
+    *,
+    run_type: str,
+    component: str,
+    metadata_json: dict[str, Any],
+    linked_external_id: Optional[str] = None,
+) -> str:
+    row: dict[str, Any] = {
+        "run_type": run_type,
+        "component": component,
+        "status": "running",
+        "metadata_json": metadata_json,
+        "tokens_used": None,
+    }
+    if linked_external_id:
+        row["linked_external_id"] = linked_external_id
+    res = client.table("operational_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("operational_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def finalize_operational_run(
+    client: Client,
+    *,
+    operational_run_id: str,
+    status: str,
+    duration_ms: int,
+    rows_read: Optional[int],
+    rows_written: Optional[int],
+    warnings_count: int,
+    error_class: Optional[str],
+    error_code: Optional[str],
+    error_message_summary: Optional[str],
+    trace_json: dict[str, Any],
+) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    patch: dict[str, Any] = {
+        "finished_at": now,
+        "duration_ms": duration_ms,
+        "status": status,
+        "rows_read": rows_read,
+        "rows_written": rows_written,
+        "warnings_count": warnings_count,
+        "error_class": error_class,
+        "error_code": error_code,
+        "error_message_summary": error_message_summary,
+        "trace_json": trace_json,
+    }
+    client.table("operational_runs").update(patch).eq("id", operational_run_id).execute()
+
+
+def insert_operational_failure(
+    client: Client,
+    *,
+    operational_run_id: str,
+    failure_category: str,
+    detail: str,
+) -> None:
+    client.table("operational_failures").insert(
+        {
+            "operational_run_id": operational_run_id,
+            "failure_category": failure_category,
+            "detail": detail[:8000],
+        }
+    ).execute()
+
+
+def fetch_operational_runs_recent(
+    client: Client, *, limit: int = 100
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("operational_runs")
+        .select("*")
+        .order("started_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_operational_failures_recent(
+    client: Client, *, limit: int = 100
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("operational_failures")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_operational_run(
+    client: Client, *, operational_run_id: str
+) -> Optional[dict[str, Any]]:
+    res = (
+        client.table("operational_runs")
+        .select("*")
+        .eq("id", operational_run_id)
+        .limit(1)
+        .execute()
+    )
+    if not res.data:
+        return None
+    return dict(res.data[0])
+
+
+def insert_research_hypothesis(
+    client: Client,
+    *,
+    title: str,
+    research_item_status: str,
+    source_scope: str,
+    intended_use: str,
+    leakage_review_status: str = "not_reviewed",
+    promotion_decision: str = "none",
+    rejection_reason: Optional[str] = None,
+    linked_artifacts: Optional[list[Any]] = None,
+    notes_json: Optional[dict[str, Any]] = None,
+) -> str:
+    row: dict[str, Any] = {
+        "title": title[:2000],
+        "research_item_status": research_item_status,
+        "source_scope": source_scope[:2000],
+        "intended_use": intended_use[:4000],
+        "leakage_review_status": leakage_review_status,
+        "promotion_decision": promotion_decision,
+        "rejection_reason": rejection_reason,
+        "linked_artifacts": linked_artifacts or [],
+        "notes_json": notes_json or {},
+        "stub_status": "active",
+    }
+    res = client.table("hypothesis_registry").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("hypothesis_registry insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_research_hypotheses(
+    client: Client, *, limit: int = 200
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("hypothesis_registry")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def insert_promotion_gate_event(
+    client: Client,
+    *,
+    hypothesis_id: Optional[str],
+    event_type: str,
+    decision_summary: Optional[str],
+    rationale: Optional[str],
+    actor: Optional[str],
+    metadata_json: Optional[dict[str, Any]] = None,
+) -> str:
+    row: dict[str, Any] = {
+        "hypothesis_id": hypothesis_id,
+        "event_type": event_type,
+        "decision_summary": decision_summary,
+        "rationale": rationale,
+        "actor": actor,
+        "metadata_json": metadata_json or {},
+        "stub_status": "recorded",
+    }
+    res = client.table("promotion_gate_events").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("promotion_gate_events insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_promotion_gate_events_recent(
+    client: Client, *, limit: int = 100
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("promotion_gate_events")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def hypothesis_exists_by_title(client: Client, *, title: str) -> bool:
+    r = (
+        client.table("hypothesis_registry")
+        .select("id")
+        .eq("title", title)
+        .limit(1)
+        .execute()
+    )
+    return bool(r.data)

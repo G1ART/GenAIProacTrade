@@ -373,23 +373,70 @@ def _cmd_smoke_research(_args: argparse.Namespace) -> int:
 
 def _cmd_run_state_change(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
+    from observability.run_logger import OperationalRunSession
     from state_change.runner import run_state_change
 
     settings = load_settings()
     configure_logging()
     client = get_supabase_client(settings)
     fv = args.factor_version or os.getenv("FACTOR_VERSION") or "v1"
-    out = run_state_change(
+    with OperationalRunSession(
         client,
-        universe_name=str(args.universe),
-        factor_version=str(fv),
-        as_of_date=args.as_of_date,
-        start_date=args.start_date,
-        end_date=args.end_date,
-        limit=int(args.limit),
-        dry_run=bool(args.dry_run),
-        include_nullable_overlays=bool(args.include_nullable_overlays),
-    )
+        run_type="state_change",
+        component="state_change_engine_v1",
+        metadata_json={
+            "universe": str(args.universe),
+            "factor_version": str(fv),
+            "dry_run": bool(args.dry_run),
+        },
+    ) as op:
+        out = run_state_change(
+            client,
+            universe_name=str(args.universe),
+            factor_version=str(fv),
+            as_of_date=args.as_of_date,
+            start_date=args.start_date,
+            end_date=args.end_date,
+            limit=int(args.limit),
+            dry_run=bool(args.dry_run),
+            include_nullable_overlays=bool(args.include_nullable_overlays),
+        )
+        st = str(out.get("status") or "")
+        if st == "no_observations":
+            op.finish_failed(
+                error_class="pipeline",
+                error_code="no_observations",
+                message=str(out.get("hint") or out.get("message") or "no_observations"),
+                failure_category="source_data_missing",
+            )
+        elif st == "dry_run":
+            op.finish_success(
+                rows_read=int(out.get("scores") or 0),
+                rows_written=0,
+                warnings_count=int(out.get("warnings") or 0),
+                trace_json={
+                    "dry_run": True,
+                    "components": out.get("components"),
+                    "scores": out.get("scores"),
+                    "candidates": out.get("candidates"),
+                },
+            )
+        elif st == "completed":
+            op.finish_success(
+                rows_read=int(out.get("scores_written") or 0),
+                rows_written=int(out.get("components_written") or 0)
+                + int(out.get("scores_written") or 0)
+                + int(out.get("candidates_written") or 0),
+                warnings_count=int(out.get("warnings") or 0),
+                trace_json={"state_change_run_id": out.get("run_id")},
+            )
+        else:
+            op.finish_warning(
+                rows_read=None,
+                rows_written=None,
+                message=f"unexpected_status={st}",
+                trace_json={"out": out},
+            )
     if args.output_json:
         print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
     else:
@@ -589,6 +636,7 @@ def _cmd_generate_investigation_memos(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from db import records as dbrec
     from harness.run_batch import generate_memos_for_run
+    from observability.run_logger import OperationalRunSession
 
     settings = load_settings()
     configure_logging()
@@ -607,14 +655,55 @@ def _cmd_generate_investigation_memos(args: argparse.Namespace) -> int:
     cfilter: set[str] | None = None
     if getattr(args, "candidate_ids", None):
         cfilter = {x.strip() for x in str(args.candidate_ids).split(",") if x.strip()}
-    out = generate_memos_for_run(
+    with OperationalRunSession(
         client,
-        run_id=rid,
-        limit=int(args.limit),
-        force_new_memo_version=bool(args.force_new_memo_version),
-        candidate_ids=cfilter,
-    )
+        run_type="ai_harness",
+        component="investigation_memo_batch",
+        metadata_json={"state_change_run_id": rid, "universe": args.universe},
+        linked_external_id=rid,
+    ) as op:
+        out = generate_memos_for_run(
+            client,
+            run_id=rid,
+            limit=int(args.limit),
+            force_new_memo_version=bool(args.force_new_memo_version),
+            candidate_ids=cfilter,
+        )
+        ins = int(out.get("memos_inserted_new_version") or 0)
+        rep = int(out.get("memos_replaced_in_place") or 0)
+        errs = out.get("errors") or []
+        n_err = len(errs)
+        if n_err and ins + rep == 0:
+            op.finish_failed(
+                error_class="memo_pipeline",
+                error_code="all_candidates_failed",
+                message=str(errs[0].get("error") if errs else "errors")[:2000],
+                failure_category="execution_error",
+            )
+        elif n_err:
+            op.finish_warning(
+                rows_read=ins + rep + n_err,
+                rows_written=ins + rep,
+                message=f"{n_err} memo candidate errors (see trace)",
+                trace_json={"errors_sample": errs[:5], **out},
+            )
+        elif ins + rep == 0:
+            op.finish_empty_valid(
+                rows_read=0,
+                trace_json={**out, "note": "no_inputs_or_all_filtered"},
+            )
+        else:
+            op.finish_success(
+                rows_read=ins + rep,
+                rows_written=ins + rep,
+                warnings_count=0,
+                trace_json=out,
+            )
     print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    ins2 = int(out.get("memos_inserted_new_version") or 0)
+    rep2 = int(out.get("memos_replaced_in_place") or 0)
+    if out.get("errors") and ins2 + rep2 == 0:
+        return 1
     return 0
 
 
@@ -804,6 +893,7 @@ def _cmd_build_outlier_casebook(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from db import records as dbrec
     from casebook.build_run import run_outlier_casebook_build
+    from observability.run_logger import OperationalRunSession
 
     settings = load_settings()
     configure_logging()
@@ -819,19 +909,72 @@ def _cmd_build_outlier_casebook(args: argparse.Namespace) -> int:
             )
         )
         return 1
-    out = run_outlier_casebook_build(
+    with OperationalRunSession(
         client,
-        state_change_run_id=rid,
-        universe_name=args.universe,
-        candidate_limit=int(args.candidate_limit),
-    )
+        run_type="outlier_casebook",
+        component="casebook_build_v1",
+        metadata_json={
+            "universe": args.universe,
+            "state_change_run_id": rid,
+            "candidate_limit": int(args.candidate_limit),
+        },
+        linked_external_id=rid,
+    ) as op:
+        out = run_outlier_casebook_build(
+            client,
+            state_change_run_id=rid,
+            universe_name=args.universe,
+            candidate_limit=int(args.candidate_limit),
+        )
+        if out.get("error") == "state_change_run_not_found":
+            op.finish_failed(
+                error_class="input",
+                error_code="state_change_run_not_found",
+                message=str(out.get("run_id") or ""),
+                failure_category="configuration_error",
+            )
+        else:
+            ec = int(out.get("entries_created") or 0)
+            scanned = int(out.get("candidates_scanned") or 0)
+            errs = out.get("errors") or []
+            crid = str(out.get("casebook_run_id") or "")
+            trace = {**out, "heuristic_marked_in_entries": True}
+            if ec == 0 and not errs:
+                op.finish_empty_valid(rows_read=scanned, trace_json=trace)
+            elif errs and ec == 0:
+                op.finish_failed(
+                    error_class="casebook",
+                    error_code="all_candidates_errored",
+                    message=str(errs[0])[:2000],
+                    failure_category="execution_error",
+                )
+            elif errs:
+                op.finish_warning(
+                    rows_read=scanned,
+                    rows_written=ec,
+                    message=f"{len(errs)} candidate errors during casebook scan",
+                    trace_json=trace,
+                )
+            else:
+                op.finish_success(
+                    rows_read=scanned,
+                    rows_written=ec,
+                    warnings_count=0,
+                    trace_json=trace,
+                )
     print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    if out.get("error"):
+        return 1
+    errs = out.get("errors") or []
+    if errs and int(out.get("entries_created") or 0) == 0:
+        return 1
     return 0
 
 
 def _cmd_build_daily_signal_snapshot(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from db import records as dbrec
+    from observability.run_logger import OperationalRunSession
     from scanner.daily_build import run_daily_scanner_build
 
     settings = load_settings()
@@ -848,16 +991,47 @@ def _cmd_build_daily_signal_snapshot(args: argparse.Namespace) -> int:
             )
         )
         return 1
-    out = run_daily_scanner_build(
+    with OperationalRunSession(
         client,
-        state_change_run_id=rid,
-        universe_name=args.universe,
-        as_of_calendar_date=args.as_of_date,
-        candidate_scan_limit=int(args.candidate_limit),
-        top_n=int(args.top_n),
-        min_priority_score=float(args.min_priority_score),
-        max_candidate_rank=int(args.max_candidate_rank),
-    )
+        run_type="daily_scanner",
+        component="scanner_daily_build_v1",
+        metadata_json={
+            "universe": args.universe,
+            "state_change_run_id": rid,
+            "as_of_calendar_date": args.as_of_date,
+        },
+        linked_external_id=rid,
+    ) as op:
+        out = run_daily_scanner_build(
+            client,
+            state_change_run_id=rid,
+            universe_name=args.universe,
+            as_of_calendar_date=args.as_of_date,
+            candidate_scan_limit=int(args.candidate_limit),
+            top_n=int(args.top_n),
+            min_priority_score=float(args.min_priority_score),
+            max_candidate_rank=int(args.max_candidate_rank),
+        )
+        wl = int(out.get("watchlist_entries") or 0)
+        stats = out.get("stats") or {}
+        scanned = int(stats.get("candidates_scanned") or 0)
+        sid = str(out.get("scanner_run_id") or "")
+        trace = {
+            **out,
+            "watchlist_empty_allowed": True,
+            "message_layer_heuristic": True,
+        }
+        if wl == 0:
+            op.finish_empty_valid(
+                rows_read=scanned,
+                trace_json=trace,
+            )
+        else:
+            op.finish_success(
+                rows_read=scanned,
+                rows_written=wl + 1,
+                trace_json=trace,
+            )
     print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0
 
@@ -907,11 +1081,16 @@ def _cmd_export_casebook_samples(args: argparse.Namespace) -> int:
     configure_logging()
     client = get_supabase_client(settings)
     crid = args.casebook_run_id
-    if not crid and args.state_change_run_id:
+    state_change_run_id = args.state_change_run_id
+    if not crid and not state_change_run_id and getattr(args, "universe", None):
+        state_change_run_id = dbrec.fetch_latest_state_change_run_id(
+            client, universe_name=str(args.universe)
+        )
+    if not crid and state_change_run_id:
         r = (
             client.table("outlier_casebook_runs")
             .select("id")
-            .eq("state_change_run_id", str(args.state_change_run_id))
+            .eq("state_change_run_id", str(state_change_run_id))
             .order("created_at", desc=True)
             .limit(1)
             .execute()
@@ -923,7 +1102,10 @@ def _cmd_export_casebook_samples(args: argparse.Namespace) -> int:
             json.dumps(
                 {
                     "error": "no_casebook_run",
-                    "hint": "--casebook-run-id or --state-change-run-id",
+                    "hint": (
+                        "--casebook-run-id or --state-change-run-id or "
+                        "--universe (최신 completed state_change → 최신 casebook)"
+                    ),
                 },
                 ensure_ascii=False,
             )
@@ -953,6 +1135,72 @@ def _cmd_export_casebook_samples(args: argparse.Namespace) -> int:
         encoding="utf-8",
     )
     print(json.dumps({"out_dir": str(out_dir), "count": len(rows), "manifest": manifest}, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_smoke_phase9_observability(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db.records import smoke_phase9_observability_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_phase9_observability_tables(client)
+    print(
+        json.dumps(
+            {"phase9_observability_tables": "ok", "operational_runs": "reachable"},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_report_run_health(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from observability.reporting import build_run_health_payload
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    payload = build_run_health_payload(client, limit=int(args.limit))
+    print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_failures(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from observability.reporting import build_failures_payload
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    payload = build_failures_payload(client, limit=int(args.limit))
+    print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_research_registry(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from research_registry.reporting import format_registry_report
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    payload = format_registry_report(client, limit=int(args.limit))
+    print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_seed_phase9_research_samples(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from research_registry.registry import ensure_sample_hypotheses
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = ensure_sample_hypotheses(client)
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0
 
 
@@ -1553,6 +1801,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     ecs.add_argument("--casebook-run-id", default=None, dest="casebook_run_id")
     ecs.add_argument("--state-change-run-id", default=None, dest="state_change_run_id")
+    ecs.add_argument(
+        "--universe",
+        default=None,
+        help="casebook/state_change id 없을 때: 해당 universe 최신 completed run의 최신 casebook",
+    )
     ecs.add_argument("--limit", type=int, default=50)
     ecs.add_argument(
         "--out-dir",
@@ -1560,6 +1813,39 @@ def build_parser() -> argparse.ArgumentParser:
         help="출력 디렉터리",
     )
     ecs.set_defaults(func=_cmd_export_casebook_samples)
+
+    sp9 = sub.add_parser(
+        "smoke-phase9-observability",
+        help="Phase 9 operational_runs / hypothesis_registry 테이블 도달",
+    )
+    sp9.set_defaults(func=_cmd_smoke_phase9_observability)
+
+    rrh = sub.add_parser(
+        "report-run-health",
+        help="operational_runs 최근 요약 (상태·컴포넌트별 카운트)",
+    )
+    rrh.add_argument("--limit", type=int, default=80)
+    rrh.set_defaults(func=_cmd_report_run_health)
+
+    rf9 = sub.add_parser(
+        "report-failures",
+        help="operational_failures 최근 + 연결 run 메타",
+    )
+    rf9.add_argument("--limit", type=int, default=80)
+    rf9.set_defaults(func=_cmd_report_failures)
+
+    rrr = sub.add_parser(
+        "report-research-registry",
+        help="hypothesis_registry + promotion_gate_events + 거버넌스 경계 요약",
+    )
+    rrr.add_argument("--limit", type=int, default=200)
+    rrr.set_defaults(func=_cmd_report_research_registry)
+
+    srs = sub.add_parser(
+        "seed-phase9-research-samples",
+        help="샘플 가설 2건(idempotent) + 게이트 이벤트 — 실DB 증거용",
+    )
+    srs.set_defaults(func=_cmd_seed_phase9_research_samples)
 
     return p
 
