@@ -1,4 +1,4 @@
-# DB 스키마 메모 (Phase 0–9)
+# DB 스키마 메모 (Phase 0–10)
 
 ## 데이터 계층 역할
 
@@ -38,10 +38,18 @@
 | `operational_runs` | Phase 9 **운영 실행** 감사: `run_type`, `component`, `status`(running\|success\|warning\|failed\|empty_valid), 행 수, `tokens_used`(null 가능), `trace_json`. |
 | `operational_failures` | 실행별 **쿼리 가능** 실패/경고 분류: `failure_category`(configuration_error, db_migration_missing, source_data_missing, empty_but_valid, heuristic_low_confidence, execution_error, other). |
 | `outlier_casebook_runs` | Phase 8 배치 메타; `detection_logic_version`, `policy_json`. |
-| `outlier_casebook_entries` | 이상치 사례 메모리: discrepancy·expected/observed·uncertainty·message 필드·`is_heuristic`. |
+| `outlier_casebook_entries` | 이상치 사례 메모리: discrepancy·expected/observed·uncertainty·message 필드·`is_heuristic`·Phase 10 `overlay_awareness_json`(오버레이 유무 명시). |
 | `scanner_runs` | 일일 스캐너 실행; `policy_json`(top_n, floor 등). |
 | `daily_signal_snapshots` | 스캐너 run당 1행 집계 `stats_json`. |
-| `daily_watchlist_entries` | 저잡음 우선순위 워치리스트; thesis/challenge/uncertainty + message 필드. |
+| `daily_watchlist_entries` | 저잡음 우선순위 워치리스트; thesis/challenge/uncertainty + message 필드·Phase 10 `overlay_awareness_json`. |
+| `data_source_registry` | Phase 10 **소스 카탈로그**: `source_class`(public\|premium\|…), `data_family`, PIT·라이선스·`provenance_policy_json`. 진실 스파인 오염 금지. |
+| `source_access_profiles` | 소스별 접근 프로필(`access_mechanism`, 자격 필요 여부). |
+| `source_entitlements` | 권한/스코프 라벨(`active\|pending\|none` 등). |
+| `source_coverage_profiles` | 커버리지 메타 `coverage_json`. |
+| `source_rights_notes` | 권리·주의 문구(감사/파트너 대화용). |
+| `source_overlay_availability` | 프리미엄 오버레이 키별 `not_available_yet`\|partial\|available. |
+| `source_overlay_runs` | (선택) 오버레이 스모크/감사 run 메타. |
+| `source_overlay_gap_reports` | `report-overlay-gap --persist` 저장용 ROI/갭 JSON. |
 | `backfill_orchestration_runs` | **유니버스 백필** 상위 실행 메타. `mode`·`universe_name`·`summary_json`(retry_tickers 등). |
 | `backfill_stage_events` | 백필 **스테이지별** 행 수·에러·`notes_json`. `ingest_runs` 와 별도 감사. |
 

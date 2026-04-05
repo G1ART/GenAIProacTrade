@@ -300,6 +300,24 @@ python3 src/main.py report-failures --limit 50
 python3 src/main.py report-research-registry --limit 50
 ```
 
+## Phase 10 목표 (프리미엄 오버레이 seam · 소스 권리 · 계보)
+
+- **역할**: 공개 데이터 **결정적 스파인을 유지**한 채, 향후 선택적 프리미엄/독점/파트너 레이어를 **거짓 데이터 없이** 붙일 수 있는 **소스 레지스트리 + 어댑터 계약 + ROI 갭 보고**. 대규모 벤더 연동·코크핏·실행·가짜 프리미엄 데이터 **아님**.
+- **저장소**: `data_source_registry`, `source_access_profiles`, `source_entitlements`, `source_coverage_profiles`, `source_rights_notes`, `source_overlay_availability`, `source_overlay_gap_reports` 등 (`20250413100000_phase10_source_registry_overlays.sql`).
+- **코드**: `src/sources/` — `contracts`, `transcripts_adapter`, `estimates_adapter`, `price_quality_adapter`, `provenance`, `reporting`, `registry`.
+- **다운스트림**: 케이스북·일일 워치리스트 행에 `overlay_awareness_json` 스냅샷; `PREMIUM_OVERLAY_SEAMS_DEFAULT`로 프리미엄 키 결손 명시.
+- **CLI**: `seed-source-registry`, `report-source-registry`, `report-overlay-gap` (`--persist` 선택), `smoke-source-adapters`, `export-source-roi-matrix`.
+- **증거**: `docs/phase10_evidence.md`.
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-source-adapters
+python3 src/main.py export-source-roi-matrix
+python3 src/main.py seed-source-registry
+python3 src/main.py report-source-registry
+python3 src/main.py report-overlay-gap
+```
+
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
 
 **목적**: 시장 가격만 넓고 SEC/XBRL/스냅샷/팩터/검증 스파인이 샘플 수준일 때, **수동 INSERT 없이** 기존 파이프라인을 순서대로 묶어 `issuer_master` → `factor_market_validation_panels` 까지 채움. **백테스트·포트폴리오·AI harness·UI 확장 아님.**

@@ -1204,6 +1204,83 @@ def _cmd_seed_phase9_research_samples(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_seed_source_registry(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from sources.registry import seed_registry_from_constants
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = seed_registry_from_constants(client)
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_source_registry(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from sources.reporting import build_source_registry_report
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    payload = build_source_registry_report(client)
+    print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_overlay_gap(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db import records as dbrec
+    from sources.reporting import build_overlay_gap_report
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    payload = build_overlay_gap_report(client)
+    if getattr(args, "persist", False):
+        rid = dbrec.insert_source_overlay_gap_report(client, payload_json=payload)
+        payload = {**payload, "persisted_gap_report_id": rid}
+    print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_smoke_source_adapters(_args: argparse.Namespace) -> int:
+    from sources.contracts import validate_probe_result
+    from sources.estimates_adapter import EstimatesAdapter
+    from sources.price_quality_adapter import PriceQualityAdapter
+    from sources.transcripts_adapter import TranscriptsAdapter
+
+    probes = [
+        TranscriptsAdapter().probe(),
+        EstimatesAdapter().probe(),
+        PriceQualityAdapter().probe(),
+    ]
+    for p in probes:
+        validate_probe_result(p)
+    out = {
+        "adapter_smoke": "ok",
+        "probes": [
+            {
+                "adapter_name": p.adapter_name,
+                "availability": p.availability,
+                "normalization_schema_version": p.normalization_schema_version,
+                "failure_behavior": p.failure_behavior,
+                "rights_source_id": p.rights.source_id if p.rights else None,
+            }
+            for p in probes
+        ],
+    }
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_source_roi_matrix(_args: argparse.Namespace) -> int:
+    from sources.reporting import OVERLAY_ROI_RANKED
+
+    print(json.dumps(OVERLAY_ROI_RANKED, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
 def _cmd_smoke_facts(_args: argparse.Namespace) -> int:
     """DB facts 테이블 도달 + (선택) 단일 티커 XBRL 로드 가능 여부."""
     import sec.ingest_company_sample  # noqa: F401
@@ -1846,6 +1923,41 @@ def build_parser() -> argparse.ArgumentParser:
         help="샘플 가설 2건(idempotent) + 게이트 이벤트 — 실DB 증거용",
     )
     srs.set_defaults(func=_cmd_seed_phase9_research_samples)
+
+    ssr = sub.add_parser(
+        "seed-source-registry",
+        help="data_source_registry 시드 upsert (마이그레이션 시드와 정합)",
+    )
+    ssr.set_defaults(func=_cmd_seed_source_registry)
+
+    rsr = sub.add_parser(
+        "report-source-registry",
+        help="소스 레지스트리 + 오버레이 가용성 요약 JSON",
+    )
+    rsr.set_defaults(func=_cmd_report_source_registry)
+
+    rog = sub.add_parser(
+        "report-overlay-gap",
+        help="고ROI 프리미엄 오버레이 갭·자격·영향 레이어 보고",
+    )
+    rog.add_argument(
+        "--persist",
+        action="store_true",
+        help="source_overlay_gap_reports 에 payload 저장",
+    )
+    rog.set_defaults(func=_cmd_report_overlay_gap)
+
+    ssa = sub.add_parser(
+        "smoke-source-adapters",
+        help="transcripts/estimates/price_quality 어댑터 seam probe (자격 없음=not_available_yet)",
+    )
+    ssa.set_defaults(func=_cmd_smoke_source_adapters)
+
+    esr = sub.add_parser(
+        "export-source-roi-matrix",
+        help="코드 내장 ROI 순위 행렬 JSON (DB 불필요)",
+    )
+    esr.set_defaults(func=_cmd_export_source_roi_matrix)
 
     return p
 

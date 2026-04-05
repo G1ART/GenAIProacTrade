@@ -1838,3 +1838,60 @@ def hypothesis_exists_by_title(client: Client, *, title: str) -> bool:
         .execute()
     )
     return bool(r.data)
+
+
+# --- Phase 10: source registry & overlays ---
+
+
+def smoke_source_registry_tables(client: Client) -> None:
+    client.table("data_source_registry").select("source_id").limit(1).execute()
+    client.table("source_overlay_availability").select("overlay_key").limit(1).execute()
+
+
+def fetch_data_source_registry_all(client: Client) -> list[dict[str, Any]]:
+    r = (
+        client.table("data_source_registry")
+        .select("*")
+        .order("source_id")
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_source_overlay_availability_all(client: Client) -> list[dict[str, Any]]:
+    r = (
+        client.table("source_overlay_availability")
+        .select("*")
+        .order("overlay_key")
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_source_access_profiles_for_source(
+    client: Client, *, source_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("source_access_profiles")
+        .select("*")
+        .eq("source_id", source_id)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def upsert_data_source_registry_row(client: Client, row: dict[str, Any]) -> None:
+    client.table("data_source_registry").upsert(row, on_conflict="source_id").execute()
+
+
+def insert_source_overlay_gap_report(
+    client: Client, *, payload_json: dict[str, Any], report_type: str = "roi_gap_v1"
+) -> str:
+    res = (
+        client.table("source_overlay_gap_reports")
+        .insert({"report_type": report_type, "payload_json": payload_json})
+        .execute()
+    )
+    if not res.data:
+        raise RuntimeError("source_overlay_gap_reports insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])

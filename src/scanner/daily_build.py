@@ -7,6 +7,7 @@ from typing import Any, Optional
 
 from db import records as dbrec
 from message_contract import OVERLAY_FUTURE_SEAMS_DEFAULT
+from sources.provenance import build_overlay_awareness_snapshot
 from scanner.prioritizer import (
     DEFAULT_MAX_CANDIDATE_RANK,
     DEFAULT_MIN_PRIORITY_SCORE,
@@ -74,6 +75,7 @@ def run_daily_scanner_build(
     max_candidate_rank: int = DEFAULT_MAX_CANDIDATE_RANK,
 ) -> dict[str, Any]:
     as_of = as_of_calendar_date or date.today().isoformat()
+    overlay_snap = build_overlay_awareness_snapshot(client)
 
     candidates = dbrec.fetch_state_change_candidates_for_run(
         client, run_id=state_change_run_id, limit=candidate_scan_limit
@@ -174,6 +176,7 @@ def run_daily_scanner_build(
                     "This is prioritization for human review, not a forecast."
                 ),
                 "overlay_future_seams_json": dict(OVERLAY_FUTURE_SEAMS_DEFAULT),
+                "overlay_awareness_json": overlay_snap,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             }
         )

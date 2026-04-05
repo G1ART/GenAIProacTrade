@@ -7,6 +7,7 @@ from typing import Any
 
 from casebook.outlier_builder import DETECTION_LOGIC_VERSION, detect_outliers_for_candidate
 from db import records as dbrec
+from sources.provenance import build_overlay_awareness_snapshot
 
 
 def run_outlier_casebook_build(
@@ -31,6 +32,7 @@ def run_outlier_casebook_build(
     candidates = dbrec.fetch_state_change_candidates_for_run(
         client, run_id=state_change_run_id, limit=candidate_limit
     )
+    overlay_snap = build_overlay_awareness_snapshot(client)
     total_rows: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
 
@@ -84,6 +86,7 @@ def run_outlier_casebook_build(
             for row in rows:
                 row["casebook_run_id"] = crid
                 row["updated_at"] = datetime.now(timezone.utc).isoformat()
+                row["overlay_awareness_json"] = overlay_snap
                 total_rows.append(row)
         except Exception as ex:  # noqa: BLE001
             errors.append({"candidate_id": cid, "error": str(ex)})
