@@ -7,8 +7,8 @@
 
 | 구분 | 값 |
 |------|-----|
-| Phase 14 기능 커밋 | `git log -1 --oneline` 로 확인 |
-| 패치 직전 | `git rev-parse HEAD` (커밋 전) |
+| Phase 14 기능 커밋 | `771f7dd` — `feat(phase14): research engine kernel, DB tables, CLI, dossier export` |
+| 패치 직전 | `263e50b` |
 
 ## 변경 요약
 
