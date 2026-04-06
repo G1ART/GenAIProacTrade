@@ -15,3 +15,6 @@ docs/public_core_cycle/latest/operator_packet.md
 
 # Phase 13: export-public-core-quality-sample 로컬 증거
 docs/public_core_quality/samples/*.json
+
+# Phase 14: export-research-dossier 로컬 증거
+docs/research_engine/dossiers/*.json

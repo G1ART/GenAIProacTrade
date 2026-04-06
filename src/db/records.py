@@ -2223,3 +2223,202 @@ def fetch_issuer_id_for_ticker(client: Client, *, ticker: str) -> Optional[str]:
     if not r.data or not r.data[0].get("id"):
         return None
     return str(r.data[0]["id"])
+
+
+# --- Phase 14 research engine kernel ---
+
+
+def smoke_phase14_research_engine_tables(client: Client) -> None:
+    client.table("research_programs").select("id").limit(1).execute()
+
+
+def fetch_public_core_cycle_quality_run_by_id(
+    client: Client, *, run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("public_core_cycle_quality_runs")
+        .select("*")
+        .eq("id", run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def insert_research_program(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("research_programs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("research_programs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_research_program(client: Client, *, program_id: str) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("research_programs")
+        .select("*")
+        .eq("id", program_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_research_programs_recent(client: Client, *, limit: int = 50) -> list[dict[str, Any]]:
+    r = (
+        client.table("research_programs")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def insert_research_hypothesis_object(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("research_hypotheses").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("research_hypotheses insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_research_hypothesis(
+    client: Client, *, hypothesis_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("research_hypotheses")
+        .select("*")
+        .eq("id", hypothesis_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_research_hypotheses_for_program(
+    client: Client, *, program_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("research_hypotheses")
+        .select("*")
+        .eq("program_id", program_id)
+        .order("created_at")
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def update_research_hypothesis(
+    client: Client, hypothesis_id: str, patch: dict[str, Any]
+) -> None:
+    client.table("research_hypotheses").update(patch).eq("id", hypothesis_id).execute()
+
+
+def insert_research_reviews_batch(client: Client, rows: list[dict[str, Any]]) -> None:
+    if not rows:
+        return
+    step = 20
+    for i in range(0, len(rows), step):
+        client.table("research_reviews").insert(rows[i : i + step]).execute()
+
+
+def fetch_research_reviews_for_hypothesis(
+    client: Client, *, hypothesis_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("research_reviews")
+        .select("*")
+        .eq("hypothesis_id", hypothesis_id)
+        .order("round_number")
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_research_reviews_for_program(
+    client: Client, *, program_id: str
+) -> list[dict[str, Any]]:
+    hyps = fetch_research_hypotheses_for_program(client, program_id=program_id)
+    if not hyps:
+        return []
+    ids = [str(h["id"]) for h in hyps]
+    r = (
+        client.table("research_reviews")
+        .select("*")
+        .in_("hypothesis_id", ids)
+        .order("hypothesis_id")
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def insert_research_referee_decision(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("research_referee_decisions").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("research_referee_decisions insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_research_referee_decisions_for_hypothesis(
+    client: Client, *, hypothesis_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("research_referee_decisions")
+        .select("*")
+        .eq("hypothesis_id", hypothesis_id)
+        .order("created_at", desc=True)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_research_referee_for_program(
+    client: Client, *, program_id: str
+) -> list[dict[str, Any]]:
+    hyps = fetch_research_hypotheses_for_program(client, program_id=program_id)
+    out: list[dict[str, Any]] = []
+    for h in hyps:
+        rows = fetch_research_referee_decisions_for_hypothesis(
+            client, hypothesis_id=str(h["id"])
+        )
+        if rows:
+            out.append(rows[0])
+    return out
+
+
+def insert_research_residual_link(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("research_residual_links").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("research_residual_links insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_research_residual_links_for_hypothesis(
+    client: Client, *, hypothesis_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("research_residual_links")
+        .select("*")
+        .eq("hypothesis_id", hypothesis_id)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_research_residual_links_for_program(
+    client: Client, *, program_id: str
+) -> list[dict[str, Any]]:
+    hyps = fetch_research_hypotheses_for_program(client, program_id=program_id)
+    out: list[dict[str, Any]] = []
+    for h in hyps:
+        out.extend(
+            fetch_research_residual_links_for_hypothesis(
+                client, hypothesis_id=str(h["id"])
+            )
+        )
+    return out

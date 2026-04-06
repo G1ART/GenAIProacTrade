@@ -1587,6 +1587,131 @@ def _cmd_export_public_core_quality_sample(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_smoke_phase14_research_engine(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db.records import smoke_phase14_research_engine_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_phase14_research_engine_tables(client)
+    print(json.dumps({"ok": True, "research_engine_tables": "reachable"}, indent=2))
+    return 0
+
+
+def _cmd_create_research_program(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from research_engine.service import create_program
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = create_program(
+        client,
+        universe_name=str(args.universe),
+        title=args.title,
+        quality_run_id=args.quality_run_id,
+        owner_actor=str(args.owner_actor or "operator"),
+    )
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_list_research_programs(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db import records as dbrec
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rows = dbrec.fetch_research_programs_recent(client, limit=int(args.limit))
+    print(json.dumps({"ok": True, "programs": rows}, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_generate_program_hypotheses(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from research_engine.service import generate_hypotheses
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = generate_hypotheses(client, program_id=str(args.program_id))
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_review_research_hypothesis(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from research_engine.service import run_review_round
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = run_review_round(client, hypothesis_id=str(args.hypothesis_id))
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_run_research_referee(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from research_engine.service import run_referee
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = run_referee(client, hypothesis_id=str(args.hypothesis_id))
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_report_research_program(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db import records as dbrec
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    prog = dbrec.fetch_research_program(client, program_id=str(args.program_id))
+    if not prog:
+        print(json.dumps({"ok": False, "error": "program_not_found"}, indent=2))
+        return 1
+    hyps = dbrec.fetch_research_hypotheses_for_program(client, program_id=str(args.program_id))
+    print(
+        json.dumps(
+            {"ok": True, "program": prog, "hypotheses": hyps},
+            indent=2,
+            ensure_ascii=False,
+            default=str,
+        )
+    )
+    return 0
+
+
+def _cmd_export_research_dossier(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from research_engine.service import export_dossier_for_program
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_dossier_for_program(client, program_id=str(args.program_id))
+    if not out.get("ok"):
+        print(json.dumps(out, indent=2))
+        return 1
+    dest = Path(args.out).expanduser()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(
+        json_lib.dumps(out["dossier"], indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    print(json.dumps({"ok": True, "wrote": str(dest)}, indent=2))
+    return 0
+
+
 def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
     from pathlib import Path
 
@@ -2373,6 +2498,69 @@ def build_parser() -> argparse.ArgumentParser:
         help="출력 JSON 경로 (예: docs/public_core_quality/samples/latest.json)",
     )
     p13b.set_defaults(func=_cmd_export_public_core_quality_sample)
+
+    sp14 = sub.add_parser(
+        "smoke-phase14-research-engine",
+        help="Phase 14: research_programs 등 연구 엔진 테이블 도달",
+    )
+    sp14.set_defaults(func=_cmd_smoke_phase14_research_engine)
+
+    p14a = sub.add_parser(
+        "create-research-program",
+        help="Phase 14: 단일 프로그램 락 질문으로 research_programs 생성",
+    )
+    p14a.add_argument("--universe", default="sp500_current")
+    p14a.add_argument("--title", default=None)
+    p14a.add_argument("--quality-run-id", default=None, dest="quality_run_id")
+    p14a.add_argument("--owner-actor", default="operator", dest="owner_actor")
+    p14a.set_defaults(func=_cmd_create_research_program)
+
+    p14b = sub.add_parser(
+        "list-research-programs",
+        help="Phase 14: 최근 연구 프로그램 목록",
+    )
+    p14b.add_argument("--limit", type=int, default=30)
+    p14b.set_defaults(func=_cmd_list_research_programs)
+
+    p14c = sub.add_parser(
+        "generate-program-hypotheses",
+        help="Phase 14: 프로그램에 시드 가설 3건 + 잔차 링크",
+    )
+    p14c.add_argument("--program-id", required=True, dest="program_id")
+    p14c.set_defaults(func=_cmd_generate_program_hypotheses)
+
+    p14d = sub.add_parser(
+        "review-research-hypothesis",
+        help="Phase 14: 가설에 대해 렌즈 리뷰 1라운드 (최대 2라운드)",
+    )
+    p14d.add_argument("--hypothesis-id", required=True, dest="hypothesis_id")
+    p14d.set_defaults(func=_cmd_review_research_hypothesis)
+
+    p14e = sub.add_parser(
+        "run-research-referee",
+        help="Phase 14: kill / sandbox / candidate_recipe 판정",
+    )
+    p14e.add_argument("--hypothesis-id", required=True, dest="hypothesis_id")
+    p14e.set_defaults(func=_cmd_run_research_referee)
+
+    p14f = sub.add_parser(
+        "report-research-program",
+        help="Phase 14: 프로그램 + 가설 JSON",
+    )
+    p14f.add_argument("--program-id", required=True, dest="program_id")
+    p14f.set_defaults(func=_cmd_report_research_program)
+
+    p14g = sub.add_parser(
+        "export-research-dossier",
+        help="Phase 14: 프로그램 dossier JSON 파일",
+    )
+    p14g.add_argument("--program-id", required=True, dest="program_id")
+    p14g.add_argument(
+        "--out",
+        required=True,
+        help="예: docs/research_engine/dossiers/latest.json",
+    )
+    p14g.set_defaults(func=_cmd_export_research_dossier)
 
     return p
 

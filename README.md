@@ -361,6 +361,23 @@ python3 src/main.py report-public-core-quality --limit 15
 python3 src/main.py export-public-core-quality-sample --limit 10 --out docs/public_core_quality/samples/latest.json
 ```
 
+## Phase 14 목표 (Research Engine Kernel)
+
+- **역할**: 단일 프로그램·`next_quarter`·공개 데이터만으로 **가설 → 렌즈 리뷰(최대 2라운드) → 심판(kill/sandbox/candidate_recipe) → dossier**를 DB에 남김. Phase 13 품질·잔차를 소비하되 **스코어/워치리스트 비침투**.
+- **코드**: `src/research_engine/`, `src/db/records.py`(Phase 14 CRUD)
+- **CLI**: `smoke-phase14-research-engine`, `create-research-program`, `list-research-programs`, `generate-program-hypotheses`, `review-research-hypothesis`, `run-research-referee`, `report-research-program`, `export-research-dossier`
+- **증거**: `docs/phase14_evidence.md` · 마이그레이션 `20250417100000_phase14_research_engine_kernel.sql`
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-phase14-research-engine
+python3 src/main.py create-research-program --universe sp500_current
+python3 src/main.py generate-program-hypotheses --program-id YOUR_PROGRAM_UUID
+python3 src/main.py review-research-hypothesis --hypothesis-id YOUR_HYPOTHESIS_UUID
+python3 src/main.py run-research-referee --hypothesis-id YOUR_HYPOTHESIS_UUID
+python3 src/main.py export-research-dossier --program-id YOUR_PROGRAM_UUID --out docs/research_engine/dossiers/latest.json
+```
+
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
 
 **목적**: 시장 가격만 넓고 SEC/XBRL/스냅샷/팩터/검증 스파인이 샘플 수준일 때, **수동 INSERT 없이** 기존 파이프라인을 순서대로 묶어 `issuer_master` → `factor_market_validation_panels` 까지 채움. **백테스트·포트폴리오·AI harness·UI 확장 아님.**

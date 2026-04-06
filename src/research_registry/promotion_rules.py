@@ -39,8 +39,8 @@ def describe_production_boundary() -> dict[str, str | list[str]]:
             "게이트 이벤트에 rationale 저장."
         ),
         "production_scoring_rule": (
-            "state_change / factor 패널 스코어링 경로는 hypothesis_registry를 읽지 않는다. "
-            "레지스트리는 거버넌스·감사 추적용."
+            "state_change / factor 패널 스코어링 경로는 hypothesis_registry·research_engine(Phase 14)를 "
+            "읽지 않는다. 레지스트리·연구 엔진은 거버넌스·감사·연구 단계 전용."
         ),
     }
 
@@ -52,10 +52,14 @@ def assert_no_auto_promotion_wiring() -> None:
     import state_change.runner as sc
 
     src = inspect.getsource(sc)
-    if "hypothesis_registry" in src or "research_registry" in src:
+    if (
+        "hypothesis_registry" in src
+        or "research_registry" in src
+        or "research_engine" in src
+    ):
         raise AssertionError(
-            "state_change.runner must not reference hypothesis_registry/research_registry "
-            "(no auto promotion wiring)."
+            "state_change.runner must not reference hypothesis_registry/research_registry/"
+            "research_engine (no auto promotion wiring)."
         )
 
 

@@ -1,4 +1,4 @@
-# DB 스키마 메모 (Phase 0–13)
+# DB 스키마 메모 (Phase 0–14)
 
 ## 데이터 계층 역할
 
@@ -40,6 +40,11 @@
 | `outlier_casebook_runs` | Phase 8 배치 메타; `detection_logic_version`, `policy_json`. |
 | `outlier_casebook_entries` | 이상치 사례 메모리: discrepancy·expected/observed·uncertainty·message 필드·`is_heuristic`·Phase 10 `overlay_awareness_json`(오버레이 유무 명시). Phase 13: `residual_triage_bucket`, `premium_overlay_suggestion`(감사용 트리이지·선택 프리미엄 힌트). |
 | `public_core_cycle_quality_runs` | Phase 13 **공개 코어 사이클 품질** 스냅샷: `quality_class`, `metrics_json`, `gap_reasons_ranked`, `overlay_status_json`, `residual_triage_json`, `unresolved_residual_items`. |
+| `research_programs` | Phase 14 연구 프로그램; `linked_quality_context_json`; `premium_overlays_allowed` 기본 false. |
+| `research_hypotheses` | Phase 14 구조화 가설(경제 근거·메커니즘·특성 JSON); 상태 `proposed`…`candidate_recipe`. |
+| `research_reviews` | 렌즈별 `pass`/`concern`/`reject`; 라운드 1–2. |
+| `research_referee_decisions` | `kill`/`sandbox`/`candidate_recipe`; `disagreement_json`. |
+| `research_residual_links` | 가설↔잔차 버킷·미해결·프리미엄 힌트(정보). |
 | `scanner_runs` | 일일 스캐너 실행; `policy_json`(top_n, floor 등). |
 | `daily_signal_snapshots` | 스캐너 run당 1행 집계 `stats_json`. |
 | `daily_watchlist_entries` | 저잡음 우선순위 워치리스트; thesis/challenge/uncertainty + message 필드·Phase 10 `overlay_awareness_json`·Phase 11 `transcript_enrichment_json`(선택 메시지 보강; 스코어 비사용). |
