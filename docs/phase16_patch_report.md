@@ -8,7 +8,7 @@
 | 구분 | 값 |
 |------|-----|
 | 패치 직전 | `20c7909` |
-| 패치 적용 후 | `e899a32` — Phase 16 (기능·문서; `git log -3` 참고) |
+| 패치 적용 후 | Phase 16 워크오더 구현 커밋 (기능: `feat(phase16): validation campaign…`; 확인은 `git log --oneline`) |
 
 ## 한 문단 요약
 
