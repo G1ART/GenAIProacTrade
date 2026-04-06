@@ -3,7 +3,7 @@
 ## Git
 
 - **구현 직전 로컬 `main` tip (참고)**: `e822e9c265b2e1f3c83d2db15d01b26f0dbbd985`
-- **커밋 후 HEAD**: `46c84e5` (Phase 17 본체: `f273b88` — `feat(phase17): public substrate depth coverage, expansion, uplift evidence`)
+- **커밋 후 HEAD**: `8420b12` (Phase 17 기능 커밋 `f273b88` 포함; 이후 패치 리포트 정리 커밋 연속)
 
 ## 변경 파일
 
