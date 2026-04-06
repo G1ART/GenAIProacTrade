@@ -74,7 +74,7 @@ def create_program(
 
 
 def generate_hypotheses(client: Any, *, program_id: str) -> dict[str, Any]:
-    prog = dbrec.fetch_research_program(client, program_id)
+    prog = dbrec.fetch_research_program(client, program_id=program_id)
     if not prog:
         return {"ok": False, "error": "program_not_found"}
     qctx = prog.get("linked_quality_context_json") or {}
@@ -145,7 +145,7 @@ def run_review_round(client: Any, *, hypothesis_id: str) -> dict[str, Any]:
         return {"ok": False, "error": "max_review_rounds_reached", "rounds_done": rounds_done}
     next_round = rounds_done + 1
 
-    prog = dbrec.fetch_research_program(client, str(h["program_id"]))
+    prog = dbrec.fetch_research_program(client, program_id=str(h["program_id"]))
     qctx = (prog or {}).get("linked_quality_context_json") or {}
     qctx_full = dict(qctx)
     if qctx.get("public_core_cycle_quality_run_id") and "metrics_json" not in qctx_full:
@@ -194,7 +194,7 @@ def run_referee(client: Any, *, hypothesis_id: str) -> dict[str, Any]:
     if not reviews:
         return {"ok": False, "error": "no_reviews_run_review_first"}
 
-    prog = dbrec.fetch_research_program(client, str(h["program_id"]))
+    prog = dbrec.fetch_research_program(client, program_id=str(h["program_id"]))
     qctx = (prog or {}).get("linked_quality_context_json") or {}
     if qctx.get("public_core_cycle_quality_run_id"):
         row = dbrec.fetch_public_core_cycle_quality_run_by_id(
@@ -234,7 +234,7 @@ def run_referee(client: Any, *, hypothesis_id: str) -> dict[str, Any]:
 
 
 def export_dossier_for_program(client: Any, *, program_id: str) -> dict[str, Any]:
-    prog = dbrec.fetch_research_program(client, program_id)
+    prog = dbrec.fetch_research_program(client, program_id=program_id)
     if not prog:
         return {"ok": False, "error": "program_not_found"}
     hyps = dbrec.fetch_research_hypotheses_for_program(client, program_id)
