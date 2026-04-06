@@ -13,11 +13,15 @@ from research_validation.constants import (
     BASELINE_SIZE,
     BASELINE_STATE_CHANGE,
     BEAT_BASELINE_EPS,
+    CANONICAL_COHORT_DIMENSIONS,
+    COHORT_CONFIG_VERSION,
     EXCESS_FIELD,
     HORIZON,
+    JOIN_POLICY_VERSION,
     MIN_SAMPLE_ROWS,
     NAIVE_NULL_SPREAD,
     SURVIVAL_STATUSES,
+    WINDOW_STABILITY_METRIC_KEY,
 )
 from research_validation.metrics import (
     mcap_baseline_score,
@@ -262,17 +266,19 @@ def run_recipe_validation(
         "excess_field": EXCESS_FIELD,
     }
     cohort_config = {
-        "dimensions": ["program_quality_context", "size_tertile", "calendar_year"],
+        "config_version": COHORT_CONFIG_VERSION,
+        "dimensions": list(CANONICAL_COHORT_DIMENSIONS),
         "program_quality_class": program_qc,
     }
     window_config = {
         "calendar_years_present": years,
-        "stability_metric": "rolling_year_recipe_spread_cv_proxy",
+        "stability_metric": WINDOW_STABILITY_METRIC_KEY,
     }
     quality_filter = {
         "require_non_null_excess_next_quarter": True,
         "require_state_change_join_on_signal_date": True,
         "min_rows": MIN_SAMPLE_ROWS,
+        "join_policy_version": JOIN_POLICY_VERSION,
     }
 
     run_row = {
@@ -285,6 +291,7 @@ def run_recipe_validation(
         "quality_filter_json": quality_filter,
         "linked_state_change_run_id": state_run_id,
         "linked_public_core_quality_run_id": str(quality_run_id) if quality_run_id else None,
+        "join_policy_version": JOIN_POLICY_VERSION,
         "status": "running",
         "created_at": now,
     }

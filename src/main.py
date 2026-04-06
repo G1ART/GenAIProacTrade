@@ -6,12 +6,60 @@ import argparse
 import json
 import os
 import sys
+import uuid
 from pathlib import Path
 
 from config import ensure_edgar_local_cache, load_settings
 from logging_utils import configure_logging
 
 ensure_edgar_local_cache()
+
+_UUID_HINT_KO = (
+    "README의 YOUR_*_UUID 는 예시입니다. list-research-programs 출력의 실제 id로 바꾸세요. "
+    "쉘에서 < 또는 > 는 리다이렉션이므로 '<UUID>' 같은 꺾쇠 문구를 붙여넣지 마세요."
+)
+
+
+def _exit_unless_uuid(
+    field: str,
+    value: str | None,
+    *,
+    optional: bool = False,
+) -> int | None:
+    """
+    PostgREST에 잘못된 UUID가 넘어가며 터지는 것을 막는다.
+    반환: None 이면 통과, int 이면 그 exit code 로 종료해야 함.
+    """
+    if optional and (value is None or str(value).strip() == ""):
+        return None
+    raw = str(value).strip() if value is not None else ""
+    if not raw:
+        print(
+            json.dumps(
+                {"ok": False, "error": "empty_uuid_field", "field": field},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    try:
+        uuid.UUID(raw)
+    except ValueError:
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": "invalid_uuid",
+                    "field": field,
+                    "value_preview": raw[:96],
+                    "hint": _UUID_HINT_KO,
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    return None
 
 
 def _cmd_ingest_single(args: argparse.Namespace) -> int:
@@ -1603,6 +1651,10 @@ def _cmd_create_research_program(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from research_engine.service import create_program
 
+    bad_q = _exit_unless_uuid("quality_run_id", args.quality_run_id, optional=True)
+    if bad_q is not None:
+        return bad_q
+
     settings = load_settings()
     configure_logging()
     client = get_supabase_client(settings)
@@ -1633,6 +1685,10 @@ def _cmd_generate_program_hypotheses(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from research_engine.service import generate_hypotheses
 
+    bad = _exit_unless_uuid("program_id", args.program_id)
+    if bad is not None:
+        return bad
+
     settings = load_settings()
     configure_logging()
     client = get_supabase_client(settings)
@@ -1644,6 +1700,10 @@ def _cmd_generate_program_hypotheses(args: argparse.Namespace) -> int:
 def _cmd_review_research_hypothesis(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from research_engine.service import run_review_round
+
+    bad = _exit_unless_uuid("hypothesis_id", args.hypothesis_id)
+    if bad is not None:
+        return bad
 
     settings = load_settings()
     configure_logging()
@@ -1657,6 +1717,10 @@ def _cmd_run_research_referee(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from research_engine.service import run_referee
 
+    bad = _exit_unless_uuid("hypothesis_id", args.hypothesis_id)
+    if bad is not None:
+        return bad
+
     settings = load_settings()
     configure_logging()
     client = get_supabase_client(settings)
@@ -1668,6 +1732,10 @@ def _cmd_run_research_referee(args: argparse.Namespace) -> int:
 def _cmd_report_research_program(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from db import records as dbrec
+
+    bad = _exit_unless_uuid("program_id", args.program_id)
+    if bad is not None:
+        return bad
 
     settings = load_settings()
     configure_logging()
@@ -1694,6 +1762,10 @@ def _cmd_export_research_dossier(args: argparse.Namespace) -> int:
 
     from db.client import get_supabase_client
     from research_engine.service import export_dossier_for_program
+
+    bad = _exit_unless_uuid("program_id", args.program_id)
+    if bad is not None:
+        return bad
 
     settings = load_settings()
     configure_logging()
@@ -1730,6 +1802,10 @@ def _cmd_run_recipe_validation(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from research_validation.service import run_recipe_validation
 
+    bad = _exit_unless_uuid("hypothesis_id", args.hypothesis_id)
+    if bad is not None:
+        return bad
+
     settings = load_settings()
     configure_logging()
     client = get_supabase_client(settings)
@@ -1746,6 +1822,10 @@ def _cmd_report_recipe_validation(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from research_validation.service import report_validation_run_bundle
 
+    bad = _exit_unless_uuid("validation_run_id", args.validation_run_id)
+    if bad is not None:
+        return bad
+
     settings = load_settings()
     configure_logging()
     client = get_supabase_client(settings)
@@ -1761,6 +1841,10 @@ def _cmd_compare_recipe_baselines(args: argparse.Namespace) -> int:
 
     from db.client import get_supabase_client
     from research_validation.service import compare_baselines_for_hypothesis
+
+    bad = _exit_unless_uuid("hypothesis_id", args.hypothesis_id)
+    if bad is not None:
+        return bad
 
     settings = load_settings()
     configure_logging()
@@ -1791,6 +1875,13 @@ def _cmd_export_recipe_scorecard(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from research_validation.service import export_scorecard_for_hypothesis
 
+    bad = _exit_unless_uuid("hypothesis_id", args.hypothesis_id)
+    if bad is not None:
+        return bad
+    bad = _exit_unless_uuid("validation_run_id", args.validation_run_id, optional=True)
+    if bad is not None:
+        return bad
+
     settings = load_settings()
     configure_logging()
     client = get_supabase_client(settings)
@@ -1819,6 +1910,141 @@ def _cmd_export_recipe_scorecard(args: argparse.Namespace) -> int:
         )
     )
     return 0
+
+
+def _cmd_smoke_phase16_validation_campaign(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db.records import smoke_phase16_validation_campaign_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_phase16_validation_campaign_tables(client)
+    print(json.dumps({"ok": True, "validation_campaign_tables": "reachable"}, indent=2))
+    return 0
+
+
+def _cmd_run_validation_campaign(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from validation_campaign.service import run_validation_campaign
+
+    bad = _exit_unless_uuid("program_id", args.program_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = run_validation_campaign(
+        client,
+        program_id=str(args.program_id),
+        run_mode=str(args.run_mode),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_report_validation_campaign(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from validation_campaign.service import report_validation_campaign
+
+    bad = _exit_unless_uuid("campaign_run_id", args.campaign_run_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_validation_campaign(
+        client, campaign_run_id=str(args.campaign_run_id)
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_report_program_survival_distribution(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from validation_campaign.service import report_program_survival_distribution
+
+    bad = _exit_unless_uuid("program_id", args.program_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_program_survival_distribution(
+        client, program_id=str(args.program_id)
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_export_validation_decision_brief(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from validation_campaign.service import (
+        build_decision_brief,
+        render_decision_brief_markdown,
+    )
+
+    bad = _exit_unless_uuid("campaign_run_id", args.campaign_run_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = build_decision_brief(client, campaign_run_id=str(args.campaign_run_id))
+    if not out.get("ok"):
+        print(json_lib.dumps(out, indent=2))
+        return 1
+    dest = Path(args.out).expanduser()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    brief = out["brief"]
+    md_path = dest.with_suffix(".md") if dest.suffix != ".md" else dest
+    json_path = dest if dest.suffix == ".json" else dest.with_suffix(".json")
+    json_path.write_text(
+        json_lib.dumps(brief, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    md_path.write_text(render_decision_brief_markdown(brief), encoding="utf-8")
+    print(
+        json_lib.dumps(
+            {"ok": True, "json": str(json_path), "markdown": str(md_path)},
+            indent=2,
+        )
+    )
+    return 0
+
+
+def _cmd_list_eligible_validation_hypotheses(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from validation_campaign.service import list_eligible_hypotheses_for_campaign
+
+    bad = _exit_unless_uuid("program_id", args.program_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = list_eligible_hypotheses_for_campaign(
+        client, program_id=str(args.program_id)
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
 
 
 def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
@@ -2718,6 +2944,55 @@ def build_parser() -> argparse.ArgumentParser:
         help="베이스 경로(확장자에 따라 .json/.md 쌍 생성)",
     )
     p15e.set_defaults(func=_cmd_export_recipe_scorecard)
+
+    sp16 = sub.add_parser(
+        "smoke-phase16-validation-campaign",
+        help="Phase 16: validation_campaign_* 테이블 도달",
+    )
+    sp16.set_defaults(func=_cmd_smoke_phase16_validation_campaign)
+
+    p16a = sub.add_parser(
+        "run-validation-campaign",
+        help="Phase 16: 프로그램 단위 검증 캠페인(재사용 또는 실행)",
+    )
+    p16a.add_argument("--program-id", required=True, dest="program_id")
+    p16a.add_argument(
+        "--run-mode",
+        default="reuse_or_run",
+        choices=["reuse_only", "reuse_or_run", "force_rerun"],
+        dest="run_mode",
+    )
+    p16a.add_argument("--panel-limit", type=int, default=6000, dest="panel_limit")
+    p16a.set_defaults(func=_cmd_run_validation_campaign)
+
+    p16b = sub.add_parser(
+        "report-validation-campaign",
+        help="Phase 16: campaign_run_id 리포트 JSON",
+    )
+    p16b.add_argument("--campaign-run-id", required=True, dest="campaign_run_id")
+    p16b.set_defaults(func=_cmd_report_validation_campaign)
+
+    p16c = sub.add_parser(
+        "report-program-survival-distribution",
+        help="Phase 16: 프로그램 가설별 최근 완료 검증 생존 분포",
+    )
+    p16c.add_argument("--program-id", required=True, dest="program_id")
+    p16c.set_defaults(func=_cmd_report_program_survival_distribution)
+
+    p16d = sub.add_parser(
+        "export-validation-decision-brief",
+        help="Phase 16: 전략 브리프 JSON+Markdown",
+    )
+    p16d.add_argument("--campaign-run-id", required=True, dest="campaign_run_id")
+    p16d.add_argument("--out", required=True, help="베이스 경로(.json/.md 쌍)")
+    p16d.set_defaults(func=_cmd_export_validation_decision_brief)
+
+    p16e = sub.add_parser(
+        "list-eligible-validation-hypotheses",
+        help="Phase 16: 캠페인 자격 있는 가설 목록",
+    )
+    p16e.add_argument("--program-id", required=True, dest="program_id")
+    p16e.set_defaults(func=_cmd_list_eligible_validation_hypotheses)
 
     return p
 

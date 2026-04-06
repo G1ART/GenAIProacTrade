@@ -2572,3 +2572,74 @@ def insert_recipe_failure_cases_batch(
     step = 30
     for i in range(0, len(rows), step):
         client.table("recipe_failure_cases").insert(rows[i : i + step]).execute()
+
+
+# --- Phase 16 validation campaign ---
+
+
+def smoke_phase16_validation_campaign_tables(client: Client) -> None:
+    client.table("validation_campaign_runs").select("id").limit(1).execute()
+
+
+def insert_validation_campaign_run(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("validation_campaign_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("validation_campaign_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_validation_campaign_run(
+    client: Client, *, campaign_run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("validation_campaign_runs")
+        .select("*")
+        .eq("id", campaign_run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def insert_validation_campaign_members_batch(
+    client: Client, rows: list[dict[str, Any]]
+) -> None:
+    if not rows:
+        return
+    step = 30
+    for i in range(0, len(rows), step):
+        client.table("validation_campaign_members").insert(rows[i : i + step]).execute()
+
+
+def fetch_validation_campaign_members(
+    client: Client, *, campaign_run_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("validation_campaign_members")
+        .select("*")
+        .eq("campaign_run_id", campaign_run_id)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def insert_validation_campaign_decision(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("validation_campaign_decisions").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("validation_campaign_decisions insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_validation_campaign_decisions(
+    client: Client, *, campaign_run_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("validation_campaign_decisions")
+        .select("*")
+        .eq("campaign_run_id", campaign_run_id)
+        .order("created_at", desc=True)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]

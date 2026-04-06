@@ -372,10 +372,13 @@ python3 src/main.py export-public-core-quality-sample --limit 10 --out docs/publ
 export PYTHONPATH=src
 python3 src/main.py smoke-phase14-research-engine
 python3 src/main.py create-research-program --universe sp500_current
-python3 src/main.py generate-program-hypotheses --program-id YOUR_PROGRAM_UUID
-python3 src/main.py review-research-hypothesis --hypothesis-id YOUR_HYPOTHESIS_UUID
-python3 src/main.py run-research-referee --hypothesis-id YOUR_HYPOTHESIS_UUID
-python3 src/main.py export-research-dossier --program-id YOUR_PROGRAM_UUID --out docs/research_engine/dossiers/latest.json
+# YOUR_* 는 아래 list / report 출력의 실제 UUID 문자열로 교체. < > 꺾쇠는 쉘 리다이렉션이라 붙이지 말 것.
+python3 src/main.py list-research-programs --limit 10
+python3 src/main.py report-research-program --program-id PASTE_PROGRAM_UUID_HERE
+python3 src/main.py generate-program-hypotheses --program-id PASTE_PROGRAM_UUID_HERE
+python3 src/main.py review-research-hypothesis --hypothesis-id PASTE_HYPOTHESIS_UUID_HERE
+python3 src/main.py run-research-referee --hypothesis-id PASTE_HYPOTHESIS_UUID_HERE
+python3 src/main.py export-research-dossier --program-id PASTE_PROGRAM_UUID_HERE --out docs/research_engine/dossiers/latest.json
 ```
 
 ## Phase 15 목표 (Recipe Validation Lab)
@@ -388,11 +391,29 @@ python3 src/main.py export-research-dossier --program-id YOUR_PROGRAM_UUID --out
 ```bash
 export PYTHONPATH=src
 python3 src/main.py smoke-phase15-recipe-validation
-python3 src/main.py run-recipe-validation --hypothesis-id YOUR_HYPOTHESIS_UUID
-python3 src/main.py report-recipe-validation --validation-run-id YOUR_RUN_UUID
-python3 src/main.py compare-recipe-baselines --hypothesis-id YOUR_HYPOTHESIS_UUID
+# UUID는 Phase 14 절의 list / report 출력에서 복사. < > 사용 금지.
+python3 src/main.py run-recipe-validation --hypothesis-id PASTE_HYPOTHESIS_UUID_HERE
+python3 src/main.py report-recipe-validation --validation-run-id PASTE_VALIDATION_RUN_UUID_HERE
+python3 src/main.py compare-recipe-baselines --hypothesis-id PASTE_HYPOTHESIS_UUID_HERE
 python3 src/main.py report-recipe-survivors --limit 20
-python3 src/main.py export-recipe-scorecard --hypothesis-id YOUR_HYPOTHESIS_UUID --out docs/research_validation/scorecards/latest.json
+python3 src/main.py export-recipe-scorecard --hypothesis-id PASTE_HYPOTHESIS_UUID_HERE --out docs/research_validation/scorecards/latest.json
+```
+
+## Phase 16 목표 (Validation Campaign Orchestrator)
+
+- **역할**: 한 연구 프로그램에 대해 **자격 있는 가설**만 모아 Phase 15 검증을 **재사용(`join_policy_version`·베이스라인·코호트 설정 일치)** 하거나 `reuse_or_run`/`force_rerun`으로 실행하고, 생존·실패·프리미엄 힌트를 **캠페인 단위로 집계**한 뒤 **단일 전략 권고**(`public_data_depth_first` \| `targeted_premium_seam_first` \| `insufficient_evidence_repeat_campaign`)를 DB·브리프(JSON+Markdown)로 남긴다. **제품 스코어 경로 비침투**(`state_change.runner`는 `validation_campaign` 미참조).
+- **코드**: `src/validation_campaign/`, `src/db/records.py`(Phase 16 CRUD), Phase 15 `recipe_validation_runs.join_policy_version`·`quality_filter_json.join_policy_version` 호환 필드.
+- **CLI**: `smoke-phase16-validation-campaign`, `list-eligible-validation-hypotheses`, `run-validation-campaign`, `report-validation-campaign`, `report-program-survival-distribution`, `export-validation-decision-brief`
+- **증거**: `docs/phase16_evidence.md` · 마이그레이션 `20250419100000_phase16_validation_campaign.sql`
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-phase16-validation-campaign
+python3 src/main.py list-eligible-validation-hypotheses --program-id PASTE_PROGRAM_UUID_HERE
+python3 src/main.py run-validation-campaign --program-id PASTE_PROGRAM_UUID_HERE --run-mode reuse_or_run
+python3 src/main.py report-validation-campaign --campaign-run-id PASTE_CAMPAIGN_RUN_UUID_HERE
+python3 src/main.py report-program-survival-distribution --program-id PASTE_PROGRAM_UUID_HERE
+python3 src/main.py export-validation-decision-brief --campaign-run-id PASTE_CAMPAIGN_RUN_UUID_HERE --out docs/validation_campaign/briefs/latest.json
 ```
 
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)

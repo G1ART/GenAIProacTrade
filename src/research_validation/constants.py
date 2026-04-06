@@ -17,3 +17,13 @@ CONTRADICTION_FAIL_THRESHOLD = 2
 BASELINE_STATE_CHANGE = "state_change_score_only"
 BASELINE_NAIVE = "naive_null"
 BASELINE_SIZE = "market_cap_inverse_rank"
+
+# Phase 16 reuse / compatibility (canonical Phase 15 validation logic)
+JOIN_POLICY_VERSION = "cik_asof_v1"
+COHORT_CONFIG_VERSION = "1"
+CANONICAL_COHORT_DIMENSIONS = (
+    "program_quality_context",
+    "size_tertile",
+    "calendar_year",
+)
+WINDOW_STABILITY_METRIC_KEY = "rolling_year_recipe_spread_cv_proxy"
