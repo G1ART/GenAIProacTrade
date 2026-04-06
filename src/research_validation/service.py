@@ -83,7 +83,7 @@ def run_recipe_validation(
     qc_row: Optional[dict[str, Any]] = None
     if quality_run_id:
         qc_row = dbrec.fetch_public_core_cycle_quality_run_by_id(
-            client, str(quality_run_id)
+            client, run_id=str(quality_run_id)
         )
     state_run_id: Optional[str] = None
     if qc_row and qc_row.get("state_change_run_id"):

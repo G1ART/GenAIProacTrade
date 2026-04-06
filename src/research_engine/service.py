@@ -28,7 +28,9 @@ def create_program(
 ) -> dict[str, Any]:
     qctx: dict[str, Any] = {}
     if quality_run_id:
-        row = dbrec.fetch_public_core_cycle_quality_run_by_id(client, quality_run_id)
+        row = dbrec.fetch_public_core_cycle_quality_run_by_id(
+            client, run_id=str(quality_run_id)
+        )
         if row:
             qctx = {
                 "public_core_cycle_quality_run_id": quality_run_id,
@@ -83,7 +85,9 @@ def generate_hypotheses(client: Any, *, program_id: str) -> dict[str, Any]:
     unresolved = []
     recent_id = qctx.get("public_core_cycle_quality_run_id")
     if recent_id:
-        full = dbrec.fetch_public_core_cycle_quality_run_by_id(client, str(recent_id))
+        full = dbrec.fetch_public_core_cycle_quality_run_by_id(
+            client, run_id=str(recent_id)
+        )
         if full:
             unresolved = full.get("unresolved_residual_items") or []
 
@@ -137,7 +141,7 @@ def generate_hypotheses(client: Any, *, program_id: str) -> dict[str, Any]:
 
 
 def run_review_round(client: Any, *, hypothesis_id: str) -> dict[str, Any]:
-    h = dbrec.fetch_research_hypothesis(client, hypothesis_id)
+    h = dbrec.fetch_research_hypothesis(client, hypothesis_id=hypothesis_id)
     if not h:
         return {"ok": False, "error": "hypothesis_not_found"}
     rounds_done = int(h.get("review_rounds_completed") or 0)
@@ -150,13 +154,15 @@ def run_review_round(client: Any, *, hypothesis_id: str) -> dict[str, Any]:
     qctx_full = dict(qctx)
     if qctx.get("public_core_cycle_quality_run_id") and "metrics_json" not in qctx_full:
         row = dbrec.fetch_public_core_cycle_quality_run_by_id(
-            client, str(qctx["public_core_cycle_quality_run_id"])
+            client, run_id=str(qctx["public_core_cycle_quality_run_id"])
         )
         if row:
             qctx_full["quality_class"] = row.get("quality_class")
             qctx_full["metrics_json"] = row.get("metrics_json")
 
-    links = dbrec.fetch_research_residual_links_for_hypothesis(client, hypothesis_id)
+    links = dbrec.fetch_research_residual_links_for_hypothesis(
+        client, hypothesis_id=hypothesis_id
+    )
     triage = qctx.get("residual_triage_json") or {}
     dominant = triage.get("dominant_bucket")
 
@@ -187,10 +193,12 @@ def run_review_round(client: Any, *, hypothesis_id: str) -> dict[str, Any]:
 
 
 def run_referee(client: Any, *, hypothesis_id: str) -> dict[str, Any]:
-    h = dbrec.fetch_research_hypothesis(client, hypothesis_id)
+    h = dbrec.fetch_research_hypothesis(client, hypothesis_id=hypothesis_id)
     if not h:
         return {"ok": False, "error": "hypothesis_not_found"}
-    reviews = dbrec.fetch_research_reviews_for_hypothesis(client, hypothesis_id)
+    reviews = dbrec.fetch_research_reviews_for_hypothesis(
+        client, hypothesis_id=hypothesis_id
+    )
     if not reviews:
         return {"ok": False, "error": "no_reviews_run_review_first"}
 
@@ -198,7 +206,7 @@ def run_referee(client: Any, *, hypothesis_id: str) -> dict[str, Any]:
     qctx = (prog or {}).get("linked_quality_context_json") or {}
     if qctx.get("public_core_cycle_quality_run_id"):
         row = dbrec.fetch_public_core_cycle_quality_run_by_id(
-            client, str(qctx["public_core_cycle_quality_run_id"])
+            client, run_id=str(qctx["public_core_cycle_quality_run_id"])
         )
         if row:
             qctx = {
@@ -237,10 +245,10 @@ def export_dossier_for_program(client: Any, *, program_id: str) -> dict[str, Any
     prog = dbrec.fetch_research_program(client, program_id=program_id)
     if not prog:
         return {"ok": False, "error": "program_not_found"}
-    hyps = dbrec.fetch_research_hypotheses_for_program(client, program_id)
-    reviews = dbrec.fetch_research_reviews_for_program(client, program_id)
-    refs = dbrec.fetch_research_referee_for_program(client, program_id)
-    links = dbrec.fetch_research_residual_links_for_program(client, program_id)
+    hyps = dbrec.fetch_research_hypotheses_for_program(client, program_id=program_id)
+    reviews = dbrec.fetch_research_reviews_for_program(client, program_id=program_id)
+    refs = dbrec.fetch_research_referee_for_program(client, program_id=program_id)
+    links = dbrec.fetch_research_residual_links_for_program(client, program_id=program_id)
     return {
         "ok": True,
         "dossier": build_dossier(
