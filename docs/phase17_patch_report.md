@@ -3,7 +3,7 @@
 ## Git
 
 - **구현 직전 로컬 `main` tip (참고)**: `e822e9c265b2e1f3c83d2db15d01b26f0dbbd985`
-- **커밋 후 HEAD**: 이 문서 작성 시점에는 워킹 트리 변경만 존재; 커밋 후 `git rev-parse HEAD` 로 확인.
+- **커밋 후 HEAD**: `f273b88` (`feat(phase17): public substrate depth coverage, expansion, uplift evidence`)
 
 ## 변경 파일
 
