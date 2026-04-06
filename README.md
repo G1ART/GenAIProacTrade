@@ -420,17 +420,26 @@ python3 src/main.py export-validation-decision-brief --campaign-run-id PASTE_CAM
 
 - **역할**: Phase 16 권고 `public_data_depth_first`에 맞춰 **공개 기판 두께·조인 가능성·품질 쉐어**를 유니버스 단위로 **결정적으로 측정**하고, 선택적 **전역 상한 빌드**(검증 패널·선행수익·유니버스 CIK factor) 후 **before/after·uplift**를 DB에 남긴다. **제품 스코어 경로 비침투**(`state_change.runner`는 `public_depth` 미참조).
 - **코드**: `src/public_depth/`, `src/db/records.py`(Phase 17 CRUD).
-- **CLI**: `smoke-phase17-public-depth`, `run-public-depth-expansion`, `report-public-depth-coverage`, `report-quality-uplift`, `report-research-readiness`, `export-public-depth-brief`
+- **CLI**: `list-universe-names`, `smoke-phase17-public-depth`, `run-public-depth-expansion`, `report-public-depth-coverage`, `report-quality-uplift`, `report-research-readiness`, `export-public-depth-brief`
 - **증거**: `docs/phase17_evidence.md` · 마이그레이션 `20250420100000_phase17_public_depth.sql`
+
+**`--universe` 값**: `YOUR_UNIVERSE_NAME` 은 예시 문구일 뿐 DB 키가 아닙니다. 표준 토큰은 `sp500_current`, `sp500_proxy_candidates_v1`, `combined_largecap_research_v1` 이며, **실제 멤버십이 있는 이름**은 `list-universe-names` 출력의 `use_for_phase17_cli`를 따르세요. `combined_largecap_research_v1`은 `universe_memberships`에 행이 없을 수 있어 Phase 17에서는 보통 `sp500_current`를 씁니다.
+
+| 문자열 | 의미 |
+|--------|------|
+| `sp500_current` | `refresh-universe`로 채우는 S&P 500 현재 구성 |
+| `sp500_proxy_candidates_v1` | `build-candidate-universe`로 채우는 비공식 후보군 |
+| `combined_largecap_research_v1` | 검증용 합집합 슬라이스명(멤버십에 없을 수 있음) |
 
 ```bash
 export PYTHONPATH=src
+python3 src/main.py list-universe-names
 python3 src/main.py smoke-phase17-public-depth
-python3 src/main.py report-public-depth-coverage --universe YOUR_UNIVERSE_NAME
-python3 src/main.py run-public-depth-expansion --universe YOUR_UNIVERSE_NAME --run-validation-panels --validation-panel-limit 2000
+python3 src/main.py report-public-depth-coverage --universe sp500_current
+python3 src/main.py run-public-depth-expansion --universe sp500_current --run-validation-panels --validation-panel-limit 2000
 python3 src/main.py report-quality-uplift --before-report-id <UUID> --after-report-id <UUID>
 python3 src/main.py report-research-readiness --program-id PASTE_PROGRAM_UUID_HERE
-python3 src/main.py export-public-depth-brief --universe YOUR_UNIVERSE_NAME --out docs/public_depth/briefs/latest.json
+python3 src/main.py export-public-depth-brief --universe sp500_current --out docs/public_depth/briefs/latest.json
 ```
 
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)

@@ -404,6 +404,101 @@ def fetch_symbols_universe_as_of(
     return sorted(set(out))
 
 
+def _universe_names_from_memberships_recent_sample(
+    client: Client, *, max_rows: int = 50_000
+) -> set[str]:
+    """최근 적재 위주로 universe_name 수집(전체 DISTINCT 대용량 스캔 대신 운영 힌트용)."""
+    names: set[str] = set()
+    page = min(2000, max_rows)
+    offset = 0
+    while offset < max_rows:
+        r = (
+            client.table("universe_memberships")
+            .select("universe_name")
+            .order("created_at", desc=True)
+            .range(offset, offset + page - 1)
+            .execute()
+        )
+        rows = r.data or []
+        if not rows:
+            break
+        for row in rows:
+            u = str(row.get("universe_name") or "").strip()
+            if u:
+                names.add(u)
+        if len(rows) < page:
+            break
+        offset += page
+    return names
+
+
+def fetch_universe_catalog_for_operators(client: Client) -> list[dict[str, Any]]:
+    """
+    CLI용: 어떤 --universe 문자열을 써야 하는지 안내.
+    표준 슬라이스 + research_programs/state_change_runs/멤버십 샘플에서 이름을 모은 뒤
+    멤버십 최신 as_of·심볼 수를 채운다.
+    """
+    # `research.universe_slices.ALL_RESEARCH_SLICES` 와 동일(레이어 순환 방지 위해 중복).
+    names: set[str] = {
+        "sp500_current",
+        "sp500_proxy_candidates_v1",
+        "combined_largecap_research_v1",
+    }
+    names |= _universe_names_from_memberships_recent_sample(client)
+    try:
+        r = client.table("research_programs").select("universe_name").execute()
+        for row in r.data or []:
+            u = str(row.get("universe_name") or "").strip()
+            if u:
+                names.add(u)
+    except Exception:
+        pass
+    try:
+        r2 = (
+            client.table("state_change_runs")
+            .select("universe_name")
+            .order("created_at", desc=True)
+            .limit(300)
+            .execute()
+        )
+        for row in r2.data or []:
+            u = str(row.get("universe_name") or "").strip()
+            if u:
+                names.add(u)
+    except Exception:
+        pass
+
+    out: list[dict[str, Any]] = []
+    for un in sorted(names):
+        m = fetch_max_as_of_universe(client, universe_name=un)
+        if m:
+            syms = fetch_symbols_universe_as_of(
+                client, universe_name=un, as_of_date=m
+            )
+            out.append(
+                {
+                    "universe_name": un,
+                    "has_membership_rows": True,
+                    "latest_as_of_date": m,
+                    "symbol_count_at_latest_as_of": len(syms),
+                }
+            )
+        else:
+            out.append(
+                {
+                    "universe_name": un,
+                    "has_membership_rows": False,
+                    "latest_as_of_date": None,
+                    "symbol_count_at_latest_as_of": 0,
+                    "note": (
+                        "universe_memberships 에 해당 이름으로 행이 없음. "
+                        "`refresh-universe`(sp500_current) 또는 `build-candidate-universe` 등을 먼저 실행."
+                    ),
+                }
+            )
+    return out
+
+
 def upsert_market_symbol_registry(client: Client, row: dict[str, Any]) -> None:
     sym = str(row["symbol"]).upper().strip()
     row = {**row, "symbol": sym}

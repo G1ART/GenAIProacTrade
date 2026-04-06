@@ -2047,6 +2047,40 @@ def _cmd_list_eligible_validation_hypotheses(args: argparse.Namespace) -> int:
     return 0 if out.get("ok") else 1
 
 
+def _cmd_list_universe_names(_args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from db.records import fetch_universe_catalog_for_operators
+    from research.universe_slices import ALL_RESEARCH_SLICES
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    catalog = fetch_universe_catalog_for_operators(client)
+    usable = [r["universe_name"] for r in catalog if r.get("has_membership_rows")]
+    print(
+        json_lib.dumps(
+            {
+                "ok": True,
+                "instructions_ko": (
+                    "`use_for_phase17_cli`에 나온 문자열을 **그대로** `--universe`에 넣으세요. "
+                    "README의 YOUR_UNIVERSE_NAME 은 자리 표시자일 뿐 실제 DB 키가 아닙니다. "
+                    "`combined_largecap_research_v1`은 멤버십 테이블에 행이 없을 수 있으며, "
+                    "그때는 보통 `sp500_current`를 씁니다."
+                ),
+                "canonical_strings_in_codebase": list(ALL_RESEARCH_SLICES),
+                "use_for_phase17_cli": usable,
+                "catalog": catalog,
+            },
+            indent=2,
+            ensure_ascii=False,
+            default=str,
+        )
+    )
+    return 0
+
+
 def _cmd_smoke_phase17_public_depth(_args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
     from db.records import smoke_phase17_public_depth_tables
@@ -2402,6 +2436,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="현재는 sp500_current 만 지원",
     )
     pu.set_defaults(func=_cmd_refresh_universe)
+
+    pun = sub.add_parser(
+        "list-universe-names",
+        help="DB·프로그램 기준 universe_name 목록(Phase 17 등 --universe 값 확인용)",
+    )
+    pun.set_defaults(func=_cmd_list_universe_names)
 
     pc = sub.add_parser(
         "build-candidate-universe",
@@ -3209,7 +3249,11 @@ def build_parser() -> argparse.ArgumentParser:
         "run-public-depth-expansion",
         help="Phase 17: 공개 기판 확장(선택 빌드) + before/after·uplift 적재",
     )
-    p17a.add_argument("--universe", required=True)
+    p17a.add_argument(
+        "--universe",
+        required=True,
+        help="`list-universe-names` 의 use_for_phase17_cli 값 중 하나(예: sp500_current)",
+    )
     p17a.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
     p17a.add_argument(
         "--run-validation-panels",
@@ -3248,7 +3292,11 @@ def build_parser() -> argparse.ArgumentParser:
         "report-public-depth-coverage",
         help="Phase 17: 유니버스 기판 커버리지 스냅샷 JSON",
     )
-    p17b.add_argument("--universe", required=True)
+    p17b.add_argument(
+        "--universe",
+        required=True,
+        help="`list-universe-names` 의 use_for_phase17_cli 값 중 하나",
+    )
     p17b.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
     p17b.add_argument(
         "--persist",

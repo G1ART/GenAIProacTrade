@@ -114,6 +114,7 @@ def test_phase17_cli_registered() -> None:
     p = build_parser()
     sub = next(a for a in p._actions if getattr(a, "dest", None) == "command")
     names = set(sub.choices.keys())
+    assert "list-universe-names" in names
     assert "run-public-depth-expansion" in names
     assert "report-public-depth-coverage" in names
     assert "report-quality-uplift" in names

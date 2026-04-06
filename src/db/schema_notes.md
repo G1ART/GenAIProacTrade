@@ -13,7 +13,7 @@
 | `issuer_quarter_snapshots` | **분기 스냅샷**. 공시(accession) + `fiscal_year`/`fiscal_period` 단위 숫자 요약. |
 | `issuer_quarter_factor_panels` | **회계 팩터 truth layer**. 스냅샷에서 결정적으로 계산된 팩터 + `coverage_json` / `quality_flags_json`. 가격 결합 전 단계. |
 | `ingest_runs` | **수집 실행 감사**. run_type으로 메타 / facts / 스냅샷 / **factor panel** / **시장·검증** 구분. |
-| `universe_memberships` | **유니버스**. `sp500_current`(위키/프로바이더 파싱) vs `sp500_proxy_candidates_v1`(시드·비공식 프록시 후보). `(universe_name, symbol, as_of_date)` 유니크. |
+| `universe_memberships` | **유니버스**. `sp500_current`(위키/프로바이더 파싱) vs `sp500_proxy_candidates_v1`(시드·비공식 프록시 후보). `(universe_name, symbol, as_of_date)` 유니크. 운영자용 이름 목록: CLI `list-universe-names`. |
 | `market_symbol_registry` | **거래 심볼 ↔ CIK**. 대문자 `symbol` 유니크. 위키 CIK vs `issuer_master` 불일치 시 감사 run `quality_flags`에 기록. |
 | `raw_market_prices_daily` | **시세 원문**. `(symbol, trade_date, source_name)` 유니크. |
 | `silver_market_prices_daily` | **정규화 일봉**. `(symbol, trade_date)` 유니크, upsert. `daily_return`은 전일 대비(조정종가 우선). |
