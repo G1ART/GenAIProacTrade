@@ -1,4 +1,4 @@
-# DB 스키마 메모 (Phase 0–12)
+# DB 스키마 메모 (Phase 0–13)
 
 ## 데이터 계층 역할
 
@@ -38,7 +38,8 @@
 | `operational_runs` | Phase 9 **운영 실행** 감사: `run_type`, `component`, `status`(running\|success\|warning\|failed\|empty_valid), 행 수, `tokens_used`(null 가능), `trace_json`. |
 | `operational_failures` | 실행별 **쿼리 가능** 실패/경고 분류: `failure_category`(configuration_error, db_migration_missing, source_data_missing, empty_but_valid, heuristic_low_confidence, execution_error, other). |
 | `outlier_casebook_runs` | Phase 8 배치 메타; `detection_logic_version`, `policy_json`. |
-| `outlier_casebook_entries` | 이상치 사례 메모리: discrepancy·expected/observed·uncertainty·message 필드·`is_heuristic`·Phase 10 `overlay_awareness_json`(오버레이 유무 명시). |
+| `outlier_casebook_entries` | 이상치 사례 메모리: discrepancy·expected/observed·uncertainty·message 필드·`is_heuristic`·Phase 10 `overlay_awareness_json`(오버레이 유무 명시). Phase 13: `residual_triage_bucket`, `premium_overlay_suggestion`(감사용 트리이지·선택 프리미엄 힌트). |
+| `public_core_cycle_quality_runs` | Phase 13 **공개 코어 사이클 품질** 스냅샷: `quality_class`, `metrics_json`, `gap_reasons_ranked`, `overlay_status_json`, `residual_triage_json`, `unresolved_residual_items`. |
 | `scanner_runs` | 일일 스캐너 실행; `policy_json`(top_n, floor 등). |
 | `daily_signal_snapshots` | 스캐너 run당 1행 집계 `stats_json`. |
 | `daily_watchlist_entries` | 저잡음 우선순위 워치리스트; thesis/challenge/uncertainty + message 필드·Phase 10 `overlay_awareness_json`·Phase 11 `transcript_enrichment_json`(선택 메시지 보강; 스코어 비사용). |

@@ -939,6 +939,50 @@ def fetch_state_change_candidate_class_counts(
     return counts
 
 
+def fetch_state_change_gating_and_candidate_count(
+    client: Client, *, run_id: str, select_limit: int = 8000
+) -> tuple[int, int]:
+    """
+    Returns (gating_high_missingness_count, total_candidates) for a state_change run.
+    Client-side count for portability (Supabase postgREST without raw SQL).
+    """
+    r = (
+        client.table("state_change_candidates")
+        .select("excluded_reason")
+        .eq("run_id", run_id)
+        .limit(select_limit)
+        .execute()
+    )
+    rows = list(r.data or [])
+    n = len(rows)
+    gating = sum(
+        1
+        for row in rows
+        if str(row.get("excluded_reason") or "") == "gating_high_missingness"
+    )
+    return gating, n
+
+
+def insert_public_core_cycle_quality_run(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_core_cycle_quality_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_core_cycle_quality_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_public_core_cycle_quality_runs_recent(
+    client: Client, *, limit: int = 20
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("public_core_cycle_quality_runs")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
 def fetch_latest_state_change_run_id(
     client: Client, *, universe_name: str
 ) -> Optional[str]:

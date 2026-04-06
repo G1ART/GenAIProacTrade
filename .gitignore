@@ -12,3 +12,6 @@ __pycache__/
 # Phase 12: 로컬에서 생성되는 공개 코어 번들(README만 추적)
 docs/public_core_cycle/latest/cycle_summary.json
 docs/public_core_cycle/latest/operator_packet.md
+
+# Phase 13: export-public-core-quality-sample 로컬 증거
+docs/public_core_quality/samples/*.json

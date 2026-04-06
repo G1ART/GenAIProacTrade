@@ -148,7 +148,40 @@ def test_run_public_core_cycle_empty_watchlist_still_ok(tmp_path: Path) -> None:
         return_value={"availability": "not_available_yet"},
     ), patch(
         "sources.reporting.build_source_registry_report", return_value={"ok": True}
-    ), patch("db.records.fetch_operational_runs_recent", return_value=[]):
+    ), patch("db.records.fetch_operational_runs_recent", return_value=[]), patch(
+        "public_core.quality.compute_cycle_quality_bundle",
+        return_value={
+            "row_for_insert": {
+                "state_change_run_id": "sc-run-1",
+                "universe_name": "sp500_current",
+                "cycle_finished_ok": True,
+                "quality_class": "usable_with_gaps",
+                "metrics_json": {},
+                "gap_reasons_ranked": [],
+                "overlay_status_json": {},
+                "residual_triage_json": {},
+                "unresolved_residual_items": [],
+            },
+            "quality_class": "usable_with_gaps",
+            "metrics": {
+                "candidates_scanned": 5,
+                "insufficient_data_fraction": 0.2,
+                "gating_high_missingness_fraction": 0.0,
+                "watchlist_selected": 0,
+                "casebook_entries_created": 0,
+                "memos_touched": 0,
+                "harness_inputs_built": 0,
+            },
+            "gap_reasons_ranked": [],
+            "overlay_status_json": {"transcripts_coarse": "absent"},
+            "residual_triage": {
+                "dominant_bucket": None,
+                "bucket_counts": {},
+                "dominant_explanation": "",
+            },
+            "unresolved_residual_items": [],
+        },
+    ), patch("db.records.insert_public_core_cycle_quality_run", return_value="qrun-1"):
         out = run_public_core_cycle(
             MagicMock(),
             MagicMock(),
@@ -181,3 +214,5 @@ def test_phase12_cli_registered() -> None:
     names = set(sub.choices.keys())
     assert "run-public-core-cycle" in names
     assert "report-public-core-cycle" in names
+    assert "report-public-core-quality" in names
+    assert "export-public-core-quality-sample" in names

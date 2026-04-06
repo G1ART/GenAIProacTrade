@@ -1544,10 +1544,47 @@ def _cmd_run_public_core_cycle(args: argparse.Namespace) -> int:
                 trace_json={
                     "state_change_run_id": payload.get("state_change_run_id"),
                     "out_dir": str(out or default_cycle_out_dir()),
+                    "public_core_cycle_quality_run_id": payload.get(
+                        "public_core_cycle_quality_run_id"
+                    ),
+                    "cycle_quality_class": payload.get("cycle_quality_class"),
                 },
             )
     print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
     return 0 if payload.get("ok") else 1
+
+
+def _cmd_report_public_core_quality(args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db import records as dbrec
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rows = dbrec.fetch_public_core_cycle_quality_runs_recent(client, limit=int(args.limit))
+    print(json.dumps({"ok": True, "runs": rows}, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_public_core_quality_sample(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from db import records as dbrec
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rows = dbrec.fetch_public_core_cycle_quality_runs_recent(client, limit=int(args.limit))
+    dest = Path(args.out).expanduser()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(
+        json_lib.dumps({"runs": rows}, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    print(json.dumps({"ok": True, "wrote": str(dest), "n": len(rows)}, indent=2))
+    return 0
 
 
 def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
@@ -2317,6 +2354,25 @@ def build_parser() -> argparse.ArgumentParser:
         help="cycle_summary.json 위치(기본 docs/public_core_cycle/latest)",
     )
     p12b.set_defaults(func=_cmd_report_public_core_cycle)
+
+    p13a = sub.add_parser(
+        "report-public-core-quality",
+        help="Phase 13: 최근 public-core cycle 품질·갭·잔차 트리이지 DB 기록 요약",
+    )
+    p13a.add_argument("--limit", type=int, default=15)
+    p13a.set_defaults(func=_cmd_report_public_core_quality)
+
+    p13b = sub.add_parser(
+        "export-public-core-quality-sample",
+        help="Phase 13: 품질 실행 행을 JSON 파일로보내기 (증거 샘플)",
+    )
+    p13b.add_argument("--limit", type=int, default=10)
+    p13b.add_argument(
+        "--out",
+        required=True,
+        help="출력 JSON 경로 (예: docs/public_core_quality/samples/latest.json)",
+    )
+    p13b.set_defaults(func=_cmd_export_public_core_quality_sample)
 
     return p
 

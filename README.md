@@ -348,6 +348,19 @@ python3 src/main.py run-public-core-cycle --universe sp500_current
 python3 src/main.py report-public-core-cycle
 ```
 
+## Phase 13 목표 (공개 코어 품질 게이트 · 잔차 트리이지)
+
+- **역할**: 사이클마다 **임계값 기반** 품질 등급(`strong` … `failed`), DB 증거(`public_core_cycle_quality_runs`), 케이스북 **잔차 버킷** + 프리미엄 ROI 힌트, 운영자 패킷에 **실행 성공 vs 실질 얇음** 구분.
+- **코드**: `src/public_core/quality.py`, `src/casebook/residual_triage.py`, `src/public_core/cycle.py`
+- **CLI**: `report-public-core-quality`, `export-public-core-quality-sample` (품질 행 조회·보내기)
+- **증거**: `docs/phase13_evidence.md` · 마이그레이션 `20250416100000_phase13_public_core_quality.sql`
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py report-public-core-quality --limit 15
+python3 src/main.py export-public-core-quality-sample --limit 10 --out docs/public_core_quality/samples/latest.json
+```
+
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
 
 **목적**: 시장 가격만 넓고 SEC/XBRL/스냅샷/팩터/검증 스파인이 샘플 수준일 때, **수동 INSERT 없이** 기존 파이프라인을 순서대로 묶어 `issuer_master` → `factor_market_validation_panels` 까지 채움. **백테스트·포트폴리오·AI harness·UI 확장 아님.**

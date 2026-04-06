@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
+from casebook.residual_triage import assign_residual_triage_fields
 from message_contract import OVERLAY_FUTURE_SEAMS_DEFAULT
 
 DETECTION_LOGIC_VERSION = "outlier_heuristic_v1"
@@ -399,4 +400,6 @@ def detect_outliers_for_candidate(
             }
         )
 
+    for e in entries:
+        assign_residual_triage_fields(e)
     return entries
