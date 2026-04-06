@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import bisect
 import math
 import statistics
 from typing import Any, Optional
@@ -38,16 +39,65 @@ def year_bucket(signal_date: Optional[str]) -> str:
     return signal_date[:4]
 
 
+def norm_cik(raw: Any) -> str:
+    s = str(raw or "").strip()
+    if not s:
+        return ""
+    if s.isdigit():
+        return s.zfill(10)
+    return s
+
+
 def state_change_index(rows: list[dict[str, Any]]) -> dict[tuple[str, str], dict[str, Any]]:
     out: dict[tuple[str, str], dict[str, Any]] = {}
     for r in rows:
-        cik = str(r.get("cik") or "").strip()
+        cik = norm_cik(r.get("cik"))
         ad = r.get("as_of_date")
         if not cik or ad is None:
             continue
         ds = str(ad)[:10]
         out[(cik, ds)] = r
     return out
+
+
+def state_change_rows_by_cik_sorted(
+    rows: list[dict[str, Any]],
+) -> dict[str, list[tuple[str, dict[str, Any]]]]:
+    """CIK → (as_of_date YYYY-MM-DD, row) 리스트, 날짜 오름차순."""
+    buckets: dict[str, list[tuple[str, dict[str, Any]]]] = {}
+    for r in rows:
+        cik = norm_cik(r.get("cik"))
+        ad = r.get("as_of_date")
+        if not cik or ad is None:
+            continue
+        ds = str(ad)[:10]
+        if len(ds) < 10:
+            continue
+        buckets.setdefault(cik, []).append((ds, r))
+    for cik, pairs in buckets.items():
+        pairs.sort(key=lambda x: x[0])
+    return buckets
+
+
+def pick_state_change_at_or_before_signal(
+    by_cik: dict[str, list[tuple[str, dict[str, Any]]]],
+    *,
+    cik: str,
+    signal_date: str,
+) -> Optional[dict[str, Any]]:
+    """
+    동일 CIK에서 as_of_date <= signal_date 인 행 중 가장 최근 것(PIT 정렬).
+    시그널일과 점수 as_of_date 가 하루만 어긋나도 exact join 은 0건이 되므로 검증용 폴백.
+    """
+    ck = norm_cik(cik)
+    pairs = by_cik.get(ck)
+    if not pairs:
+        return None
+    dates = [p[0] for p in pairs]
+    idx = bisect.bisect_right(dates, signal_date) - 1
+    if idx < 0:
+        return None
+    return pairs[idx][1]
 
 
 def top_bottom_spread(pairs: list[tuple[float, float]], frac: float = SPREAD_TAIL_FRAC) -> Optional[float]:

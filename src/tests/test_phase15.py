@@ -15,7 +15,11 @@ from research_validation.constants import (
     MIN_SAMPLE_ROWS,
     SURVIVAL_STATUSES,
 )
-from research_validation.metrics import top_bottom_spread
+from research_validation.metrics import (
+    pick_state_change_at_or_before_signal,
+    state_change_rows_by_cik_sorted,
+    top_bottom_spread,
+)
 from research_validation.policy import decide_survival
 from research_validation.scorecard import build_scorecard
 from research_validation.service import _best_worst_cohort, run_recipe_validation
@@ -352,3 +356,25 @@ def test_run_inserts_failure_batch_when_cohort_weak(monkeypatch: pytest.MonkeyPa
 
 def test_min_sample_rows_constant_sane() -> None:
     assert MIN_SAMPLE_ROWS >= 12
+
+
+def test_state_change_pick_at_or_before_signal() -> None:
+    scores = [
+        {"cik": "0000320193", "as_of_date": "2024-01-10", "state_change_score_v1": 1.0},
+        {"cik": "0000320193", "as_of_date": "2024-03-01", "state_change_score_v1": 2.0},
+    ]
+    by_cik = state_change_rows_by_cik_sorted(scores)
+    r = pick_state_change_at_or_before_signal(
+        by_cik, cik="320193", signal_date="2024-02-15"
+    )
+    assert r is not None
+    assert str(r.get("as_of_date"))[:10] == "2024-01-10"
+
+
+def test_cli_rejects_non_uuid_hypothesis_id(capsys: pytest.CaptureFixture[str]) -> None:
+    from main import _exit_unless_uuid
+
+    assert _exit_unless_uuid("hypothesis_id", "YOUR_HYPOTHESIS_UUID") == 1
+    out = capsys.readouterr().out
+    assert "invalid_uuid" in out
+    assert _exit_unless_uuid("hypothesis_id", "550e8400-e29b-41d4-a716-446655440000") is None

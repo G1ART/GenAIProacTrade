@@ -21,11 +21,13 @@ from research_validation.constants import (
 )
 from research_validation.metrics import (
     mcap_baseline_score,
+    norm_cik,
     norm_signal_date,
+    pick_state_change_at_or_before_signal,
     recipe_score_from_hypothesis,
     safe_float,
     size_tertile_labels,
-    state_change_index,
+    state_change_rows_by_cik_sorted,
     top_bottom_spread,
     year_bucket,
 )
@@ -107,7 +109,7 @@ def run_recipe_validation(
     scores = dbrec.fetch_state_change_scores_for_run(
         client, run_id=state_run_id, limit=50000
     )
-    sc_map = state_change_index(scores)
+    sc_by_cik = state_change_rows_by_cik_sorted(scores)
 
     fam_raw = (h.get("feature_definition_json") or {}).get("families")
     if isinstance(fam_raw, list):
@@ -121,10 +123,12 @@ def run_recipe_validation(
         if excess is None:
             continue
         sig = norm_signal_date(p.get("signal_available_date"))
-        cik = str(p.get("cik") or "").strip()
+        cik = norm_cik(p.get("cik"))
         if not cik or not sig:
             continue
-        sc_row = sc_map.get((cik, sig))
+        sc_row = pick_state_change_at_or_before_signal(
+            sc_by_cik, cik=cik, signal_date=sig
+        )
         if not sc_row:
             continue
         sc_score = safe_float(sc_row.get("state_change_score_v1"))
@@ -156,11 +160,34 @@ def run_recipe_validation(
         )
 
     if len(rows_data) < MIN_SAMPLE_ROWS:
+        n_excess = sum(
+            1 for p in panels if safe_float(p.get(EXCESS_FIELD)) is not None
+        )
+        n_sig = sum(
+            1
+            for p in panels
+            if norm_signal_date(p.get("signal_available_date"))
+            and norm_cik(p.get("cik"))
+        )
         return {
             "ok": False,
             "error": "insufficient_joined_rows",
             "n_rows": len(rows_data),
             "min_required": MIN_SAMPLE_ROWS,
+            "hint_ko": (
+                "패널에 분기 excess는 있어도, 같은 CIK에서 state_change 점수 as_of_date 가 "
+                "시그널일 이전·당일에 없으면 조인이 0이 됩니다. 공개 코어/백필로 "
+                "factor_market_validation_panels 와 issuer_state_change_scores 를 "
+                "같은 유니버스·기간에 맞추거나, 최신 state_change run 을 다시 돌리세요."
+            ),
+            "debug": {
+                "n_panels": len(panels),
+                "n_panels_with_excess_return_1q": n_excess,
+                "n_panels_with_cik_and_signal_date": n_sig,
+                "n_state_change_scores_in_run": len(scores),
+                "state_change_run_id": state_run_id,
+                "join_rule": "cik_norm_10 + as_of_date <= signal_available_date (latest)",
+            },
         }
 
     mcaps = [r["mcap"] for r in rows_data]
