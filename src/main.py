@@ -2047,6 +2047,211 @@ def _cmd_list_eligible_validation_hypotheses(args: argparse.Namespace) -> int:
     return 0 if out.get("ok") else 1
 
 
+def _cmd_smoke_phase17_public_depth(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db.records import smoke_phase17_public_depth_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_phase17_public_depth_tables(client)
+    print(json.dumps({"ok": True, "public_depth_tables": "reachable"}, indent=2))
+    return 0
+
+
+def _cmd_run_public_depth_expansion(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from public_depth.expansion import run_public_depth_expansion
+
+    settings = load_settings()
+    configure_logging()
+    out = run_public_depth_expansion(
+        settings,
+        universe_name=str(args.universe),
+        panel_limit=int(args.panel_limit),
+        run_validation_panels=bool(args.run_validation_panels),
+        run_forward_returns=bool(args.run_forward_returns),
+        validation_panel_limit=int(args.validation_panel_limit),
+        forward_panel_limit=int(args.forward_panel_limit),
+        max_universe_factor_builds=int(args.max_universe_factor_builds),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_report_public_depth_coverage(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from db import records as dbrec
+    from public_depth.constants import POLICY_VERSION
+    from public_depth.diagnostics import compute_substrate_coverage
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    metrics, excl = compute_substrate_coverage(
+        client,
+        universe_name=str(args.universe),
+        panel_limit=int(args.panel_limit),
+    )
+    result: dict = {"ok": True, "metrics": metrics, "exclusion_distribution": excl}
+    if getattr(args, "persist", False):
+        rid = dbrec.insert_public_depth_coverage_report(
+            client,
+            {
+                "public_depth_run_id": None,
+                "universe_name": str(args.universe),
+                "snapshot_label": "standalone",
+                "metrics_json": metrics,
+                "exclusion_distribution_json": excl,
+            },
+        )
+        result["persisted_report_id"] = rid
+        result["policy_version_note"] = POLICY_VERSION
+    print(json_lib.dumps(result, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_quality_uplift(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from db import records as dbrec
+    from public_depth.uplift import compute_uplift_metrics
+
+    bad = _exit_unless_uuid("before_report_id", args.before_report_id)
+    if bad is not None:
+        return bad
+    bad = _exit_unless_uuid("after_report_id", args.after_report_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    br = dbrec.fetch_public_depth_coverage_report(
+        client, report_id=str(args.before_report_id)
+    )
+    ar = dbrec.fetch_public_depth_coverage_report(
+        client, report_id=str(args.after_report_id)
+    )
+    if not br or not ar:
+        print(
+            json_lib.dumps(
+                {
+                    "ok": False,
+                    "error": "coverage_report_not_found",
+                    "before_found": bool(br),
+                    "after_found": bool(ar),
+                },
+                indent=2,
+            )
+        )
+        return 1
+    bm = br.get("metrics_json") if isinstance(br.get("metrics_json"), dict) else {}
+    am = ar.get("metrics_json") if isinstance(ar.get("metrics_json"), dict) else {}
+    uplift = compute_uplift_metrics(bm, am)
+    out: dict = {"ok": True, "uplift": uplift}
+    if getattr(args, "persist", False):
+        uid = dbrec.insert_public_depth_uplift_report(
+            client,
+            {
+                "before_report_id": str(args.before_report_id),
+                "after_report_id": str(args.after_report_id),
+                "uplift_metrics_json": uplift,
+            },
+        )
+        out["persisted_uplift_id"] = uid
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_research_readiness(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from public_depth.readiness import build_research_readiness_summary
+
+    bad = _exit_unless_uuid("program_id", args.program_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = build_research_readiness_summary(client, program_id=str(args.program_id))
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_export_public_depth_brief(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from public_depth.diagnostics import compute_substrate_coverage
+    from public_depth.readiness import build_research_readiness_summary
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    if getattr(args, "program_id", None):
+        bad = _exit_unless_uuid("program_id", args.program_id)
+        if bad is not None:
+            return bad
+        payload = build_research_readiness_summary(
+            client, program_id=str(args.program_id)
+        )
+    elif getattr(args, "universe", None):
+        m, ex = compute_substrate_coverage(
+            client, universe_name=str(args.universe), panel_limit=int(args.panel_limit)
+        )
+        payload = {
+            "ok": True,
+            "universe_name": str(args.universe),
+            "metrics": m,
+            "exclusion_distribution": ex,
+        }
+    else:
+        print(
+            json_lib.dumps(
+                {
+                    "ok": False,
+                    "error": "need_program_id_or_universe",
+                },
+                indent=2,
+            )
+        )
+        return 1
+
+    dest = Path(args.out).expanduser()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    json_path = dest if dest.suffix == ".json" else dest.with_suffix(".json")
+    md_path = dest if dest.suffix == ".md" else dest.with_suffix(".md")
+    json_path.write_text(
+        json_lib.dumps(payload, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    md_lines = [
+        "# Public depth brief",
+        "",
+        "```json",
+        json_lib.dumps(payload, indent=2, ensure_ascii=False, default=str),
+        "```",
+        "",
+    ]
+    md_path.write_text("\n".join(md_lines), encoding="utf-8")
+    print(
+        json_lib.dumps(
+            {"ok": True, "json": str(json_path), "markdown": str(md_path)},
+            indent=2,
+        )
+    )
+    return 0 if payload.get("ok", True) else 1
+
+
 def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
     from pathlib import Path
 
@@ -2993,6 +3198,94 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p16e.add_argument("--program-id", required=True, dest="program_id")
     p16e.set_defaults(func=_cmd_list_eligible_validation_hypotheses)
+
+    sp17 = sub.add_parser(
+        "smoke-phase17-public-depth",
+        help="Phase 17: public_depth_* 테이블 도달",
+    )
+    sp17.set_defaults(func=_cmd_smoke_phase17_public_depth)
+
+    p17a = sub.add_parser(
+        "run-public-depth-expansion",
+        help="Phase 17: 공개 기판 확장(선택 빌드) + before/after·uplift 적재",
+    )
+    p17a.add_argument("--universe", required=True)
+    p17a.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p17a.add_argument(
+        "--run-validation-panels",
+        action="store_true",
+        dest="run_validation_panels",
+        help="전역 상한으로 factor_market_validation_panels 빌드",
+    )
+    p17a.add_argument(
+        "--run-forward-returns",
+        action="store_true",
+        dest="run_forward_returns",
+        help="전역 상한으로 forward_returns_daily_horizons 빌드",
+    )
+    p17a.add_argument(
+        "--validation-panel-limit",
+        type=int,
+        default=2000,
+        dest="validation_panel_limit",
+    )
+    p17a.add_argument(
+        "--forward-panel-limit",
+        type=int,
+        default=2000,
+        dest="forward_panel_limit",
+    )
+    p17a.add_argument(
+        "--max-universe-factor-builds",
+        type=int,
+        default=0,
+        dest="max_universe_factor_builds",
+        help="유니버스 티커별 CIK factor 패널 빌드 최대 건수(0=스킵)",
+    )
+    p17a.set_defaults(func=_cmd_run_public_depth_expansion)
+
+    p17b = sub.add_parser(
+        "report-public-depth-coverage",
+        help="Phase 17: 유니버스 기판 커버리지 스냅샷 JSON",
+    )
+    p17b.add_argument("--universe", required=True)
+    p17b.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p17b.add_argument(
+        "--persist",
+        action="store_true",
+        help="public_depth_coverage_reports 에 standalone 스냅샷 저장",
+    )
+    p17b.set_defaults(func=_cmd_report_public_depth_coverage)
+
+    p17c = sub.add_parser(
+        "report-quality-uplift",
+        help="Phase 17: 두 커버리지 리포트 ID로 업리프트 지표 계산",
+    )
+    p17c.add_argument("--before-report-id", required=True, dest="before_report_id")
+    p17c.add_argument("--after-report-id", required=True, dest="after_report_id")
+    p17c.add_argument(
+        "--persist",
+        action="store_true",
+        help="public_depth_uplift_reports 에 저장",
+    )
+    p17c.set_defaults(func=_cmd_report_quality_uplift)
+
+    p17d = sub.add_parser(
+        "report-research-readiness",
+        help="Phase 17: 프로그램 기준 기판·Phase15/16 재실행 권고 요약",
+    )
+    p17d.add_argument("--program-id", required=True, dest="program_id")
+    p17d.set_defaults(func=_cmd_report_research_readiness)
+
+    p17e = sub.add_parser(
+        "export-public-depth-brief",
+        help="Phase 17: 기판 브리프 JSON+Markdown(--universe 또는 --program-id)",
+    )
+    p17e.add_argument("--out", required=True)
+    p17e.add_argument("--universe", default=None)
+    p17e.add_argument("--program-id", default=None, dest="program_id")
+    p17e.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p17e.set_defaults(func=_cmd_export_public_depth_brief)
 
     return p
 

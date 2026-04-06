@@ -1,36 +1,36 @@
-# HANDOFF — Phase 16 (Validation Campaign Orchestrator)
+# HANDOFF — Phase 17 (Public Substrate Depth Expansion)
 
 ## 현재 제품 위치
 
-- **Phase 11–15**: 이전과 동일(공개 코어, 연구 엔진, 가설 단위 Recipe Validation Lab).
-- **Phase 16 (본 패치)**: **프로그램 단위 검증 캠페인** — 자격 있는 가설에 대해 Phase 15 검증을 **호환 시 재사용**·아니면 실행하고, 생존·실패·프리미엄 힌트를 집계해 **단일 전략 권고**(`public_data_depth_first` \| `targeted_premium_seam_first` \| `insufficient_evidence_repeat_campaign`)를 DB와 JSON+Markdown 브리프로 남긴다. **제품 스코어·워치리스트와 분리**(`validation_campaign` 미연동).
+- **Phase 11–16**: 이전과 동일(연구 엔진, Recipe Validation Lab, Validation Campaign 및 `public_data_depth_first` 권고 경로).
+- **Phase 17 (본 패치)**: **공개 기판 깊이·품질 리프트 계측** — 유니버스별 커버리지 스냅샷, 선택적 전역 상한 빌드(검증 패널·선행수익·유니버스 CIK factor) 후 **before/after·uplift**를 `public_depth_*` 테이블에 적재. **제품 스코어·워치리스트와 분리**(`state_change.runner`는 `public_depth` 미참조).
 
-## Phase 16으로 가능해진 것
+## Phase 17으로 가능해진 것
 
-1. **`list-eligible-validation-hypotheses`**: `candidate_recipe`/`sandboxed` + 리뷰 + 심판 + 비아카이브 프로그램만 나열.
-2. **`run-validation-campaign`**: `reuse_only` \| `reuse_or_run` \| `force_rerun`; `recipe_validation_runs.join_policy_version` 등으로 **pre/post Phase 15 조인 혼입 방지**.
-3. **`report-program-survival-distribution`**: 프로그램 소속 가설의 **최근 완료 검증** 기준 생존 분포.
-4. **`export-validation-decision-brief`**: 권고·근거·집계·반증 시 행동을 **결정적 아티팩트**로 출력.
-5. **증거 게이트**: 캠페인 집계가 **다음 전략 분기**(공개 데이터 깊이 vs 좁은 프리미엄 seam vs 캠페인 재실행)를 **코드 정책**으로 제안한다(수동 vibe 대체).
+1. **`report-public-depth-coverage`**: 최신 멤버십 as_of 기준 조인 행 수·품질 쉐어·제외 분포 JSON.
+2. **`run-public-depth-expansion`**: before/after 커버리지 + uplift 행 생성(플래그로 빌드 단계 제어).
+3. **`report-quality-uplift`**: 두 커버리지 리포트 UUID로 델타 계산(옵션 DB 저장).
+4. **`report-research-readiness`**: 프로그램의 `universe_name`으로 기판 스냅샷을 보고 **Phase 15/16 재실행 권고 불리언**(휴리스틱 임계: `MIN_SAMPLE_ROWS * 5` joined 행 + `thin_input_share` 완화).
+5. **`export-public-depth-brief`**: JSON+Markdown 아티팩트(`--universe` 또는 `--program-id`).
 
-## 의도적으로 아직 없는 것
+## `thin_input`이 “실제로” 줄었는지
 
-- 라이브 프리미엄 seam, 광범위 백필 본체, UI, 다프로그램 최적화, 승격 자동화, 다지평, 체결 추천.
+- **코드가 자동으로 단정하지 않는다.** 확장 전후 `public_depth_coverage_reports.metrics_json`의 `thin_input_share` 및 `joined_recipe_substrate_row_count`를 비교해 운영자가 판단한다. `public_core_cycle_quality_runs`는 **해당 유니버스** 최근 N건으로 쉐어를 추정한다.
+
+## 다음 단계 권고 (증거 기준)
+
+1. Supabase에 `20250420100000_phase17_public_depth.sql` 적용 후 `smoke-phase17-public-depth`.
+2. 대상 유니버스로 `report-public-depth-coverage` → 기준선 저장(`--persist` 또는 확장 러의 before).
+3. 필요 시 `run-public-depth-expansion --run-validation-panels` 등으로 **상한 있는** 공개 빌드 실행 → after·uplift 확인.
+4. **`joined_recipe_substrate_row_count`가 눈에 띄게 증가**하고 **thin_input 쉐어가 완화**되면: **Phase 15/16 재실행**을 우선 검토.
+5. 그렇지 않으면: **공개 기판 추가 확장**(유니버스 전용 factor/패널 빌드 설계 등)을 이어가고, 캠페인이 `targeted_premium_seam_first`로 바뀐 **별도 증거**가 있을 때만 프리미엄 seam을 헤드라인으로 올린다.
 
 ## 마이그레이션 (누적)
 
-- **Phase 16**: `20250419100000_phase16_validation_campaign.sql` (`validation_campaign_*` + `recipe_validation_runs.join_policy_version` 백필)
-
-## 다음 단계 권장 (캠페인 증거 기준)
-
-1. Supabase에 Phase 16 마이그레이션 적용 후 `smoke-phase16-validation-campaign` 확인.
-2. 잠금 프로그램 UUID로 `run-validation-campaign --run-mode reuse_or_run` 실행 → `export-validation-decision-brief`로 권고 확인.
-3. 권고가 **`public_data_depth_first`**이면(현재 thin_input·weak_survival 패턴과 정합) **공개 코어/패널/품질 깊이** 확장을 다음 작업 헤드라인으로 둔다.
-4. 권고가 **`targeted_premium_seam_first`**로 바뀌는 집계(강한 기판에서 잔차·프리미엄 실패 집중)가 나오면 **단일 프리미엄 ROI seam** PoC를 헤드라인으로 둔다.
-5. **`insufficient_evidence_repeat_campaign`**이면 가설·검증 다양성을 늘린 뒤 캠페인 재실행.
+- **Phase 17**: `20250420100000_phase17_public_depth.sql`
 
 ---
 
-## Phase 15 이전 요약
+## Phase 16 이전 요약
 
-- `docs/phase15_evidence.md`, Phase 14 이하 문서 참고.
+- `docs/phase16_evidence.md`, Phase 15 이하 문서 참고.

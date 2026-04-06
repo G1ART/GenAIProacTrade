@@ -983,6 +983,20 @@ def fetch_public_core_cycle_quality_runs_recent(
     return [dict(x) for x in (r.data or [])]
 
 
+def fetch_public_core_cycle_quality_runs_for_universe(
+    client: Client, *, universe_name: str, limit: int = 40
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("public_core_cycle_quality_runs")
+        .select("*")
+        .eq("universe_name", universe_name)
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
 def fetch_latest_state_change_run_id(
     client: Client, *, universe_name: str
 ) -> Optional[str]:
@@ -2643,3 +2657,65 @@ def fetch_validation_campaign_decisions(
         .execute()
     )
     return [dict(x) for x in (r.data or [])]
+
+
+# --- Phase 17 public substrate depth ---
+
+
+def smoke_phase17_public_depth_tables(client: Client) -> None:
+    client.table("public_depth_runs").select("id").limit(1).execute()
+
+
+def insert_public_depth_run(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_depth_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_depth_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def update_public_depth_run(client: Client, *, run_id: str, patch: dict[str, Any]) -> None:
+    client.table("public_depth_runs").update(patch).eq("id", run_id).execute()
+
+
+def fetch_public_depth_run(
+    client: Client, *, run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("public_depth_runs")
+        .select("*")
+        .eq("id", run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def insert_public_depth_coverage_report(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_depth_coverage_reports").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_depth_coverage_reports insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_public_depth_coverage_report(
+    client: Client, *, report_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("public_depth_coverage_reports")
+        .select("*")
+        .eq("id", report_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def insert_public_depth_uplift_report(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_depth_uplift_reports").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_depth_uplift_reports insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])

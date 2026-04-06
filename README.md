@@ -416,6 +416,23 @@ python3 src/main.py report-program-survival-distribution --program-id PASTE_PROG
 python3 src/main.py export-validation-decision-brief --campaign-run-id PASTE_CAMPAIGN_RUN_UUID_HERE --out docs/validation_campaign/briefs/latest.json
 ```
 
+## Phase 17 목표 (Public Substrate Depth & Quality Lift)
+
+- **역할**: Phase 16 권고 `public_data_depth_first`에 맞춰 **공개 기판 두께·조인 가능성·품질 쉐어**를 유니버스 단위로 **결정적으로 측정**하고, 선택적 **전역 상한 빌드**(검증 패널·선행수익·유니버스 CIK factor) 후 **before/after·uplift**를 DB에 남긴다. **제품 스코어 경로 비침투**(`state_change.runner`는 `public_depth` 미참조).
+- **코드**: `src/public_depth/`, `src/db/records.py`(Phase 17 CRUD).
+- **CLI**: `smoke-phase17-public-depth`, `run-public-depth-expansion`, `report-public-depth-coverage`, `report-quality-uplift`, `report-research-readiness`, `export-public-depth-brief`
+- **증거**: `docs/phase17_evidence.md` · 마이그레이션 `20250420100000_phase17_public_depth.sql`
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-phase17-public-depth
+python3 src/main.py report-public-depth-coverage --universe YOUR_UNIVERSE_NAME
+python3 src/main.py run-public-depth-expansion --universe YOUR_UNIVERSE_NAME --run-validation-panels --validation-panel-limit 2000
+python3 src/main.py report-quality-uplift --before-report-id <UUID> --after-report-id <UUID>
+python3 src/main.py report-research-readiness --program-id PASTE_PROGRAM_UUID_HERE
+python3 src/main.py export-public-depth-brief --universe YOUR_UNIVERSE_NAME --out docs/public_depth/briefs/latest.json
+```
+
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
 
 **목적**: 시장 가격만 넓고 SEC/XBRL/스냅샷/팩터/검증 스파인이 샘플 수준일 때, **수동 INSERT 없이** 기존 파이프라인을 순서대로 묶어 `issuer_master` → `factor_market_validation_panels` 까지 채움. **백테스트·포트폴리오·AI harness·UI 확장 아님.**

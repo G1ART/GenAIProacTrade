@@ -53,6 +53,9 @@
 | `validation_campaign_runs` | Phase 16 프로그램 단위 캠페인: `policy_version`, `run_mode`, 집계 JSON, `recommendation`, `rationale_json`. |
 | `validation_campaign_members` | 캠페인에 포함된 가설별 `validation_run_id`, 생존·베이스라인·취약성·프리미엄 힌트 요약 JSON. |
 | `validation_campaign_decisions` | 권고 1건·근거 텍스트·임계값·반증 시 다음 행동 JSON. |
+| `public_depth_runs` | Phase 17 공개 기판 확장 오케스트레이션: `universe_name`, `policy_version`, `status`, `expansion_summary_json`. |
+| `public_depth_coverage_reports` | 유니버스별 커버리지 스냅샷: `snapshot_label`(before/after/standalone), `metrics_json`, `exclusion_distribution_json`; `public_depth_run_id` nullable. |
+| `public_depth_uplift_reports` | before/after 커버리지 리포트 FK와 `uplift_metrics_json`. |
 | `scanner_runs` | 일일 스캐너 실행; `policy_json`(top_n, floor 등). |
 | `daily_signal_snapshots` | 스캐너 run당 1행 집계 `stats_json`. |
 | `daily_watchlist_entries` | 저잡음 우선순위 워치리스트; thesis/challenge/uncertainty + message 필드·Phase 10 `overlay_awareness_json`·Phase 11 `transcript_enrichment_json`(선택 메시지 보강; 스코어 비사용). |
