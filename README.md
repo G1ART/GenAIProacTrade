@@ -321,8 +321,8 @@ python3 src/main.py report-overlay-gap
 ## Phase 11 목표 (단일 벤더 트랜스크립트 PoC — FMP)
 
 - **역할**: Phase 10 오버레이 seam에 **실제 1경로**(Financial Modeling Prep `earning_call_transcript` v3)만 연결. `FMP_API_KEY` 없으면 **가짜 성공 없이** `not_configured` / `configuration_error` 감사. 공개 SEC/XBRL 스파인·점수 로직 **비변경**.
-- **저장소**: `20250414100000_phase11_transcripts_fmp_poc.sql` — `transcript_ingest_runs`, `raw_transcript_payloads_fmp`, `normalized_transcripts`, `daily_watchlist_entries.transcript_enrichment_json`.
-- **코드**: `src/sources/fmp_transcript_client.py`, `transcripts_provider_binding.py`, `transcripts_normalizer.py`, `transcripts_ingest.py`; 스캐너 `src/scanner/transcript_enrichment.py` + `daily_build`에서 `message_why_matters` 선택 보강.
+- **저장소**: `20250414100000_phase11_transcripts_fmp_poc.sql` + **11.1** `20250415100000_phase111_transcript_audit_pit.sql` (`raw_transcript_payloads_fmp_history`).
+- **코드**: `src/sources/fmp_transcript_client.py`, `transcripts_provider_binding.py`, `transcripts_normalizer.py`, `transcripts_ingest.py`; 스캐너 `transcript_enrichment.py`(PIT-safe) + `daily_build`.
 - **CLI**: `probe-transcripts-provider`, `ingest-transcripts-sample`, `report-transcripts-overlay-status`, (선택) `export-transcript-normalization-sample`.
 - **증거**: `docs/phase11_evidence.md`.
 
@@ -333,6 +333,19 @@ python3 src/main.py probe-transcripts-provider
 python3 src/main.py ingest-transcripts-sample --symbol AAPL --year 2020 --quarter 3
 python3 src/main.py report-transcripts-overlay-status
 python3 src/main.py export-transcript-normalization-sample --ticker AAPL
+```
+
+## Phase 12 목표 (공개 코어 full-cycle)
+
+- **역할**: 프리미엄 없이 **state change → harness → memo → casebook → watchlist** 를 한 CLI로 실행하고 `docs/public_core_cycle/latest/` 에 요약 번들 기록. 빈 워치리스트는 실패로 취급하지 않음.
+- **코드**: `src/public_core/cycle.py`
+- **CLI**: `run-public-core-cycle`, `report-public-core-cycle`
+- **증거**: `docs/phase12_evidence.md`
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py run-public-core-cycle --universe sp500_current
+python3 src/main.py report-public-core-cycle
 ```
 
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)

@@ -68,13 +68,74 @@ def test_normalize_fmp_payload_ok() -> None:
     return_value=None,
 )
 @patch(
-    "scanner.transcript_enrichment.dbrec.fetch_latest_normalized_transcript_for_ticker",
-    return_value=None,
+    "scanner.transcript_enrichment.dbrec.fetch_normalized_transcripts_for_ticker_recent",
+    return_value=[],
 )
 def test_transcript_enrichment_no_row(_mock_norm: object, _mock_ov: object) -> None:
     enr = build_transcript_enrichment_for_ticker(MagicMock(), ticker="ZZZZ")
     assert enr["normalized_transcript_row_present"] is False
     assert optional_why_matters_transcript_clause(enr) == ""
+
+
+def test_pit_transcript_excludes_future_row() -> None:
+    from scanner.transcript_enrichment import build_transcript_enrichment_for_candidate_context
+
+    future_row = {
+        "id": "f1",
+        "normalization_status": "ok",
+        "transcript_text": "hello",
+        "available_at": "2025-06-01T00:00:00+00:00",
+        "fiscal_period": "2025-Q2",
+        "provenance_json": {},
+    }
+    past_row = {
+        "id": "p1",
+        "normalization_status": "ok",
+        "transcript_text": "old",
+        "available_at": "2020-01-01T00:00:00+00:00",
+        "fiscal_period": "2019-Q4",
+        "provenance_json": {},
+    }
+    client = MagicMock()
+
+    def _recent(*_a, **_k):
+        return [future_row, past_row]
+
+    with patch(
+        "scanner.transcript_enrichment.dbrec.fetch_normalized_transcripts_for_ticker_recent",
+        side_effect=_recent,
+    ), patch(
+        "scanner.transcript_enrichment.dbrec.fetch_source_overlay_availability_by_key",
+        return_value={"availability": "partial"},
+    ):
+        enr = build_transcript_enrichment_for_candidate_context(
+            client, ticker="X", as_of_calendar_date="2020-03-15"
+        )
+    assert enr.get("normalized_transcript_id") == "p1"
+    assert enr.get("pit_effective_date_used") == "2020-01-01"
+
+
+def test_pit_transcript_no_anchor_excluded() -> None:
+    from scanner.transcript_enrichment import build_transcript_enrichment_for_candidate_context
+
+    no_dates = {
+        "id": "n1",
+        "normalization_status": "ok",
+        "transcript_text": "x",
+        "provenance_json": {},
+    }
+    client = MagicMock()
+    with patch(
+        "scanner.transcript_enrichment.dbrec.fetch_normalized_transcripts_for_ticker_recent",
+        return_value=[no_dates],
+    ), patch(
+        "scanner.transcript_enrichment.dbrec.fetch_source_overlay_availability_by_key",
+        return_value=None,
+    ):
+        enr = build_transcript_enrichment_for_candidate_context(
+            client, ticker="X", as_of_calendar_date="2020-03-15"
+        )
+    assert enr["reason"] == "no_pit_safe_normalized_row"
 
 
 def test_run_fmp_probe_not_configured(monkeypatch: pytest.MonkeyPatch) -> None:

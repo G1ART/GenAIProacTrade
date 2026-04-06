@@ -22,6 +22,29 @@ def _raw_json_blob(payload: Any) -> Any:
     return {"_non_object_payload": str(payload)[:8000]}
 
 
+def _apply_fmp_registry_after_probe(client: Any, probe_status: str) -> None:
+    """active only on verified partial/available probe; else inactive (no stale active)."""
+    if probe_status in (bind.AVAILABLE, bind.PARTIAL):
+        dbrec.patch_data_source_registry_activation(
+            client, source_id=SOURCE_REGISTRY_ID, activation_status="active"
+        )
+    else:
+        dbrec.patch_data_source_registry_activation(
+            client, source_id=SOURCE_REGISTRY_ID, activation_status="inactive"
+        )
+
+
+def _apply_fmp_registry_after_ingest_overlay(client: Any, avail_db: str) -> None:
+    if avail_db in ("available", "partial"):
+        dbrec.patch_data_source_registry_activation(
+            client, source_id=SOURCE_REGISTRY_ID, activation_status="active"
+        )
+    else:
+        dbrec.patch_data_source_registry_activation(
+            client, source_id=SOURCE_REGISTRY_ID, activation_status="inactive"
+        )
+
+
 def run_fmp_probe_and_update_overlay(
     client: Any,
     settings: Settings,
@@ -45,10 +68,7 @@ def run_fmp_probe_and_update_overlay(
         run_type="transcript_fmp_probe_v1",
         payload_json={"probe": pr, "operational_run_id": operational_run_id},
     )
-    if pr["probe_status"] in (bind.AVAILABLE, bind.PARTIAL):
-        dbrec.patch_data_source_registry_activation(
-            client, source_id=SOURCE_REGISTRY_ID, activation_status="active"
-        )
+    _apply_fmp_registry_after_probe(client, str(pr.get("probe_status") or ""))
     return pr
 
 
@@ -68,6 +88,8 @@ def run_fmp_sample_ingest(
 
     sym = symbol.upper().strip()
     key = str(settings.fmp_api_key).strip()
+    fiscal_period = f"{year}-Q{quarter}"
+
     try:
         http_status, payload = fetch_earning_call_transcript(
             key, symbol=sym, year=year, quarter=quarter
@@ -107,6 +129,7 @@ def run_fmp_sample_ingest(
                 "operational_run_id": operational_run_id,
             },
         )
+        _apply_fmp_registry_after_ingest_overlay(client, "not_available_yet")
         raise
 
     classify = bind.classify_fmp_http_response(http_status, payload)
@@ -126,6 +149,14 @@ def run_fmp_sample_ingest(
         },
     )
 
+    dbrec.archive_raw_transcript_payload_fmp_before_upsert(
+        client,
+        symbol=sym,
+        fiscal_year=year,
+        fiscal_quarter=quarter,
+        ingest_run_id=ingest_run_id,
+    )
+
     raw_id = dbrec.upsert_raw_transcript_payload_fmp(
         client,
         symbol=sym,
@@ -137,6 +168,15 @@ def run_fmp_sample_ingest(
     )
 
     issuer_id = dbrec.fetch_issuer_id_for_ticker(client, ticker=sym)
+    prior = dbrec.fetch_normalized_transcript_by_period(
+        client,
+        provider_name="financial_modeling_prep",
+        ticker=sym,
+        fiscal_period=fiscal_period,
+    )
+    pid = str(prior["id"]) if prior and prior.get("id") else None
+    prev_rev = str(prior["revision_id"]) if prior and prior.get("revision_id") else None
+
     norm_row = normalize_fmp_earning_call_payload(
         ticker=sym,
         fiscal_year=year,
@@ -145,6 +185,9 @@ def run_fmp_sample_ingest(
         payload=payload,
         raw_payload_fmp_id=raw_id,
         issuer_id=issuer_id,
+        ingest_run_id=ingest_run_id,
+        prior_normalized_id=pid,
+        prior_revision_id=prev_rev,
     )
 
     norm_id: Optional[str] = None
@@ -193,10 +236,7 @@ def run_fmp_sample_ingest(
             "operational_run_id": operational_run_id,
         },
     )
-    if avail_db in ("available", "partial"):
-        dbrec.patch_data_source_registry_activation(
-            client, source_id=SOURCE_REGISTRY_ID, activation_status="active"
-        )
+    _apply_fmp_registry_after_ingest_overlay(client, avail_db)
 
     return {
         "symbol": sym,

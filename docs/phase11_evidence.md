@@ -18,8 +18,9 @@ python3 src/main.py export-transcript-normalization-sample --ticker AAPL
 python3 -m pytest tests/test_phase11_transcripts.py -q
 ```
 
-- **자격 없음**: `probe-transcripts-provider`는 `truthful_blocked`, `operational_runs`에 `configuration_error`로 남을 수 있음(구현: `finish_failed`).
-- **자격 있음**: `source_overlay_availability.availability`가 `partial` 또는 `available`로 갱신될 수 있음; `source_overlay_runs`, `transcript_ingest_runs`, `operational_runs`에 흔적.
+- **자격 없음**: `probe-transcripts-provider`와 `ingest-transcripts-sample` 모두 세션을 연 뒤 `configuration_error`로 차단(`finish_failed`); JSON에 `truthful_blocked`·`operational_run_id` 가능.
+- **자격 있음**: `source_overlay_availability`·`source_overlay_runs`·`transcript_ingest_runs`·`operational_runs`에 흔적.
+- **Phase 11.1**: PIT-safe 워치리스트 보강, `raw_transcript_payloads_fmp_history` 감사, `data_source_registry.activation_status` 는 프로브/ingest 결과에 맞춰 active/inactive 동기화.
 
 ## `partial` vs `available` (트랜스크립트 오버레이)
 
@@ -28,7 +29,7 @@ python3 -m pytest tests/test_phase11_transcripts.py -q
 
 ## 다운스트림
 
-- **일일 워치리스트** (`run_daily_scanner_build`): `transcript_enrichment_json` + 정규화 행이 메시지 준비 상태일 때만 `message_why_matters`에 **한 문장** 컨텍스트(본문 전체 비주입). 스코어·랭킹 **불변**.
+- **일일 워치리스트** (`run_daily_scanner_build`): `transcript_enrichment_json`는 **티커+후보 as_of_date** 기준 PIT-safe 행만; 메시지 한 문장은 해당 시에만. 스코어·랭킹 **불변**.
 
 ## DB 샘플 쿼리 (SQL Editor)
 

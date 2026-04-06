@@ -1846,6 +1846,10 @@ def hypothesis_exists_by_title(client: Client, *, title: str) -> bool:
 def smoke_source_registry_tables(client: Client) -> None:
     client.table("data_source_registry").select("source_id").limit(1).execute()
     client.table("source_overlay_availability").select("overlay_key").limit(1).execute()
+    try:
+        client.table("raw_transcript_payloads_fmp_history").select("id").limit(1).execute()
+    except Exception:
+        pass
 
 
 def fetch_data_source_registry_all(client: Client) -> list[dict[str, Any]]:
@@ -1986,6 +1990,86 @@ def patch_data_source_registry_activation(
     ).eq("source_id", source_id).execute()
 
 
+def fetch_raw_transcript_payload_fmp(
+    client: Client,
+    *,
+    symbol: str,
+    fiscal_year: int,
+    fiscal_quarter: int,
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("raw_transcript_payloads_fmp")
+        .select("*")
+        .eq("symbol", symbol.upper().strip())
+        .eq("fiscal_year", int(fiscal_year))
+        .eq("fiscal_quarter", int(fiscal_quarter))
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def insert_raw_transcript_payload_fmp_history(
+    client: Client,
+    *,
+    symbol: str,
+    fiscal_year: int,
+    fiscal_quarter: int,
+    http_status: Optional[int],
+    raw_response_json: Any,
+    superseded_raw_payload_id: Optional[str],
+    ingest_run_id: Optional[str],
+) -> str:
+    row = {
+        "symbol": symbol.upper().strip(),
+        "fiscal_year": int(fiscal_year),
+        "fiscal_quarter": int(fiscal_quarter),
+        "http_status": http_status,
+        "raw_response_json": raw_response_json,
+        "superseded_raw_payload_id": superseded_raw_payload_id,
+        "ingest_run_id": ingest_run_id,
+    }
+    res = client.table("raw_transcript_payloads_fmp_history").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("raw_transcript_payloads_fmp_history insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def archive_raw_transcript_payload_fmp_before_upsert(
+    client: Client,
+    *,
+    symbol: str,
+    fiscal_year: int,
+    fiscal_quarter: int,
+    ingest_run_id: Optional[str],
+) -> Optional[str]:
+    """
+    If a latest raw row exists, copy it to history before upsert (audit trail).
+    Returns new history row id or None.
+    """
+    ex = fetch_raw_transcript_payload_fmp(
+        client,
+        symbol=symbol,
+        fiscal_year=fiscal_year,
+        fiscal_quarter=fiscal_quarter,
+    )
+    if not ex:
+        return None
+    rid = ex.get("id")
+    return insert_raw_transcript_payload_fmp_history(
+        client,
+        symbol=symbol,
+        fiscal_year=fiscal_year,
+        fiscal_quarter=fiscal_quarter,
+        http_status=ex.get("http_status"),
+        raw_response_json=ex.get("raw_response_json") or {},
+        superseded_raw_payload_id=str(rid) if rid is not None else None,
+        ingest_run_id=ingest_run_id,
+    )
+
+
 def upsert_raw_transcript_payload_fmp(
     client: Client,
     *,
@@ -2036,6 +2120,46 @@ def fetch_latest_normalized_transcript_for_ticker(
         .eq("ticker", ticker.upper().strip())
         .eq("provider_name", provider_name)
         .order("ingested_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_normalized_transcripts_for_ticker_recent(
+    client: Client,
+    *,
+    ticker: str,
+    provider_name: str = "financial_modeling_prep",
+    limit: int = 200,
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("normalized_transcripts")
+        .select("*")
+        .eq("ticker", ticker.upper().strip())
+        .eq("provider_name", provider_name)
+        .order("ingested_at", desc=True)
+        .limit(int(limit))
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_normalized_transcript_by_period(
+    client: Client,
+    *,
+    provider_name: str,
+    ticker: str,
+    fiscal_period: str,
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("normalized_transcripts")
+        .select("*")
+        .eq("provider_name", provider_name)
+        .eq("ticker", ticker.upper().strip())
+        .eq("fiscal_period", fiscal_period)
         .limit(1)
         .execute()
     )

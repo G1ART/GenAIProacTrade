@@ -1,4 +1,4 @@
-# DB 스키마 메모 (Phase 0–11)
+# DB 스키마 메모 (Phase 0–12)
 
 ## 데이터 계층 역할
 
@@ -52,6 +52,7 @@
 | `source_overlay_gap_reports` | `report-overlay-gap --persist` 저장용 ROI/갭 JSON. |
 | `transcript_ingest_runs` | Phase 11 FMP PoC: 프로브/ingest 감사(`provider_code`, `operation`, `probe_status`, `detail_json`). |
 | `raw_transcript_payloads_fmp` | FMP `earning_call_transcript` 원문 JSON(`symbol`,`fiscal_year`,`fiscal_quarter` 유니크). |
+| `raw_transcript_payloads_fmp_history` | Phase 11.1: upsert 전 **이전 raw** 스냅샷(불변 감사). |
 | `normalized_transcripts` | PIT 메타 포함 정규화 본문(`provider_name`,`ticker`,`fiscal_period` 유니크); 결정적 스파인과 분리. |
 | `backfill_orchestration_runs` | **유니버스 백필** 상위 실행 메타. `mode`·`universe_name`·`summary_json`(retry_tickers 등). |
 | `backfill_stage_events` | 백필 **스테이지별** 행 수·에러·`notes_json`. `ingest_runs` 와 별도 감사. |

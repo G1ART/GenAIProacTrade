@@ -1373,18 +1373,6 @@ def _cmd_ingest_transcripts_sample(args: argparse.Namespace) -> int:
     settings = load_settings()
     configure_logging()
     client = get_supabase_client(settings)
-    if not bind.fmp_api_key_present(settings):
-        print(
-            json.dumps(
-                {
-                    "ok": False,
-                    "error": "FMP_API_KEY_not_configured",
-                    "truthful_blocked": True,
-                },
-                indent=2,
-            )
-        )
-        return 1
     with OperationalRunSession(
         client,
         run_type="transcript_overlay",
@@ -1396,6 +1384,25 @@ def _cmd_ingest_transcripts_sample(args: argparse.Namespace) -> int:
             "quarter": args.quarter,
         },
     ) as op:
+        if not bind.fmp_api_key_present(settings):
+            op.finish_failed(
+                error_class="configuration_error",
+                error_code="FMP_API_KEY_missing",
+                message="ingest blocked: FMP_API_KEY not configured",
+                failure_category="configuration_error",
+            )
+            print(
+                json.dumps(
+                    {
+                        "ok": True,
+                        "truthful_blocked": True,
+                        "error": "FMP_API_KEY_not_configured",
+                        "operational_run_id": op.operational_run_id,
+                    },
+                    indent=2,
+                )
+            )
+            return 1
         try:
             out = run_fmp_sample_ingest(
                 client,
@@ -1465,6 +1472,104 @@ def _cmd_export_transcript_normalization_sample(args: argparse.Namespace) -> int
     redacted["transcript_text_len"] = len(str(row.get("transcript_text") or ""))
     redacted["transcript_text_prefix_120"] = str(row.get("transcript_text") or "")[:120]
     print(json.dumps({"ok": True, "row": redacted}, indent=2, default=str))
+    return 0
+
+
+def _cmd_run_public_core_cycle(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from observability.run_logger import OperationalRunSession
+    from public_core.cycle import default_cycle_out_dir, run_public_core_cycle
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = Path(args.out_dir).expanduser() if args.out_dir else None
+    with OperationalRunSession(
+        client,
+        run_type="public_core_cycle",
+        component="run_public_core_cycle_v1",
+        metadata_json={
+            "cli": "run-public-core-cycle",
+            "universe": args.universe,
+            "ensure_state_change": bool(args.ensure_state_change),
+        },
+    ) as op:
+        try:
+            payload = run_public_core_cycle(
+                client,
+                settings,
+                universe=str(args.universe),
+                state_change_run_id=args.state_change_run_id,
+                ensure_state_change=bool(args.ensure_state_change),
+                factor_version=str(args.factor_version or "v1"),
+                state_change_limit=int(args.state_change_limit),
+                harness_limit=int(args.harness_limit),
+                memo_limit=int(args.memo_limit),
+                casebook_candidate_limit=int(args.casebook_candidate_limit),
+                scanner_candidate_limit=int(args.scanner_candidate_limit),
+                scanner_top_n=int(args.scanner_top_n),
+                min_priority_score=float(args.min_priority_score),
+                max_candidate_rank=int(args.max_candidate_rank),
+                as_of_calendar_date=args.as_of_date,
+                out_dir=out,
+            )
+        except Exception as e:
+            op.finish_failed(
+                error_class="execution_error",
+                error_code="public_core_cycle_exception",
+                message=str(e),
+                failure_category="execution_error",
+            )
+            print(json.dumps({"ok": False, "error": str(e)}, indent=2))
+            return 1
+        if not payload.get("ok"):
+            op.finish_failed(
+                error_class="pipeline",
+                error_code=str(payload.get("error") or "cycle_not_ok"),
+                message=str(payload.get("hint") or payload.get("error") or "")[:2000],
+                failure_category="configuration_error",
+            )
+        else:
+            n_warn = len(payload.get("warnings") or [])
+            wl = 0
+            for s in payload.get("stages") or []:
+                if s.get("name") == "scanner_watchlist" and isinstance(s.get("out"), dict):
+                    wl = int((s["out"] or {}).get("watchlist_entries") or 0)
+            op.finish_success(
+                rows_read=len(payload.get("stages") or []),
+                rows_written=max(1, wl + 1),
+                warnings_count=n_warn,
+                trace_json={
+                    "state_change_run_id": payload.get("state_change_run_id"),
+                    "out_dir": str(out or default_cycle_out_dir()),
+                },
+            )
+    print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+    return 0 if payload.get("ok") else 1
+
+
+def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from public_core.cycle import default_cycle_out_dir, load_latest_cycle_summary
+
+    base = Path(args.out_dir).expanduser() if args.out_dir else default_cycle_out_dir()
+    summary = load_latest_cycle_summary(base=base)
+    if not summary:
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": "no_cycle_summary",
+                    "hint": f"Run run-public-core-cycle first (writes {base / 'cycle_summary.json'})",
+                },
+                indent=2,
+            )
+        )
+        return 1
+    print(json.dumps(summary, indent=2, ensure_ascii=False, default=str))
     return 0
 
 
@@ -2173,6 +2278,45 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p11d.add_argument("--ticker", default="AAPL")
     p11d.set_defaults(func=_cmd_export_transcript_normalization_sample)
+
+    p12a = sub.add_parser(
+        "run-public-core-cycle",
+        help="Phase 12: 공개 코어 end-to-end (state change → harness → memo → casebook → watchlist) + 번들",
+    )
+    p12a.add_argument("--universe", default="sp500_current")
+    p12a.add_argument("--state-change-run-id", default=None, dest="state_change_run_id")
+    p12a.add_argument(
+        "--ensure-state-change",
+        action="store_true",
+        help="completed run 없으면 run_state_change 한 번 시도(패널 전제)",
+    )
+    p12a.add_argument("--factor-version", default="v1")
+    p12a.add_argument("--state-change-limit", type=int, default=200)
+    p12a.add_argument("--harness-limit", type=int, default=500)
+    p12a.add_argument("--memo-limit", type=int, default=500)
+    p12a.add_argument("--casebook-candidate-limit", type=int, default=600)
+    p12a.add_argument("--scanner-candidate-limit", type=int, default=500)
+    p12a.add_argument("--scanner-top-n", type=int, default=15)
+    p12a.add_argument("--min-priority-score", type=float, default=20.0)
+    p12a.add_argument("--max-candidate-rank", type=int, default=60)
+    p12a.add_argument("--as-of-date", default=None, dest="as_of_date")
+    p12a.add_argument(
+        "--out-dir",
+        default=None,
+        help="기본: docs/public_core_cycle/latest",
+    )
+    p12a.set_defaults(func=_cmd_run_public_core_cycle)
+
+    p12b = sub.add_parser(
+        "report-public-core-cycle",
+        help="Phase 12: 마지막 run-public-core-cycle 요약 JSON 재출력",
+    )
+    p12b.add_argument(
+        "--out-dir",
+        default=None,
+        help="cycle_summary.json 위치(기본 docs/public_core_cycle/latest)",
+    )
+    p12b.set_defaults(func=_cmd_report_public_core_cycle)
 
     return p
 

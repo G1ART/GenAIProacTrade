@@ -19,14 +19,27 @@ def normalize_fmp_earning_call_payload(
     payload: Any,
     raw_payload_fmp_id: Optional[str],
     issuer_id: Optional[str],
+    ingest_run_id: Optional[str] = None,
+    prior_normalized_id: Optional[str] = None,
+    prior_revision_id: Optional[str] = None,
 ) -> Optional[dict[str, Any]]:
     """
     Returns row dict for normalized_transcripts insert/upsert, or None if unrecoverable.
-    PIT: event_date vs published_at both set from vendor `date` when present (documented limitation).
+    revision_id: sha256(full transcript utf-8) when text present.
     """
     if http_status != 200:
         return None
     fiscal_period = f"{fiscal_year}-Q{fiscal_quarter}"
+    audit: dict[str, Any] = {
+        "revision_basis": "sha256_utf8_full_transcript",
+    }
+    if ingest_run_id:
+        audit["ingest_run_id"] = ingest_run_id
+    if prior_normalized_id:
+        audit["prior_normalized_id"] = prior_normalized_id
+    if prior_revision_id:
+        audit["prior_revision_id"] = prior_revision_id
+
     if not isinstance(payload, list):
         return _row(
             ticker=ticker,
@@ -41,6 +54,7 @@ def normalize_fmp_earning_call_payload(
             raw_id=raw_payload_fmp_id,
             issuer_id=issuer_id,
             revision_id=None,
+            provenance_extra={"refresh_audit": audit},
         )
     if len(payload) == 0:
         return _row(
@@ -56,6 +70,7 @@ def normalize_fmp_earning_call_payload(
             raw_id=raw_payload_fmp_id,
             issuer_id=issuer_id,
             revision_id=None,
+            provenance_extra={"refresh_audit": audit},
         )
     parts: list[str] = []
     dates: list[str] = []
@@ -73,7 +88,7 @@ def normalize_fmp_earning_call_payload(
     event_d, pub_ts = _parse_vendor_datetime(primary_date)
     rev = None
     if full_text:
-        rev = hashlib.sha256(full_text[:2000].encode()).hexdigest()[:16]
+        rev = hashlib.sha256(full_text.encode("utf-8")).hexdigest()
     status = "ok" if full_text else "empty_segments"
     return _row(
         ticker=ticker,
@@ -88,6 +103,7 @@ def normalize_fmp_earning_call_payload(
         raw_id=raw_payload_fmp_id,
         issuer_id=issuer_id,
         revision_id=rev,
+        provenance_extra={"refresh_audit": audit},
     )
 
 
@@ -119,12 +135,26 @@ def _row(
     raw_id: Optional[str],
     issuer_id: Optional[str],
     revision_id: Optional[str],
+    provenance_extra: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
+    prov: dict[str, Any] = {
+        "vendor": PROVIDER_NAME,
+        "endpoint_family": "earning_call_transcript_v3",
+        "fiscal_year": fiscal_year,
+        "fiscal_quarter": fiscal_quarter,
+        "pit_note": (
+            "FMP date field treated as vendor publish/time of transcript text; "
+            "not assumed same as live call instant."
+        ),
+        "license_note": "FMP subscription terms apply; redistribution per your FMP plan.",
+    }
+    if provenance_extra:
+        prov = {**prov, **provenance_extra}
     return {
         "provider_name": PROVIDER_NAME,
         "source_registry_id": SOURCE_REGISTRY_ID,
         "issuer_id": issuer_id,
-        "ticker": ticker.strip().upper(),
+        "ticker": ticker.upper().strip(),
         "event_date": event_date.isoformat() if event_date else None,
         "fiscal_period": fiscal_period,
         "published_at": published_at,
@@ -133,17 +163,7 @@ def _row(
         "revision_id": revision_id,
         "transcript_text": text,
         "source_rights_class": "premium",
-        "provenance_json": {
-            "vendor": PROVIDER_NAME,
-            "endpoint_family": "earning_call_transcript_v3",
-            "fiscal_year": fiscal_year,
-            "fiscal_quarter": fiscal_quarter,
-            "pit_note": (
-                "FMP date field treated as vendor publish/time of transcript text; "
-                "not assumed same as live call instant."
-            ),
-            "license_note": "FMP subscription terms apply; redistribution per your FMP plan.",
-        },
+        "provenance_json": prov,
         "normalization_status": status,
         "raw_payload_fmp_id": raw_id,
     }

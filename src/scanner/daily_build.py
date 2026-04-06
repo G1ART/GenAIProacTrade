@@ -15,7 +15,7 @@ from scanner.prioritizer import (
     rank_watchlist_candidates,
 )
 from scanner.transcript_enrichment import (
-    build_transcript_enrichment_for_ticker,
+    build_transcript_enrichment_for_candidate_context,
     optional_why_matters_transcript_clause,
 )
 
@@ -149,7 +149,9 @@ def run_daily_scanner_build(
             if lim:
                 regime_w = lim[:500]
 
-        tenr = build_transcript_enrichment_for_ticker(client, ticker=ticker)
+        tenr = build_transcript_enrichment_for_candidate_context(
+            client, ticker=ticker, as_of_calendar_date=as_of_d
+        )
         why_base = (
             f"Ranks in top-{top_n} deterministic attention slice for {universe_name} "
             "without implying price direction."
