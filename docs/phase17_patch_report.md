@@ -3,7 +3,8 @@
 ## Git
 
 - **구현 직전 로컬 `main` tip (참고)**: `e822e9c265b2e1f3c83d2db15d01b26f0dbbd985`
-- **커밋 후 HEAD**: `8420b12` (Phase 17 기능 커밋 `f273b88` 포함; 이후 패치 리포트 정리 커밋 연속)
+- **Phase 17 기능 커밋**: `f273b88` — `feat(phase17): public substrate depth coverage, expansion, uplift evidence`
+- **문서/리포트 후속 커밋**: 그 이후 `main` tip은 `git log --oneline -5` 로 확인 (로컬에 소규모 docs 정리가 추가될 수 있음).
 
 ## 변경 파일
 
