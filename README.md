@@ -378,6 +378,23 @@ python3 src/main.py run-research-referee --hypothesis-id YOUR_HYPOTHESIS_UUID
 python3 src/main.py export-research-dossier --program-id YOUR_PROGRAM_UUID --out docs/research_engine/dossiers/latest.json
 ```
 
+## Phase 15 목표 (Recipe Validation Lab)
+
+- **역할**: Phase 14 `candidate_recipe`·`sandboxed` 가설을 **리뷰가 있는 경우에만** 공개 데이터(`factor_market_validation_panels`×`issuer_state_change_scores`, `next_quarter` excess)로 검증. 명시 베이스라인 3종(state_change / naive null / cap 역순위 프록시), 코호트·연도 슬라이스, **생존 판정**·**실패 사례**·스코어카드(JSON+Markdown). **프로덕션 스코어·워치리스트 비침투**(`state_change.runner`는 `research_validation` 미참조).
+- **코드**: `src/research_validation/`, `src/db/records.py`(Phase 15 CRUD)
+- **CLI**: `smoke-phase15-recipe-validation`, `run-recipe-validation`, `report-recipe-validation`, `compare-recipe-baselines`, `report-recipe-survivors`, `export-recipe-scorecard`
+- **증거**: `docs/phase15_evidence.md` · 마이그레이션 `20250418100000_phase15_recipe_validation_lab.sql`
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-phase15-recipe-validation
+python3 src/main.py run-recipe-validation --hypothesis-id YOUR_HYPOTHESIS_UUID
+python3 src/main.py report-recipe-validation --validation-run-id YOUR_RUN_UUID
+python3 src/main.py compare-recipe-baselines --hypothesis-id YOUR_HYPOTHESIS_UUID
+python3 src/main.py report-recipe-survivors --limit 20
+python3 src/main.py export-recipe-scorecard --hypothesis-id YOUR_HYPOTHESIS_UUID --out docs/research_validation/scorecards/latest.json
+```
+
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
 
 **목적**: 시장 가격만 넓고 SEC/XBRL/스냅샷/팩터/검증 스파인이 샘플 수준일 때, **수동 INSERT 없이** 기존 파이프라인을 순서대로 묶어 `issuer_master` → `factor_market_validation_panels` 까지 채움. **백테스트·포트폴리오·AI harness·UI 확장 아님.**

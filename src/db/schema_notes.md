@@ -1,4 +1,4 @@
-# DB 스키마 메모 (Phase 0–14)
+# DB 스키마 메모 (Phase 0–15)
 
 ## 데이터 계층 역할
 
@@ -45,6 +45,11 @@
 | `research_reviews` | 렌즈별 `pass`/`concern`/`reject`; 라운드 1–2. |
 | `research_referee_decisions` | `kill`/`sandbox`/`candidate_recipe`; `disagreement_json`. |
 | `research_residual_links` | 가설↔잔차 버킷·미해결·프리미엄 힌트(정보). |
+| `recipe_validation_runs` | Phase 15 검증 랩 실행(베이스라인·코호트·창·품질 필터 JSON; state_change·품질 run 링크). |
+| `recipe_validation_results` | 코호트/베이스라인별 결정적 지표(예: 분위 스프레드). |
+| `recipe_validation_comparisons` | 후보 vs 명시 베이스라인 델타·해석 JSON. |
+| `recipe_survival_decisions` | `survives` \| `weak_survival` \| `demote_to_sandbox` \| `archive_failed`. |
+| `recipe_failure_cases` | 실패 맥락·잔차 링크·프리미엄 힌트(연구용). |
 | `scanner_runs` | 일일 스캐너 실행; `policy_json`(top_n, floor 등). |
 | `daily_signal_snapshots` | 스캐너 run당 1행 집계 `stats_json`. |
 | `daily_watchlist_entries` | 저잡음 우선순위 워치리스트; thesis/challenge/uncertainty + message 필드·Phase 10 `overlay_awareness_json`·Phase 11 `transcript_enrichment_json`(선택 메시지 보강; 스코어 비사용). |

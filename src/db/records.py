@@ -2422,3 +2422,153 @@ def fetch_research_residual_links_for_program(
             )
         )
     return out
+
+
+# --- Phase 15 recipe validation lab ---
+
+
+def smoke_phase15_recipe_validation_tables(client: Client) -> None:
+    client.table("recipe_validation_runs").select("id").limit(1).execute()
+
+
+def insert_recipe_validation_run(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("recipe_validation_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("recipe_validation_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def update_recipe_validation_run(
+    client: Client, *, run_id: str, patch: dict[str, Any]
+) -> None:
+    client.table("recipe_validation_runs").update(patch).eq("id", run_id).execute()
+
+
+def fetch_recipe_validation_run(
+    client: Client, *, run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("recipe_validation_runs")
+        .select("*")
+        .eq("id", run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_latest_recipe_validation_run_for_hypothesis(
+    client: Client, *, hypothesis_id: str, status: Optional[str] = "completed"
+) -> Optional[dict[str, Any]]:
+    q = client.table("recipe_validation_runs").select("*").eq("hypothesis_id", hypothesis_id)
+    if status is not None:
+        q = q.eq("status", status)
+    r = q.order("created_at", desc=True).limit(1).execute()
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_recipe_validation_results_for_run(
+    client: Client, *, validation_run_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("recipe_validation_results")
+        .select("*")
+        .eq("validation_run_id", validation_run_id)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_recipe_validation_comparisons_for_run(
+    client: Client, *, validation_run_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("recipe_validation_comparisons")
+        .select("*")
+        .eq("validation_run_id", validation_run_id)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_recipe_survival_for_run(
+    client: Client, *, validation_run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("recipe_survival_decisions")
+        .select("*")
+        .eq("validation_run_id", validation_run_id)
+        .order("created_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_recipe_failure_cases_for_run(
+    client: Client, *, validation_run_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("recipe_failure_cases")
+        .select("*")
+        .eq("validation_run_id", validation_run_id)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_recipe_survivors_recent(
+    client: Client, *, limit: int = 50
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("recipe_survival_decisions")
+        .select("*")
+        .in_("survival_status", ["survives", "weak_survival"])
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def insert_recipe_validation_results_batch(
+    client: Client, rows: list[dict[str, Any]]
+) -> None:
+    if not rows:
+        return
+    step = 50
+    for i in range(0, len(rows), step):
+        client.table("recipe_validation_results").insert(rows[i : i + step]).execute()
+
+
+def insert_recipe_validation_comparisons_batch(
+    client: Client, rows: list[dict[str, Any]]
+) -> None:
+    if not rows:
+        return
+    step = 30
+    for i in range(0, len(rows), step):
+        client.table("recipe_validation_comparisons").insert(rows[i : i + step]).execute()
+
+
+def insert_recipe_survival_decision(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("recipe_survival_decisions").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("recipe_survival_decisions insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def insert_recipe_failure_cases_batch(
+    client: Client, rows: list[dict[str, Any]]
+) -> None:
+    if not rows:
+        return
+    step = 30
+    for i in range(0, len(rows), step):
+        client.table("recipe_failure_cases").insert(rows[i : i + step]).execute()

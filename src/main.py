@@ -1712,6 +1712,115 @@ def _cmd_export_research_dossier(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_smoke_phase15_recipe_validation(_args: argparse.Namespace) -> int:
+    from db.client import get_supabase_client
+    from db.records import smoke_phase15_recipe_validation_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_phase15_recipe_validation_tables(client)
+    print(json.dumps({"ok": True, "recipe_validation_tables": "reachable"}, indent=2))
+    return 0
+
+
+def _cmd_run_recipe_validation(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from research_validation.service import run_recipe_validation
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = run_recipe_validation(
+        client, hypothesis_id=str(args.hypothesis_id), panel_limit=int(args.panel_limit)
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_report_recipe_validation(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from research_validation.service import report_validation_run_bundle
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_validation_run_bundle(
+        client, validation_run_id=str(args.validation_run_id)
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_compare_recipe_baselines(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from research_validation.service import compare_baselines_for_hypothesis
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = compare_baselines_for_hypothesis(client, hypothesis_id=str(args.hypothesis_id))
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_report_recipe_survivors(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from db import records as dbrec
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rows = dbrec.fetch_recipe_survivors_recent(client, limit=int(args.limit))
+    print(json_lib.dumps({"ok": True, "survivors": rows}, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_recipe_scorecard(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from research_validation.service import export_scorecard_for_hypothesis
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_scorecard_for_hypothesis(
+        client,
+        hypothesis_id=str(args.hypothesis_id),
+        validation_run_id=args.validation_run_id,
+    )
+    if not out.get("ok"):
+        print(json_lib.dumps(out, indent=2))
+        return 1
+    dest = Path(args.out).expanduser()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    card = out["scorecard"]
+    md_path = dest.with_suffix(".md") if dest.suffix != ".md" else dest
+    json_path = dest if dest.suffix == ".json" else dest.with_suffix(".json")
+    json_path.write_text(
+        json_lib.dumps(card, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    md_path.write_text(str(out.get("markdown") or ""), encoding="utf-8")
+    print(
+        json_lib.dumps(
+            {"ok": True, "json": str(json_path), "markdown": str(md_path)},
+            indent=2,
+        )
+    )
+    return 0
+
+
 def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
     from pathlib import Path
 
@@ -2561,6 +2670,54 @@ def build_parser() -> argparse.ArgumentParser:
         help="예: docs/research_engine/dossiers/latest.json",
     )
     p14g.set_defaults(func=_cmd_export_research_dossier)
+
+    sp15 = sub.add_parser(
+        "smoke-phase15-recipe-validation",
+        help="Phase 15: recipe_validation_runs 등 검증 랩 테이블 도달",
+    )
+    sp15.set_defaults(func=_cmd_smoke_phase15_recipe_validation)
+
+    p15a = sub.add_parser(
+        "run-recipe-validation",
+        help="Phase 15: 가설(recipe/sandbox) 결정적 검증 실행·DB 적재",
+    )
+    p15a.add_argument("--hypothesis-id", required=True, dest="hypothesis_id")
+    p15a.add_argument("--panel-limit", type=int, default=6000, dest="panel_limit")
+    p15a.set_defaults(func=_cmd_run_recipe_validation)
+
+    p15b = sub.add_parser(
+        "report-recipe-validation",
+        help="Phase 15: validation_run_id 단일 리포트 JSON",
+    )
+    p15b.add_argument("--validation-run-id", required=True, dest="validation_run_id")
+    p15b.set_defaults(func=_cmd_report_recipe_validation)
+
+    p15c = sub.add_parser(
+        "compare-recipe-baselines",
+        help="Phase 15: 최근 완료 검증의 베이스라인 비교 JSON",
+    )
+    p15c.add_argument("--hypothesis-id", required=True, dest="hypothesis_id")
+    p15c.set_defaults(func=_cmd_compare_recipe_baselines)
+
+    p15d = sub.add_parser(
+        "report-recipe-survivors",
+        help="Phase 15: survives / weak_survival 최근 N건",
+    )
+    p15d.add_argument("--limit", type=int, default=30)
+    p15d.set_defaults(func=_cmd_report_recipe_survivors)
+
+    p15e = sub.add_parser(
+        "export-recipe-scorecard",
+        help="Phase 15: 스코어카드 JSON+Markdown (동일 베이스명)",
+    )
+    p15e.add_argument("--hypothesis-id", required=True, dest="hypothesis_id")
+    p15e.add_argument("--validation-run-id", default=None, dest="validation_run_id")
+    p15e.add_argument(
+        "--out",
+        required=True,
+        help="베이스 경로(확장자에 따라 .json/.md 쌍 생성)",
+    )
+    p15e.set_defaults(func=_cmd_export_recipe_scorecard)
 
     return p
 
