@@ -8,7 +8,7 @@
 | 구분 | 값 |
 |------|-----|
 | 패치 직전 | `20c7909` |
-| 패치 적용 후 | `f6187a9` — `feat(phase16): validation campaign orchestrator, decision gate, CLI` |
+| 패치 적용 후 | `8540a5c` — `feat(phase16): validation campaign orchestrator, decision gate, CLI` |
 
 ## 한 문단 요약
 
