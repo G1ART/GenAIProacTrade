@@ -7,8 +7,8 @@
 
 | 구분 | 값 |
 |------|-----|
-| 패치 직전 (로컬 기록) | `c9767e0` — docs(phase14) patch report SHA |
-| 패치 적용 후 | 다음 커밋 SHA (`git log -1`) |
+| 패치 직전 | `c9767e0` |
+| 패치 적용 후 | `0fc9f42` — `feat(phase15): recipe validation lab, baselines, survival, scorecard CLI` |
 
 ## 변경 요약
 
