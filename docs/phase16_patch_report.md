@@ -10,7 +10,8 @@
 | 패치 직전 | `20c7909` — Phase 15 조인(CIK·`as_of≤signal`) 수정 팁 |
 | 기능 머지 | `8540a5c` — `feat(phase16): validation campaign orchestrator, decision gate, CLI` |
 | 문서 후속 | `4469190` … `b696888` — 패치 리포트·tip 문구 정리 (작은 docs 커밋 연쇄) |
-| **저장소 팁 (문서 시점)** | `b696888` |
+| **저장소 팁 (코드·초기 문서)** | `b696888` |
+| **운영 증거 반영 (본 패치 리포트 갱신)** | `7dbdd9b` |
 
 ## 변경 요약
 
