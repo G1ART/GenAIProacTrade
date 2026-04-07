@@ -1,3 +1,28 @@
+# HANDOFF — Phase 20 (Public Repair Iteration Manager & Escalation Gate)
+
+## 현재 제품 위치
+
+- **Phase 11–19**: 이전과 동일(공개 기판·타깃 빌드아웃·수리 캠페인 폐쇄 루프 등).
+- **Phase 20 (본 패치)**: 동일 프로그램에 대해 **반복된 Phase 19 런**을 `public_repair_iteration_series` / `public_repair_iteration_members`로 묶고, `trend_snapshot_json`을 쌓아 **플래토·에스컬레이션**을 결정한다. 권고는 **`continue_public_depth`** \| **`hold_and_repeat_public_repair`** \| **`open_targeted_premium_discovery`**(프리미엄 **발견** 궤도만 열지, 라이브 통합 아님). **골든 패스**: `--program-id latest`(+필요 시 `--universe`)·`--repair-campaign-id latest`로 UUID 수동 추적 최소화. **프로덕션 스코어 경로는 `public_repair_iteration` 미참조**.
+
+## Phase 20로 가능해진 것
+
+1. **`run-public-repair-iteration`**: Phase 19 캠페인 1회 실행 후 시리즈에 멤버 추가 + `public_repair_escalation_decisions` 적재.
+2. **`report-public-repair-iteration-history`**: `--series-id` 또는 `--program-id`(latest 가능).
+3. **`report-public-repair-plateau` / `export-public-repair-escalation-brief`**: 활성 시리즈 기준 재계산·브리프.
+4. **`list-public-repair-series`**, **`report-latest-repair-state`**, **`report-premium-discovery-readiness`**.
+5. Phase 19 **`report-public-repair-campaign` / `compare-*` / `export-public-repair-decision-brief` / `list-repair-campaigns` / `run-public-repair-campaign`**: `latest` 선택자 및 `--universe` 지원.
+
+## 검증·테스트 (로컬)
+
+- `pytest src/tests/test_phase20.py` — **11 passed** (전체 `src/tests`는 패치 후 **253 passed** 기준).
+
+## 마이그레이션 (누적)
+
+- **Phase 20**: `20250423100000_phase20_repair_iteration.sql`
+
+---
+
 # HANDOFF — Phase 19 (Public Repair Campaign & Revalidation Loop)
 
 ## 현재 제품 위치
@@ -9,6 +34,18 @@
 
 - 한 캠페인 런에 대해 **무엇을 시도했는지**, **기판이 개선됐는지**, **재실행이 실제로 돌았는지**, **생존 분포·캠페인 권고가 어떻게 바뀌었는지**, **다음 분기(`continue_public_depth` \| `consider_targeted_premium_seam` \| `repair_insufficient_repeat_buildout`)**가 무엇인지 DB·CLI로 재현한다.
 - **`consider_targeted_premium_seam` 분기는 재실행 증거 없이는 나오지 않는다**(정책 코드 불변식).
+
+## 검증·테스트 결과 (2026-04-06 기준)
+
+| 항목 | 결과 |
+|------|------|
+| Supabase 마이그레이션 `20250422100000_phase19_public_repair_campaign.sql` | 적용 완료(운영자 확인) |
+| `smoke-phase19-public-repair-campaign` | 네 테이블 REST 조회 200, `db_phase19_public_repair_campaign: ok` |
+| `pytest src/tests/test_phase19.py -q` | **14 passed** |
+| `pytest src/tests -q` (전체) | **242 passed** (외부 `edgar` DeprecationWarning만) |
+| `export-public-repair-decision-brief --out docs/public_repair/briefs/latest.json` | `ok: true`, 동명 `.md` 생성(실캠페인 런 ID는 실행마다 상이) |
+
+상세 체크리스트·클로징 순서: `docs/phase19_completion_report.md` · 증거 메모: `docs/phase19_evidence.md`.
 
 ## 운영 후 HANDOFF에 채울 항목 (실행 증거 기준)
 
@@ -22,6 +59,7 @@
 ## 마이그레이션 (누적)
 
 - **Phase 19**: `20250422100000_phase19_public_repair_campaign.sql`
+- **Phase 20**: `20250423100000_phase20_repair_iteration.sql`
 
 ---
 
@@ -51,6 +89,7 @@
 
 - **Phase 18**: `20250421100000_phase18_public_buildout.sql`
 - **Phase 19**: `20250422100000_phase19_public_repair_campaign.sql`
+- **Phase 20**: `20250423100000_phase20_repair_iteration.sql`
 
 ---
 

@@ -2387,6 +2387,20 @@ def fetch_research_programs_recent(client: Client, *, limit: int = 50) -> list[d
     return [dict(x) for x in (r.data or [])]
 
 
+def list_research_programs_for_universe(
+    client: Client, *, universe_name: str, limit: int = 20
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("research_programs")
+        .select("*")
+        .eq("universe_name", universe_name)
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
 def insert_research_hypothesis_object(client: Client, row: dict[str, Any]) -> str:
     res = client.table("research_hypotheses").insert(row).execute()
     if not res.data:
@@ -3031,3 +3045,125 @@ def fetch_latest_validation_campaign_run_for_program(
     if not r.data:
         return None
     return dict(r.data[0])
+
+
+# --- Phase 20 repair iteration / escalation ---
+
+
+def smoke_phase20_repair_iteration_tables(client: Client) -> None:
+    client.table("public_repair_iteration_series").select("id").limit(1).execute()
+    client.table("public_repair_iteration_members").select("id").limit(1).execute()
+    client.table("public_repair_escalation_decisions").select("id").limit(1).execute()
+
+
+def insert_public_repair_iteration_series(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_repair_iteration_series").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_repair_iteration_series insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def update_public_repair_iteration_series(
+    client: Client, *, series_id: str, patch: dict[str, Any]
+) -> None:
+    client.table("public_repair_iteration_series").update(patch).eq("id", series_id).execute()
+
+
+def fetch_public_repair_iteration_series(
+    client: Client, *, series_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("public_repair_iteration_series")
+        .select("*")
+        .eq("id", series_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def list_active_public_repair_iteration_series_for_program(
+    client: Client, *, program_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("public_repair_iteration_series")
+        .select("*")
+        .eq("program_id", program_id)
+        .eq("status", "active")
+        .order("updated_at", desc=True)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def list_public_repair_iteration_series_for_program(
+    client: Client, *, program_id: str, limit: int = 20
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("public_repair_iteration_series")
+        .select("*")
+        .eq("program_id", program_id)
+        .order("updated_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def insert_public_repair_iteration_member(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_repair_iteration_members").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_repair_iteration_members insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def list_public_repair_iteration_members_for_series(
+    client: Client, *, series_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("public_repair_iteration_members")
+        .select("*")
+        .eq("series_id", series_id)
+        .order("sequence_number", desc=False)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_max_sequence_public_repair_iteration_member(
+    client: Client, *, series_id: str
+) -> int:
+    r = (
+        client.table("public_repair_iteration_members")
+        .select("sequence_number")
+        .eq("series_id", series_id)
+        .order("sequence_number", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return 0
+    return int(r.data[0]["sequence_number"])
+
+
+def insert_public_repair_escalation_decision(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_repair_escalation_decisions").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_repair_escalation_decisions insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def list_public_repair_escalation_decisions_for_series(
+    client: Client, *, series_id: str, limit: int = 20
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("public_repair_escalation_decisions")
+        .select("*")
+        .eq("series_id", series_id)
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]

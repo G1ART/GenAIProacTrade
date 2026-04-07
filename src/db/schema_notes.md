@@ -63,6 +63,9 @@
 | `public_repair_campaign_steps` | 캠페인 스텝별 상태·`detail_json`. |
 | `public_repair_revalidation_comparisons` | 전후 생존 분포·캠페인 권고·해석 JSON; 런당 1건(유니크 인덱스). |
 | `public_repair_campaign_decisions` | 정책 버전·근거 JSON과 함께 최종 분기 1건 저장(감사). |
+| `public_repair_iteration_series` | Phase 20 수리 반복 시리즈(`status`, `policy_version`, program·universe). |
+| `public_repair_iteration_members` | 시리즈 멤버: Phase 19 런 FK, `sequence_number`, `trend_snapshot_json`. |
+| `public_repair_escalation_decisions` | 시리즈 에스컬레이션 권고 3분기·플래토 메트릭·반증 JSON. |
 | `scanner_runs` | 일일 스캐너 실행; `policy_json`(top_n, floor 등). |
 | `daily_signal_snapshots` | 스캐너 run당 1행 집계 `stats_json`. |
 | `daily_watchlist_entries` | 저잡음 우선순위 워치리스트; thesis/challenge/uncertainty + message 필드·Phase 10 `overlay_awareness_json`·Phase 11 `transcript_enrichment_json`(선택 메시지 보강; 스코어 비사용). |

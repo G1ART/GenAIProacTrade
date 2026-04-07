@@ -465,7 +465,7 @@ python3 src/main.py export-buildout-brief --universe sp500_current --out docs/pu
 - **역할**: Phase 17/18 진단·수리 이후 **재검증 게이트를 통과하면** Phase 16 캠페인을 `force_rerun`으로 돌리고, 전후 **생존 분포·캠페인 권고**를 비교한 뒤 **단일 최종 분기**(`continue_public_depth` \| `consider_targeted_premium_seam` \| `repair_insufficient_repeat_buildout`)를 DB에 남긴다. **제품 스코어 경로 비침투**(`state_change.runner`는 `public_repair_campaign` 미참조).
 - **코드**: `src/public_repair_campaign/`, `src/db/records.py`(Phase 19 CRUD).
 - **CLI**: `smoke-phase19-public-repair-campaign`, `run-public-repair-campaign`, `report-public-repair-campaign`, `compare-repair-revalidation-outcomes`, `export-public-repair-decision-brief`, `list-repair-campaigns`
-- **증거**: `docs/phase19_evidence.md` · 마이그레이션 `20250422100000_phase19_public_repair_campaign.sql`
+- **증거**: `docs/phase19_evidence.md` · **완료·클로징**: `docs/phase19_completion_report.md` · 마이그레이션 `20250422100000_phase19_public_repair_campaign.sql`
 
 ```bash
 export PYTHONPATH=src
@@ -475,6 +475,21 @@ python3 src/main.py list-repair-campaigns --program-id PASTE_PROGRAM_UUID_HERE
 python3 src/main.py report-public-repair-campaign --repair-campaign-id PASTE_REPAIR_RUN_UUID_HERE
 python3 src/main.py compare-repair-revalidation-outcomes --repair-campaign-id PASTE_REPAIR_RUN_UUID_HERE
 python3 src/main.py export-public-repair-decision-brief --repair-campaign-id PASTE_REPAIR_RUN_UUID_HERE --out docs/public_repair/briefs/latest.json
+```
+
+## Phase 20 목표 (Repair Iteration Manager & Escalation Gate)
+
+- **역할**: Phase 19 런을 **시리즈·멤버·트렌드 스냅샷**으로 누적하고, 결정적 플래토 로직으로 **`continue_public_depth` / `hold_and_repeat_public_repair` / `open_targeted_premium_discovery`** 중 하나를 내린다(프리미엄 **발견** 궤도만; 라이브 통합 아님). **`--program-id latest`**, **`--repair-campaign-id latest`** 등으로 골든 패스에서 UUID 추적을 줄인다. **제품 스코어 경로 비침투**(`public_repair_iteration` 미참조).
+- **코드**: `src/public_repair_iteration/`, `src/db/records.py`(Phase 20 CRUD, `list_research_programs_for_universe`).
+- **CLI**: `smoke-phase20-repair-iteration`, `run-public-repair-iteration`, `report-public-repair-iteration-history`, `report-public-repair-plateau`, `export-public-repair-escalation-brief`, `list-public-repair-series`, `report-latest-repair-state`, `report-premium-discovery-readiness`
+- **증거**: `docs/phase20_evidence.md` · 마이그레이션 `20250423100000_phase20_repair_iteration.sql`
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-phase20-repair-iteration
+python3 src/main.py run-public-repair-iteration --program-id latest --universe sp500_current
+python3 src/main.py report-public-repair-plateau --program-id latest --universe sp500_current
+python3 src/main.py export-public-repair-escalation-brief --program-id latest --universe sp500_current --out docs/public_repair/escalation_latest.json
 ```
 
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
