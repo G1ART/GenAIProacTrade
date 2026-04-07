@@ -2286,6 +2286,396 @@ def _cmd_export_public_depth_brief(args: argparse.Namespace) -> int:
     return 0 if payload.get("ok", True) else 1
 
 
+def _cmd_smoke_phase18_public_buildout(_args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from db.records import smoke_phase18_public_buildout_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_phase18_public_buildout_tables(client)
+    print(
+        json_lib.dumps({"db_phase18_public_buildout": "ok"}, indent=2, ensure_ascii=False)
+    )
+    return 0
+
+
+def _cmd_report_public_exclusion_actions(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from db import records as dbrec
+    from public_buildout.constants import POLICY_VERSION
+    from public_buildout.orchestrator import build_public_exclusion_actions_payload
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = build_public_exclusion_actions_payload(
+        client,
+        universe_name=str(args.universe),
+        panel_limit=int(args.panel_limit),
+    )
+    if getattr(args, "persist", False) and out.get("ok"):
+        rid = dbrec.insert_public_exclusion_action_report(
+            client,
+            {
+                "universe_name": str(args.universe),
+                "policy_version": POLICY_VERSION,
+                "metrics_json": out.get("metrics") or {},
+                "exclusion_distribution_json": out.get("exclusion_distribution") or {},
+                "action_queue_json": out.get("action_queue") or [],
+            },
+        )
+        out["persisted_report_id"] = rid
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_run_targeted_public_buildout(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from public_buildout.orchestrator import run_targeted_public_buildout
+
+    settings = load_settings()
+    configure_logging()
+    out = run_targeted_public_buildout(
+        settings,
+        universe_name=str(args.universe),
+        panel_limit=int(args.panel_limit),
+        max_symbols_factor=int(args.max_symbols_factor),
+        validation_panel_limit=int(args.validation_panel_limit),
+        forward_panel_limit=int(args.forward_panel_limit),
+        state_change_limit=int(args.state_change_limit),
+        attack_validation=not bool(args.no_attack_validation),
+        attack_state_change=not bool(args.no_attack_state_change),
+        attack_forward_returns=not bool(args.no_attack_forward_returns),
+        dry_run=bool(args.dry_run),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_report_buildout_improvement(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from db import records as dbrec
+    from public_buildout.orchestrator import report_buildout_improvement_from_coverage_ids
+
+    before_id: str | None = getattr(args, "before_report_id", None)
+    after_id: str | None = getattr(args, "after_report_id", None)
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+
+    if getattr(args, "from_latest_pair", False):
+        uni = getattr(args, "universe", None)
+        if not uni or not str(uni).strip():
+            print(
+                json_lib.dumps(
+                    {
+                        "ok": False,
+                        "error": "universe_required_with_from_latest_pair",
+                    },
+                    indent=2,
+                )
+            )
+            return 1
+        rows = dbrec.list_public_depth_coverage_reports_for_universe(
+            client, universe_name=str(uni).strip(), limit=2
+        )
+        if len(rows) < 2:
+            print(
+                json_lib.dumps(
+                    {
+                        "ok": False,
+                        "error": "need_at_least_two_persisted_coverage_reports",
+                        "universe_name": str(uni).strip(),
+                        "found_count": len(rows),
+                        "hint": "같은 유니버스로 report-public-depth-coverage --persist 를 "
+                        "전·후 두 번 실행한 뒤 다시 시도하세요.",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 1
+        after_id = str(rows[0]["id"])
+        before_id = str(rows[1]["id"])
+    else:
+        if not before_id or not after_id:
+            print(
+                json_lib.dumps(
+                    {
+                        "ok": False,
+                        "error": "before_after_ids_or_from_latest_pair_required",
+                        "hint": "수동: --before-report-id 와 --after-report-id. "
+                        "자동: --universe U --from-latest-pair (최신 2건: 이전=before, 최신=after).",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 1
+        bad = _exit_unless_uuid("before_report_id", before_id)
+        if bad is not None:
+            return bad
+        bad = _exit_unless_uuid("after_report_id", after_id)
+        if bad is not None:
+            return bad
+
+    out = report_buildout_improvement_from_coverage_ids(
+        client,
+        before_report_id=str(before_id),
+        after_report_id=str(after_id),
+    )
+    if getattr(args, "from_latest_pair", False):
+        out["resolved_before_report_id"] = str(before_id)
+        out["resolved_after_report_id"] = str(after_id)
+        out["universe_name"] = str(getattr(args, "universe", "") or "").strip()
+    if getattr(args, "persist", False) and out.get("ok"):
+        br = dbrec.fetch_public_depth_coverage_report(
+            client, report_id=str(before_id)
+        )
+        ar = dbrec.fetch_public_depth_coverage_report(
+            client, report_id=str(after_id)
+        )
+        bm = br.get("metrics_json") if isinstance(br, dict) else {}
+        am = ar.get("metrics_json") if isinstance(ar, dict) else {}
+        bex = br.get("exclusion_distribution_json") if isinstance(br, dict) else {}
+        aex = ar.get("exclusion_distribution_json") if isinstance(ar, dict) else {}
+        uid = dbrec.insert_public_buildout_improvement_report(
+            client,
+            {
+                "public_buildout_run_id": None,
+                "before_metrics_json": bm if isinstance(bm, dict) else {},
+                "after_metrics_json": am if isinstance(am, dict) else {},
+                "exclusion_before_json": bex if isinstance(bex, dict) else {},
+                "exclusion_after_json": aex if isinstance(aex, dict) else {},
+                "improvement_summary_json": out.get("improvement") or {},
+            },
+        )
+        out["persisted_improvement_id"] = uid
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_report_revalidation_trigger(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from public_buildout.revalidation import build_revalidation_trigger
+
+    bad = _exit_unless_uuid("program_id", args.program_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = build_revalidation_trigger(client, program_id=str(args.program_id))
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_export_buildout_brief(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from public_buildout.orchestrator import build_public_exclusion_actions_payload
+    from public_buildout.revalidation import build_revalidation_trigger
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    base = build_public_exclusion_actions_payload(
+        client,
+        universe_name=str(args.universe),
+        panel_limit=int(args.panel_limit),
+    )
+    payload: dict = {"ok": True, "exclusion_actions": base}
+    if getattr(args, "program_id", None):
+        bad = _exit_unless_uuid("program_id", args.program_id)
+        if bad is not None:
+            return bad
+        payload["revalidation"] = build_revalidation_trigger(
+            client, program_id=str(args.program_id)
+        )
+    dest = Path(args.out).expanduser()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    json_path = dest if dest.suffix == ".json" else dest.with_suffix(".json")
+    md_path = dest if dest.suffix == ".md" else dest.with_suffix(".md")
+    json_path.write_text(
+        json_lib.dumps(payload, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    md_lines = [
+        "# Public build-out brief (Phase 18)",
+        "",
+        "```json",
+        json_lib.dumps(payload, indent=2, ensure_ascii=False, default=str),
+        "```",
+        "",
+    ]
+    md_path.write_text("\n".join(md_lines), encoding="utf-8")
+    print(
+        json_lib.dumps(
+            {"ok": True, "json": str(json_path), "markdown": str(md_path)},
+            indent=2,
+        )
+    )
+    return 0
+
+
+def _cmd_smoke_phase19_public_repair_campaign(_args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from db.records import smoke_phase19_public_repair_campaign_tables
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_phase19_public_repair_campaign_tables(client)
+    print(
+        json_lib.dumps({"db_phase19_public_repair_campaign": "ok"}, indent=2, ensure_ascii=False)
+    )
+    return 0
+
+
+def _cmd_run_public_repair_campaign(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from public_repair_campaign.service import run_public_repair_campaign
+
+    bad = _exit_unless_uuid("program_id", args.program_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    uni = getattr(args, "universe", None)
+    out = run_public_repair_campaign(
+        settings,
+        program_id=str(args.program_id),
+        universe_name=str(uni).strip() if uni else None,
+        dry_run_buildout=bool(args.dry_run_buildout),
+        skip_reruns=bool(args.skip_reruns),
+        panel_limit=int(args.panel_limit),
+        campaign_panel_limit=int(args.campaign_panel_limit),
+        max_symbols_factor=int(args.max_symbols_factor),
+        validation_panel_limit=int(args.validation_panel_limit),
+        forward_panel_limit=int(args.forward_panel_limit),
+        state_change_limit=int(args.state_change_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_report_public_repair_campaign(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from public_repair_campaign.service import report_public_repair_campaign
+
+    bad = _exit_unless_uuid("repair_campaign_id", args.repair_campaign_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_public_repair_campaign(
+        client, repair_campaign_run_id=str(args.repair_campaign_id)
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_compare_repair_revalidation_outcomes(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from public_repair_campaign.service import compare_repair_revalidation_outcomes
+
+    bad = _exit_unless_uuid("repair_campaign_id", args.repair_campaign_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = compare_repair_revalidation_outcomes(
+        client, repair_campaign_run_id=str(args.repair_campaign_id)
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_export_public_repair_decision_brief(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from public_repair_campaign.service import export_public_repair_decision_brief
+
+    bad = _exit_unless_uuid("repair_campaign_id", args.repair_campaign_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_public_repair_decision_brief(
+        client, repair_campaign_run_id=str(args.repair_campaign_id)
+    )
+    if not out.get("ok"):
+        print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+        return 1
+    dest = Path(args.out).expanduser()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    json_path = dest if dest.suffix == ".json" else dest.with_suffix(".json")
+    md_path = dest if dest.suffix == ".md" else dest.with_suffix(".md")
+    brief = out["brief"]
+    json_path.write_text(
+        json_lib.dumps(brief, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    md_path.write_text(str(out.get("markdown") or ""), encoding="utf-8")
+    print(
+        json_lib.dumps(
+            {"ok": True, "json": str(json_path), "markdown": str(md_path)},
+            indent=2,
+        )
+    )
+    return 0
+
+
+def _cmd_list_repair_campaigns(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from public_repair_campaign.service import list_repair_campaigns
+
+    bad = _exit_unless_uuid("program_id", args.program_id)
+    if bad is not None:
+        return bad
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = list_repair_campaigns(
+        client, program_id=str(args.program_id), limit=int(args.limit)
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
+
+
 def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
     from pathlib import Path
 
@@ -3334,6 +3724,202 @@ def build_parser() -> argparse.ArgumentParser:
     p17e.add_argument("--program-id", default=None, dest="program_id")
     p17e.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
     p17e.set_defaults(func=_cmd_export_public_depth_brief)
+
+    sp18 = sub.add_parser(
+        "smoke-phase18-public-buildout",
+        help="Phase 18: public_exclusion_action / public_buildout_* 테이블 도달",
+    )
+    sp18.set_defaults(func=_cmd_smoke_phase18_public_buildout)
+
+    p18a = sub.add_parser(
+        "report-public-exclusion-actions",
+        help="Phase 18: 우세 제외 사유·심볼 큐·권장 수리 액션 JSON",
+    )
+    p18a.add_argument("--universe", required=True)
+    p18a.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p18a.add_argument(
+        "--persist",
+        action="store_true",
+        help="public_exclusion_action_reports 에 스냅샷 저장",
+    )
+    p18a.set_defaults(func=_cmd_report_public_exclusion_actions)
+
+    p18b = sub.add_parser(
+        "run-targeted-public-buildout",
+        help="Phase 18: 제외 사유 인지·상한 있는 공개 기판 수리 실행",
+    )
+    p18b.add_argument("--universe", required=True)
+    p18b.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p18b.add_argument(
+        "--max-symbols-factor",
+        type=int,
+        default=50,
+        dest="max_symbols_factor",
+        help="no_validation_panel 대상 factor 패널 빌드 심볼 상한",
+    )
+    p18b.add_argument(
+        "--validation-panel-limit",
+        type=int,
+        default=2000,
+        dest="validation_panel_limit",
+    )
+    p18b.add_argument(
+        "--forward-panel-limit",
+        type=int,
+        default=2000,
+        dest="forward_panel_limit",
+    )
+    p18b.add_argument(
+        "--state-change-limit",
+        type=int,
+        default=400,
+        dest="state_change_limit",
+    )
+    p18b.add_argument(
+        "--no-attack-validation",
+        action="store_true",
+        dest="no_attack_validation",
+    )
+    p18b.add_argument(
+        "--no-attack-state-change",
+        action="store_true",
+        dest="no_attack_state_change",
+    )
+    p18b.add_argument(
+        "--no-attack-forward-returns",
+        action="store_true",
+        dest="no_attack_forward_returns",
+    )
+    p18b.add_argument(
+        "--dry-run",
+        action="store_true",
+        dest="dry_run",
+        help="빌드 없이 타깃 제외 목록만 확정·런 행 기록",
+    )
+    p18b.set_defaults(func=_cmd_run_targeted_public_buildout)
+
+    p18c = sub.add_parser(
+        "report-buildout-improvement",
+        help="Phase 18: 두 public_depth_coverage_reports ID로 제외·기판 델타",
+    )
+    p18c.add_argument(
+        "--before-report-id",
+        default=None,
+        dest="before_report_id",
+        help="수동 모드: 이전 스냅샷 persisted_report_id",
+    )
+    p18c.add_argument(
+        "--after-report-id",
+        default=None,
+        dest="after_report_id",
+        help="수동 모드: 이후 스냅샷 persisted_report_id",
+    )
+    p18c.add_argument(
+        "--universe",
+        default=None,
+        help="--from-latest-pair 와 함께: 해당 유니버스 최신 2건으로 before/after 자동 선택",
+    )
+    p18c.add_argument(
+        "--from-latest-pair",
+        action="store_true",
+        dest="from_latest_pair",
+        help="created_at 기준 최신=after, 그다음=before (UUID 복사 불필요)",
+    )
+    p18c.add_argument(
+        "--persist",
+        action="store_true",
+        help="public_buildout_improvement_reports 에 저장(run_id 없음)",
+    )
+    p18c.set_defaults(func=_cmd_report_buildout_improvement)
+
+    p18d = sub.add_parser(
+        "report-revalidation-trigger",
+        help="Phase 18: Phase15/Phase16 재실행 권고(별도 불리언)",
+    )
+    p18d.add_argument("--program-id", required=True, dest="program_id")
+    p18d.set_defaults(func=_cmd_report_revalidation_trigger)
+
+    p18e = sub.add_parser(
+        "export-buildout-brief",
+        help="Phase 18: 제외 액션 브리프 JSON+Markdown",
+    )
+    p18e.add_argument("--universe", required=True)
+    p18e.add_argument("--out", required=True)
+    p18e.add_argument("--program-id", default=None, dest="program_id")
+    p18e.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p18e.set_defaults(func=_cmd_export_buildout_brief)
+
+    p19s = sub.add_parser(
+        "smoke-phase19-public-repair-campaign",
+        help="Phase 19: repair campaign / comparison / decision 테이블 도달",
+    )
+    p19s.set_defaults(func=_cmd_smoke_phase19_public_repair_campaign)
+
+    p19a = sub.add_parser(
+        "run-public-repair-campaign",
+        help="Phase 19: baseline→빌드아웃→개선→게이트된 Phase15/16→비교→최종 분기",
+    )
+    p19a.add_argument("--program-id", required=True, dest="program_id")
+    p19a.add_argument(
+        "--universe",
+        default=None,
+        help="미지정 시 research_programs.universe_name 사용",
+    )
+    p19a.add_argument(
+        "--dry-run-buildout",
+        action="store_true",
+        dest="dry_run_buildout",
+        help="타깃 빌드아웃만 dry-run(실제 수리 없음)",
+    )
+    p19a.add_argument(
+        "--skip-reruns",
+        action="store_true",
+        dest="skip_reruns",
+        help="Phase 15/16 캠페인 재실행 생략(비교·결정은 진행)",
+    )
+    p19a.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p19a.add_argument(
+        "--campaign-panel-limit", type=int, default=6000, dest="campaign_panel_limit"
+    )
+    p19a.add_argument("--max-symbols-factor", type=int, default=50, dest="max_symbols_factor")
+    p19a.add_argument(
+        "--validation-panel-limit", type=int, default=2000, dest="validation_panel_limit"
+    )
+    p19a.add_argument(
+        "--forward-panel-limit", type=int, default=2000, dest="forward_panel_limit"
+    )
+    p19a.add_argument("--state-change-limit", type=int, default=400, dest="state_change_limit")
+    p19a.set_defaults(func=_cmd_run_public_repair_campaign)
+
+    p19b = sub.add_parser(
+        "report-public-repair-campaign",
+        help="Phase 19: 캠페인 런·스텝·결정·비교 조회",
+    )
+    p19b.add_argument("--repair-campaign-id", required=True, dest="repair_campaign_id")
+    p19b.set_defaults(func=_cmd_report_public_repair_campaign)
+
+    p19c = sub.add_parser(
+        "compare-repair-revalidation-outcomes",
+        help="Phase 19: 저장된 재검증 비교 행 조회",
+    )
+    p19c.add_argument("--repair-campaign-id", required=True, dest="repair_campaign_id")
+    p19c.set_defaults(func=_cmd_compare_repair_revalidation_outcomes)
+
+    p19d = sub.add_parser(
+        "export-public-repair-decision-brief",
+        help="Phase 19: 최종 분기 브리프 JSON+Markdown",
+    )
+    p19d.add_argument("--repair-campaign-id", required=True, dest="repair_campaign_id")
+    p19d.add_argument("--out", required=True)
+    p19d.set_defaults(func=_cmd_export_public_repair_decision_brief)
+
+    p19e = sub.add_parser(
+        "list-repair-campaigns",
+        help="Phase 19: 프로그램별 repair campaign 런 목록",
+    )
+    p19e.add_argument("--program-id", required=True, dest="program_id")
+    p19e.add_argument("--limit", type=int, default=20)
+    p19e.set_defaults(func=_cmd_list_repair_campaigns)
 
     return p
 

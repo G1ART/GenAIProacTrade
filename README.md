@@ -442,6 +442,41 @@ python3 src/main.py report-research-readiness --program-id PASTE_PROGRAM_UUID_HE
 python3 src/main.py export-public-depth-brief --universe sp500_current --out docs/public_depth/briefs/latest.json
 ```
 
+## Phase 18 목표 (Targeted Public Substrate Build-Out)
+
+- **역할**: Phase 17 커버리지의 **우세 제외 사유**에 맞춰 **상한 있는** 수리(검증 패널·선행수익·유니버스 factor·state change)를 오케스트레이션하고, 액션 스냅샷·런·개선 리포트를 DB에 남긴다. **제품 스코어 경로 비침투**(`state_change.runner`는 `public_buildout` 미참조).
+- **코드**: `src/public_buildout/`, `src/public_depth/diagnostics.py`(심볼 큐), `src/db/records.py`(Phase 18 CRUD).
+- **CLI**: `smoke-phase18-public-buildout`, `report-public-exclusion-actions`, `run-targeted-public-buildout`, `report-buildout-improvement`, `report-revalidation-trigger`, `export-buildout-brief`
+- **증거**: `docs/phase18_evidence.md` · **완료·클로징**: `docs/phase18_completion_report.md` · 마이그레이션 `20250421100000_phase18_public_buildout.sql`
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-phase18-public-buildout
+python3 src/main.py report-public-exclusion-actions --universe sp500_current
+python3 src/main.py run-targeted-public-buildout --universe sp500_current --dry-run
+python3 src/main.py report-buildout-improvement --universe sp500_current --from-latest-pair --persist
+python3 src/main.py report-buildout-improvement --before-report-id <UUID> --after-report-id <UUID>
+python3 src/main.py report-revalidation-trigger --program-id PASTE_PROGRAM_UUID_HERE
+python3 src/main.py export-buildout-brief --universe sp500_current --out docs/public_depth/briefs/buildout_latest.json
+```
+
+## Phase 19 목표 (Public Repair Campaign & Revalidation Loop)
+
+- **역할**: Phase 17/18 진단·수리 이후 **재검증 게이트를 통과하면** Phase 16 캠페인을 `force_rerun`으로 돌리고, 전후 **생존 분포·캠페인 권고**를 비교한 뒤 **단일 최종 분기**(`continue_public_depth` \| `consider_targeted_premium_seam` \| `repair_insufficient_repeat_buildout`)를 DB에 남긴다. **제품 스코어 경로 비침투**(`state_change.runner`는 `public_repair_campaign` 미참조).
+- **코드**: `src/public_repair_campaign/`, `src/db/records.py`(Phase 19 CRUD).
+- **CLI**: `smoke-phase19-public-repair-campaign`, `run-public-repair-campaign`, `report-public-repair-campaign`, `compare-repair-revalidation-outcomes`, `export-public-repair-decision-brief`, `list-repair-campaigns`
+- **증거**: `docs/phase19_evidence.md` · 마이그레이션 `20250422100000_phase19_public_repair_campaign.sql`
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-phase19-public-repair-campaign
+python3 src/main.py run-public-repair-campaign --program-id PASTE_PROGRAM_UUID_HERE --dry-run-buildout
+python3 src/main.py list-repair-campaigns --program-id PASTE_PROGRAM_UUID_HERE
+python3 src/main.py report-public-repair-campaign --repair-campaign-id PASTE_REPAIR_RUN_UUID_HERE
+python3 src/main.py compare-repair-revalidation-outcomes --repair-campaign-id PASTE_REPAIR_RUN_UUID_HERE
+python3 src/main.py export-public-repair-decision-brief --repair-campaign-id PASTE_REPAIR_RUN_UUID_HERE --out docs/public_repair/briefs/latest.json
+```
+
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)
 
 **목적**: 시장 가격만 넓고 SEC/XBRL/스냅샷/팩터/검증 스파인이 샘플 수준일 때, **수동 INSERT 없이** 기존 파이프라인을 순서대로 묶어 `issuer_master` → `factor_market_validation_panels` 까지 채움. **백테스트·포트폴리오·AI harness·UI 확장 아님.**

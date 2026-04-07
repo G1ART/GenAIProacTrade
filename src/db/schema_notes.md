@@ -1,4 +1,4 @@
-# DB 스키마 메모 (Phase 0–16)
+# DB 스키마 메모 (Phase 0–18)
 
 ## 데이터 계층 역할
 
@@ -56,6 +56,13 @@
 | `public_depth_runs` | Phase 17 공개 기판 확장 오케스트레이션: `universe_name`, `policy_version`, `status`, `expansion_summary_json`. |
 | `public_depth_coverage_reports` | 유니버스별 커버리지 스냅샷: `snapshot_label`(before/after/standalone), `metrics_json`, `exclusion_distribution_json`; `public_depth_run_id` nullable. |
 | `public_depth_uplift_reports` | before/after 커버리지 리포트 FK와 `uplift_metrics_json`. |
+| `public_exclusion_action_reports` | Phase 18 제외 분포·액션 큐 스냅샷(`universe_name`, `policy_version`). |
+| `public_buildout_runs` | Phase 18 타깃 빌드아웃 실행 메타(`targeted_exclusions_json`, `attempted_actions_json`). |
+| `public_buildout_improvement_reports` | 전후 메트릭·제외·개선 요약; `public_buildout_run_id` nullable. |
+| `public_repair_campaign_runs` | Phase 19 프로그램·유니버스 단위 수리 캠페인: 베이스라인 스냅샷 FK, 빌드아웃·after 커버리지, 재실행 불리언, `final_decision`(3분기). |
+| `public_repair_campaign_steps` | 캠페인 스텝별 상태·`detail_json`. |
+| `public_repair_revalidation_comparisons` | 전후 생존 분포·캠페인 권고·해석 JSON; 런당 1건(유니크 인덱스). |
+| `public_repair_campaign_decisions` | 정책 버전·근거 JSON과 함께 최종 분기 1건 저장(감사). |
 | `scanner_runs` | 일일 스캐너 실행; `policy_json`(top_n, floor 등). |
 | `daily_signal_snapshots` | 스캐너 run당 1행 집계 `stats_json`. |
 | `daily_watchlist_entries` | 저잡음 우선순위 워치리스트; thesis/challenge/uncertainty + message 필드·Phase 10 `overlay_awareness_json`·Phase 11 `transcript_enrichment_json`(선택 메시지 보강; 스코어 비사용). |

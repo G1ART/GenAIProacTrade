@@ -2809,8 +2809,225 @@ def fetch_public_depth_coverage_report(
     return dict(r.data[0])
 
 
+def list_public_depth_coverage_reports_for_universe(
+    client: Client, *, universe_name: str, limit: int = 2
+) -> list[dict[str, Any]]:
+    """`created_at` 내림차순(최신이 먼저)."""
+    r = (
+        client.table("public_depth_coverage_reports")
+        .select("*")
+        .eq("universe_name", universe_name)
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    if not r.data:
+        return []
+    return [dict(row) for row in r.data]
+
+
 def insert_public_depth_uplift_report(client: Client, row: dict[str, Any]) -> str:
     res = client.table("public_depth_uplift_reports").insert(row).execute()
     if not res.data:
         raise RuntimeError("public_depth_uplift_reports insert 응답이 비어 있습니다.")
     return str(res.data[0]["id"])
+
+
+# --- Phase 18 targeted public build-out ---
+
+
+def smoke_phase18_public_buildout_tables(client: Client) -> None:
+    client.table("public_exclusion_action_reports").select("id").limit(1).execute()
+    client.table("public_buildout_runs").select("id").limit(1).execute()
+    client.table("public_buildout_improvement_reports").select("id").limit(1).execute()
+
+
+def insert_public_exclusion_action_report(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_exclusion_action_reports").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_exclusion_action_reports insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def insert_public_buildout_run(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_buildout_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_buildout_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def update_public_buildout_run(
+    client: Client, *, run_id: str, patch: dict[str, Any]
+) -> None:
+    client.table("public_buildout_runs").update(patch).eq("id", run_id).execute()
+
+
+def fetch_public_buildout_run(
+    client: Client, *, run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("public_buildout_runs")
+        .select("*")
+        .eq("id", run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def insert_public_buildout_improvement_report(
+    client: Client, row: dict[str, Any]
+) -> str:
+    res = client.table("public_buildout_improvement_reports").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_buildout_improvement_reports insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+# --- Phase 19 public repair campaign ---
+
+
+def smoke_phase19_public_repair_campaign_tables(client: Client) -> None:
+    client.table("public_repair_campaign_runs").select("id").limit(1).execute()
+    client.table("public_repair_campaign_steps").select("id").limit(1).execute()
+    client.table("public_repair_revalidation_comparisons").select("id").limit(1).execute()
+    client.table("public_repair_campaign_decisions").select("id").limit(1).execute()
+
+
+def insert_public_repair_campaign_run(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_repair_campaign_runs").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_repair_campaign_runs insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def update_public_repair_campaign_run(
+    client: Client, *, run_id: str, patch: dict[str, Any]
+) -> None:
+    client.table("public_repair_campaign_runs").update(patch).eq("id", run_id).execute()
+
+
+def fetch_public_repair_campaign_run(
+    client: Client, *, run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("public_repair_campaign_runs")
+        .select("*")
+        .eq("id", run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def list_public_repair_campaign_runs_for_program(
+    client: Client, *, program_id: str, limit: int = 20
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("public_repair_campaign_runs")
+        .select("*")
+        .eq("program_id", program_id)
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(row) for row in (r.data or [])]
+
+
+def insert_public_repair_campaign_step(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_repair_campaign_steps").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_repair_campaign_steps insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_public_repair_campaign_steps(
+    client: Client, *, repair_campaign_run_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("public_repair_campaign_steps")
+        .select("*")
+        .eq("repair_campaign_run_id", repair_campaign_run_id)
+        .order("created_at", desc=False)
+        .execute()
+    )
+    return [dict(row) for row in (r.data or [])]
+
+
+def insert_public_repair_revalidation_comparison(
+    client: Client, row: dict[str, Any]
+) -> str:
+    res = client.table("public_repair_revalidation_comparisons").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_repair_revalidation_comparisons insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_public_repair_revalidation_comparison_for_run(
+    client: Client, *, repair_campaign_run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("public_repair_revalidation_comparisons")
+        .select("*")
+        .eq("repair_campaign_run_id", repair_campaign_run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def upsert_public_repair_revalidation_comparison(
+    client: Client, row: dict[str, Any]
+) -> str:
+    """단일 비교 행(유니크 repair_campaign_run_id). 기존 행이 있으면 삭제 후 삽입."""
+    rid = str(row["repair_campaign_run_id"])
+    existing = fetch_public_repair_revalidation_comparison_for_run(
+        client, repair_campaign_run_id=rid
+    )
+    if existing:
+        client.table("public_repair_revalidation_comparisons").delete().eq(
+            "repair_campaign_run_id", rid
+        ).execute()
+    return insert_public_repair_revalidation_comparison(client, row)
+
+
+def insert_public_repair_campaign_decision(client: Client, row: dict[str, Any]) -> str:
+    res = client.table("public_repair_campaign_decisions").insert(row).execute()
+    if not res.data:
+        raise RuntimeError("public_repair_campaign_decisions insert 응답이 비어 있습니다.")
+    return str(res.data[0]["id"])
+
+
+def fetch_public_repair_campaign_decisions(
+    client: Client, *, repair_campaign_run_id: str
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("public_repair_campaign_decisions")
+        .select("*")
+        .eq("repair_campaign_run_id", repair_campaign_run_id)
+        .order("created_at", desc=True)
+        .execute()
+    )
+    return [dict(row) for row in (r.data or [])]
+
+
+def fetch_latest_validation_campaign_run_for_program(
+    client: Client, *, program_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("validation_campaign_runs")
+        .select("*")
+        .eq("program_id", program_id)
+        .order("created_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
