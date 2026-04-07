@@ -152,6 +152,9 @@ def run_public_depth_expansion(
             "uplift": uplift_payload,
             "before_metrics": before_m,
             "after_metrics": after_m,
+            "before_exclusion_distribution": before_ex,
+            "after_exclusion_distribution": after_ex,
+            "expansion_summary_json": expansion_summary,
         }
     except Exception as ex:  # noqa: BLE001
         logger.exception("public depth expansion")

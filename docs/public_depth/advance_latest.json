@@ -1,0 +1,277 @@
+{
+  "operator_summary": "[advance-public-depth-iteration] program=45ec4d1a-fd77-4254-9390-462da04d1d11 series=eda6a9b1-18f9-4490-8649-db54066bbb7b depth_run=d7dc52a8-1762-4ad5-859a-4d2f6a91dc47 improvement=no_material_progress escalation=hold_and_repeat_public_repair depth_signal=repeat_targeted_public_repair included_runs=1",
+  "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+  "universe_name": "sp500_current",
+  "series_id": "eda6a9b1-18f9-4490-8649-db54066bbb7b",
+  "escalation_recommendation": "hold_and_repeat_public_repair",
+  "public_depth_operator_signal": "repeat_targeted_public_repair",
+  "public_depth_signal_rationale": {
+    "escalation_recommendation": "hold_and_repeat_public_repair",
+    "latest_improvement_classification": "no_material_progress",
+    "rule": "default_hold_maps_to_targeted_repair_cycle"
+  },
+  "ledger": {
+    "expansion_ok": true,
+    "error_message": null,
+    "thin_input_share_before": 1.0,
+    "thin_input_share_after": 1.0,
+    "thin_input_share_delta": 0.0,
+    "joined_recipe_substrate_row_count_before": 243,
+    "joined_recipe_substrate_row_count_after": 243,
+    "joined_recipe_substrate_row_count_delta": 0.0,
+    "dominant_exclusion_keys_before": [
+      "no_validation_panel_for_symbol",
+      "missing_excess_return_1q",
+      "no_state_change_join"
+    ],
+    "dominant_exclusion_keys_after": [
+      "no_validation_panel_for_symbol",
+      "missing_excess_return_1q",
+      "no_state_change_join"
+    ],
+    "research_readiness_before": false,
+    "research_readiness_after": false,
+    "rerun_gate_before": {
+      "phase15": false,
+      "phase16": false
+    },
+    "rerun_gate_after": {
+      "phase15": false,
+      "phase16": false
+    },
+    "buildout_actions_attempted": 2,
+    "buildout_actions_succeeded": 2,
+    "public_depth_run_id": "d7dc52a8-1762-4ad5-859a-4d2f6a91dc47",
+    "before_report_id": "ec10cf3f-baf6-4496-9f57-d6148f54458b",
+    "after_report_id": "80b954e8-bd0f-4f95-aab5-c53654e63815",
+    "uplift_report_id": "16aa16bd-97f0-41fd-9720-58713394ec6a",
+    "improvement_classification": "no_material_progress"
+  },
+  "iteration_append": {
+    "ok": true,
+    "idempotent": false,
+    "sequence_number": 1,
+    "public_depth_run_id": "d7dc52a8-1762-4ad5-859a-4d2f6a91dc47",
+    "escalation_recommendation": "hold_and_repeat_public_repair",
+    "escalation_rationale": {
+      "rule": "insufficient_iterations",
+      "n": 1,
+      "policy_note": "Need at least two completed snapshots for trend comparison."
+    },
+    "plateau_metrics": {
+      "n_iterations": 1,
+      "joined_series": [
+        243
+      ],
+      "thin_series": [
+        1.0
+      ],
+      "final_decisions": [
+        "public_depth_iteration"
+      ],
+      "included_run_count": 1,
+      "excluded_infra_failure_count": 0,
+      "excluded_other_count": 0,
+      "n_iteration_members_total": 1
+    },
+    "counterfactual": {
+      "if_more_iterations": "Collect more completed repair campaigns before premium escalation.",
+      "if_substrate_jumps": "Would favor continue_public_depth.",
+      "if_premium_share_drops": "Would reduce pressure toward open_targeted_premium_discovery."
+    },
+    "excluded_runs": []
+  },
+  "depth_series_brief": {
+    "version": 1,
+    "series_id": "eda6a9b1-18f9-4490-8649-db54066bbb7b",
+    "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+    "universe_name": "sp500_current",
+    "member_count_total": 1,
+    "included_run_count": 1,
+    "excluded_runs": [],
+    "improvement_classifications_in_order": [
+      "no_material_progress"
+    ],
+    "improvement_classification_counts": {
+      "no_material_progress": 1
+    },
+    "persisted_escalation_branch_counts": {
+      "hold_and_repeat_public_repair": 1
+    },
+    "escalation_recommendation_current": "hold_and_repeat_public_repair",
+    "public_depth_operator_signal": "repeat_targeted_public_repair",
+    "public_depth_signal_rationale": {
+      "escalation_recommendation": "hold_and_repeat_public_repair",
+      "latest_improvement_classification": "no_material_progress",
+      "rule": "default_hold_maps_to_targeted_repair_cycle"
+    },
+    "dominant_exclusions_latest_after": [
+      "no_validation_panel_for_symbol",
+      "missing_excess_return_1q",
+      "no_state_change_join"
+    ],
+    "trend_deltas_last_depth": {
+      "expansion_ok": true,
+      "error_message": null,
+      "after_report_id": "80b954e8-bd0f-4f95-aab5-c53654e63815",
+      "before_report_id": "ec10cf3f-baf6-4496-9f57-d6148f54458b",
+      "rerun_gate_after": {
+        "phase15": false,
+        "phase16": false
+      },
+      "uplift_report_id": "16aa16bd-97f0-41fd-9720-58713394ec6a",
+      "rerun_gate_before": {
+        "phase15": false,
+        "phase16": false
+      },
+      "public_depth_run_id": "d7dc52a8-1762-4ad5-859a-4d2f6a91dc47",
+      "thin_input_share_after": 1.0,
+      "thin_input_share_delta": 0.0,
+      "thin_input_share_before": 1.0,
+      "research_readiness_after": false,
+      "research_readiness_before": false,
+      "buildout_actions_attempted": 2,
+      "buildout_actions_succeeded": 2,
+      "improvement_classification": "no_material_progress",
+      "dominant_exclusion_keys_after": [
+        "no_validation_panel_for_symbol",
+        "missing_excess_return_1q",
+        "no_state_change_join"
+      ],
+      "dominant_exclusion_keys_before": [
+        "no_validation_panel_for_symbol",
+        "missing_excess_return_1q",
+        "no_state_change_join"
+      ],
+      "joined_recipe_substrate_row_count_after": 243,
+      "joined_recipe_substrate_row_count_delta": 0.0,
+      "joined_recipe_substrate_row_count_before": 243
+    },
+    "plateau_metrics": {
+      "n_iterations": 1,
+      "joined_series": [
+        243
+      ],
+      "thin_series": [
+        1.0
+      ],
+      "final_decisions": [
+        "public_depth_iteration"
+      ],
+      "included_run_count": 1,
+      "excluded_infra_failure_count": 0,
+      "excluded_other_count": 0,
+      "n_iteration_members_total": 1
+    }
+  },
+  "repair_escalation_brief": {
+    "version": 2,
+    "series_id": "eda6a9b1-18f9-4490-8649-db54066bbb7b",
+    "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+    "universe_name": "sp500_current",
+    "policy_version": "1",
+    "series_status": "active",
+    "compatibility_basis": {
+      "series_universe": "sp500_current",
+      "series_policy_version": "1",
+      "iteration_policy_expected": "1",
+      "series_status": "active",
+      "governance_audit": {}
+    },
+    "included_runs": {
+      "repair_campaign_run_ids_in_order": [
+        ""
+      ],
+      "public_depth_run_ids_in_order": [
+        "d7dc52a8-1762-4ad5-859a-4d2f6a91dc47"
+      ],
+      "member_kinds_in_order": [
+        "public_depth"
+      ],
+      "included_run_count": 1
+    },
+    "latest_persisted_escalation": {
+      "id": "bfab26d0-8c39-4fd2-9dd8-70b54413dee3",
+      "series_id": "eda6a9b1-18f9-4490-8649-db54066bbb7b",
+      "recommendation": "hold_and_repeat_public_repair",
+      "rationale": "hold_and_repeat_public_repair: insufficient_iterations",
+      "plateau_metrics_json": {
+        "thin_series": [
+          1.0
+        ],
+        "n_iterations": 1,
+        "excluded_runs": [],
+        "joined_series": [
+          243
+        ],
+        "final_decisions": [
+          "public_depth_iteration"
+        ],
+        "rationale_struct": {
+          "n": 1,
+          "rule": "insufficient_iterations",
+          "policy_note": "Need at least two completed snapshots for trend comparison."
+        },
+        "included_run_count": 1,
+        "excluded_other_count": 0,
+        "n_iteration_members_total": 1,
+        "excluded_infra_failure_count": 0
+      },
+      "counterfactual_json": {
+        "if_more_iterations": "Collect more completed repair campaigns before premium escalation.",
+        "if_substrate_jumps": "Would favor continue_public_depth.",
+        "if_premium_share_drops": "Would reduce pressure toward open_targeted_premium_discovery."
+      },
+      "created_at": "2026-04-07T15:18:38.743471+00:00"
+    },
+    "recomputed_from_members": {
+      "recommendation": "hold_and_repeat_public_repair",
+      "rationale": {
+        "rule": "insufficient_iterations",
+        "n": 1,
+        "policy_note": "Need at least two completed snapshots for trend comparison."
+      },
+      "plateau_metrics": {
+        "n_iterations": 1,
+        "joined_series": [
+          243
+        ],
+        "thin_series": [
+          1.0
+        ],
+        "final_decisions": [
+          "public_depth_iteration"
+        ],
+        "included_run_count": 1,
+        "excluded_infra_failure_count": 0,
+        "excluded_other_count": 0,
+        "n_iteration_members_total": 1
+      },
+      "counterfactual": {
+        "if_more_iterations": "Collect more completed repair campaigns before premium escalation.",
+        "if_substrate_jumps": "Would favor continue_public_depth.",
+        "if_premium_share_drops": "Would reduce pressure toward open_targeted_premium_discovery."
+      },
+      "excluded_runs": [],
+      "trend_deltas_vs_prior_persisted": {}
+    },
+    "final_recommendation": "hold_and_repeat_public_repair",
+    "counterfactual_summary": {
+      "if_more_iterations": "Collect more completed repair campaigns before premium escalation.",
+      "if_substrate_jumps": "Would favor continue_public_depth.",
+      "if_premium_share_drops": "Would reduce pressure toward open_targeted_premium_discovery."
+    },
+    "premium_discovery_gate_checklist": {
+      "recommendation_matches_open_premium": false,
+      "rule": "insufficient_iterations",
+      "n_iterations_used": 1,
+      "included_run_count": 1,
+      "joined_delta_first_last": null,
+      "thin_latest": 1.0,
+      "premium_share_latest": null,
+      "infra_quarantine_applied_default": true
+    },
+    "excluded_runs_with_reasons": []
+  },
+  "phase15_16_revalidation": null
+}

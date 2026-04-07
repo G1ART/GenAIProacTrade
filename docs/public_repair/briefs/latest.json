@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "repair_campaign_run_id": "72314715-df43-4405-8c85-d7e9b76d9964",
+  "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+  "universe_name": "sp500_current",
+  "final_decision": "repair_insufficient_repeat_buildout",
+  "reran_phase15": false,
+  "reran_phase16": false,
+  "rerun_skip_reason_json": {
+    "reason": "revalidation_gate_not_met",
+    "trigger": {
+      "recommend_rerun_phase15": false,
+      "recommend_rerun_phase16": false
+    }
+  },
+  "comparison": {
+    "before_survival_distribution_json": {
+      "weak_survival": 3
+    },
+    "after_survival_distribution_json": {
+      "weak_survival": 3
+    },
+    "before_campaign_recommendation": "public_data_depth_first",
+    "after_campaign_recommendation": null,
+    "improvement_interpretation_json": {
+      "survival_compare": {
+        "after": {
+          "survives": 0,
+          "weak_survival": 3,
+          "archive_failed": 0,
+          "demote_to_sandbox": 0
+        },
+        "before": {
+          "survives": 0,
+          "weak_survival": 3,
+          "archive_failed": 0,
+          "demote_to_sandbox": 0
+        },
+        "deltas": {
+          "survives": 0,
+          "weak_survival": 0,
+          "archive_failed": 0,
+          "demote_to_sandbox": 0
+        },
+        "outcome_improved_heuristic": false
+      },
+      "recommendation_after": null,
+      "recommendation_before": "public_data_depth_first",
+      "recommendation_changed": true,
+      "after_campaign_failure_totals": {
+        "premium_share": 0.0,
+        "total_failure_cases": 0,
+        "premium_signal_cases": 0,
+        "n_contradictory_failure_cases": 0
+      }
+    }
+  },
+  "latest_decision_row": {
+    "id": "ec05c343-32ef-450b-bcc7-9af134dac4cc",
+    "repair_campaign_run_id": "72314715-df43-4405-8c85-d7e9b76d9964",
+    "decision": "repair_insufficient_repeat_buildout",
+    "policy_version": "1",
+    "rationale_json": {
+      "rule": "no_post_repair_rerun_evidence",
+      "comparison_id": "f173bebf-36a4-4e01-acf6-859295ef3f7a",
+      "policy_version": "1",
+      "reruns_executed": false,
+      "substrate_improved": true,
+      "repair_campaign_run_id": "72314715-df43-4405-8c85-d7e9b76d9964",
+      "after_campaign_recommendation": null,
+      "before_campaign_recommendation": "public_data_depth_first"
+    },
+    "created_at": "2026-04-07T01:17:11.650798+00:00"
+  },
+  "rationale_json": {
+    "rule": "no_post_repair_rerun_evidence",
+    "comparison_id": "f173bebf-36a4-4e01-acf6-859295ef3f7a",
+    "policy_version": "1",
+    "reruns_executed": false,
+    "substrate_improved": true,
+    "repair_campaign_run_id": "72314715-df43-4405-8c85-d7e9b76d9964",
+    "after_campaign_recommendation": null,
+    "before_campaign_recommendation": "public_data_depth_first"
+  }
+}

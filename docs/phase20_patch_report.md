@@ -10,7 +10,7 @@
 - **신규**: `src/public_repair_iteration/` (`constants`, `resolver`, `escalation_policy`, `service`, `__init__`)
 - **수정**: `src/db/records.py`, `src/main.py`, `src/research_registry/promotion_rules.py`, `HANDOFF.md`, `README.md`, `src/db/schema_notes.md`
 - **테스트**: `src/tests/test_phase20.py` (11개)
-- **문서**: `docs/phase20_evidence.md`, 본 파일
+- **문서**: `docs/phase20_evidence.md`, `docs/phase20_completion_report.md`(운영 클로징·검증 표), 본 파일
 
 ## 신규 CLI
 

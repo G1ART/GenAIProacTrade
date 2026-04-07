@@ -1,3 +1,169 @@
+# HANDOFF — Phase 25 (Substrate closure: validation / forward / state-change join)
+
+## 현재 제품 위치
+
+- **Phase 25 (본 패치)**: Phase 24 증거에서 드러난 **기판 병목**(`thin_input_share`, `no_validation_panel_for_symbol`, `missing_excess_return_1q`, `no_state_change_join`)을 **진단·타깃 수리**한다. **거버넌스 레이어 추가 없음**, **프리미엄 디스커버리·라이브 통합 자동 오픈 없음**.
+- **CLI (유니버스·`--panel-limit`·선택 `--program-id latest`)**  
+  - `report-validation-panel-coverage-gaps` / `run-validation-panel-coverage-repair`  
+  - `report-forward-return-gaps` / `run-forward-return-backfill`  
+  - `report-state-change-join-gaps` / `run-state-change-join-repair`  
+  - `report-substrate-closure-snapshot` — 메트릭+제외+`build_revalidation_trigger` 스냅샷 JSON  
+  - `write-substrate-closure-review` — before/after JSON → `docs/operator_closeout/substrate_closure_review.md`  
+  - `run-substrate-closure-sprint` — `--repair-validation` / `--repair-forward` / `--repair-state-change` 선택 + `--refresh-validation-after-forward` + 리뷰 MD·선택 `--out-stem` JSON
+- **코드**: `src/substrate_closure/`, `src/market/validation_panel_run.py`(`run_validation_panel_build_from_rows`), `src/market/forward_returns_run.py`(`run_forward_returns_build_from_rows`).
+- **실 DB before/after 숫자**: 이 저장소 패치만으로는 고정치가 없음 — 운영자가 스프린트 전후 `report-substrate-closure-snapshot` 또는 스프린트 JSON으로 **실측 델타**를 채운다.
+- **Rerun 게이트(Phase 15/16)**: 스냅샷의 `recommend_rerun_phase15` / `recommend_rerun_phase16` 및 스프린트 종료 시 stdout `=== Rerun readiness (after sprint) ===` 로 확인. **열리지 않았다면** `joined_recipe_substrate_row_count`·`thin_input_share` 임계(`public_buildout.constants`)가 블로커.
+- **프리미엄 리뷰**: **여전히 공개 우선 기본** — 자동 프리미엄 오픈 없음; `substrate_closure_review.md`에 Premium 섹션 명시.
+
+## 검증·테스트 (로컬)
+
+- `pytest src/tests/test_phase25_substrate_closure.py -q`
+
+## 패치 보고·증거
+
+- `docs/phase25_patch_report.md`
+
+---
+
+# HANDOFF — Phase 24 (Public-first empirical layer)
+
+## 현재 제품 위치
+
+- **Phase 24 (본 패치)**: 반복 공개 우선 운영을 **집계·판독 가능한 경험층**으로 올린다. **`report-public-first-branch-census`**, **`export-public-first-branch-census-brief`**, **`export-public-first-plateau-review-brief`** / **`run-public-first-plateau-review`**, **`advance-public-first-cycle`**(교대 리듬 + 혼합 시 Phase 23 chooser 위임). 결론 타입: `public_first_still_improving` \| `mixed_or_insufficient_evidence` \| `premium_discovery_review_preparable`(리뷰 전용, **라이브·자동 프리미엄 오픈 없음**). 산출: `docs/operator_closeout/latest_public_first_review.md` 등.
+- **포함/제외 위생**: 기본 **정책 버전 불일치 시리즈 제외**, **인프라 실패 런 제외(플래토와 동일)**, **동일 repair/depth 런 ID 중복 집계 제외**, **closed 시리즈는 옵션으로만**(`--include-closed-series`).
+- **비협상 유지**: 프로덕션 스코어는 `public_repair_iteration` / `public_repair_campaign` 미참조(`state_change.runner` + `test_phase24_public_first`).
+
+## Phase 24로 가능해진 것
+
+1. 다중 호환 시리즈에 대한 **브랜치·신호·개선 분류 집계** + 제외 사유 목록
+2. **플래토 리뷰 결론** 3종 (프리미엄은 *preparable* 만, 자동 오픈 없음)
+3. **교대 코디네이터**: 개선 증거가 명확하면 마지막 멤버 기준 repair↔depth 교대, 아니면 Phase 23 chooser
+
+## 검증·테스트 (로컬)
+
+- `pytest src/tests/test_phase24_public_first.py -q`
+- 전체: `pytest src/tests -q` — **309 passed**
+
+## 관측 분포·정책 자세 (2026-04-07, `sp500_current`, Phase 23 클로즈아웃 직후 맥락)
+
+| 관측 | 해석 |
+|------|------|
+| 클로즈아웃 chooser | `advance_repair_series`, 에스컬레이션 `hold_and_repeat_public_repair`, 신호 `repeat_targeted_public_repair` |
+| **프리미엄 디스커버리 리뷰** | **아직 preparable 아님** — 활성 에스컬레이션이 `open_targeted_premium_discovery` 가 아님(리뷰 “획득” 전) |
+| **공개 우선 궤도** | **유지** — 수리 반복 쪽 가중이나 공개 스택·시리즈는 계속 운용 |
+| **Plateau review 결론(코드 규칙)** | depth 분류 표본이 부족하거나 혼재 시 **`mixed_or_insufficient_evidence`**; 다회 `meaningful_progress`+`marginal_progress` 다수 시 **`public_first_still_improving`** — **실 DB에서** `export-public-first-plateau-review-brief` 로 확정 |
+
+## 마이그레이션 (누적)
+
+- **새 DDL 없음**(Phase 24는 집계·CLI·리뷰 문서).
+
+## 패치 보고·증거
+
+- `docs/phase24_patch_report.md`
+- `docs/phase24_evidence.md`
+
+---
+
+# HANDOFF — Phase 23 (One-command post-patch closeout)
+
+## 현재 제품 위치
+
+- **Phase 23 (본 패치)**: 패치 후 클로즈아웃을 **`run-post-patch-closeout --universe U`** 한 번으로 수행한다. **정상 경로에서 운영자는 시리즈 UUID를 조회·복붙할 필요가 없다**(내부 ID는 `latest_closeout_summary.md`·JSON 산출물에 감사용으로 남음). **`report-required-migrations`**, **`verify-db-phase-state`**, **`export-public-depth-series-brief`** 의 무 UUID 운영 모드(`--program-id`+`--universe`, `--series-id` 생략), 결정적 **`choose_post_patch_next_action`**(verify_only / advance_repair / advance_depth / hold_plateau). **프리미엄 디스커버리 자동 오픈 없음** — 에스컬레이션 `open_targeted_premium_discovery` 는 **hold_for_plateau_review** 로만 처리.
+- **비협상 유지**: 프로덕션 스코어는 `public_repair_iteration` / `public_repair_campaign` 미참조(`state_change.runner` + `test_phase23_operator_closeout`).
+
+## Phase 23로 가능해진 것
+
+1. **`run-post-patch-closeout`** — 마이그레이션 리포트(가능 시) → phase17–22 스모크 → 시리즈 자동 해석·오픈 슬롯 생성 → 전진·브리프·요약 MD
+2. **`report-required-migrations`** / **`--write-bundle`** — 누락 파일명·순서·사유·선택적 SQL 번들
+3. **`verify-db-phase-state`** — 단일 명령 스모크 체인
+4. **프리셋** — `.operator_closeout_preset.json` 또는 `docs/operator_closeout_preset.example.json` 참고
+5. **브리프 export 무 UUID** — `export-public-depth-series-brief` + latest + universe
+
+## 검증·테스트 (로컬)
+
+- `pytest src/tests/test_phase23_operator_closeout.py -q`
+- 전체: `pytest src/tests -q` — **309 passed** (Phase 24 포함; 외부 `edgar` DeprecationWarning만)
+
+## 검증·운영 스냅샷 (2026-04-07, `sp500_current`, 원 커맨드 클로즈아웃)
+
+| 항목 | 결과 |
+|------|------|
+| `run-post-patch-closeout --universe sp500_current` | 완료; 요약 `docs/operator_closeout/latest_closeout_summary.md` |
+| `schema_migrations` API 프로브 | 미노출(`PGRST106`) — **스모크가 스키마 진실로 전부 통과** |
+| phase17–22 스모크 | **통과** |
+| 시리즈 해석 | `active_compatible_series` (UUID는 요약·JSON에만 감사 기록) |
+| 자동 전진 | `advance_repair_series` **성공**; 브리프 `docs/operator_closeout/closeout_advance_repair.*`, `closeout_depth_series_brief.*` |
+| 운영자 추가 **필수** 액션 | **없음** — 브리프 검토·다음 주기 판단은 선택 |
+| 증거 상세 | `docs/phase23_evidence.md` |
+
+**다음 담당자:** 다음 패치 후 동일 명령으로 재클로즈. 마이그레이션 이력을 API로 맞추고 싶다면 Supabase 대시보드에서 별도 확인(프로브 실패만으로는 스모크를 대체하지 않음).
+
+## 마이그레이션 (누적)
+
+- Phase 22까지 SQL 파일은 기존과 동일; **새 DDL 없음**(Phase 23은 오케스트레이션·CLI만).
+
+## 패치 보고·증거
+
+- `docs/phase23_patch_report.md`
+- `docs/phase23_evidence.md` — 실측 클로즈아웃·PGRST106 설명·필수 후속 없음 명시
+- 정상 운영 절차: `docs/OPERATOR_POST_PATCH.md` (상단 3스텝 + 부록)
+
+---
+
+# HANDOFF — Phase 22 (Public-depth iteration evidence)
+
+## 현재 제품 위치
+
+- **Phase 11–21**: 이전과 동일(선택자·라이프사이클·인프라 격리·`advance-public-repair-series`·에스컬레이션 브리프 v2).
+- **Phase 22 (본 패치)**: 동일 `public_repair_iteration_series` 아래에 **공개 깊이 확장 런**을 `member_kind=public_depth` 멤버로 적재하고, **`phase22_ledger`**(thin/joined/제외/준비도/rerun 게이트/빌드 액션/개선 분류)를 남긴다. **`advance-public-depth-iteration`** 골든 패스, **`export-public-depth-series-brief`** 다회 증거 요약, 에스컬레이션 위에 **`public_depth_operator_signal`**(continue buildout / repeat targeted repair / near-plateau review)을 얹는다. **프리미엄 디스커버리 자동 오픈·라이브 통합 없음**; Phase 15/16 재검증 캠페인은 **`--execute-phase15-16-revalidation`** 이고 게이트가 **새로 열린 경우에만** 실행.
+- **비협상 유지**: 프로덕션 스코어는 `public_repair_iteration` / `public_repair_campaign` 미참조(`state_change.runner` 테스트 유지).
+
+## Phase 22로 가능해진 것
+
+1. **`smoke-phase22-public-depth-iteration`** — 멤버 스키마( `member_kind`, `public_depth_run_id` ) 도달
+2. **`advance-public-depth-iteration`** — 활성 시리즈(없으면 생성) → readiness/trigger 스냅샷 → `run_public_depth_expansion` → ledger·멤버 append(동일 `public_depth_run_id` 멱등) → 플래토·에스컬레이션·depth 신호·depth+repair 브리프
+3. **`export-public-depth-series-brief`** — 런 수, 포함/제외, 개선 분류 분포, 저장된 에스컬레이션 브랜치 카운트, 최종 권고, 미해결 제외 힌트
+4. **`marginal_policy` / `depth_signal`** — 투명 임계값 기반 `improvement_classification` 및 운영자 신호
+5. 플래토 수집 경로에서 **`public_depth_runs` 실패·인프라 패턴 제외**(기본)
+
+## 검증·테스트 (로컬)
+
+- `pytest src/tests/test_phase22_public_depth_iteration.py -q` — **15 passed**
+- `pytest src/tests -q` — **309 passed** (Phase 24 포함; 외부 `edgar` DeprecationWarning 3건)
+
+## 검증·운영 스냅샷 (2026-04-01, 시리즈 브리프 + 전체 테스트 클로징)
+
+| 항목 | 결과 |
+|------|------|
+| `pytest src/tests/test_phase22_public_depth_iteration.py -q` | **15 passed** |
+| `PYTHONPATH=src pytest src/tests -q` | **309 passed** (Phase 24 포함); 경고 **3건**은 `edgar` 패키지 deprecation(테스트 실패 아님) |
+| Supabase `20250425100000_phase22_public_depth_iteration.sql` | 대상 프로젝트에 적용했다면 `smoke-phase22-public-depth-iteration`으로 REST/스키마 확인 |
+| 시리즈 브리프 | `report-latest-repair-state --program-id latest --universe <U> --active-series-id-only`로 얻은 UUID로 `export-public-depth-series-brief --series-id … --out …` 실행 완료 시 증거 체인 완료 |
+| 증거 상세 | `docs/phase22_evidence.md` |
+
+**다음 담당자:** 활성 시리즈는 `close` 후 재사용하지 않는다. 새 슬롯이 필요하면 `advance-public-repair-series` 또는 `advance-public-depth-iteration`으로 연 뒤 다시 `active_series_id`를 확인한다.
+
+## 실측 브랜치·분포 (코드베이스)
+
+- **단위/픽스처**: `improvement_classification` 네 갈래 전부 `test_phase22_public_depth_iteration`에서 검증; `persisted_escalation_branch_counts`·`improvement_classification_counts`는 운영 시리즈에 대해 **`export-public-depth-series-brief`** JSON으로 집계(저장소 CI에는 실 DB 없음).
+- **Phase 23 권고**: 에스컬레이션이 `continue_public_depth` / `hold_and_repeat_public_repair`인 동안은 **공개 깊이·수리 반복 증거 축적(Phase 23 동일 궤도)** 을 우선. **`open_targeted_premium_discovery`** 및 브리프 v2 게이트가 성립할 때만 **타깃 프리미엄 디스커버리 검토 준비**(라이브 통합 아님). `public_depth_near_plateau_review_required`는 운영자 **플래토 리뷰** 트리거.
+
+## 마이그레이션 (누적)
+
+- **Phase 22**: `20250425100000_phase22_public_depth_iteration.sql` — 적용 후 `smoke-phase22-public-depth-iteration`.
+
+## 패치 보고·증거
+
+- `docs/phase22_patch_report.md`
+- `docs/phase22_evidence.md` — 클로징 체크리스트, pytest·브리프 재현, 핸드오프 질문표
+
+## 패치마다 동일한 운영 순서 (고정)
+
+- **권장(Phase 23+)**: `docs/OPERATOR_POST_PATCH.md` 상단 — `run-post-patch-closeout`
+- **스모크 일괄(레거시/부록)**: `./scripts/operator_post_patch_smokes.sh` (phase17→22)
+
+---
+
 # HANDOFF — Phase 21 (Iteration governance, selectors, infra quarantine)
 
 ## 현재 제품 위치
@@ -15,26 +181,40 @@
 
 ## 검증·테스트 (로컬)
 
-- `pytest src/tests/test_phase21_iteration_governance.py` — **11 passed**
-- `pytest src/tests -q` — **263 passed** (외부 `edgar` DeprecationWarning만)
+- `pytest src/tests/test_phase21_iteration_governance.py -q` — **10 passed**
+- 전체 테스트 개수는 상단 **Phase 22** 절 참고.
+
+## 검증·운영 스냅샷 (2026-04-07, 운영 DB + 로컬 CLI)
+
+| 항목 | 결과 |
+|------|------|
+| `20250424100000_phase21_iteration_governance.sql` | 운영자 적용 완료 |
+| `smoke-phase21-iteration-governance` | 통과(이전 스텝과 일관) |
+| `advance-public-repair-series` (골든 패스) | 실행 완료; 활성 시리즈·멤버·플래토/에스컬레이션·브리프 흐름 확인 |
+| **시리즈 라이프사이클** (`--series-id` = 해당 시리즈의 `public_repair_iteration_series.id`, 예: `advance`/`list-public-repair-series` 출력) | `pause-public-repair-series` → `{"ok": true, "status": "paused"}` → `resume-public-repair-series` → `active` → `close-public-repair-series` → `closed` (REST 200) |
+| 원격 저장소 | `git push origin main` 완료 — **28026fb** (`main`), 구현 베이스 **3d956e9** |
+
+**참고:** 한 시리즈를 `close`하면 동일 `(program_id, universe_name, policy_version)`에 대해 새 **active/paused** 슬롯이 비므로, 다음 반복은 `advance-public-repair-series` 또는 `get_or_create_iteration_series` 경로로 **새 시리즈**가 잡힌다.
 
 ## 마이그레이션 (누적)
 
 - **Phase 21**: `20250424100000_phase21_iteration_governance.sql` — 운영 DB에 적용 후 `smoke-phase21-iteration-governance` 권장.
+- **Phase 22**: `20250425100000_phase22_public_depth_iteration.sql`
 
 ## 패치 보고·증거
 
 - `docs/phase21_patch_report.md`
 
-## Phase 22 방향 제안
+## Phase 23 방향 제안 (Phase 22 이후)
 
-- 에스컬레이션이 **`continue_public_depth` / `hold_and_repeat_public_repair`**인 프로그램이 많으면 → **공개 깊이 반복(Phase 22 = public-depth iteration)** 을 우선.
-- **`open_targeted_premium_discovery`**가 반복되고 게이트 체크리스트가 충족되면 → **타깃 프리미엄 발견 프로그램 오프너**(라이브 통합이 아닌 발견/설계 궤도)를 Phase 22 후보로 둠.
+- 공개 우선 증거가 쌓이는 동안 **`advance-public-depth-iteration`** / **`advance-public-repair-series`**를 교대로 쓰며 `export-public-depth-series-brief`로 분포를 고정.
+- 에스컬레이션·게이트가 **`open_targeted_premium_discovery`**로 수렴할 때만 Phase 24급 **프리미엄 디스커버리 설계**(라이브 아님) 검토.
 
 ## Git
 
 - **구현 커밋** **3d956e9ece1fbd5ecc9722dc16d3acc83c853a7f** (`3d956e9`) — `Phase 21: iteration governance, repair selectors, infra quarantine, advance CLI`.
-- **문서 정리**(README·HANDOFF SHA·patch report): `git log -1 --oneline` 로 확인 (메시지 `docs: Phase 21 README, HANDOFF commit SHA, patch report MCP note`).
+- **문서·HANDOFF 정리** **28026fb** — `docs: Phase 21 README, HANDOFF commit SHA, patch report MCP note` (원격 `origin/main`에 푸시됨, 2026-04-07 확인).
+- 이후 로컬만 앞서 있는 경우: `git log -1 --oneline` 로 HEAD 확인.
 
 ---
 
@@ -70,6 +250,7 @@
 | `report-latest-repair-state` / `list-public-repair-series` | `ok: true` |
 | `list-repair-campaigns` | `ok: true`; 과거 1건은 REST **502**로 `failed` 기록 가능(일시 인프라) |
 | `report-public-repair-campaign --repair-campaign-id latest` | `ok: true`; 스텝·비교·`repair_insufficient_repeat_buildout` 일관 |
+| 후속 (Phase 21, 동일 시리즈 UUID 기준) | `pause` → `resume` → `close` 라이프사이클 CLI REST 200·`ok: true`; 시리즈는 **closed** — 상세·SHA·테스트 카운트는 **상단 Phase 21** 스냅샷 |
 
 상세: `docs/phase20_completion_report.md` · 증거: `docs/phase20_evidence.md`.
 
@@ -77,6 +258,7 @@
 
 - **Phase 20**: `20250423100000_phase20_repair_iteration.sql`
 - **Phase 21**: `20250424100000_phase21_iteration_governance.sql`
+- **Phase 22**: `20250425100000_phase22_public_depth_iteration.sql`
 
 ---
 

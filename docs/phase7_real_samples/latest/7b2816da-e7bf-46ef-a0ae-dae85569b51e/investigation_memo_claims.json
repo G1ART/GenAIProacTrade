@@ -1,0 +1,486 @@
+[
+  {
+    "id": "eaf5dd83-c856-4411-9733-a04302175968",
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "claim_key": "challenge_alternate",
+    "claim_text": "The same numeric pattern could reflect stale filings, partial component coverage, or regime mismatch rather than an economically meaningful shift. Correlation in research summaries does not imply issuer-level predictive validity.",
+    "uncertainty_label": "plausible_hypothesis",
+    "evidence_ref_json": {
+      "key": "alternate_interpretation",
+      "section": "strongest_counter_argument"
+    },
+    "created_at": "2026-04-05T06:00:35.540061+00:00",
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "claim_id": "challenge_alternate",
+    "claim_role": "challenge",
+    "statement": "The same numeric pattern could reflect stale filings, partial component coverage, or regime mismatch rather than an economically meaningful shift. Correlation in research summaries does not imply issuer-level predictive validity.",
+    "support_summary": "Structured counter-case dimension from ChallengeAgent.",
+    "counter_evidence_summary": "Deterministic state-change layer classifies this issuer-date as `insufficient_data` with direction `weakening` and score `-0.86581189`. A constructive reading: the recorded component pattern is consistent with an internal narrative of shifting fundamentals or reporting context as encoded in Phase 6 signals — subject to data gaps below.",
+    "trace_refs": {
+      "section": "alternate_interpretation",
+      "memo_version": 2,
+      "source_trace": {
+        "cik": "0001286681",
+        "as_of_date": "2025-09-28",
+        "payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197",
+        "contract_version": "ai_harness_input_v1",
+        "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036"
+      },
+      "memo_schema_version": "investigation_memo_v1"
+    },
+    "needs_verification": true,
+    "verdict": "pending",
+    "claim_revision": 1,
+    "superseded_by": null
+  },
+  {
+    "id": "883e5cd7-3ee5-465e-b36b-89f26dc62708",
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "claim_key": "challenge_contamination",
+    "claim_text": "Component-level contamination/regime scores may be null or weak; interpretation should not assume clean regime alignment.",
+    "uncertainty_label": "plausible_hypothesis",
+    "evidence_ref_json": {
+      "key": "contamination_regime_risk",
+      "section": "strongest_counter_argument"
+    },
+    "created_at": "2026-04-05T06:00:35.540061+00:00",
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "claim_id": "challenge_contamination",
+    "claim_role": "challenge",
+    "statement": "Component-level contamination/regime scores may be null or weak; interpretation should not assume clean regime alignment.",
+    "support_summary": "Structured counter-case dimension from ChallengeAgent.",
+    "counter_evidence_summary": "Deterministic state-change layer classifies this issuer-date as `insufficient_data` with direction `weakening` and score `-0.86581189`. A constructive reading: the recorded component pattern is consistent with an internal narrative of shifting fundamentals or reporting context as encoded in Phase 6 signals — subject to data gaps below.",
+    "trace_refs": {
+      "section": "contamination_regime_risk",
+      "memo_version": 2,
+      "source_trace": {
+        "cik": "0001286681",
+        "as_of_date": "2025-09-28",
+        "payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197",
+        "contract_version": "ai_harness_input_v1",
+        "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036"
+      },
+      "memo_schema_version": "investigation_memo_v1"
+    },
+    "needs_verification": true,
+    "verdict": "pending",
+    "claim_revision": 1,
+    "superseded_by": null
+  },
+  {
+    "id": "c6610f0e-3978-4388-8e48-4ee6f02a7733",
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "claim_key": "challenge_data_insufficiency",
+    "claim_text": "Missing or thin inputs: missing_components_in_score. Coverage notes: missing_component_count=23, component_quality:accruals, component_quality:asset_growth, component_quality:capex_intensity, component_quality:financial_strength_score_v1, component_quality:gross_profitability",
+    "uncertainty_label": "plausible_hypothesis",
+    "evidence_ref_json": {
+      "key": "data_insufficiency_risk",
+      "section": "strongest_counter_argument"
+    },
+    "created_at": "2026-04-05T06:00:35.540061+00:00",
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "claim_id": "challenge_data_insufficiency",
+    "claim_role": "challenge",
+    "statement": "Missing or thin inputs: missing_components_in_score. Coverage notes: missing_component_count=23, component_quality:accruals, component_quality:asset_growth, component_quality:capex_intensity, component_quality:financial_strength_score_v1, component_quality:gross_profitability",
+    "support_summary": "Structured counter-case dimension from ChallengeAgent.",
+    "counter_evidence_summary": "Deterministic state-change layer classifies this issuer-date as `insufficient_data` with direction `weakening` and score `-0.86581189`. A constructive reading: the recorded component pattern is consistent with an internal narrative of shifting fundamentals or reporting context as encoded in Phase 6 signals — subject to data gaps below.",
+    "trace_refs": {
+      "section": "data_insufficiency_risk",
+      "memo_version": 2,
+      "source_trace": {
+        "cik": "0001286681",
+        "as_of_date": "2025-09-28",
+        "payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197",
+        "contract_version": "ai_harness_input_v1",
+        "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036"
+      },
+      "memo_schema_version": "investigation_memo_v1"
+    },
+    "needs_verification": true,
+    "verdict": "pending",
+    "claim_revision": 1,
+    "superseded_by": null
+  },
+  {
+    "id": "ba6d15ea-0988-4bc2-81fd-94debf8c0802",
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "claim_key": "challenge_falsify",
+    "claim_text": "Future restatements, revised filings, or reconciled fundamentals that remove the driver signals; or demonstration that drivers were data artifacts.",
+    "uncertainty_label": "plausible_hypothesis",
+    "evidence_ref_json": {
+      "key": "what_would_falsify_thesis",
+      "section": "strongest_counter_argument"
+    },
+    "created_at": "2026-04-05T06:00:35.540061+00:00",
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "claim_id": "challenge_falsify",
+    "claim_role": "challenge",
+    "statement": "Future restatements, revised filings, or reconciled fundamentals that remove the driver signals; or demonstration that drivers were data artifacts.",
+    "support_summary": "Structured counter-case dimension from ChallengeAgent.",
+    "counter_evidence_summary": "Deterministic state-change layer classifies this issuer-date as `insufficient_data` with direction `weakening` and score `-0.86581189`. A constructive reading: the recorded component pattern is consistent with an internal narrative of shifting fundamentals or reporting context as encoded in Phase 6 signals — subject to data gaps below.",
+    "trace_refs": {
+      "section": "what_would_falsify_thesis",
+      "memo_version": 2,
+      "source_trace": {
+        "cik": "0001286681",
+        "as_of_date": "2025-09-28",
+        "payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197",
+        "contract_version": "ai_harness_input_v1",
+        "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036"
+      },
+      "memo_schema_version": "investigation_memo_v1"
+    },
+    "needs_verification": true,
+    "verdict": "pending",
+    "claim_revision": 1,
+    "superseded_by": null
+  },
+  {
+    "id": "560a7c35-0752-4e1e-944b-c8f71c737d01",
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "claim_key": "challenge_why_not_matter",
+    "claim_text": "Market prices and forward outcomes are not evaluated here; the signal is a documentation-time state snapshot, not proof of subsequent performance.",
+    "uncertainty_label": "plausible_hypothesis",
+    "evidence_ref_json": {
+      "key": "why_change_may_not_matter",
+      "section": "strongest_counter_argument"
+    },
+    "created_at": "2026-04-05T06:00:35.540061+00:00",
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "claim_id": "challenge_why_not_matter",
+    "claim_role": "challenge",
+    "statement": "Market prices and forward outcomes are not evaluated here; the signal is a documentation-time state snapshot, not proof of subsequent performance.",
+    "support_summary": "Structured counter-case dimension from ChallengeAgent.",
+    "counter_evidence_summary": "Deterministic state-change layer classifies this issuer-date as `insufficient_data` with direction `weakening` and score `-0.86581189`. A constructive reading: the recorded component pattern is consistent with an internal narrative of shifting fundamentals or reporting context as encoded in Phase 6 signals — subject to data gaps below.",
+    "trace_refs": {
+      "section": "why_change_may_not_matter",
+      "memo_version": 2,
+      "source_trace": {
+        "cik": "0001286681",
+        "as_of_date": "2025-09-28",
+        "payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197",
+        "contract_version": "ai_harness_input_v1",
+        "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036"
+      },
+      "memo_schema_version": "investigation_memo_v1"
+    },
+    "needs_verification": true,
+    "verdict": "pending",
+    "claim_revision": 1,
+    "superseded_by": null
+  },
+  {
+    "id": "b64c6a9b-3bba-4a49-87a6-0abbced5c5c6",
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "claim_key": "evidence_block_0",
+    "claim_text": "filing_handle: {'cik': '0001286681', 'kind': 'sec_accession', 'accession_no': '0001193125-25-237878'}",
+    "uncertainty_label": "confirmed",
+    "evidence_ref_json": {
+      "block": {
+        "ref": {
+          "cik": "0001286681",
+          "kind": "sec_accession",
+          "accession_no": "0001193125-25-237878"
+        },
+        "kind": "filing_handle",
+        "uncertainty_label": "confirmed"
+      }
+    },
+    "created_at": "2026-04-05T06:00:35.540061+00:00",
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "claim_id": "evidence_block_0",
+    "claim_role": "evidence",
+    "statement": "filing_handle: {'cik': '0001286681', 'kind': 'sec_accession', 'accession_no': '0001193125-25-237878'}",
+    "support_summary": "Deterministic harness input / filing or score handle.",
+    "counter_evidence_summary": "",
+    "trace_refs": {
+      "memo_version": 2,
+      "source_trace": {
+        "cik": "0001286681",
+        "as_of_date": "2025-09-28",
+        "payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197",
+        "contract_version": "ai_harness_input_v1",
+        "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036"
+      },
+      "evidence_index": 0,
+      "memo_schema_version": "investigation_memo_v1"
+    },
+    "needs_verification": false,
+    "verdict": "pending",
+    "claim_revision": 1,
+    "superseded_by": null
+  },
+  {
+    "id": "263ff250-070f-4023-9d20-bc086a463600",
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "claim_key": "evidence_block_1",
+    "claim_text": "filing_handle: {'kind': 'issuer_quarter_snapshot', 'fiscal_year': 2025, 'snapshot_id': '1723d433-9f17-4477-b467-f894ed609f29', 'fiscal_period': 'Q3'}",
+    "uncertainty_label": "confirmed",
+    "evidence_ref_json": {
+      "block": {
+        "ref": {
+          "kind": "issuer_quarter_snapshot",
+          "fiscal_year": 2025,
+          "snapshot_id": "1723d433-9f17-4477-b467-f894ed609f29",
+          "fiscal_period": "Q3"
+        },
+        "kind": "filing_handle",
+        "uncertainty_label": "confirmed"
+      }
+    },
+    "created_at": "2026-04-05T06:00:35.540061+00:00",
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "claim_id": "evidence_block_1",
+    "claim_role": "evidence",
+    "statement": "filing_handle: {'kind': 'issuer_quarter_snapshot', 'fiscal_year': 2025, 'snapshot_id': '1723d433-9f17-4477-b467-f894ed609f29', 'fiscal_period': 'Q3'}",
+    "support_summary": "Deterministic harness input / filing or score handle.",
+    "counter_evidence_summary": "",
+    "trace_refs": {
+      "memo_version": 2,
+      "source_trace": {
+        "cik": "0001286681",
+        "as_of_date": "2025-09-28",
+        "payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197",
+        "contract_version": "ai_harness_input_v1",
+        "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036"
+      },
+      "evidence_index": 1,
+      "memo_schema_version": "investigation_memo_v1"
+    },
+    "needs_verification": false,
+    "verdict": "pending",
+    "claim_revision": 1,
+    "superseded_by": null
+  },
+  {
+    "id": "1cd887eb-3058-4589-b241-25a676495f29",
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "claim_key": "evidence_block_2",
+    "claim_text": "deterministic_score_row: {'state_change_score': -0.86581189, 'direction': 'weakening'}",
+    "uncertainty_label": "confirmed",
+    "evidence_ref_json": {
+      "block": {
+        "ref": {
+          "direction": "weakening",
+          "state_change_score": -0.86581189
+        },
+        "kind": "deterministic_score_row",
+        "uncertainty_label": "confirmed"
+      }
+    },
+    "created_at": "2026-04-05T06:00:35.540061+00:00",
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "claim_id": "evidence_block_2",
+    "claim_role": "evidence",
+    "statement": "deterministic_score_row: {'state_change_score': -0.86581189, 'direction': 'weakening'}",
+    "support_summary": "Deterministic harness input / filing or score handle.",
+    "counter_evidence_summary": "",
+    "trace_refs": {
+      "memo_version": 2,
+      "source_trace": {
+        "cik": "0001286681",
+        "as_of_date": "2025-09-28",
+        "payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197",
+        "contract_version": "ai_harness_input_v1",
+        "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036"
+      },
+      "evidence_index": 2,
+      "memo_schema_version": "investigation_memo_v1"
+    },
+    "needs_verification": false,
+    "verdict": "pending",
+    "claim_revision": 1,
+    "superseded_by": null
+  },
+  {
+    "id": "cb02ab4f-860d-4aac-a02c-ed2e8e9e35b8",
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "claim_key": "synthesis_main",
+    "claim_text": "Thesis highlights what the deterministic spine asserts for this issuer-date. Challenge lists interpretive and data risks that can overturn a naive reading. Both remain simultaneously tenable; the operator must judge under uncertainty.",
+    "uncertainty_label": "unverifiable",
+    "evidence_ref_json": {
+      "thesis_preserved": true,
+      "challenge_preserved": true
+    },
+    "created_at": "2026-04-05T06:00:35.540061+00:00",
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "claim_id": "synthesis_main",
+    "claim_role": "synthesis",
+    "statement": "Thesis highlights what the deterministic spine asserts for this issuer-date. Challenge lists interpretive and data risks that can overturn a naive reading. Both remain simultaneously tenable; the operator must judge under uncertainty.",
+    "support_summary": "Holds thesis and challenge in tension without forced consensus.",
+    "counter_evidence_summary": "No forced consensus: thesis (plausible_hypothesis) and challenge (plausible_hypothesis) coexist.",
+    "trace_refs": {
+      "section": "synthesis",
+      "memo_version": 2,
+      "source_trace": {
+        "cik": "0001286681",
+        "as_of_date": "2025-09-28",
+        "payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197",
+        "contract_version": "ai_harness_input_v1",
+        "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036"
+      },
+      "memo_schema_version": "investigation_memo_v1"
+    },
+    "needs_verification": true,
+    "verdict": "pending",
+    "claim_revision": 1,
+    "superseded_by": null
+  },
+  {
+    "id": "ba25e712-fba0-4273-bfe9-381acda8d95f",
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "claim_key": "thesis_main",
+    "claim_text": "Deterministic state-change layer classifies this issuer-date as `insufficient_data` with direction `weakening` and score `-0.86581189`. A constructive reading: the recorded component pattern is consistent with an internal narrative of shifting fundamentals or reporting context as encoded in Phase 6 signals — subject to data gaps below.",
+    "uncertainty_label": "plausible_hypothesis",
+    "evidence_ref_json": {
+      "anchors": {
+        "candidate_rank": 3,
+        "candidate_class": "insufficient_data",
+        "confidence_band": "low",
+        "state_change_score": -0.86581189,
+        "dominant_change_type": "direction_weakening",
+        "state_change_direction": "weakening",
+        "top_driver_signals_json": [
+          {
+            "signal": "accruals",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "gross_profitability",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "asset_growth",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "capex_intensity",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "rnd_intensity",
+            "weighted_contribution": -0.88069
+          }
+        ],
+        "component_breakdown_preview": [
+          {
+            "level_score": null,
+            "signal_name": "accruals",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "asset_growth",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "capex_intensity",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": -0.7284059889989142,
+            "signal_name": "financial_strength_score_v1",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": []
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "gross_profitability",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": []
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "rnd_intensity",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          }
+        ]
+      },
+      "section": "thesis"
+    },
+    "created_at": "2026-04-05T06:00:35.540061+00:00",
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "claim_id": "thesis_main",
+    "claim_role": "thesis",
+    "statement": "Deterministic state-change layer classifies this issuer-date as `insufficient_data` with direction `weakening` and score `-0.86581189`. A constructive reading: the recorded component pattern is consistent with an internal narrative of shifting fundamentals or reporting context as encoded in Phase 6 signals — subject to data gaps below.",
+    "support_summary": "Anchored to deterministic_signal_summary and Phase 6 class/score (see trace).",
+    "counter_evidence_summary": "The same numeric pattern could reflect stale filings, partial component coverage, or regime mismatch rather than an economically meaningful shift. Correlation in research summaries does not imply issuer-level predictive validity.",
+    "trace_refs": {
+      "section": "thesis_interpretation",
+      "memo_version": 2,
+      "source_trace": {
+        "cik": "0001286681",
+        "as_of_date": "2025-09-28",
+        "payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197",
+        "contract_version": "ai_harness_input_v1",
+        "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036"
+      },
+      "memo_schema_version": "investigation_memo_v1"
+    },
+    "needs_verification": true,
+    "verdict": "pending",
+    "claim_revision": 1,
+    "superseded_by": null
+  }
+]

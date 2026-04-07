@@ -1,0 +1,48 @@
+# Public depth brief
+
+```json
+{
+  "ok": true,
+  "universe_name": "sp500_current",
+  "metrics": {
+    "universe_name": "sp500_current",
+    "as_of_date": "2026-04-05",
+    "n_issuer_universe": 503,
+    "state_change_run_id": "563b970d-937f-43f4-bc32-56a6adcd1f3e",
+    "panel_limit_used": 8000,
+    "state_change_scores_limit_used": 50000,
+    "thin_input_share": 1.0,
+    "degraded_share": 0.0,
+    "strong_share": 0.0,
+    "usable_with_gaps_share": 0.0,
+    "n_issuer_resolved_cik": 313,
+    "n_issuer_with_factor_panel": 311,
+    "n_issuer_with_state_change_cik": 200,
+    "validation_panel_row_count": 311,
+    "n_issuer_no_validation_panel_row": 192,
+    "n_issuer_with_validation_panel_symbol": 311,
+    "n_issuer_with_next_quarter_excess": 250,
+    "validation_join_row_count": 250,
+    "joined_recipe_substrate_row_count": 151,
+    "dominant_exclusion_reasons": [
+      {
+        "reason": "no_validation_panel_for_symbol",
+        "count": 192
+      },
+      {
+        "reason": "no_state_change_join",
+        "count": 99
+      },
+      {
+        "reason": "missing_excess_return_1q",
+        "count": 61
+      }
+    ]
+  },
+  "exclusion_distribution": {
+    "missing_excess_return_1q": 61,
+    "no_state_change_join": 99,
+    "no_validation_panel_for_symbol": 192
+  }
+}
+```

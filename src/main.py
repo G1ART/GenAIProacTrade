@@ -2988,6 +2988,13 @@ def _cmd_report_latest_repair_state(args: argparse.Namespace) -> int:
         return err
 
     out = report_latest_repair_state(client, program_id=str(pid))
+    if getattr(args, "active_series_id_only", False):
+        sid = out.get("active_series_id")
+        if sid:
+            print(str(sid))
+            return 0
+        print("", end="")
+        return 1
     print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0 if out.get("ok") else 1
 
@@ -3214,6 +3221,781 @@ def _cmd_resolve_repair_campaign_pair(args: argparse.Namespace) -> int:
     )
     print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0 if out.get("ok") else 1
+
+
+def _cmd_smoke_phase22_public_depth_iteration(_args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from db.records import smoke_phase22_public_depth_iteration_members
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_phase22_public_depth_iteration_members(client)
+    print(
+        json_lib.dumps(
+            {"db_phase22_public_depth_iteration_members": "ok"},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_advance_public_depth_iteration(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from public_repair_iteration.depth_iteration import advance_public_depth_iteration
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    pid, err = _resolve_program_id_cli(client, args)
+    if err is not None:
+        return err
+    uni = getattr(args, "universe", None)
+    series_override = getattr(args, "series_id", None)
+    so = str(series_override).strip() if series_override else None
+    if so:
+        bad = _exit_unless_uuid("series_id", so)
+        if bad is not None:
+            return bad
+    out = advance_public_depth_iteration(
+        settings,
+        program_id=str(pid),
+        universe_name=str(uni).strip() if uni else None,
+        series_id_override=so,
+        panel_limit=int(args.panel_limit),
+        run_validation_panels=bool(args.run_validation_panels),
+        run_forward_returns=bool(args.run_forward_returns),
+        validation_panel_limit=int(args.validation_panel_limit),
+        forward_panel_limit=int(args.forward_panel_limit),
+        max_universe_factor_builds=int(args.max_universe_factor_builds),
+        execute_phase15_16_revalidation=bool(args.execute_phase15_16_revalidation),
+        validation_campaign_panel_limit=int(args.validation_campaign_panel_limit),
+    )
+    if not out.get("ok"):
+        print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+        return 1
+    dest = Path(args.out).expanduser()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    json_path = dest if dest.suffix == ".json" else dest.with_suffix(".json")
+    md_path = dest if dest.suffix == ".md" else dest.with_suffix(".md")
+    payload = {
+        "operator_summary": out.get("operator_summary"),
+        "program_id": out.get("program_id"),
+        "universe_name": out.get("universe_name"),
+        "series_id": out.get("series_id"),
+        "escalation_recommendation": out.get("escalation_recommendation"),
+        "public_depth_operator_signal": out.get("public_depth_operator_signal"),
+        "public_depth_signal_rationale": out.get("public_depth_signal_rationale"),
+        "ledger": out.get("ledger"),
+        "iteration_append": out.get("iteration_append"),
+        "depth_series_brief": out.get("depth_series_brief"),
+        "repair_escalation_brief": out.get("repair_escalation_brief"),
+        "phase15_16_revalidation": out.get("phase15_16_revalidation"),
+    }
+    json_path.write_text(
+        json_lib.dumps(payload, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    md_parts = [
+        str(out.get("depth_series_markdown") or ""),
+        str(out.get("repair_escalation_markdown") or ""),
+    ]
+    md_path.write_text("\n\n---\n\n".join(p for p in md_parts if p.strip()), encoding="utf-8")
+    print(str(out.get("operator_summary") or ""))
+    print(
+        json_lib.dumps(
+            {
+                "ok": True,
+                "json": str(json_path),
+                "markdown": str(md_path),
+                "public_depth_operator_signal": out.get("public_depth_operator_signal"),
+                "escalation_recommendation": out.get("escalation_recommendation"),
+            },
+            indent=2,
+            ensure_ascii=False,
+            default=str,
+        )
+    )
+    return 0
+
+
+def _cmd_export_public_depth_series_brief(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from public_repair_iteration.depth_iteration import (
+        export_public_depth_series_brief,
+        resolve_iteration_series_for_operator,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    sid_arg = str(getattr(args, "series_id", None) or "").strip()
+    series_id: str | None = sid_arg if sid_arg else None
+    used_operator_resolve = not bool(sid_arg)
+    if series_id:
+        bad = _exit_unless_uuid("series_id", series_id)
+        if bad is not None:
+            return bad
+    else:
+        pid, err = _resolve_program_id_cli(client, args)
+        if err is not None:
+            return err
+        uni = getattr(args, "universe", None)
+        if not (uni and str(uni).strip()):
+            print(
+                json_lib.dumps(
+                    {
+                        "ok": False,
+                        "error": "series_id_or_program_universe_required",
+                        "hint": "운영 모드: --program-id latest --universe U 또는 디버그용 --series-id UUID",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 1
+        rs = resolve_iteration_series_for_operator(
+            client, program_id=str(pid), universe_name=str(uni).strip()
+        )
+        if not rs.get("ok"):
+            from operator_closeout.closeout import format_guided_operator_error
+
+            print(
+                json_lib.dumps(
+                    {**rs, "operator_message": format_guided_operator_error(rs)},
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 1
+        series_id = str(rs["series_id"])
+    out = export_public_depth_series_brief(
+        client, series_id=str(series_id)
+    )
+    if not out.get("ok"):
+        print(json_lib.dumps(out, indent=2, ensure_ascii=False))
+        return 1
+    dest = Path(args.out).expanduser()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    json_path = dest if dest.suffix == ".json" else dest.with_suffix(".json")
+    md_path = dest if dest.suffix == ".md" else dest.with_suffix(".md")
+    json_path.write_text(
+        json_lib.dumps(out.get("brief") or {}, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    md_path.write_text(str(out.get("markdown") or ""), encoding="utf-8")
+    print(
+        json_lib.dumps(
+            {
+                "ok": True,
+                "json": str(json_path),
+                "markdown": str(md_path),
+                "series_id": series_id,
+                "operator_resolve": used_operator_resolve,
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_report_required_migrations(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from operator_closeout.migrations import (
+        generate_migration_bundle_file,
+        report_required_migrations,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rep = report_required_migrations(client)
+    if getattr(args, "write_bundle", False) and rep.get("missing_migrations"):
+        root = Path(__file__).resolve().parent.parent
+        bundle_path = (
+            Path(args.bundle_out).expanduser()
+            if args.bundle_out
+            else (root / "docs" / "operator_closeout" / "bundle_pending_migrations.sql")
+        )
+        gen = generate_migration_bundle_file(rep, out_path=bundle_path)
+        rep["bundle"] = gen
+    print(json_lib.dumps(rep, indent=2, ensure_ascii=False))
+    exit_unhappy = bool(rep.get("applied_probe_ok")) and not bool(rep.get("ok"))
+    return 1 if exit_unhappy else 0
+
+
+def _cmd_verify_db_phase_state(_args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from operator_closeout.phase_state import verify_db_phase_state
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = verify_db_phase_state(client)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_run_post_patch_closeout(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from operator_closeout.closeout import run_post_patch_closeout
+    from operator_closeout.presets import load_operator_closeout_preset
+
+    settings = load_settings()
+    configure_logging()
+    preset: dict = {}
+    pp = getattr(args, "preset_file", None)
+    if pp:
+        preset = load_operator_closeout_preset(Path(pp).expanduser())
+    elif getattr(args, "use_default_preset", False):
+        preset = load_operator_closeout_preset()
+    uni = str(getattr(args, "universe", "") or "").strip() or str(
+        preset.get("universe") or ""
+    ).strip()
+    if not uni:
+        print(
+            json_lib.dumps(
+                {
+                    "ok": False,
+                    "error": "universe_required",
+                    "hint": "--universe U 또는 .operator_closeout_preset.json 의 universe",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    out_stem = str(
+        getattr(args, "out_stem", None)
+        or preset.get("out_stem")
+        or "docs/operator_closeout"
+    ).strip()
+    result = run_post_patch_closeout(
+        settings,
+        universe=uni,
+        program_id_raw=str(getattr(args, "program_id", "latest") or "latest"),
+        out_stem=out_stem,
+        verify_only=bool(getattr(args, "verify_only", False)),
+        skip_migration_report=bool(getattr(args, "skip_migration_report", False)),
+        write_bundle_on_missing=not bool(getattr(args, "no_migration_bundle", False)),
+    )
+    for line in result.get("operator_lines") or []:
+        print(line)
+    if result.get("ok"):
+        print(
+            f"[run-post-patch-closeout] OK summary -> {result.get('summary_markdown')}"
+        )
+    else:
+        print(
+            f"[run-post-patch-closeout] FAILED stage={result.get('stage')} "
+            f"summary -> {result.get('summary_markdown')}"
+        )
+        if result.get("operator_lines") is None and result.get("next_recommended_human"):
+            print(result["next_recommended_human"])
+    print(json_lib.dumps(result, indent=2, ensure_ascii=False, default=str))
+    return 0 if result.get("ok") else 1
+
+
+def _cmd_report_public_first_branch_census(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from public_first.census import build_public_first_branch_census
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    pid, err = _resolve_program_id_cli(client, args)
+    if err is not None:
+        return err
+    uni = str(getattr(args, "universe", "") or "").strip()
+    if not uni:
+        print(
+            json_lib.dumps({"ok": False, "error": "universe_required"}, indent=2)
+        )
+        return 1
+    out = build_public_first_branch_census(
+        client,
+        program_id=str(pid),
+        universe_name=uni,
+        series_scan_limit=int(getattr(args, "series_scan_limit", 30) or 30),
+        include_closed_series=bool(getattr(args, "include_closed_series", False)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_public_first_branch_census_brief(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from public_first.census import build_public_first_branch_census, census_to_markdown
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    pid, err = _resolve_program_id_cli(client, args)
+    if err is not None:
+        return err
+    uni = str(getattr(args, "universe", "") or "").strip()
+    if not uni:
+        print(
+            json_lib.dumps({"ok": False, "error": "universe_required"}, indent=2)
+        )
+        return 1
+    out = build_public_first_branch_census(
+        client,
+        program_id=str(pid),
+        universe_name=uni,
+        series_scan_limit=int(getattr(args, "series_scan_limit", 30) or 30),
+        include_closed_series=bool(getattr(args, "include_closed_series", False)),
+    )
+    dest = Path(args.out).expanduser()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    json_path = dest if dest.suffix == ".json" else dest.with_suffix(".json")
+    md_path = dest if dest.suffix == ".md" else dest.with_suffix(".md")
+    json_path.write_text(
+        json_lib.dumps(out, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    md_path.write_text(census_to_markdown(out), encoding="utf-8")
+    print(
+        json_lib.dumps(
+            {"ok": True, "json": str(json_path), "markdown": str(md_path)},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _public_first_plateau_review_artifacts(
+    args: argparse.Namespace,
+) -> tuple[dict[str, Any], str, int | None]:
+    """Shared: build bundle + write review MD + optional json stem. Returns (payload, uni, err)."""
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from public_first.cycle import (
+        export_public_first_plateau_review_bundle,
+        recommend_next_public_first_command,
+        write_latest_public_first_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    pid, err = _resolve_program_id_cli(client, args)
+    if err is not None:
+        return {}, "", err
+    uni = str(getattr(args, "universe", "") or "").strip()
+    if not uni:
+        return {"ok": False, "error": "universe_required"}, "", None
+    bundle = export_public_first_plateau_review_bundle(
+        client,
+        program_id=str(pid),
+        universe_name=uni,
+        include_closed_series=bool(getattr(args, "include_closed_series", False)),
+        series_scan_limit=int(getattr(args, "series_scan_limit", 30) or 30),
+    )
+    census = bundle["census"]
+    pr = bundle["plateau_review"]
+    stem = Path(
+        getattr(args, "out_stem", None) or "docs/operator_closeout"
+    ).expanduser()
+    stem.mkdir(parents=True, exist_ok=True)
+    json_path = stem / "public_first_plateau_review.json"
+    json_path.write_text(
+        json_lib.dumps(bundle, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    rec = recommend_next_public_first_command(
+        universe=uni,
+        plateau_conclusion=str(pr.get("conclusion") or ""),
+        executed_action=None,
+    )
+    review_path = stem / "latest_public_first_review.md"
+    write_latest_public_first_review_md(
+        review_path,
+        census=census,
+        plateau_review=pr,
+        cycle_payload=None,
+        recommended_command=rec,
+    )
+    payload = {
+        "ok": True,
+        "plateau_review": pr,
+        "census_summary": {
+            "series_included_count": census.get("series_included_count"),
+            "aggregated_persisted_escalation_branch_counts": census.get(
+                "aggregated_persisted_escalation_branch_counts"
+            ),
+        },
+        "json": str(json_path),
+        "review_markdown": str(review_path),
+        "recommended_next_command": rec,
+    }
+    return payload, uni, None
+
+
+def _cmd_export_public_first_plateau_review_brief(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    payload, _uni, err = _public_first_plateau_review_artifacts(args)
+    if err is not None:
+        return err
+    if not payload.get("ok"):
+        print(json_lib.dumps(payload, indent=2, ensure_ascii=False))
+        return 1
+    print(json_lib.dumps(payload, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_run_public_first_plateau_review(args: argparse.Namespace) -> int:
+    """Alias: same artifacts as export-public-first-plateau-review-brief."""
+    return _cmd_export_public_first_plateau_review_brief(args)
+
+
+def _cmd_advance_public_first_cycle(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from public_first.cycle import advance_public_first_cycle
+
+    settings = load_settings()
+    configure_logging()
+    from db.client import get_supabase_client
+
+    client = get_supabase_client(settings)
+    pid, err = _resolve_program_id_cli(client, args)
+    if err is not None:
+        return err
+    uni = str(getattr(args, "universe", "") or "").strip()
+    if not uni:
+        print(
+            json_lib.dumps({"ok": False, "error": "universe_required"}, indent=2)
+        )
+        return 1
+    stem = str(
+        getattr(args, "out_stem", None) or "docs/operator_closeout"
+    ).strip()
+    result = advance_public_first_cycle(
+        settings,
+        program_id=str(pid),
+        universe_name=uni,
+        out_stem=stem,
+        include_closed_series=bool(getattr(args, "include_closed_series", False)),
+        series_scan_limit=int(getattr(args, "series_scan_limit", 30) or 30),
+    )
+    print(
+        f"[advance-public-first-cycle] review -> {result.get('review_markdown')} "
+        f"chosen={result.get('chosen_action')} executed={result.get('executed')} ok={result.get('ok')}"
+    )
+    adv = result.get("advance_result")
+    if isinstance(adv, dict) and adv.get("operator_summary"):
+        print(str(adv["operator_summary"]))
+    print(json_lib.dumps(result, indent=2, ensure_ascii=False, default=str))
+    return 0 if result.get("ok") else 1
+
+
+def _cmd_report_validation_panel_coverage_gaps(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from substrate_closure.diagnose import report_validation_panel_coverage_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_validation_panel_coverage_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_validation_panel_coverage_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from substrate_closure.repair import run_validation_panel_coverage_repair
+
+    settings = load_settings()
+    configure_logging()
+    out = run_validation_panel_coverage_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_forward_return_gaps(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from substrate_closure.diagnose import report_forward_return_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_forward_return_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_forward_return_backfill(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from substrate_closure.repair import run_forward_return_backfill_repair
+
+    settings = load_settings()
+    configure_logging()
+    out = run_forward_return_backfill_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(args.price_lookahead_days),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_state_change_join_gaps(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from substrate_closure.diagnose import report_state_change_join_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_state_change_join_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        state_change_scores_limit=int(args.state_change_scores_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_state_change_join_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from substrate_closure.repair import run_state_change_join_repair
+
+    settings = load_settings()
+    configure_logging()
+    fv = str(getattr(args, "factor_version", None) or "v1").strip() or "v1"
+    out = run_state_change_join_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        state_change_limit=int(args.state_change_limit),
+        factor_version=fv,
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_substrate_closure_snapshot(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from substrate_closure.snapshot import (
+        build_substrate_closure_snapshot,
+        resolve_program_id_for_universe,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    uni = str(args.universe).strip()
+    pid, _err = _resolve_program_id_cli(client, args)
+    if pid is None:
+        pid = resolve_program_id_for_universe(client, universe_name=uni)
+    out = build_substrate_closure_snapshot(
+        client,
+        universe_name=uni,
+        program_id=pid,
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_substrate_closure_review(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from substrate_closure.review import (
+        recommend_phase26_from_gates,
+        write_substrate_closure_review_md,
+    )
+
+    before = json_lib.loads(
+        Path(str(args.before_json)).expanduser().read_text(encoding="utf-8")
+    )
+    after = json_lib.loads(
+        Path(str(args.after_json)).expanduser().read_text(encoding="utf-8")
+    )
+    uni = str(args.universe).strip()
+    pid = str(getattr(args, "program_id", "") or "").strip() or None
+    rec = recommend_phase26_from_gates(after.get("rerun_readiness") or {})
+    outp = write_substrate_closure_review_md(
+        path=str(args.out),
+        universe_name=uni,
+        before=before,
+        after=after,
+        program_id=pid,
+        phase26_recommendation=rec,
+    )
+    print(json_lib.dumps({"ok": True, "wrote": str(outp)}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_run_substrate_closure_sprint(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from substrate_closure.repair import (
+        run_forward_return_backfill_repair,
+        run_state_change_join_repair,
+        run_validation_panel_coverage_repair,
+    )
+    from substrate_closure.review import (
+        format_rerun_gate_report,
+        recommend_phase26_from_gates,
+        write_substrate_closure_review_md,
+    )
+    from substrate_closure.snapshot import (
+        build_substrate_closure_snapshot,
+        resolve_program_id_for_universe,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    uni = str(args.universe).strip()
+    plim = int(args.panel_limit)
+    pid, perr = _resolve_program_id_cli(client, args)
+    if pid is None:
+        pid = resolve_program_id_for_universe(client, universe_name=uni)
+
+    before = build_substrate_closure_snapshot(
+        client, universe_name=uni, program_id=pid, panel_limit=plim
+    )
+    repair_results: list[dict[str, Any]] = []
+    if getattr(args, "repair_validation", False):
+        repair_results.append(
+            run_validation_panel_coverage_repair(
+                settings, universe_name=uni, panel_limit=plim
+            )
+        )
+    if getattr(args, "repair_forward", False):
+        repair_results.append(
+            run_forward_return_backfill_repair(
+                settings,
+                universe_name=uni,
+                panel_limit=plim,
+                price_lookahead_days=int(args.price_lookahead_days),
+            )
+        )
+        if getattr(args, "refresh_validation_after_forward", False):
+            repair_results.append(
+                run_validation_panel_coverage_repair(
+                    settings, universe_name=uni, panel_limit=plim
+                )
+            )
+    if getattr(args, "repair_state_change", False):
+        fv = str(getattr(args, "factor_version", None) or "v1").strip() or "v1"
+        repair_results.append(
+            run_state_change_join_repair(
+                settings,
+                universe_name=uni,
+                panel_limit=plim,
+                state_change_limit=int(args.state_change_limit),
+                factor_version=fv,
+            )
+        )
+
+    after = build_substrate_closure_snapshot(
+        client, universe_name=uni, program_id=pid, panel_limit=plim
+    )
+
+    stem = str(getattr(args, "out_stem", "") or "").strip()
+    if stem:
+        sp = Path(stem).expanduser()
+        sp.mkdir(parents=True, exist_ok=True)
+        (sp / "substrate_closure_before.json").write_text(
+            json_lib.dumps(before, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+        (sp / "substrate_closure_after.json").write_text(
+            json_lib.dumps(after, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+
+    review_path = Path(str(getattr(args, "review_out", "")).strip()).expanduser()
+    rec = recommend_phase26_from_gates(after.get("rerun_readiness") or {})
+    write_substrate_closure_review_md(
+        path=review_path,
+        universe_name=uni,
+        before=before,
+        after=after,
+        program_id=pid,
+        phase26_recommendation=rec,
+    )
+
+    print("=== Rerun readiness (after sprint) ===")
+    print(format_rerun_gate_report(after.get("rerun_readiness") or {}))
+    trade_any = any(
+        isinstance(r, dict) and r.get("tradeoffs", {}).get("silent_degradation")
+        for r in repair_results
+    )
+    if trade_any:
+        print("=== Tradeoff warning ===")
+        print(
+            "일부 수리에서 secondary_metrics_worsened 가 감지되었습니다. "
+            "repair_results[].tradeoffs 를 확인하세요."
+        )
+    payload = {
+        "ok": True,
+        "universe_name": uni,
+        "program_id": pid,
+        "program_resolve_cli_ok": perr is None,
+        "before": before,
+        "after": after,
+        "repair_results": repair_results,
+        "substrate_closure_review_md": str(review_path),
+        "snapshot_stem": stem or None,
+    }
+    print(json_lib.dumps(payload, indent=2, ensure_ascii=False, default=str))
+    return 0
 
 
 def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
@@ -4607,6 +5389,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="UUID 또는 latest",
     )
     p20f.add_argument("--universe", default=None)
+    p20f.add_argument(
+        "--active-series-id-only",
+        action="store_true",
+        dest="active_series_id_only",
+        help="활성 시리즈 UUID만 한 줄 출력(없으면 빈 출력·종료코드 1)",
+    )
     p20f.set_defaults(func=_cmd_report_latest_repair_state)
 
     p20g = sub.add_parser(
@@ -4716,6 +5504,400 @@ def build_parser() -> argparse.ArgumentParser:
         help="활성 시리즈와 universe/policy 일치 완료 런만",
     )
     p21pair.set_defaults(func=_cmd_resolve_repair_campaign_pair)
+
+    p22s = sub.add_parser(
+        "smoke-phase22-public-depth-iteration",
+        help="Phase 22: iteration_members member_kind·public_depth_run_id 도달",
+    )
+    p22s.set_defaults(func=_cmd_smoke_phase22_public_depth_iteration)
+
+    p22a = sub.add_parser(
+        "advance-public-depth-iteration",
+        help="Phase 22: 활성 시리즈 하에서 공개 깊이 확장→원장→플래토→브리프",
+    )
+    p22a.add_argument(
+        "--program-id",
+        required=True,
+        dest="program_id",
+        help="UUID 또는 latest",
+    )
+    p22a.add_argument("--universe", default=None)
+    p22a.add_argument(
+        "--series-id",
+        default=None,
+        dest="series_id",
+        help="선택: 명시 시리즈 UUID",
+    )
+    p22a.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p22a.add_argument(
+        "--run-validation-panels",
+        action="store_true",
+        dest="run_validation_panels",
+    )
+    p22a.add_argument(
+        "--run-forward-returns",
+        action="store_true",
+        dest="run_forward_returns",
+    )
+    p22a.add_argument(
+        "--validation-panel-limit", type=int, default=2000, dest="validation_panel_limit"
+    )
+    p22a.add_argument(
+        "--forward-panel-limit", type=int, default=2000, dest="forward_panel_limit"
+    )
+    p22a.add_argument(
+        "--max-universe-factor-builds",
+        type=int,
+        default=0,
+        dest="max_universe_factor_builds",
+    )
+    p22a.add_argument(
+        "--execute-phase15-16-revalidation",
+        action="store_true",
+        dest="execute_phase15_16_revalidation",
+        help="게이트가 새로 열렸을 때만 validation_campaign 실행(명시 옵션)",
+    )
+    p22a.add_argument(
+        "--validation-campaign-panel-limit",
+        type=int,
+        default=6000,
+        dest="validation_campaign_panel_limit",
+    )
+    p22a.add_argument("--out", required=True)
+    p22a.set_defaults(func=_cmd_advance_public_depth_iteration)
+
+    p22e = sub.add_parser(
+        "export-public-depth-series-brief",
+        help="Phase 22: 시리즈 단위 공개 깊이·에스컬레이션 증거 브리프",
+    )
+    p22e.add_argument(
+        "--series-id",
+        default=None,
+        dest="series_id",
+        help="디버그: 명시 UUID. 생략 시 --program-id + --universe 로 활성 시리즈 자동 해석",
+    )
+    p22e.add_argument(
+        "--program-id",
+        default=None,
+        dest="program_id",
+        help="--series-id 없을 때 필수(또는 latest)",
+    )
+    p22e.add_argument(
+        "--universe",
+        default=None,
+        help="--series-id 없을 때 필수",
+    )
+    p22e.add_argument("--out", required=True)
+    p22e.set_defaults(func=_cmd_export_public_depth_series_brief)
+
+    p23m = sub.add_parser(
+        "report-required-migrations",
+        help="Phase 23: 로컬 supabase/migrations vs DB schema_migrations(노출 시)",
+    )
+    p23m.add_argument(
+        "--write-bundle",
+        action="store_true",
+        dest="write_bundle",
+        help="누락분만 SQL 번들 파일 생성",
+    )
+    p23m.add_argument(
+        "--bundle-out",
+        default=None,
+        dest="bundle_out",
+        metavar="PATH",
+        help="번들 출력 경로(기본 docs/operator_closeout/bundle_pending_migrations.sql)",
+    )
+    p23m.set_defaults(func=_cmd_report_required_migrations)
+
+    p23v = sub.add_parser(
+        "verify-db-phase-state",
+        help="Phase 23: phase17–22 공개 스택 스모크 체인",
+    )
+    p23v.set_defaults(func=_cmd_verify_db_phase_state)
+
+    p23c = sub.add_parser(
+        "run-post-patch-closeout",
+        help="Phase 23: 원 커맨드 패치 클로즈(마이그·스모크·시리즈·전진·브리프·요약 MD)",
+    )
+    p23c.add_argument("--universe", default=None)
+    p23c.add_argument(
+        "--program-id",
+        default="latest",
+        dest="program_id",
+        help="기본 latest (universe와 함께)",
+    )
+    p23c.add_argument(
+        "--out-stem",
+        default=None,
+        dest="out_stem",
+        metavar="DIR",
+        help="산출물 디렉터리 stem (기본 docs/operator_closeout)",
+    )
+    p23c.add_argument(
+        "--preset-file",
+        default=None,
+        dest="preset_file",
+        metavar="PATH",
+        help="JSON: {\"universe\",\"out_stem\"}",
+    )
+    p23c.add_argument(
+        "--use-default-preset",
+        action="store_true",
+        dest="use_default_preset",
+        help="프로젝트 루트 .operator_closeout_preset.json 로드",
+    )
+    p23c.add_argument(
+        "--verify-only",
+        action="store_true",
+        dest="verify_only",
+        help="전진(advance) 없이 검증·브리프만",
+    )
+    p23c.add_argument(
+        "--skip-migration-report",
+        action="store_true",
+        dest="skip_migration_report",
+        help="schema_migrations 비교 생략(스모크만 신뢰)",
+    )
+    p23c.add_argument(
+        "--no-migration-bundle",
+        action="store_true",
+        dest="no_migration_bundle",
+        help="누락 마이그레이션 번들 파일을 쓰지 않음",
+    )
+    p23c.add_argument(
+        "--allow-unverified-migration-history",
+        action="store_true",
+        dest="allow_unverified_migration_history",
+        help="(레거시) 스모크가 이미 진실 공급원; 플래그는 무시됨",
+    )
+    p23c.set_defaults(func=_cmd_run_post_patch_closeout)
+
+    p24_pf = argparse.ArgumentParser(add_help=False)
+    p24_pf.add_argument(
+        "--program-id",
+        required=True,
+        dest="program_id",
+        help="UUID 또는 latest",
+    )
+    p24_pf.add_argument("--universe", required=True)
+    p24_pf.add_argument(
+        "--include-closed-series",
+        action="store_true",
+        dest="include_closed_series",
+        help="closed 시리즈도 집계에 포함",
+    )
+    p24_pf.add_argument(
+        "--series-scan-limit",
+        type=int,
+        default=30,
+        dest="series_scan_limit",
+    )
+
+    p24a = sub.add_parser(
+        "report-public-first-branch-census",
+        parents=[p24_pf],
+        help="Phase 24: 호환 시리즈 집계·브랜치/신호/개선 분포",
+    )
+    p24a.set_defaults(func=_cmd_report_public_first_branch_census)
+
+    p24b = sub.add_parser(
+        "export-public-first-branch-census-brief",
+        parents=[p24_pf],
+        help="Phase 24: census JSON+Markdown",
+    )
+    p24b.add_argument("--out", required=True, help="stem 경로(.json/.md)")
+    p24b.set_defaults(func=_cmd_export_public_first_branch_census_brief)
+
+    p24p = sub.add_parser(
+        "export-public-first-plateau-review-brief",
+        parents=[p24_pf],
+        help="Phase 24: census+plateau 결론·latest_public_first_review.md",
+    )
+    p24p.add_argument(
+        "--out-stem",
+        default="docs/operator_closeout",
+        dest="out_stem",
+        help="public_first_plateau_review.json 및 latest_public_first_review.md 위치",
+    )
+    p24p.set_defaults(func=_cmd_export_public_first_plateau_review_brief)
+
+    p24r = sub.add_parser(
+        "run-public-first-plateau-review",
+        parents=[p24_pf],
+        help="Phase 24: plateau 리뷰 산출(export 와 동일)",
+    )
+    p24r.add_argument("--out-stem", default="docs/operator_closeout", dest="out_stem")
+    p24r.set_defaults(func=_cmd_run_public_first_plateau_review)
+
+    p25 = argparse.ArgumentParser(add_help=False)
+    p25.add_argument("--universe", required=True)
+    p25.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p25.add_argument(
+        "--program-id",
+        default="latest",
+        dest="program_id",
+        help="substrate 스냅샷·게이트용 research_programs UUID 또는 latest",
+    )
+
+    p25v = sub.add_parser(
+        "report-validation-panel-coverage-gaps",
+        parents=[p25],
+        help="Phase 25: no_validation_panel_for_symbol 원인 버킷·누락 심볼",
+    )
+    p25v.set_defaults(func=_cmd_report_validation_panel_coverage_gaps)
+
+    p25vr = sub.add_parser(
+        "run-validation-panel-coverage-repair",
+        parents=[p25],
+        help="Phase 25: 검증 패널 빌드 누락 CIK 대상 수리",
+    )
+    p25vr.set_defaults(func=_cmd_run_validation_panel_coverage_repair)
+
+    p25f = sub.add_parser(
+        "report-forward-return-gaps",
+        parents=[p25],
+        help="Phase 25: missing_excess_return_1q 행 단위 진단",
+    )
+    p25f.set_defaults(func=_cmd_report_forward_return_gaps)
+
+    p25fr = sub.add_parser(
+        "run-forward-return-backfill",
+        parents=[p25],
+        help="Phase 25: forward_returns 백필(선행 부재 행)",
+    )
+    p25fr.add_argument(
+        "--price-lookahead-days",
+        type=int,
+        default=400,
+        dest="price_lookahead_days",
+    )
+    p25fr.set_defaults(func=_cmd_run_forward_return_backfill)
+
+    p25s = sub.add_parser(
+        "report-state-change-join-gaps",
+        parents=[p25],
+        help="Phase 25: no_state_change_join 행 단위 진단",
+    )
+    p25s.add_argument(
+        "--state-change-scores-limit",
+        type=int,
+        default=50_000,
+        dest="state_change_scores_limit",
+    )
+    p25s.set_defaults(func=_cmd_report_state_change_join_gaps)
+
+    p25sr = sub.add_parser(
+        "run-state-change-join-repair",
+        parents=[p25],
+        help="Phase 25: state_change 엔진 재실행(최신 런 갱신)",
+    )
+    p25sr.add_argument(
+        "--state-change-limit",
+        type=int,
+        default=500,
+        dest="state_change_limit",
+    )
+    p25sr.add_argument("--factor-version", default="v1", dest="factor_version")
+    p25sr.set_defaults(func=_cmd_run_state_change_join_repair)
+
+    p25snap = sub.add_parser(
+        "report-substrate-closure-snapshot",
+        parents=[p25],
+        help="Phase 25: 기판 메트릭+제외+rerun 게이트 JSON 스냅샷",
+    )
+    p25snap.set_defaults(func=_cmd_report_substrate_closure_snapshot)
+
+    p25w = sub.add_parser(
+        "write-substrate-closure-review",
+        help="Phase 25: before/after 스냅샷으로 substrate_closure_review.md 작성",
+    )
+    p25w.add_argument("--universe", required=True)
+    p25w.add_argument("--before-json", required=True, dest="before_json")
+    p25w.add_argument("--after-json", required=True, dest="after_json")
+    p25w.add_argument(
+        "--out",
+        default="docs/operator_closeout/substrate_closure_review.md",
+        dest="out",
+    )
+    p25w.add_argument("--program-id", default="", dest="program_id")
+    p25w.set_defaults(func=_cmd_write_substrate_closure_review)
+
+    p25sp = sub.add_parser(
+        "run-substrate-closure-sprint",
+        parents=[p25],
+        help="Phase 25: (선택) 수리 연쇄 + 스냅샷 + substrate_closure_review.md",
+    )
+    p25sp.add_argument(
+        "--repair-validation",
+        action="store_true",
+        dest="repair_validation",
+    )
+    p25sp.add_argument(
+        "--repair-forward",
+        action="store_true",
+        dest="repair_forward",
+    )
+    p25sp.add_argument(
+        "--repair-state-change",
+        action="store_true",
+        dest="repair_state_change",
+    )
+    p25sp.add_argument(
+        "--refresh-validation-after-forward",
+        action="store_true",
+        dest="refresh_validation_after_forward",
+        help="forward 백필 직후 검증 패널 재빌드(동일 유니버스)",
+    )
+    p25sp.add_argument(
+        "--price-lookahead-days",
+        type=int,
+        default=400,
+        dest="price_lookahead_days",
+    )
+    p25sp.add_argument(
+        "--state-change-limit",
+        type=int,
+        default=500,
+        dest="state_change_limit",
+    )
+    p25sp.add_argument("--factor-version", default="v1", dest="factor_version")
+    p25sp.add_argument(
+        "--out-stem",
+        default="",
+        dest="out_stem",
+        help="before/after JSON 저장 디렉터리(선택)",
+    )
+    p25sp.add_argument(
+        "--review-out",
+        default="docs/operator_closeout/substrate_closure_review.md",
+        dest="review_out",
+    )
+    p25sp.set_defaults(func=_cmd_run_substrate_closure_sprint)
+
+    p24c = sub.add_parser(
+        "advance-public-first-cycle",
+        help="Phase 24: 교대·혼합 chooser·선택 전진 + 리뷰 MD",
+    )
+    p24c.add_argument(
+        "--program-id",
+        default="latest",
+        dest="program_id",
+        help="UUID 또는 latest (기본 latest)",
+    )
+    p24c.add_argument("--universe", required=True)
+    p24c.add_argument(
+        "--include-closed-series",
+        action="store_true",
+        dest="include_closed_series",
+    )
+    p24c.add_argument(
+        "--series-scan-limit",
+        type=int,
+        default=30,
+        dest="series_scan_limit",
+    )
+    p24c.add_argument("--out-stem", default="docs/operator_closeout", dest="out_stem")
+    p24c.set_defaults(func=_cmd_advance_public_first_cycle)
 
     return p
 

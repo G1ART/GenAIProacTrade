@@ -1,0 +1,4 @@
+{
+  "universe": "sp500_current",
+  "out_stem": "docs/operator_closeout"
+}

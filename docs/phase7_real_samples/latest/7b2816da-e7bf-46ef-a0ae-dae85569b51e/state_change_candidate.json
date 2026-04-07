@@ -1,0 +1,22 @@
+{
+  "id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+  "run_id": "609ef27d-50c2-4060-807c-868e7e6fc036",
+  "issuer_id": "61ad874a-018d-4127-a7aa-a2ba027c2fdf",
+  "cik": "0001286681",
+  "ticker": "DPZ",
+  "as_of_date": "2025-09-28",
+  "candidate_rank": 3,
+  "candidate_class": "insufficient_data",
+  "candidate_reason_json": {
+    "rank": 3,
+    "rule": "gating_not_ok",
+    "gating_status": "high_missingness",
+    "confidence_band": "low",
+    "state_change_score_v1": -0.8658118927787452
+  },
+  "dominant_change_type": "direction_weakening",
+  "confidence_band": "low",
+  "human_review_priority": 154,
+  "excluded_reason": "gating_high_missingness",
+  "created_at": "2026-04-04T02:33:14.739833+00:00"
+}

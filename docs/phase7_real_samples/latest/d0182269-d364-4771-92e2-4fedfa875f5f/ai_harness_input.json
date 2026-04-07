@@ -1,0 +1,387 @@
+{
+  "id": "63cda388-62b1-47c9-a7ff-9c88d308f636",
+  "candidate_id": "d0182269-d364-4771-92e2-4fedfa875f5f",
+  "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036",
+  "contract_version": "ai_harness_input_v1",
+  "payload_json": {
+    "cik": "0001858681",
+    "ticker": "APO",
+    "issuer_id": "33792d02-d58f-4e62-9508-3ab234ed9ec8",
+    "as_of_date": "2025-09-28",
+    "built_at_utc": "2026-04-04T06:04:42.260830+00:00",
+    "candidate_id": "d0182269-d364-4771-92e2-4fedfa875f5f",
+    "company_name": "Apollo Global Management, Inc.",
+    "payload_hash": "4acd36ebc52149ae8ace0eb156b4b1a81c1eba3a47b8c43b0a0152a232baac9e",
+    "universe_name": "sp500_current",
+    "candidate_rank": 1,
+    "coverage_flags": [
+      "missing_component_count=23",
+      "component_quality:accruals",
+      "component_quality:asset_growth",
+      "component_quality:capex_intensity",
+      "component_quality:financial_strength_score_v1",
+      "component_quality:gross_profitability",
+      "component_quality:rnd_intensity",
+      "validation_panel_has_forward_return_columns_present"
+    ],
+    "factor_version": "v1",
+    "candidate_class": "insufficient_data",
+    "confidence_band": "low",
+    "contract_version": "ai_harness_input_v1",
+    "key_factor_deltas": {
+      "financial_strength_score": 0.0
+    },
+    "state_change_score": -0.86581189,
+    "component_breakdown": [
+      {
+        "level_score": null,
+        "signal_name": "accruals",
+        "signal_family": "accounting_factor",
+        "coverage_ratio": 1.0,
+        "velocity_score": null,
+        "regime_fit_score": -0.8806902390478988,
+        "persistence_score": null,
+        "acceleration_score": null,
+        "quality_flags_json": {
+          "flags": [
+            "context_dependent_signal"
+          ]
+        },
+        "contamination_score": null
+      },
+      {
+        "level_score": null,
+        "signal_name": "asset_growth",
+        "signal_family": "accounting_factor",
+        "coverage_ratio": 1.0,
+        "velocity_score": null,
+        "regime_fit_score": -0.8806902390478988,
+        "persistence_score": null,
+        "acceleration_score": null,
+        "quality_flags_json": {
+          "flags": [
+            "context_dependent_signal"
+          ]
+        },
+        "contamination_score": null
+      },
+      {
+        "level_score": null,
+        "signal_name": "capex_intensity",
+        "signal_family": "accounting_factor",
+        "coverage_ratio": 1.0,
+        "velocity_score": null,
+        "regime_fit_score": -0.8806902390478988,
+        "persistence_score": null,
+        "acceleration_score": null,
+        "quality_flags_json": {
+          "flags": [
+            "context_dependent_signal"
+          ]
+        },
+        "contamination_score": null
+      },
+      {
+        "level_score": -0.7284059889989142,
+        "signal_name": "financial_strength_score_v1",
+        "signal_family": "accounting_factor",
+        "coverage_ratio": 1.0,
+        "velocity_score": null,
+        "regime_fit_score": -0.8806902390478988,
+        "persistence_score": null,
+        "acceleration_score": null,
+        "quality_flags_json": {
+          "flags": []
+        },
+        "contamination_score": null
+      },
+      {
+        "level_score": null,
+        "signal_name": "gross_profitability",
+        "signal_family": "accounting_factor",
+        "coverage_ratio": 1.0,
+        "velocity_score": null,
+        "regime_fit_score": -0.8806902390478988,
+        "persistence_score": null,
+        "acceleration_score": null,
+        "quality_flags_json": {
+          "flags": []
+        },
+        "contamination_score": null
+      },
+      {
+        "level_score": null,
+        "signal_name": "rnd_intensity",
+        "signal_family": "accounting_factor",
+        "coverage_ratio": 1.0,
+        "velocity_score": null,
+        "regime_fit_score": -0.8806902390478988,
+        "persistence_score": null,
+        "acceleration_score": null,
+        "quality_flags_json": {
+          "flags": [
+            "context_dependent_signal"
+          ]
+        },
+        "contamination_score": null
+      }
+    ],
+    "score_gating_status": "high_missingness",
+    "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036",
+    "dominant_change_type": "direction_weakening",
+    "regime_context_flags": [],
+    "candidate_reason_json": {
+      "rank": 1,
+      "rule": "gating_not_ok",
+      "gating_status": "high_missingness",
+      "confidence_band": "low",
+      "state_change_score_v1": -0.8658118927787452
+    },
+    "filing_source_handles": [
+      {
+        "cik": "0001858681",
+        "kind": "sec_accession",
+        "accession_no": "0001858681-25-000139"
+      },
+      {
+        "kind": "issuer_quarter_snapshot",
+        "fiscal_year": 2025,
+        "snapshot_id": "1df5fe08-e500-4233-b151-38960b613a9e",
+        "fiscal_period": "Q3"
+      }
+    ],
+    "validation_panel_join": {
+      "panel_quality_flags": [
+        "missing_market_metadata"
+      ],
+      "signal_available_date": "2025-11-11",
+      "has_forward_return_fields": true
+    },
+    "state_change_direction": "weakening",
+    "missing_data_indicators": [
+      "missing_components_in_score"
+    ],
+    "top_driver_signals_json": [
+      {
+        "signal": "accruals",
+        "weighted_contribution": -0.88069
+      },
+      {
+        "signal": "gross_profitability",
+        "weighted_contribution": -0.88069
+      },
+      {
+        "signal": "asset_growth",
+        "weighted_contribution": -0.88069
+      },
+      {
+        "signal": "capex_intensity",
+        "weighted_contribution": -0.88069
+      },
+      {
+        "signal": "rnd_intensity",
+        "weighted_contribution": -0.88069
+      }
+    ],
+    "contamination_indicators": [],
+    "validation_context_summary": {
+      "summaries": [
+        {
+          "factor_name": "accruals",
+          "horizon_type": "next_month",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "accruals",
+          "horizon_type": "next_month",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "gross_profitability",
+          "horizon_type": "next_month",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "gross_profitability",
+          "horizon_type": "next_month",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "asset_growth",
+          "horizon_type": "next_month",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "asset_growth",
+          "horizon_type": "next_month",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "capex_intensity",
+          "horizon_type": "next_month",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "capex_intensity",
+          "horizon_type": "next_month",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "rnd_intensity",
+          "horizon_type": "next_month",
+          "pearson_corr": 0.1355910270025943,
+          "sample_count": 311,
+          "hit_rate_same_sign": 0.5064935064935064,
+          "spearman_rank_corr": -0.03882959146117041
+        },
+        {
+          "factor_name": "rnd_intensity",
+          "horizon_type": "next_month",
+          "pearson_corr": 0.13558672325423454,
+          "sample_count": 311,
+          "hit_rate_same_sign": 0.5064935064935064,
+          "spearman_rank_corr": -0.03882959146117041
+        },
+        {
+          "factor_name": "financial_strength_score_v1",
+          "horizon_type": "next_month",
+          "pearson_corr": -0.048838843890877656,
+          "sample_count": 311,
+          "hit_rate_same_sign": 0.5733788395904437,
+          "spearman_rank_corr": -0.0027278763752772665
+        },
+        {
+          "factor_name": "financial_strength_score_v1",
+          "horizon_type": "next_month",
+          "pearson_corr": -0.048813368794149894,
+          "sample_count": 311,
+          "hit_rate_same_sign": 0.5631399317406144,
+          "spearman_rank_corr": -0.0027278763752772665
+        },
+        {
+          "factor_name": "accruals",
+          "horizon_type": "next_quarter",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "accruals",
+          "horizon_type": "next_quarter",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "gross_profitability",
+          "horizon_type": "next_quarter",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "gross_profitability",
+          "horizon_type": "next_quarter",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "asset_growth",
+          "horizon_type": "next_quarter",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "asset_growth",
+          "horizon_type": "next_quarter",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "capex_intensity",
+          "horizon_type": "next_quarter",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "capex_intensity",
+          "horizon_type": "next_quarter",
+          "pearson_corr": null,
+          "sample_count": 311,
+          "hit_rate_same_sign": null,
+          "spearman_rank_corr": null
+        },
+        {
+          "factor_name": "rnd_intensity",
+          "horizon_type": "next_quarter",
+          "pearson_corr": 0.19443832134040315,
+          "sample_count": 311,
+          "hit_rate_same_sign": 0.6037735849056604,
+          "spearman_rank_corr": -0.17464925012094823
+        },
+        {
+          "factor_name": "rnd_intensity",
+          "horizon_type": "next_quarter",
+          "pearson_corr": 0.19444689512278773,
+          "sample_count": 311,
+          "hit_rate_same_sign": 0.5849056603773585,
+          "spearman_rank_corr": -0.17464925012094823
+        },
+        {
+          "factor_name": "financial_strength_score_v1",
+          "horizon_type": "next_quarter",
+          "pearson_corr": 0.02147232428462288,
+          "sample_count": 311,
+          "hit_rate_same_sign": 0.684,
+          "spearman_rank_corr": 0.05732488171121078
+        },
+        {
+          "factor_name": "financial_strength_score_v1",
+          "horizon_type": "next_quarter",
+          "pearson_corr": 0.021448084558148443,
+          "sample_count": 311,
+          "hit_rate_same_sign": 0.656,
+          "spearman_rank_corr": 0.05732488171121078
+        }
+      ],
+      "universe_name": "sp500_current"
+    }
+  },
+  "payload_hash": "4acd36ebc52149ae8ace0eb156b4b1a81c1eba3a47b8c43b0a0152a232baac9e",
+  "built_at": "2026-04-04T06:04:42.299561+00:00"
+}

@@ -213,6 +213,71 @@ def collect_plateau_snapshots_for_series(
     excluded: list[dict[str, Any]] = []
     infra_excluded = 0
     for m in members:
+        mk = str(m.get("member_kind") or "repair_campaign")
+        pdepth_id = m.get("public_depth_run_id")
+        if mk == "public_depth" or pdepth_id:
+            drid = str(pdepth_id or "")
+            if not drid:
+                excluded.append(
+                    {
+                        "public_depth_run_id": "",
+                        "reason": "missing_public_depth_run_id",
+                    }
+                )
+                continue
+            drow = dbrec.fetch_public_depth_run(client, run_id=drid)
+            if not drow:
+                excluded.append(
+                    {"public_depth_run_id": drid, "reason": "depth_run_row_missing"}
+                )
+                continue
+            msg = str(drow.get("error_message") or "")
+            st = str(drow.get("status") or "")
+            if exclude_infra_default:
+                if st == "failed":
+                    cat = classify_infra_failure(msg)
+                    reason = f"failed_depth_run:{cat or 'non_infra'}"
+                    excluded.append(
+                        {
+                            "public_depth_run_id": drid,
+                            "reason": reason,
+                            "error_preview": msg[:240],
+                        }
+                    )
+                    if cat:
+                        infra_excluded += 1
+                    continue
+                if st != "completed":
+                    excluded.append(
+                        {
+                            "public_depth_run_id": drid,
+                            "reason": "depth_run_not_completed",
+                            "status": st,
+                        }
+                    )
+                    continue
+                if classify_infra_failure(msg):
+                    excluded.append(
+                        {
+                            "public_depth_run_id": drid,
+                            "reason": "infra_echo_on_completed_depth_run",
+                            "error_preview": msg[:240],
+                        }
+                    )
+                    infra_excluded += 1
+                    continue
+            snap = dict(m.get("trend_snapshot_json") or {})
+            if snap:
+                included_snaps.append(snap)
+            else:
+                excluded.append(
+                    {
+                        "public_depth_run_id": drid,
+                        "reason": "missing_trend_snapshot_on_member",
+                    }
+                )
+            continue
+
         rid = str(m.get("repair_campaign_run_id") or "")
         run_row = dbrec.fetch_public_repair_campaign_run(client, run_id=rid)
         if not run_row:
@@ -437,6 +502,7 @@ def append_completed_run_to_iteration_series(
         client,
         {
             "series_id": series_id,
+            "member_kind": "repair_campaign",
             "repair_campaign_run_id": rid,
             "sequence_number": seq,
             "trend_snapshot_json": snap,
@@ -816,6 +882,14 @@ def export_public_repair_escalation_brief(
                 str(x.get("repair_campaign_run_id") or "")
                 for x in snaps["snapshots"]
             ],
+            "public_depth_run_ids_in_order": [
+                str(x.get("public_depth_run_id") or "")
+                for x in snaps["snapshots"]
+            ],
+            "member_kinds_in_order": [
+                str(x.get("member_kind") or "repair_campaign")
+                for x in snaps["snapshots"]
+            ],
             "included_run_count": snaps["included_run_count"],
         }
         brief["excluded_runs_with_reasons"] = snaps["excluded_runs"]
@@ -896,6 +970,8 @@ def report_latest_repair_state(
     return {
         "ok": True,
         "program_id": program_id,
+        # Top-level UUID for operators (avoid digging into active_iteration_series[0].id).
+        "active_series_id": series_id,
         "latest_repair_campaign_runs": runs,
         "active_iteration_series": actives,
         "plateau_report": plateau,

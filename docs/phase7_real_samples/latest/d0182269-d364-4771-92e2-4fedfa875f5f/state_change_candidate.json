@@ -1,0 +1,22 @@
+{
+  "id": "d0182269-d364-4771-92e2-4fedfa875f5f",
+  "run_id": "609ef27d-50c2-4060-807c-868e7e6fc036",
+  "issuer_id": "33792d02-d58f-4e62-9508-3ab234ed9ec8",
+  "cik": "0001858681",
+  "ticker": "APO",
+  "as_of_date": "2025-09-28",
+  "candidate_rank": 1,
+  "candidate_class": "insufficient_data",
+  "candidate_reason_json": {
+    "rank": 1,
+    "rule": "gating_not_ok",
+    "gating_status": "high_missingness",
+    "confidence_band": "low",
+    "state_change_score_v1": -0.8658118927787452
+  },
+  "dominant_change_type": "direction_weakening",
+  "confidence_band": "low",
+  "human_review_priority": 155,
+  "excluded_reason": "gating_high_missingness",
+  "created_at": "2026-04-04T02:33:14.739833+00:00"
+}

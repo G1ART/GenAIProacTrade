@@ -1,0 +1,26 @@
+[
+  {
+    "candidate_id": "d0182269-d364-4771-92e2-4fedfa875f5f",
+    "run_id": "609ef27d-50c2-4060-807c-868e7e6fc036",
+    "ticker_hint": "APO",
+    "memo_id": "3ee86814-f1e3-4d06-9775-016d9c8571c1",
+    "referee_passed": true,
+    "claims_count": 10
+  },
+  {
+    "candidate_id": "27c1e682-e867-4bb3-91d4-974612afa696",
+    "run_id": "609ef27d-50c2-4060-807c-868e7e6fc036",
+    "ticker_hint": "APTV",
+    "memo_id": "bf7c21b5-3e11-45eb-8657-c727b878afb7",
+    "referee_passed": true,
+    "claims_count": 10
+  },
+  {
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "run_id": "609ef27d-50c2-4060-807c-868e7e6fc036",
+    "ticker_hint": "DPZ",
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "referee_passed": true,
+    "claims_count": 10
+  }
+]

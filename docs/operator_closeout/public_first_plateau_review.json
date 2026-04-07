@@ -1,0 +1,110 @@
+{
+  "ok": true,
+  "census": {
+    "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+    "universe_name": "sp500_current",
+    "series_included_count": 1,
+    "exclusions": [
+      {
+        "series_id": "02119b7d-504e-4ad1-80d2-bb7fe5d94fb1",
+        "reason": "series_closed_excluded",
+        "hint": "pass include_closed_series to include"
+      }
+    ],
+    "aggregated_persisted_escalation_branch_counts": {
+      "hold_and_repeat_public_repair": 2
+    },
+    "aggregated_depth_operator_signal_counts": {
+      "repeat_targeted_public_repair": 1
+    },
+    "aggregated_improvement_classification_counts": {
+      "no_material_progress": 1
+    },
+    "deduped_improvement_classification_counts": {
+      "no_material_progress": 1
+    },
+    "sum_included_run_count": 2,
+    "sum_excluded_infra_failure_count": 0,
+    "sum_excluded_other_count": 0,
+    "latest_dominant_exclusion_keys_merged": [
+      "no_validation_panel_for_symbol",
+      "missing_excess_return_1q",
+      "no_state_change_join"
+    ],
+    "active_series_snapshot": {
+      "series_id": "eda6a9b1-18f9-4490-8649-db54066bbb7b",
+      "status": "active",
+      "escalation_recommendation_current": "hold_and_repeat_public_repair",
+      "public_depth_operator_signal": "repeat_targeted_public_repair",
+      "improvement_classification_counts": {
+        "no_material_progress": 1
+      },
+      "included_run_count": 2
+    },
+    "latest_rerun_readiness": {
+      "ok": true,
+      "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+      "universe_name": "sp500_current",
+      "program_quality_context_hint": "thin_input",
+      "substrate_snapshot": {
+        "universe_name": "sp500_current",
+        "as_of_date": "2026-04-05",
+        "n_issuer_universe": 503,
+        "state_change_run_id": "d911b273-1c8a-4bbe-b653-2c90b193f0c1",
+        "panel_limit_used": 8000,
+        "state_change_scores_limit_used": 50000,
+        "thin_input_share": 1.0,
+        "degraded_share": 0.0,
+        "strong_share": 0.0,
+        "usable_with_gaps_share": 0.0,
+        "n_issuer_resolved_cik": 313,
+        "n_issuer_with_factor_panel": 312,
+        "n_issuer_with_state_change_cik": 312,
+        "validation_panel_row_count": 312,
+        "n_issuer_no_validation_panel_row": 191,
+        "n_issuer_with_validation_panel_symbol": 312,
+        "n_issuer_with_next_quarter_excess": 251,
+        "validation_join_row_count": 251,
+        "joined_recipe_substrate_row_count": 243,
+        "dominant_exclusion_reasons": [
+          {
+            "reason": "no_validation_panel_for_symbol",
+            "count": 191
+          },
+          {
+            "reason": "missing_excess_return_1q",
+            "count": 61
+          },
+          {
+            "reason": "no_state_change_join",
+            "count": 8
+          }
+        ]
+      },
+      "thresholds": {
+        "joined_phase15": 120,
+        "joined_phase16": 144,
+        "thin_share_max_phase15": 0.55,
+        "thin_share_max_phase16": 0.45
+      },
+      "recommend_rerun_phase15": false,
+      "recommend_rerun_phase16": false,
+      "notes": "Phase 15 권고: joined_recipe_substrate_row_count >= joined_phase15 이고 thin_input_share < thin_share_max_phase15. Phase 16은 joined·thin 바가 더 엄격함."
+    },
+    "series_ids_included": [
+      "eda6a9b1-18f9-4490-8649-db54066bbb7b"
+    ],
+    "ok": true
+  },
+  "plateau_review": {
+    "ok": true,
+    "conclusion": "mixed_or_insufficient_evidence",
+    "reason": "insufficient_depth_moves_or_mixed_classification_balance",
+    "counts": {
+      "total_classified_depth_moves": 1,
+      "meaningful_progress": 0,
+      "marginal_progress": 0
+    },
+    "premium_live_integration": false
+  }
+}

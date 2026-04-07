@@ -1,0 +1,127 @@
+{
+  "version": 2,
+  "series_id": "eda6a9b1-18f9-4490-8649-db54066bbb7b",
+  "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+  "universe_name": "sp500_current",
+  "policy_version": "1",
+  "series_status": "active",
+  "compatibility_basis": {
+    "series_universe": "sp500_current",
+    "series_policy_version": "1",
+    "iteration_policy_expected": "1",
+    "series_status": "active",
+    "governance_audit": {}
+  },
+  "included_runs": {
+    "repair_campaign_run_ids_in_order": [
+      "",
+      "96c0b69a-8728-4ace-a147-d0ce2784a22f"
+    ],
+    "public_depth_run_ids_in_order": [
+      "d7dc52a8-1762-4ad5-859a-4d2f6a91dc47",
+      ""
+    ],
+    "member_kinds_in_order": [
+      "public_depth",
+      "repair_campaign"
+    ],
+    "included_run_count": 2
+  },
+  "latest_persisted_escalation": {
+    "id": "87fa0a83-51e7-45f2-b930-0174d2e3bd44",
+    "series_id": "eda6a9b1-18f9-4490-8649-db54066bbb7b",
+    "recommendation": "hold_and_repeat_public_repair",
+    "rationale": "hold_and_repeat_public_repair: mixed_or_inconclusive",
+    "plateau_metrics_json": {
+      "thin_series": [
+        1.0,
+        1.0
+      ],
+      "n_iterations": 2,
+      "excluded_runs": [],
+      "joined_series": [
+        243,
+        243
+      ],
+      "final_decisions": [
+        "public_depth_iteration",
+        "repair_insufficient_repeat_buildout"
+      ],
+      "rationale_struct": {
+        "rule": "mixed_or_inconclusive",
+        "thin_delta_first_last": 0.0,
+        "joined_delta_first_last": 0
+      },
+      "included_run_count": 2,
+      "excluded_other_count": 0,
+      "premium_share_latest": 0.0,
+      "thin_delta_first_last": 0.0,
+      "joined_delta_first_last": 0,
+      "n_iteration_members_total": 2,
+      "excluded_infra_failure_count": 0
+    },
+    "counterfactual_json": {
+      "if_more_iterations": "Collect more completed repair campaigns before premium escalation.",
+      "if_substrate_jumps": "Would favor continue_public_depth.",
+      "if_premium_share_drops": "Would reduce pressure toward open_targeted_premium_discovery."
+    },
+    "created_at": "2026-04-07T16:19:33.473169+00:00"
+  },
+  "recomputed_from_members": {
+    "recommendation": "hold_and_repeat_public_repair",
+    "rationale": {
+      "rule": "mixed_or_inconclusive",
+      "joined_delta_first_last": 0,
+      "thin_delta_first_last": 0.0
+    },
+    "plateau_metrics": {
+      "n_iterations": 2,
+      "joined_series": [
+        243,
+        243
+      ],
+      "thin_series": [
+        1.0,
+        1.0
+      ],
+      "final_decisions": [
+        "public_depth_iteration",
+        "repair_insufficient_repeat_buildout"
+      ],
+      "joined_delta_first_last": 0,
+      "thin_delta_first_last": 0.0,
+      "premium_share_latest": 0.0,
+      "included_run_count": 2,
+      "excluded_infra_failure_count": 0,
+      "excluded_other_count": 0,
+      "n_iteration_members_total": 2
+    },
+    "counterfactual": {
+      "if_more_iterations": "Collect more completed repair campaigns before premium escalation.",
+      "if_substrate_jumps": "Would favor continue_public_depth.",
+      "if_premium_share_drops": "Would reduce pressure toward open_targeted_premium_discovery."
+    },
+    "excluded_runs": [],
+    "trend_deltas_vs_prior_persisted": {
+      "included_run_count_delta": 1.0,
+      "n_iterations_delta": 1.0
+    }
+  },
+  "final_recommendation": "hold_and_repeat_public_repair",
+  "counterfactual_summary": {
+    "if_more_iterations": "Collect more completed repair campaigns before premium escalation.",
+    "if_substrate_jumps": "Would favor continue_public_depth.",
+    "if_premium_share_drops": "Would reduce pressure toward open_targeted_premium_discovery."
+  },
+  "premium_discovery_gate_checklist": {
+    "recommendation_matches_open_premium": false,
+    "rule": "mixed_or_inconclusive",
+    "n_iterations_used": 2,
+    "included_run_count": 2,
+    "joined_delta_first_last": 0,
+    "thin_latest": 1.0,
+    "premium_share_latest": 0.0,
+    "infra_quarantine_applied_default": true
+  },
+  "excluded_runs_with_reasons": []
+}

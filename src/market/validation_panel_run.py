@@ -51,6 +51,25 @@ def _fetch_metadata_row(client: Any, *, symbol: str) -> dict[str, Any] | None:
     return dict(q.data[0])
 
 
+def run_validation_panel_build_from_rows(
+    settings: Any,
+    *,
+    panels: list[dict[str, Any]],
+    metadata_json: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """issuer_quarter_factor_panels 행 목록으로 검증 패널만 갱신(Phase 25 타깃 수리)."""
+    client = get_supabase_client(settings)
+    meta = dict(metadata_json or {})
+    meta["n_input_panels"] = len(panels)
+    run_id = ingest_run_create_started(
+        client,
+        run_type=FACTOR_MARKET_VALIDATION_BUILD,
+        target_count=len(panels),
+        metadata_json=meta,
+    )
+    return _validation_panel_build_loop(client, run_id, panels)
+
+
 def run_validation_panel_build(settings: Any, *, limit_panels: int = 2000) -> dict[str, Any]:
     client = get_supabase_client(settings)
     panels = fetch_factor_panels_all(client, limit=limit_panels)
@@ -60,6 +79,12 @@ def run_validation_panel_build(settings: Any, *, limit_panels: int = 2000) -> di
         target_count=len(panels),
         metadata_json={"limit_panels": limit_panels},
     )
+    return _validation_panel_build_loop(client, run_id, panels)
+
+
+def _validation_panel_build_loop(
+    client: Any, run_id: str, panels: list[dict[str, Any]]
+) -> dict[str, Any]:
     ok = 0
     fail = 0
     errors: list[dict[str, Any]] = []

@@ -1,0 +1,22 @@
+{
+  "id": "27c1e682-e867-4bb3-91d4-974612afa696",
+  "run_id": "609ef27d-50c2-4060-807c-868e7e6fc036",
+  "issuer_id": "6fd4f746-a96f-4cd2-9ff8-84e02cf5194c",
+  "cik": "0001521332",
+  "ticker": "APTV",
+  "as_of_date": "2025-09-28",
+  "candidate_rank": 2,
+  "candidate_class": "insufficient_data",
+  "candidate_reason_json": {
+    "rank": 2,
+    "rule": "gating_not_ok",
+    "gating_status": "high_missingness",
+    "confidence_band": "low",
+    "state_change_score_v1": -0.8658118927787452
+  },
+  "dominant_change_type": "direction_weakening",
+  "confidence_band": "low",
+  "human_review_priority": 155,
+  "excluded_reason": "gating_high_missingness",
+  "created_at": "2026-04-04T02:33:14.739833+00:00"
+}

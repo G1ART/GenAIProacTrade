@@ -1,0 +1,344 @@
+{
+  "id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+  "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+  "input_id": "541c55ff-494e-4921-9153-46e6adf0b169",
+  "memo_version": 2,
+  "generation_mode": "deterministic_skeleton_v1",
+  "memo_json": {
+    "memo_id": "44768fe4-7afb-456c-a0aa-23450f934a69",
+    "synthesis": {
+      "text": "Thesis highlights what the deterministic spine asserts for this issuer-date. Challenge lists interpretive and data risks that can overturn a naive reading. Both remain simultaneously tenable; the operator must judge under uncertainty.",
+      "thesis_preserved": true,
+      "uncertainty_label": "unverifiable",
+      "challenge_preserved": true,
+      "explicit_disagreement_note": "No forced consensus: thesis (plausible_hypothesis) and challenge (plausible_hypothesis) coexist."
+    },
+    "candidate_id": "7b2816da-e7bf-46ef-a0ae-dae85569b51e",
+    "memo_version": 2,
+    "source_trace": {
+      "cik": "0001286681",
+      "as_of_date": "2025-09-28",
+      "payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197",
+      "contract_version": "ai_harness_input_v1",
+      "state_change_run_id": "609ef27d-50c2-4060-807c-868e7e6fc036"
+    },
+    "referee_flags": [],
+    "referee_result": {
+      "flags": [],
+      "passed": true
+    },
+    "evidence_blocks": [
+      {
+        "ref": {
+          "cik": "0001286681",
+          "kind": "sec_accession",
+          "accession_no": "0001193125-25-237878"
+        },
+        "kind": "filing_handle",
+        "uncertainty_label": "confirmed"
+      },
+      {
+        "ref": {
+          "kind": "issuer_quarter_snapshot",
+          "fiscal_year": 2025,
+          "snapshot_id": "1723d433-9f17-4477-b467-f894ed609f29",
+          "fiscal_period": "Q3"
+        },
+        "kind": "filing_handle",
+        "uncertainty_label": "confirmed"
+      },
+      {
+        "ref": {
+          "direction": "weakening",
+          "state_change_score": -0.86581189
+        },
+        "kind": "deterministic_score_row",
+        "uncertainty_label": "confirmed"
+      }
+    ],
+    "generation_mode": "deterministic_skeleton_v1",
+    "operator_status": "pending_review",
+    "generated_at_utc": "2026-04-05T06:00:35.379161+00:00",
+    "uncertainty_labels": [
+      "plausible_hypothesis",
+      "plausible_hypothesis",
+      "unverifiable"
+    ],
+    "memo_schema_version": "investigation_memo_v1",
+    "thesis_interpretation": {
+      "text": "Deterministic state-change layer classifies this issuer-date as `insufficient_data` with direction `weakening` and score `-0.86581189`. A constructive reading: the recorded component pattern is consistent with an internal narrative of shifting fundamentals or reporting context as encoded in Phase 6 signals — subject to data gaps below.",
+      "anchors": {
+        "candidate_rank": 3,
+        "candidate_class": "insufficient_data",
+        "confidence_band": "low",
+        "state_change_score": -0.86581189,
+        "dominant_change_type": "direction_weakening",
+        "state_change_direction": "weakening",
+        "top_driver_signals_json": [
+          {
+            "signal": "accruals",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "gross_profitability",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "asset_growth",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "capex_intensity",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "rnd_intensity",
+            "weighted_contribution": -0.88069
+          }
+        ],
+        "component_breakdown_preview": [
+          {
+            "level_score": null,
+            "signal_name": "accruals",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "asset_growth",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "capex_intensity",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": -0.7284059889989142,
+            "signal_name": "financial_strength_score_v1",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": []
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "gross_profitability",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": []
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "rnd_intensity",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          }
+        ]
+      },
+      "uncertainty_label": "plausible_hypothesis"
+    },
+    "strongest_counter_argument": {
+      "uncertainty_label": "plausible_hypothesis",
+      "data_insufficiency_risk": "Missing or thin inputs: missing_components_in_score. Coverage notes: missing_component_count=23, component_quality:accruals, component_quality:asset_growth, component_quality:capex_intensity, component_quality:financial_strength_score_v1, component_quality:gross_profitability",
+      "validation_context_note": {
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ],
+        "signal_available_date": "2025-10-15",
+        "has_forward_return_fields": true
+      },
+      "alternate_interpretation": "The same numeric pattern could reflect stale filings, partial component coverage, or regime mismatch rather than an economically meaningful shift. Correlation in research summaries does not imply issuer-level predictive validity.",
+      "contamination_regime_risk": "Component-level contamination/regime scores may be null or weak; interpretation should not assume clean regime alignment.",
+      "what_would_falsify_thesis": "Future restatements, revised filings, or reconciled fundamentals that remove the driver signals; or demonstration that drivers were data artifacts.",
+      "why_change_may_not_matter": "Market prices and forward outcomes are not evaluated here; the signal is a documentation-time state snapshot, not proof of subsequent performance."
+    },
+    "limitations_and_missingness": "This memo is an analytical overlay; it does not modify deterministic tables. Forward returns in validation panels are research join fields, not used here as predictive features. Missing-data flags: missing_components_in_score",
+    "deterministic_signal_summary": {
+      "block": {
+        "candidate_rank": 3,
+        "candidate_class": "insufficient_data",
+        "confidence_band": "low",
+        "state_change_score": -0.86581189,
+        "dominant_change_type": "direction_weakening",
+        "state_change_direction": "weakening",
+        "top_driver_signals_json": [
+          {
+            "signal": "accruals",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "gross_profitability",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "asset_growth",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "capex_intensity",
+            "weighted_contribution": -0.88069
+          },
+          {
+            "signal": "rnd_intensity",
+            "weighted_contribution": -0.88069
+          }
+        ],
+        "component_breakdown_preview": [
+          {
+            "level_score": null,
+            "signal_name": "accruals",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "asset_growth",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "capex_intensity",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": -0.7284059889989142,
+            "signal_name": "financial_strength_score_v1",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": []
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "gross_profitability",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": []
+            },
+            "contamination_score": null
+          },
+          {
+            "level_score": null,
+            "signal_name": "rnd_intensity",
+            "signal_family": "accounting_factor",
+            "coverage_ratio": 1.0,
+            "velocity_score": null,
+            "regime_fit_score": -0.8806902390478988,
+            "persistence_score": null,
+            "acceleration_score": null,
+            "quality_flags_json": {
+              "flags": [
+                "context_dependent_signal"
+              ]
+            },
+            "contamination_score": null
+          }
+        ]
+      },
+      "uncertainty_label": "confirmed"
+    }
+  },
+  "referee_passed": true,
+  "referee_flags_json": [],
+  "created_at": "2026-04-05T06:00:34.908969+00:00",
+  "input_payload_hash": "89097c6e4a0e6786f85a4b21eee321e9d7c3b418fc73a7e84622de37bbf96197"
+}

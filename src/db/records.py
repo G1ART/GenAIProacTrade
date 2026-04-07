@@ -3061,6 +3061,14 @@ def smoke_phase21_iteration_governance(client: Client) -> None:
     client.table("public_repair_iteration_series").select("governance_audit_json").limit(1).execute()
 
 
+def smoke_phase22_public_depth_iteration_members(client: Client) -> None:
+    """Phase 22: iteration members may link public_depth_runs."""
+    smoke_phase21_iteration_governance(client)
+    client.table("public_repair_iteration_members").select(
+        "member_kind,public_depth_run_id"
+    ).limit(1).execute()
+
+
 def insert_public_repair_iteration_series(client: Client, row: dict[str, Any]) -> str:
     res = client.table("public_repair_iteration_series").insert(row).execute()
     if not res.data:
@@ -3144,6 +3152,21 @@ def fetch_public_repair_iteration_member_by_run_id(
         client.table("public_repair_iteration_members")
         .select("*")
         .eq("repair_campaign_run_id", repair_campaign_run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_public_repair_iteration_member_by_depth_run_id(
+    client: Client, *, public_depth_run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("public_repair_iteration_members")
+        .select("*")
+        .eq("public_depth_run_id", public_depth_run_id)
         .limit(1)
         .execute()
     )

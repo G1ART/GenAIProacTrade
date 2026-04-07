@@ -1,0 +1,62 @@
+[
+  {
+    "entry_id": "b323fde0-5df6-46d3-99fe-b369cc741bd3",
+    "candidate_id": "5885c405-a59b-4c2d-985f-a3167227c633",
+    "outlier_type": "regime_mismatch",
+    "ticker": "DLTR"
+  },
+  {
+    "entry_id": "b8939bc8-d201-42de-873f-00f7fbc84410",
+    "candidate_id": "77c19470-0d0a-49be-b16f-cbb4cfa75b81",
+    "outlier_type": "regime_mismatch",
+    "ticker": "BXP"
+  },
+  {
+    "entry_id": "db3254a7-050d-41bd-9686-936b08b9cf63",
+    "candidate_id": "2cbaebcd-da5f-4373-9c28-5e46c2b9b8cf",
+    "outlier_type": "regime_mismatch",
+    "ticker": "CSGP"
+  },
+  {
+    "entry_id": "152081cc-8cdf-48db-bd2c-2bb1c5646a48",
+    "candidate_id": "51afb106-e016-464b-8417-b77501e47475",
+    "outlier_type": "regime_mismatch",
+    "ticker": "CVS"
+  },
+  {
+    "entry_id": "c9e1ce9d-cc15-4b7f-8225-c9625ccec7ae",
+    "candidate_id": "5995a748-ed88-4034-b024-9610eec220b1",
+    "outlier_type": "regime_mismatch",
+    "ticker": "APTV"
+  },
+  {
+    "entry_id": "9148701d-b165-43c6-94ac-2022169560c9",
+    "candidate_id": "72bff967-22ff-4d5c-9151-c0a254ace452",
+    "outlier_type": "regime_mismatch",
+    "ticker": "DG"
+  },
+  {
+    "entry_id": "f1845e27-6ccb-4b44-8356-c623c9b940e2",
+    "candidate_id": "11379899-451a-40c7-a867-1f36828eee0e",
+    "outlier_type": "regime_mismatch",
+    "ticker": "ARE"
+  },
+  {
+    "entry_id": "0952b9f4-8156-4ad4-8a6b-c9e333570a92",
+    "candidate_id": "157c5e44-c992-4b56-af67-652040614e24",
+    "outlier_type": "regime_mismatch",
+    "ticker": "DOC"
+  },
+  {
+    "entry_id": "f1373101-8c67-4c30-b443-076842a8ac49",
+    "candidate_id": "4105993d-046b-45e9-bdf8-744db9845178",
+    "outlier_type": "regime_mismatch",
+    "ticker": "APO"
+  },
+  {
+    "entry_id": "b8ad0239-7a4a-4437-94a1-9d28098db954",
+    "candidate_id": "98270f7e-ccbf-45ed-8e22-0b297e35729a",
+    "outlier_type": "regime_mismatch",
+    "ticker": "BAX"
+  }
+]

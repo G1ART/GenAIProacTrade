@@ -34,6 +34,28 @@ TRADING_DAYS_1M = 21
 TRADING_DAYS_1Q = 63
 
 
+def run_forward_returns_build_from_rows(
+    settings: Any,
+    *,
+    panels: list[dict[str, Any]],
+    metadata_json: dict[str, Any] | None = None,
+    price_lookahead_days: int = 400,
+) -> dict[str, Any]:
+    """issuer_quarter_factor_panels 행만 대상으로 선행 수익률 갱신(Phase 25 타깃 백필)."""
+    client = get_supabase_client(settings)
+    meta = dict(metadata_json or {})
+    meta["n_input_panels"] = len(panels)
+    run_id = ingest_run_create_started(
+        client,
+        run_type=FORWARD_RETURN_BUILD,
+        target_count=len(panels),
+        metadata_json=meta,
+    )
+    return _forward_returns_build_loop(
+        client, run_id, panels, price_lookahead_days=price_lookahead_days
+    )
+
+
 def run_forward_returns_build(
     settings: Any,
     *,
@@ -48,6 +70,18 @@ def run_forward_returns_build(
         target_count=len(panels),
         metadata_json={"limit_panels": limit_panels},
     )
+    return _forward_returns_build_loop(
+        client, run_id, panels, price_lookahead_days=price_lookahead_days
+    )
+
+
+def _forward_returns_build_loop(
+    client: Any,
+    run_id: str,
+    panels: list[dict[str, Any]],
+    *,
+    price_lookahead_days: int,
+) -> dict[str, Any]:
     ok = 0
     fail = 0
     errors: list[dict[str, Any]] = []

@@ -141,6 +141,9 @@ def test_phase20_cli_registered() -> None:
         "close-public-repair-series",
         "advance-public-repair-series",
         "resolve-repair-campaign-pair",
+        "smoke-phase22-public-depth-iteration",
+        "advance-public-depth-iteration",
+        "export-public-depth-series-brief",
     ):
         assert cmd in names
 

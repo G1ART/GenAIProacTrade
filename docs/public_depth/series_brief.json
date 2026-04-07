@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "series_id": "02119b7d-504e-4ad1-80d2-bb7fe5d94fb1",
+  "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+  "universe_name": "sp500_current",
+  "member_count_total": 2,
+  "included_run_count": 2,
+  "excluded_runs": [],
+  "improvement_classifications_in_order": [],
+  "improvement_classification_counts": {},
+  "persisted_escalation_branch_counts": {
+    "hold_and_repeat_public_repair": 2
+  },
+  "escalation_recommendation_current": "hold_and_repeat_public_repair",
+  "public_depth_operator_signal": "repeat_targeted_public_repair",
+  "public_depth_signal_rationale": {
+    "escalation_recommendation": "hold_and_repeat_public_repair",
+    "rule": "no_public_depth_members_escalation_only"
+  },
+  "dominant_exclusions_latest_after": [],
+  "trend_deltas_last_depth": null,
+  "plateau_metrics": {
+    "n_iterations": 2,
+    "joined_series": [
+      243,
+      243
+    ],
+    "thin_series": [
+      1.0,
+      1.0
+    ],
+    "final_decisions": [
+      "repair_insufficient_repeat_buildout",
+      "repair_insufficient_repeat_buildout"
+    ],
+    "joined_delta_first_last": 0,
+    "thin_delta_first_last": 0.0,
+    "premium_share_latest": 0.0,
+    "included_run_count": 2,
+    "excluded_infra_failure_count": 0,
+    "excluded_other_count": 0,
+    "n_iteration_members_total": 2
+  }
+}
