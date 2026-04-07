@@ -1,3 +1,42 @@
+# HANDOFF — Phase 21 (Iteration governance, selectors, infra quarantine)
+
+## 현재 제품 위치
+
+- **Phase 11–20**: 이전과 동일하되, Phase 21에서 **선택자 완성**(`latest-success`, `latest-compatible`, `latest-for-program`, `from-latest-pair` → `resolve-repair-campaign-pair`, `latest-active-series`), **시리즈 라이프사이클**(pause / resume / close + `governance_audit_json`), **플래토 기본값에서 인프라 실패 런 격리**(`included_run_count`, `excluded_infra_failure_count`), **`advance-public-repair-series` 단일 골든 패스**, **에스컬레이션 브리프 v2**(포함/제외 런, 호환 근거, 트렌드 델타, 카운터팩추얼, 프리미엄 게이트 체크리스트)가 추가됨.
+- **비협상 유지**: 프로덕션 스코어는 `public_repair_iteration` / `public_repair_campaign` 출력을 참조하지 않음(`state_change.runner` 검증 테스트 유지). 프리미엄 **라이브** 통합 자동 오픈 없음.
+
+## Phase 21로 가능해진 것
+
+1. **`smoke-phase21-iteration-governance`**, **`pause-public-repair-series`**, **`resume-public-repair-series`**, **`close-public-repair-series`**
+2. **`advance-public-repair-series`** — 호환 활성 시리즈 → (캠페인 1회 또는 attach) → 멤버 append(동일 `repair_campaign_run_id` 멱등) → 플래토/에스컬레이션 → 브리프 JSON+MD + 요약 한 줄
+3. **`resolve-repair-campaign-pair`**, Phase 19/20 보고용 **`--repair-campaign-id`** 확장 선택자
+4. **`report-public-repair-plateau --include-infra-failed-runs`** (기본은 인프라 격리 유지)
+5. Transient REST 오류에 대한 **리스트 조회 재시도**(resolver 경로) 및 캠페인 실패 시 **`rationale_json.failure_audit`**
+
+## 검증·테스트 (로컬)
+
+- `pytest src/tests/test_phase21_iteration_governance.py` — **11 passed**
+- `pytest src/tests -q` — **263 passed** (외부 `edgar` DeprecationWarning만)
+
+## 마이그레이션 (누적)
+
+- **Phase 21**: `20250424100000_phase21_iteration_governance.sql` — 운영 DB에 적용 후 `smoke-phase21-iteration-governance` 권장.
+
+## 패치 보고·증거
+
+- `docs/phase21_patch_report.md`
+
+## Phase 22 방향 제안
+
+- 에스컬레이션이 **`continue_public_depth` / `hold_and_repeat_public_repair`**인 프로그램이 많으면 → **공개 깊이 반복(Phase 22 = public-depth iteration)** 을 우선.
+- **`open_targeted_premium_discovery`**가 반복되고 게이트 체크리스트가 충족되면 → **타깃 프리미엄 발견 프로그램 오프너**(라이브 통합이 아닌 발견/설계 궤도)를 Phase 22 후보로 둠.
+
+## Git
+
+- 메시지 `Phase 21: iteration governance, repair selectors, infra quarantine, advance CLI`로 식별. 짧은 SHA는 `git log --oneline -5`로 확인.
+
+---
+
 # HANDOFF — Phase 20 (Public Repair Iteration Manager & Escalation Gate)
 
 ## 현재 제품 위치
@@ -15,11 +54,28 @@
 
 ## 검증·테스트 (로컬)
 
-- `pytest src/tests/test_phase20.py` — **11 passed** (전체 `src/tests`는 패치 후 **253 passed** 기준).
+- `pytest src/tests/test_phase20.py` — **11 passed**
+- 전체 테스트 개수는 상단 **Phase 21** 절 참고 (Phase 20 단독 카운트는 위 명령 기준).
+
+## 검증·운영 스냅샷 (2026-04-07, `sp500_current`, `--program-id latest`)
+
+| 항목 | 결과 |
+|------|------|
+| `smoke-phase20-repair-iteration` | `db_phase20_repair_iteration: ok` |
+| `report-public-repair-iteration-history` | `ok: true`; 시리즈·멤버(seq 1)·에스컬레이션 행 |
+| `report-public-repair-plateau` | `ok: true`; `hold_and_repeat_public_repair`, 근거 `insufficient_iterations` |
+| `export-public-repair-escalation-brief` → `docs/public_repair/escalation_latest.json` | `ok: true`, 동명 `.md` |
+| `report-premium-discovery-readiness` | `premium_discovery_ready: false` |
+| `report-latest-repair-state` / `list-public-repair-series` | `ok: true` |
+| `list-repair-campaigns` | `ok: true`; 과거 1건은 REST **502**로 `failed` 기록 가능(일시 인프라) |
+| `report-public-repair-campaign --repair-campaign-id latest` | `ok: true`; 스텝·비교·`repair_insufficient_repeat_buildout` 일관 |
+
+상세: `docs/phase20_completion_report.md` · 증거: `docs/phase20_evidence.md`.
 
 ## 마이그레이션 (누적)
 
 - **Phase 20**: `20250423100000_phase20_repair_iteration.sql`
+- **Phase 21**: `20250424100000_phase21_iteration_governance.sql`
 
 ---
 

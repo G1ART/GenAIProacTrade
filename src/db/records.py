@@ -3056,6 +3056,11 @@ def smoke_phase20_repair_iteration_tables(client: Client) -> None:
     client.table("public_repair_escalation_decisions").select("id").limit(1).execute()
 
 
+def smoke_phase21_iteration_governance(client: Client) -> None:
+    smoke_phase20_repair_iteration_tables(client)
+    client.table("public_repair_iteration_series").select("governance_audit_json").limit(1).execute()
+
+
 def insert_public_repair_iteration_series(client: Client, row: dict[str, Any]) -> str:
     res = client.table("public_repair_iteration_series").insert(row).execute()
     if not res.data:
@@ -3110,6 +3115,41 @@ def list_public_repair_iteration_series_for_program(
         .execute()
     )
     return [dict(x) for x in (r.data or [])]
+
+
+def list_open_public_repair_iteration_series_for_triple(
+    client: Client,
+    *,
+    program_id: str,
+    universe_name: str,
+    policy_version: str,
+) -> list[dict[str, Any]]:
+    """Active or paused rows for (program, universe, policy); at most one after Phase 21 index."""
+    r = (
+        client.table("public_repair_iteration_series")
+        .select("*")
+        .eq("program_id", program_id)
+        .eq("universe_name", universe_name)
+        .eq("policy_version", policy_version)
+        .in_("status", ["active", "paused"])
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_public_repair_iteration_member_by_run_id(
+    client: Client, *, repair_campaign_run_id: str
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("public_repair_iteration_members")
+        .select("*")
+        .eq("repair_campaign_run_id", repair_campaign_run_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
 
 
 def insert_public_repair_iteration_member(client: Client, row: dict[str, Any]) -> str:

@@ -79,24 +79,66 @@ def _resolve_program_id_cli(client: Any, args: argparse.Namespace) -> tuple[str 
 
 
 def _resolve_repair_campaign_id_cli(
-    client: Any, args: argparse.Namespace, *, latest_success: bool = False
+    client: Any,
+    args: argparse.Namespace,
+    *,
+    latest_success: bool = False,
+    series_row: dict[str, Any] | None = None,
 ) -> tuple[str | None, int | None]:
     import json as json_lib
+    import uuid as uuid_lib
 
-    from public_repair_iteration.resolver import resolve_repair_campaign_run_id
+    from public_repair_iteration.constants import SELECTOR_FROM_LATEST_PAIR
+    from public_repair_iteration.resolver import (
+        repair_campaign_selector_token,
+        resolve_repair_campaign_run_id,
+    )
 
     rid_raw = str(getattr(args, "repair_campaign_id", "") or "").strip()
-    if rid_raw.lower() != "latest":
+    try:
+        uuid_lib.UUID(rid_raw)
         bad = _exit_unless_uuid("repair_campaign_id", rid_raw)
         if bad is not None:
             return None, bad
         return rid_raw, None
+    except ValueError:
+        pass
+
+    tok = repair_campaign_selector_token(rid_raw)
+    if tok is None:
+        print(
+            json_lib.dumps(
+                {
+                    "ok": False,
+                    "error": "invalid_repair_campaign_id_or_selector",
+                    "value_preview": rid_raw[:96],
+                    "hint": "UUID 또는 latest, latest-success, latest-compatible, latest-for-program 등",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return None, 1
+    if tok == SELECTOR_FROM_LATEST_PAIR:
+        print(
+            json_lib.dumps(
+                {
+                    "ok": False,
+                    "error": "from_latest_pair_is_not_a_single_run_selector",
+                    "hint": "API: resolve_repair_campaign_latest_pair() 또는 전용 CLI를 사용하세요.",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return None, 1
     if not getattr(args, "program_id", None):
         print(
             json_lib.dumps(
                 {
                     "ok": False,
-                    "error": "program_id_required_with_repair_campaign_latest",
+                    "error": "program_id_required_with_repair_campaign_selector",
+                    "selector": tok,
                 },
                 indent=2,
                 ensure_ascii=False,
@@ -106,8 +148,21 @@ def _resolve_repair_campaign_id_cli(
     pid, err = _resolve_program_id_cli(client, args)
     if err is not None:
         return None, err
+    ser = series_row
+    if tok == "latest-compatible" and ser is None:
+        from public_repair_iteration.service import resolve_active_series_for_program
+
+        aser = resolve_active_series_for_program(client, program_id=str(pid))
+        if not aser.get("ok"):
+            print(json_lib.dumps(aser, indent=2, ensure_ascii=False))
+            return None, 1
+        ser = aser.get("series")
     rc = resolve_repair_campaign_run_id(
-        client, "latest", program_id=str(pid), latest_success=latest_success
+        client,
+        rid_raw,
+        program_id=str(pid),
+        latest_success=latest_success,
+        series=ser,
     )
     if not rc.get("ok"):
         print(json_lib.dumps(rc, indent=2, ensure_ascii=False))
@@ -2845,7 +2900,9 @@ def _cmd_report_public_repair_plateau(args: argparse.Namespace) -> int:
         print(json_lib.dumps(sr, indent=2, ensure_ascii=False))
         return 1
     out = compute_public_repair_plateau(
-        client, series_id=str(sr["series_id"])
+        client,
+        series_id=str(sr["series_id"]),
+        exclude_infra_default=not bool(args.include_infra_failed_runs),
     )
     print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0 if out.get("ok") else 1
@@ -2974,6 +3031,189 @@ def _cmd_report_premium_discovery_readiness(args: argparse.Namespace) -> int:
         )
     )
     return 0 if plateau.get("ok") else 1
+
+
+def _cmd_smoke_phase21_iteration_governance(_args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from db.records import smoke_phase21_iteration_governance
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    smoke_phase21_iteration_governance(client)
+    print(
+        json_lib.dumps(
+            {"db_phase21_iteration_governance": "ok"},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_pause_public_repair_series(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from public_repair_iteration.service import pause_public_repair_series
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    bad = _exit_unless_uuid("series_id", str(args.series_id).strip())
+    if bad is not None:
+        return bad
+    out = pause_public_repair_series(
+        client,
+        series_id=str(args.series_id).strip(),
+        reason=str(args.reason or "").strip() or "operator_pause",
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_resume_public_repair_series(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from public_repair_iteration.service import resume_public_repair_series
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    bad = _exit_unless_uuid("series_id", str(args.series_id).strip())
+    if bad is not None:
+        return bad
+    out = resume_public_repair_series(
+        client,
+        series_id=str(args.series_id).strip(),
+        audit_note=str(args.audit_note or "").strip(),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_close_public_repair_series(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from public_repair_iteration.service import close_public_repair_series
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    bad = _exit_unless_uuid("series_id", str(args.series_id).strip())
+    if bad is not None:
+        return bad
+    out = close_public_repair_series(
+        client,
+        series_id=str(args.series_id).strip(),
+        reason=str(args.reason or "").strip() or "operator_close",
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False))
+    return 0 if out.get("ok") else 1
+
+
+def _cmd_advance_public_repair_series(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from public_repair_iteration.service import advance_public_repair_series
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    pid, err = _resolve_program_id_cli(client, args)
+    if err is not None:
+        return err
+    uni = getattr(args, "universe", None)
+    series_override = getattr(args, "series_id", None)
+    so = str(series_override).strip() if series_override else None
+    if so:
+        bad = _exit_unless_uuid("series_id", so)
+        if bad is not None:
+            return bad
+    run_campaign = not bool(args.attach_only)
+    attach_raw = str(getattr(args, "attach_repair_run_id", "") or "").strip()
+    attach = attach_raw if attach_raw else None
+    out = advance_public_repair_series(
+        settings,
+        program_id=str(pid),
+        universe_name=str(uni).strip() if uni else None,
+        series_id_override=so,
+        attach_repair_run_id=attach,
+        run_new_campaign=run_campaign,
+        dry_run_buildout=bool(args.dry_run_buildout),
+        skip_reruns=bool(args.skip_reruns),
+        panel_limit=int(args.panel_limit),
+        campaign_panel_limit=int(args.campaign_panel_limit),
+        max_symbols_factor=int(args.max_symbols_factor),
+        validation_panel_limit=int(args.validation_panel_limit),
+        forward_panel_limit=int(args.forward_panel_limit),
+        state_change_limit=int(args.state_change_limit),
+    )
+    if not out.get("ok"):
+        print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+        return 1
+    dest = Path(args.out).expanduser()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    json_path = dest if dest.suffix == ".json" else dest.with_suffix(".json")
+    md_path = dest if dest.suffix == ".md" else dest.with_suffix(".md")
+    brief = out.get("brief") or {}
+    json_path.write_text(
+        json_lib.dumps(brief, indent=2, ensure_ascii=False, default=str),
+        encoding="utf-8",
+    )
+    md_path.write_text(str(out.get("markdown") or ""), encoding="utf-8")
+    print(str(out.get("operator_summary") or ""))
+    print(
+        json_lib.dumps(
+            {
+                "ok": True,
+                "json": str(json_path),
+                "markdown": str(md_path),
+                "iteration_append": out.get("iteration_append"),
+                "escalation_recommendation": out.get("escalation_recommendation"),
+            },
+            indent=2,
+            ensure_ascii=False,
+            default=str,
+        )
+    )
+    return 0
+
+
+def _cmd_resolve_repair_campaign_pair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from public_repair_iteration.resolver import resolve_repair_campaign_latest_pair
+    from public_repair_iteration.service import resolve_active_series_for_program
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    pid, err = _resolve_program_id_cli(client, args)
+    if err is not None:
+        return err
+    series = None
+    if args.compatible:
+        sr = resolve_active_series_for_program(client, program_id=str(pid))
+        if not sr.get("ok"):
+            print(json_lib.dumps(sr, indent=2, ensure_ascii=False))
+            return 1
+        series = sr.get("series")
+    out = resolve_repair_campaign_latest_pair(
+        client,
+        program_id=str(pid),
+        series=series,
+        compatible=bool(args.compatible),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
 
 
 def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
@@ -4204,7 +4444,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--repair-campaign-id",
         required=True,
         dest="repair_campaign_id",
-        help="UUID 또는 latest(이 경우 --program-id 필요)",
+        help="UUID 또는 latest / latest-success / latest-compatible / latest-for-program (program-id 필요)",
     )
     p19b.add_argument(
         "--program-id",
@@ -4227,7 +4467,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--repair-campaign-id",
         required=True,
         dest="repair_campaign_id",
-        help="UUID 또는 latest",
+        help="UUID 또는 latest 등(Phase 21 선택자, program-id 필요)",
     )
     p19c.add_argument("--program-id", default=None, dest="program_id")
     p19c.add_argument("--universe", default=None)
@@ -4241,7 +4481,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--repair-campaign-id",
         required=True,
         dest="repair_campaign_id",
-        help="UUID 또는 latest(완료+final_decision 있는 최신 런)",
+        help="UUID 또는 latest-success 등(완료+final_decision, program-id 필요)",
     )
     p19d.add_argument("--program-id", default=None, dest="program_id")
     p19d.add_argument("--universe", default=None)
@@ -4320,6 +4560,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="UUID 또는 latest",
     )
     p20c.add_argument("--universe", default=None)
+    p20c.add_argument(
+        "--include-infra-failed-runs",
+        action="store_true",
+        dest="include_infra_failed_runs",
+        help="기본(제외) 해제: 인프라성 실패 런도 플래토 스냅샷에 포함",
+    )
     p20c.set_defaults(func=_cmd_report_public_repair_plateau)
 
     p20d = sub.add_parser(
@@ -4375,6 +4621,101 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p20g.add_argument("--universe", default=None)
     p20g.set_defaults(func=_cmd_report_premium_discovery_readiness)
+
+    p21s = sub.add_parser(
+        "smoke-phase21-iteration-governance",
+        help="Phase 21: iteration governance 컬럼·테이블 도달",
+    )
+    p21s.set_defaults(func=_cmd_smoke_phase21_iteration_governance)
+
+    p21p = sub.add_parser(
+        "pause-public-repair-series",
+        help="Phase 21: 활성 시리즈 일시중지(감사 reason)",
+    )
+    p21p.add_argument("--series-id", required=True, dest="series_id")
+    p21p.add_argument("--reason", default="", dest="reason")
+    p21p.set_defaults(func=_cmd_pause_public_repair_series)
+
+    p21r = sub.add_parser(
+        "resume-public-repair-series",
+        help="Phase 21: 일시중지 시리즈 재개(감사 노트)",
+    )
+    p21r.add_argument("--series-id", required=True, dest="series_id")
+    p21r.add_argument("--audit-note", default="", dest="audit_note")
+    p21r.set_defaults(func=_cmd_resume_public_repair_series)
+
+    p21c = sub.add_parser(
+        "close-public-repair-series",
+        help="Phase 21: 시리즈 종료(closure reason)",
+    )
+    p21c.add_argument("--series-id", required=True, dest="series_id")
+    p21c.add_argument("--reason", default="", dest="reason")
+    p21c.set_defaults(func=_cmd_close_public_repair_series)
+
+    p21a = sub.add_parser(
+        "advance-public-repair-series",
+        help="Phase 21: 호환 시리즈·캠페인→멤버→플래토→브리프 한 번에",
+    )
+    p21a.add_argument(
+        "--program-id",
+        required=True,
+        dest="program_id",
+        help="UUID 또는 latest",
+    )
+    p21a.add_argument("--universe", default=None)
+    p21a.add_argument(
+        "--series-id",
+        default=None,
+        dest="series_id",
+        help="선택: 명시 시리즈 UUID (latest-active-series 대신)",
+    )
+    p21a.add_argument(
+        "--attach-only",
+        action="store_true",
+        dest="attach_only",
+        help="새 캠페인 생략, --attach-repair-run-id 만 부착",
+    )
+    p21a.add_argument(
+        "--attach-repair-run-id",
+        default="",
+        dest="attach_repair_run_id",
+        help="attach-only 시 필수: UUID 또는 latest-compatible 등",
+    )
+    p21a.add_argument("--dry-run-buildout", action="store_true", dest="dry_run_buildout")
+    p21a.add_argument("--skip-reruns", action="store_true", dest="skip_reruns")
+    p21a.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p21a.add_argument(
+        "--campaign-panel-limit", type=int, default=6000, dest="campaign_panel_limit"
+    )
+    p21a.add_argument("--max-symbols-factor", type=int, default=50, dest="max_symbols_factor")
+    p21a.add_argument(
+        "--validation-panel-limit", type=int, default=2000, dest="validation_panel_limit"
+    )
+    p21a.add_argument(
+        "--forward-panel-limit", type=int, default=2000, dest="forward_panel_limit"
+    )
+    p21a.add_argument("--state-change-limit", type=int, default=400, dest="state_change_limit")
+    p21a.add_argument("--out", required=True)
+    p21a.set_defaults(func=_cmd_advance_public_repair_series)
+
+    p21pair = sub.add_parser(
+        "resolve-repair-campaign-pair",
+        help="Phase 21: 최신 2개 호환/성공 런 id (from-latest-pair)",
+    )
+    p21pair.add_argument(
+        "--program-id",
+        required=True,
+        dest="program_id",
+        help="UUID 또는 latest",
+    )
+    p21pair.add_argument("--universe", default=None)
+    p21pair.add_argument(
+        "--compatible",
+        action="store_true",
+        dest="compatible",
+        help="활성 시리즈와 universe/policy 일치 완료 런만",
+    )
+    p21pair.set_defaults(func=_cmd_resolve_repair_campaign_pair)
 
     return p
 

@@ -128,6 +128,7 @@ def test_phase20_cli_registered() -> None:
     names = set(sub.choices.keys())
     for cmd in (
         "smoke-phase20-repair-iteration",
+        "smoke-phase21-iteration-governance",
         "run-public-repair-iteration",
         "report-public-repair-iteration-history",
         "report-public-repair-plateau",
@@ -135,12 +136,20 @@ def test_phase20_cli_registered() -> None:
         "list-public-repair-series",
         "report-latest-repair-state",
         "report-premium-discovery-readiness",
+        "pause-public-repair-series",
+        "resume-public-repair-series",
+        "close-public-repair-series",
+        "advance-public-repair-series",
+        "resolve-repair-campaign-pair",
     ):
         assert cmd in names
 
 
+@patch("public_repair_iteration.service.collect_plateau_snapshots_for_series")
 @patch("public_repair_iteration.service.compute_public_repair_plateau")
-def test_export_brief_includes_recommendation_keys(mock_plateau: MagicMock) -> None:
+def test_export_brief_includes_recommendation_keys(
+    mock_plateau: MagicMock, mock_collect: MagicMock
+) -> None:
     from public_repair_iteration.service import export_public_repair_escalation_brief
 
     mock_plateau.return_value = {
@@ -149,6 +158,16 @@ def test_export_brief_includes_recommendation_keys(mock_plateau: MagicMock) -> N
         "rationale": {"rule": "mixed"},
         "plateau_metrics": {"n_iterations": 2},
         "counterfactual": {"if_more_iterations": "x"},
+        "excluded_runs": [],
+    }
+    mock_collect.return_value = {
+        "ok": True,
+        "snapshots": [],
+        "excluded_runs": [],
+        "included_run_count": 0,
+        "excluded_infra_failure_count": 0,
+        "excluded_other_count": 0,
+        "n_iteration_members_total": 0,
     }
     mock = MagicMock()
     mock.fetch_public_repair_iteration_series.return_value = {
@@ -179,6 +198,7 @@ def test_export_brief_includes_recommendation_keys(mock_plateau: MagicMock) -> N
     ):
         out = export_public_repair_escalation_brief(mock, series_id="s1")
     assert out["ok"] is True
+    assert out["brief"].get("version") == 2
     assert out["brief"]["recomputed_from_members"]["recommendation"] == (
         "hold_and_repeat_public_repair"
     )

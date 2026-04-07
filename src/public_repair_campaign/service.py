@@ -481,10 +481,19 @@ def run_public_repair_campaign(
         }
     except Exception as ex:  # noqa: BLE001
         logger.exception("public repair campaign")
+        from public_repair_iteration.infra_noise import annotate_failure_for_audit
+
+        prev = dbrec.fetch_public_repair_campaign_run(client, run_id=run_id)
+        rj: dict[str, Any] = dict((prev or {}).get("rationale_json") or {})
+        rj["failure_audit"] = annotate_failure_for_audit(ex)
         dbrec.update_public_repair_campaign_run(
             client,
             run_id=run_id,
-            patch={"status": "failed", "error_message": str(ex)[:4000]},
+            patch={
+                "status": "failed",
+                "error_message": str(ex)[:4000],
+                "rationale_json": rj,
+            },
         )
         _step(
             client,
