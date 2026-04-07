@@ -48,10 +48,12 @@ def compute_substrate_coverage(
     panel_limit: int = 8000,
     state_change_scores_limit: int = DEFAULT_STATE_CHANGE_SCORES_LIMIT,
     quality_run_lookback: int = 40,
+    symbol_queues_out: dict[str, list[str]] | None = None,
 ) -> tuple[dict[str, Any], dict[str, int]]:
     """
     유니버스 멤버십 최신 as_of 기준.
     반환: (metrics_json, exclusion_distribution flat dict for DB jsonb).
+    symbol_queues_out 이 주어지면 Phase 18용으로 주요 제외 사유별 심볼 목록을 채운다(정렬된 리스트).
     """
     as_of = dbrec.fetch_max_as_of_universe(client, universe_name=universe_name)
     symbols = (
@@ -93,6 +95,8 @@ def compute_substrate_coverage(
         )
         if not symbols:
             exclusion_panel["empty_universe_or_no_as_of"] = 1
+        if symbol_queues_out is not None:
+            symbol_queues_out.clear()
         return base, dict(exclusion_panel)
 
     cik_by_symbol = dbrec.fetch_cik_map_for_tickers(client, symbols)
@@ -137,6 +141,8 @@ def compute_substrate_coverage(
     symbols_with_any_panel: set[str] = set()
     validation_join = 0
     joined_substrate = 0
+    q_missing_excess: set[str] = set()
+    q_no_sc: set[str] = set()
 
     for p in panels:
         sym = str(p.get("symbol") or "").upper().strip()
@@ -145,6 +151,8 @@ def compute_substrate_coverage(
         excess = safe_float(p.get(EXCESS_FIELD))
         if excess is None:
             exclusion_panel["missing_excess_return_1q"] += 1
+            if sym:
+                q_missing_excess.add(sym)
             continue
         validation_join += 1
         cik = norm_cik(p.get("cik"))
@@ -157,6 +165,8 @@ def compute_substrate_coverage(
         )
         if not sc_row:
             exclusion_panel["no_state_change_join"] += 1
+            if sym:
+                q_no_sc.add(sym)
             continue
         sc_score = safe_float(sc_row.get("state_change_score_v1"))
         if sc_score is None:
@@ -180,5 +190,11 @@ def compute_substrate_coverage(
     base["validation_join_row_count"] = validation_join
     base["joined_recipe_substrate_row_count"] = joined_substrate
     base["dominant_exclusion_reasons"] = _dominant_exclusions(exclusion_panel)
+
+    if symbol_queues_out is not None:
+        missing_panel_syms = symbols_upper - symbols_with_any_panel
+        symbol_queues_out["no_validation_panel_for_symbol"] = sorted(missing_panel_syms)
+        symbol_queues_out["missing_excess_return_1q"] = sorted(q_missing_excess)
+        symbol_queues_out["no_state_change_join"] = sorted(q_no_sc)
 
     return base, dict(exclusion_panel)
