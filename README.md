@@ -483,6 +483,7 @@ python3 src/main.py export-public-repair-decision-brief --repair-campaign-id PAS
 - **코드**: `src/public_repair_iteration/`, `src/db/records.py`(Phase 20 CRUD, `list_research_programs_for_universe`).
 - **CLI**: `smoke-phase20-repair-iteration`, `run-public-repair-iteration`, `report-public-repair-iteration-history`, `report-public-repair-plateau`, `export-public-repair-escalation-brief`, `list-public-repair-series`, `report-latest-repair-state`, `report-premium-discovery-readiness`
 - **증거**: `docs/phase20_evidence.md` · 마이그레이션 `20250423100000_phase20_repair_iteration.sql`
+- **완료 보고(운영 클로징·검증 표)**: `docs/phase20_completion_report.md`
 
 ```bash
 export PYTHONPATH=src
@@ -490,6 +491,20 @@ python3 src/main.py smoke-phase20-repair-iteration
 python3 src/main.py run-public-repair-iteration --program-id latest --universe sp500_current
 python3 src/main.py report-public-repair-plateau --program-id latest --universe sp500_current
 python3 src/main.py export-public-repair-escalation-brief --program-id latest --universe sp500_current --out docs/public_repair/escalation_latest.json
+```
+
+## Phase 21 목표 (Iteration governance & selector completion)
+
+- **역할**: 수리 루프 **선택자 완성**, 시리즈 **pause/resume/close**, 플래토 **인프라 실패 격리**(기본), **`advance-public-repair-series`** 골든 패스, 에스컬레이션 **브리프 v2**. 제품 스코어 경로 비침투 유지.
+- **코드**: `src/public_repair_iteration/`(`infra_noise.py`, 확장 `resolver.py`·`service.py`), `src/db/records.py`, `src/main.py`(Phase 21 CLI).
+- **CLI**: `smoke-phase21-iteration-governance`, `pause-public-repair-series`, `resume-public-repair-series`, `close-public-repair-series`, `advance-public-repair-series`, `resolve-repair-campaign-pair`; Phase 19 보고에 `latest-success` / `latest-compatible` / `latest-for-program` 등; `report-public-repair-plateau --include-infra-failed-runs`(옵션).
+- **마이그레이션**: `20250424100000_phase21_iteration_governance.sql`
+- **보고**: `docs/phase21_patch_report.md` · **핸드오프**: `HANDOFF.md`(상단 Phase 21)
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py smoke-phase21-iteration-governance
+python3 src/main.py advance-public-repair-series --program-id latest --universe sp500_current --out docs/public_repair/advance_latest
 ```
 
 ## Full Universe Backfill — SQL 적용 이후 복붙 절차 (대표님용)

@@ -23,7 +23,11 @@
 
 ## Git (this workspace)
 
-- Single commit message: `Phase 21: iteration governance, repair selectors, infra quarantine, advance CLI`. 짧은 SHA는 `git rev-parse --short HEAD`로 확인.
+- **3d956e9ece1fbd5ecc9722dc16d3acc83c853a7f** (`3d956e9`) — `Phase 21: iteration governance, repair selectors, infra quarantine, advance CLI`. 이후 amend 시 `git rev-parse HEAD`로 갱신.
+
+## Linked Supabase (MCP 참고)
+
+- MCP에 연결된 프로젝트 마이그레이션 목록은 로컬 파일명(`20250424100000_…`)과 다를 수 있음. **이 저장소의 Phase 21 DDL은 `supabase/migrations/20250424100000_phase21_iteration_governance.sql`을 대상 DB에 적용**하면 됨.
 
 ## Golden path CLI
 

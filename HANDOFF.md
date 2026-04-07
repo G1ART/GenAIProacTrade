@@ -33,7 +33,8 @@
 
 ## Git
 
-- 메시지 `Phase 21: iteration governance, repair selectors, infra quarantine, advance CLI`로 식별. 짧은 SHA는 `git log --oneline -5`로 확인.
+- **구현 커밋** **3d956e9ece1fbd5ecc9722dc16d3acc83c853a7f** (`3d956e9`) — `Phase 21: iteration governance, repair selectors, infra quarantine, advance CLI`.
+- **문서 정리**(README·HANDOFF SHA·patch report): `git log -1 --oneline` 로 확인 (메시지 `docs: Phase 21 README, HANDOFF commit SHA, patch report MCP note`).
 
 ---
 
