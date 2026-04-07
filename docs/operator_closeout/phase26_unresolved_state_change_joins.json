@@ -1,0 +1,66 @@
+[
+  {
+    "symbol": "WMT",
+    "cik": "0000104169",
+    "signal_date": "2025-12-04",
+    "earliest_sc": "2026-09-28",
+    "bucket": "all_state_change_as_of_after_signal_pit_gap",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NVDA",
+    "cik": "0001045810",
+    "signal_date": "2025-11-20",
+    "earliest_sc": "2026-09-28",
+    "bucket": "all_state_change_as_of_after_signal_pit_gap",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "BBY",
+    "cik": "0000764478",
+    "signal_date": "2025-12-08",
+    "earliest_sc": "2026-09-28",
+    "bucket": "all_state_change_as_of_after_signal_pit_gap",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "CRM",
+    "cik": "0001108524",
+    "signal_date": "2025-12-04",
+    "earliest_sc": "2026-09-28",
+    "bucket": "all_state_change_as_of_after_signal_pit_gap",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "CRWD",
+    "cik": "0001535527",
+    "signal_date": "2025-12-03",
+    "earliest_sc": "2026-09-28",
+    "bucket": "all_state_change_as_of_after_signal_pit_gap",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "DELL",
+    "cik": "0001571996",
+    "signal_date": "2025-12-10",
+    "earliest_sc": "2026-09-28",
+    "bucket": "all_state_change_as_of_after_signal_pit_gap",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "DUK",
+    "cik": "0001326160",
+    "signal_date": "2025-11-10",
+    "earliest_sc": "2026-03-28",
+    "bucket": "all_state_change_as_of_after_signal_pit_gap",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ADSK",
+    "cik": "0000769397",
+    "signal_date": "2025-11-27",
+    "earliest_sc": "2026-09-28",
+    "bucket": "all_state_change_as_of_after_signal_pit_gap",
+    "universe_name": "sp500_current"
+  }
+]

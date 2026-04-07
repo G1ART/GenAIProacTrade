@@ -3998,6 +3998,470 @@ def _cmd_run_substrate_closure_sprint(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_report_thin_input_drivers(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from thin_input_root_cause.decompose import report_thin_input_drivers
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_thin_input_drivers(
+        client,
+        universe_name=str(args.universe).strip(),
+        program_id_raw=str(getattr(args, "program_id", "") or "").strip() or None,
+        panel_limit=int(args.panel_limit),
+        quality_run_lookback=int(args.quality_run_lookback),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_validation_repair_effectiveness(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from thin_input_root_cause.effectiveness import report_validation_repair_effectiveness
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_validation_repair_effectiveness(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_forward_backfill_effectiveness(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from thin_input_root_cause.effectiveness import report_forward_backfill_effectiveness
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_forward_backfill_effectiveness(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_state_change_repair_effectiveness(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from thin_input_root_cause.effectiveness import report_state_change_repair_effectiveness
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_state_change_repair_effectiveness(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_unresolved_validation_symbols(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from thin_input_root_cause.exports import export_unresolved_validation_symbols
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_unresolved_validation_symbols(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        out_path=str(args.out),
+        fmt=str(args.export_format).lower(),  # type: ignore[arg-type]
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_unresolved_forward_return_rows(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from thin_input_root_cause.exports import export_unresolved_forward_return_rows
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_unresolved_forward_return_rows(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        out_path=str(args.out),
+        fmt=str(args.export_format).lower(),  # type: ignore[arg-type]
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_unresolved_state_change_joins(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from thin_input_root_cause.exports import export_unresolved_state_change_joins
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_unresolved_state_change_joins(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        out_path=str(args.out),
+        fmt=str(args.export_format).lower(),  # type: ignore[arg-type]
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_quality_threshold_sensitivity(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from thin_input_root_cause.policy_trace import (
+        report_quality_threshold_sensitivity_for_universe,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_quality_threshold_sensitivity_for_universe(
+        client,
+        universe_name=str(args.universe).strip(),
+        quality_run_lookback=int(args.quality_run_lookback),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_thin_input_root_cause_review(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from thin_input_root_cause.review import (
+        build_review_bundle,
+        write_thin_input_root_cause_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    bundle = build_review_bundle(
+        client,
+        universe_name=str(args.universe).strip(),
+        program_id_raw=str(getattr(args, "program_id", "") or "").strip() or None,
+        panel_limit=int(args.panel_limit),
+        quality_run_lookback=int(args.quality_run_lookback),
+    )
+    outp = write_thin_input_root_cause_review_md(
+        path=str(args.out),
+        bundle=bundle,
+    )
+    stem = str(getattr(args, "bundle_out", "") or "").strip()
+    if stem:
+        bp = Path(stem).expanduser()
+        bp.parent.mkdir(parents=True, exist_ok=True)
+        bp.write_text(
+            json_lib.dumps(bundle, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+    print(json_lib.dumps({"ok": True, "wrote": str(outp), "phase27": bundle.get("phase27")}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_report_thin_input_root_cause_bundle(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from thin_input_root_cause.review import build_review_bundle
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    bundle = build_review_bundle(
+        client,
+        universe_name=str(args.universe).strip(),
+        program_id_raw=str(getattr(args, "program_id", "") or "").strip() or None,
+        panel_limit=int(args.panel_limit),
+        quality_run_lookback=int(args.quality_run_lookback),
+    )
+    print(json_lib.dumps(bundle, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_validation_registry_gaps(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from targeted_backfill.validation_registry import report_validation_registry_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_validation_registry_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_validation_registry_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from targeted_backfill.validation_registry import run_validation_registry_repair
+
+    settings = load_settings()
+    configure_logging()
+    out = run_validation_registry_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_validation_registry_gap_symbols(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from targeted_backfill.validation_registry import export_validation_registry_gap_symbols
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_validation_registry_gap_symbols(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        out_path=str(args.out),
+        fmt=str(args.export_format).lower(),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_market_metadata_gap_drivers(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from targeted_backfill.market_metadata_gaps import report_market_metadata_gap_drivers
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_market_metadata_gap_drivers(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_market_metadata_hydration_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from targeted_backfill.market_metadata_gaps import run_market_metadata_hydration_repair
+
+    settings = load_settings()
+    configure_logging()
+    out = run_market_metadata_hydration_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_market_metadata_gap_rows(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from targeted_backfill.market_metadata_gaps import export_market_metadata_gap_rows
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_market_metadata_gap_rows(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+        out_path=str(args.out),
+        fmt=str(args.export_format).lower(),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_forward_gap_maturity(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from datetime import date
+
+    from db.client import get_supabase_client
+    from targeted_backfill.forward_maturity import report_forward_gap_maturity
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    ev_raw = str(getattr(args, "eval_date", "") or "").strip()
+    ev = date.fromisoformat(ev_raw) if ev_raw else None
+    out = report_forward_gap_maturity(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        eval_date=ev,
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_forward_gap_maturity_buckets(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from datetime import date
+
+    from db.client import get_supabase_client
+    from targeted_backfill.forward_maturity import export_forward_gap_maturity_buckets
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    ev_raw = str(getattr(args, "eval_date", "") or "").strip()
+    ev = date.fromisoformat(ev_raw) if ev_raw else None
+    out = export_forward_gap_maturity_buckets(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        eval_date=ev,
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+        out_path=str(args.out),
+        fmt=str(args.export_format).lower(),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_state_change_pit_gaps(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from targeted_backfill.state_change_pit import report_state_change_pit_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_state_change_pit_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_state_change_pit_gap_rows(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from targeted_backfill.state_change_pit import export_state_change_pit_gap_rows
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_state_change_pit_gap_rows(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        out_path=str(args.out),
+        fmt=str(args.export_format).lower(),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_state_change_history_backfill_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from targeted_backfill.state_change_pit import run_state_change_history_backfill_repair
+
+    settings = load_settings()
+    configure_logging()
+    out = run_state_change_history_backfill_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        history_backfill_days=int(getattr(args, "history_backfill_days", 800)),
+        state_change_limit=int(getattr(args, "state_change_limit", 500)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase27_targeted_backfill_review(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from targeted_backfill.review import (
+        build_phase27_evidence_bundle,
+        write_phase27_targeted_backfill_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    bundle = build_phase27_evidence_bundle(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        program_id_raw=str(getattr(args, "program_id", "") or "").strip() or None,
+    )
+    outp = write_phase27_targeted_backfill_review_md(
+        path=str(args.out),
+        bundle=bundle,
+    )
+    stem = str(getattr(args, "bundle_out", "") or "").strip()
+    if stem:
+        bp = Path(stem).expanduser()
+        bp.parent.mkdir(parents=True, exist_ok=True)
+        bp.write_text(
+            json_lib.dumps(bundle, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote": str(outp), "phase28": bundle.get("phase28")},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
 def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
     from pathlib import Path
 
@@ -5873,6 +6337,286 @@ def build_parser() -> argparse.ArgumentParser:
         dest="review_out",
     )
     p25sp.set_defaults(func=_cmd_run_substrate_closure_sprint)
+
+    p26 = argparse.ArgumentParser(add_help=False)
+    p26.add_argument("--universe", required=True)
+    p26.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p26.add_argument(
+        "--program-id",
+        default="latest",
+        dest="program_id",
+        help="rerun 게이트·프로그램 맥락용 UUID 또는 latest",
+    )
+    p26.add_argument(
+        "--quality-run-lookback",
+        type=int,
+        default=40,
+        dest="quality_run_lookback",
+    )
+
+    p26t = sub.add_parser(
+        "report-thin-input-drivers",
+        parents=[p26],
+        help="Phase 26: thin_input 사이클·joined 기판 드라이버 분해",
+    )
+    p26t.set_defaults(func=_cmd_report_thin_input_drivers)
+
+    p26ev = sub.add_parser(
+        "report-validation-repair-effectiveness",
+        parents=[p26],
+        help="Phase 26: 검증 패널 수리 no-op/효과 감사",
+    )
+    p26ev.set_defaults(func=_cmd_report_validation_repair_effectiveness)
+
+    p26ef = sub.add_parser(
+        "report-forward-backfill-effectiveness",
+        parents=[p26],
+        help="Phase 26: forward 백필 수리 효과 감사",
+    )
+    p26ef.set_defaults(func=_cmd_report_forward_backfill_effectiveness)
+
+    p26es = sub.add_parser(
+        "report-state-change-repair-effectiveness",
+        parents=[p26],
+        help="Phase 26: state_change 수리·메트릭 감사",
+    )
+    p26es.set_defaults(func=_cmd_report_state_change_repair_effectiveness)
+
+    p26xv = sub.add_parser(
+        "export-unresolved-validation-symbols",
+        parents=[p26],
+        help="Phase 26: 미해결 검증 심볼 export (json/csv)",
+    )
+    p26xv.add_argument("--out", required=True)
+    p26xv.add_argument(
+        "--format",
+        choices=["json", "csv"],
+        default="json",
+        dest="export_format",
+    )
+    p26xv.set_defaults(func=_cmd_export_unresolved_validation_symbols)
+
+    p26xf = sub.add_parser(
+        "export-unresolved-forward-return-rows",
+        parents=[p26],
+        help="Phase 26: 미해결 forward/excess 행 export",
+    )
+    p26xf.add_argument("--out", required=True)
+    p26xf.add_argument(
+        "--format",
+        choices=["json", "csv"],
+        default="json",
+        dest="export_format",
+    )
+    p26xf.set_defaults(func=_cmd_export_unresolved_forward_return_rows)
+
+    p26xs = sub.add_parser(
+        "export-unresolved-state-change-joins",
+        parents=[p26],
+        help="Phase 26: 미해결 state-change 조인 행 export",
+    )
+    p26xs.add_argument("--out", required=True)
+    p26xs.add_argument(
+        "--format",
+        choices=["json", "csv"],
+        default="json",
+        dest="export_format",
+    )
+    p26xs.set_defaults(func=_cmd_export_unresolved_state_change_joins)
+
+    p26q = sub.add_parser(
+        "report-quality-threshold-sensitivity",
+        parents=[p26],
+        help="Phase 26: thin 임계 민감도(검토 전용, 자동 완화 없음)",
+    )
+    p26q.set_defaults(func=_cmd_report_quality_threshold_sensitivity)
+
+    p26w = sub.add_parser(
+        "write-thin-input-root-cause-review",
+        parents=[p26],
+        help="Phase 26: thin_input_root_cause_review.md + 선택 JSON 번들",
+    )
+    p26w.add_argument(
+        "--out",
+        default="docs/operator_closeout/thin_input_root_cause_review.md",
+        dest="out",
+    )
+    p26w.add_argument(
+        "--bundle-out",
+        default="",
+        dest="bundle_out",
+        help="전체 번들 JSON 경로(선택)",
+    )
+    p26w.set_defaults(func=_cmd_write_thin_input_root_cause_review)
+
+    p26b = sub.add_parser(
+        "report-thin-input-root-cause-bundle",
+        parents=[p26],
+        help="Phase 26: 분해+효과+민감도+phase27 단일 JSON",
+    )
+    p26b.set_defaults(func=_cmd_report_thin_input_root_cause_bundle)
+
+    p27 = argparse.ArgumentParser(add_help=False)
+    p27.add_argument("--universe", required=True)
+    p27.add_argument("--panel-limit", type=int, default=8000, dest="panel_limit")
+    p27.add_argument(
+        "--program-id",
+        default="latest",
+        dest="program_id",
+        help="rerun 게이트·Phase 28 맥락용 UUID 또는 latest",
+    )
+    p27.add_argument(
+        "--price-lookahead-days",
+        type=int,
+        default=400,
+        dest="price_lookahead_days",
+    )
+
+    p27rv = sub.add_parser(
+        "report-validation-registry-gaps",
+        parents=[p27],
+        help="Phase 27: 미해결 검증 심볼 레지스트리·CIK·별칭 버킷",
+    )
+    p27rv.set_defaults(func=_cmd_report_validation_registry_gaps)
+
+    p27rr = sub.add_parser(
+        "run-validation-registry-repair",
+        parents=[p27],
+        help="Phase 27: 멤버십/별칭 기준 market_symbol_registry 한정 upsert",
+    )
+    p27rr.set_defaults(func=_cmd_run_validation_registry_repair)
+
+    p27rx = sub.add_parser(
+        "export-validation-registry-gap-symbols",
+        parents=[p27],
+        help="Phase 27: 레지스트리 갭 심볼 export (json/csv)",
+    )
+    p27rx.add_argument("--out", required=True)
+    p27rx.add_argument(
+        "--format",
+        choices=["json", "csv"],
+        default="json",
+        dest="export_format",
+    )
+    p27rx.set_defaults(func=_cmd_export_validation_registry_gap_symbols)
+
+    p27md = sub.add_parser(
+        "report-market-metadata-gap-drivers",
+        parents=[p27],
+        help="Phase 27: 조인 행 market_metadata 누락 원인",
+    )
+    p27md.set_defaults(func=_cmd_report_market_metadata_gap_drivers)
+
+    p27mh = sub.add_parser(
+        "run-market-metadata-hydration-repair",
+        parents=[p27],
+        help="Phase 27: 메타데이터 플래그 심볼에 한해 provider 메타 갱신",
+    )
+    p27mh.set_defaults(func=_cmd_run_market_metadata_hydration_repair)
+
+    p27me = sub.add_parser(
+        "export-market-metadata-gap-rows",
+        parents=[p27],
+        help="Phase 27: 메타데이터 갭 행 export",
+    )
+    p27me.add_argument("--out", required=True)
+    p27me.add_argument(
+        "--format",
+        choices=["json", "csv"],
+        default="json",
+        dest="export_format",
+    )
+    p27me.set_defaults(func=_cmd_export_market_metadata_gap_rows)
+
+    p27fm = sub.add_parser(
+        "report-forward-gap-maturity",
+        parents=[p27],
+        help="Phase 27: forward 1Q 갭 성숙도 vs 진짜 결손",
+    )
+    p27fm.add_argument(
+        "--eval-date",
+        default="",
+        dest="eval_date",
+        help="YYYY-MM-DD (기본: 오늘)",
+    )
+    p27fm.set_defaults(func=_cmd_report_forward_gap_maturity)
+
+    p27fe = sub.add_parser(
+        "export-forward-gap-maturity-buckets",
+        parents=[p27],
+        help="Phase 27: forward 성숙도 버킷 export",
+    )
+    p27fe.add_argument(
+        "--eval-date",
+        default="",
+        dest="eval_date",
+    )
+    p27fe.add_argument("--out", required=True)
+    p27fe.add_argument(
+        "--format",
+        choices=["json", "csv"],
+        default="json",
+        dest="export_format",
+    )
+    p27fe.set_defaults(func=_cmd_export_forward_gap_maturity_buckets)
+
+    p27sc = sub.add_parser(
+        "report-state-change-pit-gaps",
+        parents=[p27],
+        help="Phase 27: state-change PIT 갭 세분",
+    )
+    p27sc.set_defaults(func=_cmd_report_state_change_pit_gaps)
+
+    p27sx = sub.add_parser(
+        "export-state-change-pit-gap-rows",
+        parents=[p27],
+        help="Phase 27: PIT 갭 행 export",
+    )
+    p27sx.add_argument("--out", required=True)
+    p27sx.add_argument(
+        "--format",
+        choices=["json", "csv"],
+        default="json",
+        dest="export_format",
+    )
+    p27sx.set_defaults(func=_cmd_export_state_change_pit_gap_rows)
+
+    p27sb = sub.add_parser(
+        "run-state-change-history-backfill-repair",
+        parents=[p27],
+        help="Phase 27: 확장 start/end 윈도우 state_change (단순 동일 재실행 아님)",
+    )
+    p27sb.add_argument(
+        "--history-backfill-days",
+        type=int,
+        default=800,
+        dest="history_backfill_days",
+    )
+    p27sb.add_argument(
+        "--state-change-limit",
+        type=int,
+        default=500,
+        dest="state_change_limit",
+    )
+    p27sb.set_defaults(func=_cmd_run_state_change_history_backfill_repair)
+
+    p27w = sub.add_parser(
+        "write-phase27-targeted-backfill-review",
+        parents=[p27],
+        help="Phase 27: phase27_targeted_backfill_review.md + 선택 JSON 번들",
+    )
+    p27w.add_argument(
+        "--out",
+        default="docs/operator_closeout/phase27_targeted_backfill_review.md",
+        dest="out",
+    )
+    p27w.add_argument(
+        "--bundle-out",
+        default="",
+        dest="bundle_out",
+        help="증거 번들 JSON 경로(선택)",
+    )
+    p27w.set_defaults(func=_cmd_write_phase27_targeted_backfill_review)
 
     p24c = sub.add_parser(
         "advance-public-first-cycle",

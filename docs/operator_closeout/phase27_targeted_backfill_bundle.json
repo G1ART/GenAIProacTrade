@@ -1,0 +1,3383 @@
+{
+  "ok": true,
+  "universe_name": "sp500_current",
+  "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+  "substrate_metrics": {
+    "universe_name": "sp500_current",
+    "as_of_date": "2026-04-05",
+    "n_issuer_universe": 503,
+    "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+    "panel_limit_used": 8000,
+    "state_change_scores_limit_used": 50000,
+    "thin_input_share": 1.0,
+    "degraded_share": 0.0,
+    "strong_share": 0.0,
+    "usable_with_gaps_share": 0.0,
+    "n_issuer_resolved_cik": 5,
+    "n_issuer_with_factor_panel": 5,
+    "n_issuer_with_state_change_cik": 5,
+    "validation_panel_row_count": 312,
+    "n_issuer_no_validation_panel_row": 191,
+    "n_issuer_with_validation_panel_symbol": 312,
+    "n_issuer_with_next_quarter_excess": 251,
+    "validation_join_row_count": 251,
+    "joined_recipe_substrate_row_count": 243,
+    "dominant_exclusion_reasons": [
+      {
+        "reason": "no_validation_panel_for_symbol",
+        "count": 191
+      },
+      {
+        "reason": "missing_excess_return_1q",
+        "count": 61
+      },
+      {
+        "reason": "no_state_change_join",
+        "count": 8
+      }
+    ]
+  },
+  "exclusion_distribution": {
+    "missing_excess_return_1q": 61,
+    "no_state_change_join": 8,
+    "no_validation_panel_for_symbol": 191
+  },
+  "validation_registry": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "metrics": {
+      "universe_name": "sp500_current",
+      "as_of_date": "2026-04-05",
+      "n_issuer_universe": 503,
+      "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+      "panel_limit_used": 8000,
+      "state_change_scores_limit_used": 50000,
+      "thin_input_share": 1.0,
+      "degraded_share": 0.0,
+      "strong_share": 0.0,
+      "usable_with_gaps_share": 0.0,
+      "n_issuer_resolved_cik": 5,
+      "n_issuer_with_factor_panel": 5,
+      "n_issuer_with_state_change_cik": 5,
+      "validation_panel_row_count": 312,
+      "n_issuer_no_validation_panel_row": 191,
+      "n_issuer_with_validation_panel_symbol": 312,
+      "n_issuer_with_next_quarter_excess": 251,
+      "validation_join_row_count": 251,
+      "joined_recipe_substrate_row_count": 243,
+      "dominant_exclusion_reasons": [
+        {
+          "reason": "no_validation_panel_for_symbol",
+          "count": 191
+        },
+        {
+          "reason": "missing_excess_return_1q",
+          "count": 61
+        },
+        {
+          "reason": "no_state_change_join",
+          "count": 8
+        }
+      ]
+    },
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 61,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 191
+    },
+    "missing_symbol_count": 191,
+    "missing_symbols_sample": [
+      "FOX",
+      "GIS",
+      "GOOG",
+      "MCK",
+      "MCO",
+      "MDLZ",
+      "MDT",
+      "MET",
+      "META",
+      "MGM",
+      "MKC",
+      "MLM",
+      "MMM",
+      "MNST",
+      "MO",
+      "MOS",
+      "MPC",
+      "MPWR",
+      "MRNA",
+      "MRSH",
+      "MS",
+      "MSCI",
+      "MSI",
+      "MTB",
+      "MTD",
+      "MU",
+      "NCLH",
+      "NDAQ",
+      "NDSN",
+      "NEE",
+      "NEM",
+      "NFLX",
+      "NI",
+      "NOC",
+      "NOW",
+      "NRG",
+      "NSC",
+      "NTAP",
+      "NTRS",
+      "NUE",
+      "NVR",
+      "NWS",
+      "NWSA",
+      "NXPI",
+      "O",
+      "ODFL",
+      "OKE",
+      "OMC",
+      "ON",
+      "ORCL",
+      "ORLY",
+      "OTIS",
+      "OXY",
+      "PANW",
+      "PAYX",
+      "PCAR",
+      "PCG",
+      "PEG",
+      "PFG",
+      "PGR",
+      "PH",
+      "PHM",
+      "PKG",
+      "PLD",
+      "PLTR",
+      "PM",
+      "PNC",
+      "PNR",
+      "PNW",
+      "PODD",
+      "POOL",
+      "PPG",
+      "PPL",
+      "PRU",
+      "PSA",
+      "PSKY",
+      "PSX",
+      "PTC",
+      "PWR",
+      "PYPL"
+    ],
+    "registry_buckets": {
+      "factor_panel_missing_for_resolved_cik": [
+        "FOX",
+        "GIS",
+        "GOOG"
+      ],
+      "issuer_master_missing_for_resolved_cik": [
+        "MCK",
+        "MCO",
+        "MDLZ",
+        "MDT",
+        "MET",
+        "META",
+        "MGM",
+        "MKC",
+        "MLM",
+        "MMM",
+        "MNST",
+        "MO",
+        "MOS",
+        "MPC",
+        "MPWR",
+        "MRNA",
+        "MRSH",
+        "MS",
+        "MSCI",
+        "MSI",
+        "MTB",
+        "MTD",
+        "MU",
+        "NCLH",
+        "NDAQ",
+        "NDSN",
+        "NEE",
+        "NEM",
+        "NFLX",
+        "NI",
+        "NOC",
+        "NOW",
+        "NRG",
+        "NSC",
+        "NTAP",
+        "NTRS",
+        "NUE",
+        "NVR",
+        "NWS",
+        "NWSA",
+        "NXPI",
+        "O",
+        "ODFL",
+        "OKE",
+        "OMC",
+        "ON",
+        "ORCL",
+        "ORLY",
+        "OTIS",
+        "OXY",
+        "PANW",
+        "PAYX",
+        "PCAR",
+        "PCG",
+        "PEG",
+        "PFG",
+        "PGR",
+        "PH",
+        "PHM",
+        "PKG",
+        "PLD",
+        "PLTR",
+        "PM",
+        "PNC",
+        "PNR",
+        "PNW",
+        "PODD",
+        "POOL",
+        "PPG",
+        "PPL",
+        "PRU",
+        "PSA",
+        "PSKY",
+        "PSX",
+        "PTC",
+        "PWR",
+        "PYPL",
+        "Q",
+        "QCOM",
+        "RCL",
+        "REG",
+        "REGN",
+        "RF",
+        "RJF",
+        "RL",
+        "RMD",
+        "ROK",
+        "ROL",
+        "ROP",
+        "ROST",
+        "RSG",
+        "RVTY",
+        "SATS",
+        "SBAC",
+        "SBUX",
+        "SCHW",
+        "SHW",
+        "SJM",
+        "SLB",
+        "SMCI",
+        "SNA",
+        "SNDK",
+        "SNPS",
+        "SO",
+        "SOLV",
+        "SPG",
+        "SRE",
+        "STE",
+        "STLD",
+        "STT",
+        "STX",
+        "STZ",
+        "SW",
+        "SWK",
+        "SWKS",
+        "SYF",
+        "SYK",
+        "SYY",
+        "T",
+        "TAP",
+        "TDG",
+        "TDY",
+        "TECH",
+        "TEL",
+        "TER",
+        "TFC",
+        "TGT",
+        "TJX",
+        "TKO",
+        "TMUS",
+        "TPL",
+        "TPR",
+        "TRGP",
+        "TRMB",
+        "TROW",
+        "TRV",
+        "TSCO",
+        "TSLA",
+        "TSN",
+        "TT",
+        "TTD",
+        "TTWO",
+        "TXN",
+        "TXT",
+        "TYL",
+        "UAL",
+        "UBER",
+        "UDR",
+        "UHS",
+        "ULTA",
+        "UNP",
+        "URI",
+        "USB",
+        "V",
+        "VICI",
+        "VLO",
+        "VLTO",
+        "VMC",
+        "VRSK",
+        "VRSN",
+        "VRT",
+        "VRTX",
+        "VST",
+        "VTR",
+        "VTRS",
+        "VZ",
+        "WAB",
+        "WAT",
+        "WBD",
+        "WDAY",
+        "WDC",
+        "WEC",
+        "WELL",
+        "WM",
+        "WMB",
+        "WRB",
+        "WSM",
+        "WST",
+        "WTW",
+        "WY",
+        "WYNN",
+        "XEL",
+        "XYL",
+        "XYZ",
+        "YUM",
+        "ZBH",
+        "ZBRA",
+        "ZTS"
+      ]
+    },
+    "registry_bucket_counts": {
+      "factor_panel_missing_for_resolved_cik": 3,
+      "issuer_master_missing_for_resolved_cik": 188
+    }
+  },
+  "market_metadata_gaps": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "metrics": {
+      "universe_name": "sp500_current",
+      "as_of_date": "2026-04-05",
+      "n_issuer_universe": 503,
+      "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+      "panel_limit_used": 8000,
+      "state_change_scores_limit_used": 50000,
+      "thin_input_share": 1.0,
+      "degraded_share": 0.0,
+      "strong_share": 0.0,
+      "usable_with_gaps_share": 0.0,
+      "n_issuer_resolved_cik": 5,
+      "n_issuer_with_factor_panel": 5,
+      "n_issuer_with_state_change_cik": 5,
+      "validation_panel_row_count": 312,
+      "n_issuer_no_validation_panel_row": 191,
+      "n_issuer_with_validation_panel_symbol": 312,
+      "n_issuer_with_next_quarter_excess": 251,
+      "validation_join_row_count": 251,
+      "joined_recipe_substrate_row_count": 243,
+      "dominant_exclusion_reasons": [
+        {
+          "reason": "no_validation_panel_for_symbol",
+          "count": 191
+        },
+        {
+          "reason": "missing_excess_return_1q",
+          "count": 61
+        },
+        {
+          "reason": "no_state_change_join",
+          "count": 8
+        }
+      ]
+    },
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 61,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 191
+    },
+    "joined_row_count": 243,
+    "joined_market_metadata_flagged_count": 243,
+    "metadata_gap_bucket_counts": {
+      "missing_market_metadata_latest": 243
+    },
+    "metadata_gap_buckets_sample": {
+      "missing_market_metadata_latest": [
+        {
+          "symbol": "BAC",
+          "cik": "0000070858",
+          "signal_available_date": "2025-11-03",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AMZN",
+          "cik": "0001018724",
+          "signal_available_date": "2025-10-31",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "ABBV",
+          "cik": "0001551152",
+          "signal_available_date": "2025-11-05",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "ABNB",
+          "cik": "0001559720",
+          "signal_available_date": "2025-11-07",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "ABT",
+          "cik": "0000001800",
+          "signal_available_date": "2025-10-30",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "ACGL",
+          "cik": "0000947484",
+          "signal_available_date": "2025-11-07",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "ADM",
+          "cik": "0000007084",
+          "signal_available_date": "2025-11-05",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "CAT",
+          "cik": "0000018230",
+          "signal_available_date": "2025-11-04",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "BA",
+          "cik": "0000012927",
+          "signal_available_date": "2025-10-30",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AKAM",
+          "cik": "0001086222",
+          "signal_available_date": "2025-11-10",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "ALB",
+          "cik": "0000915913",
+          "signal_available_date": "2025-11-06",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "ALGN",
+          "cik": "0001097149",
+          "signal_available_date": "2025-11-06",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "ALL",
+          "cik": "0000899051",
+          "signal_available_date": "2025-11-06",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "ALLE",
+          "cik": "0001579241",
+          "signal_available_date": "2025-10-24",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AMD",
+          "cik": "0000002488",
+          "signal_available_date": "2025-11-05",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AME",
+          "cik": "0001037868",
+          "signal_available_date": "2025-10-31",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AMGN",
+          "cik": "0000318154",
+          "signal_available_date": "2025-11-05",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AMP",
+          "cik": "0000820027",
+          "signal_available_date": "2025-11-03",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AMT",
+          "cik": "0001053507",
+          "signal_available_date": "2025-10-29",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "ANET",
+          "cik": "0001596532",
+          "signal_available_date": "2025-11-05",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AOS",
+          "cik": "0000091142",
+          "signal_available_date": "2025-10-29",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "APA",
+          "cik": "0001841666",
+          "signal_available_date": "2025-11-07",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "APH",
+          "cik": "0000820313",
+          "signal_available_date": "2025-10-27",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AEE",
+          "cik": "0001002910",
+          "signal_available_date": "2025-11-07",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AEP",
+          "cik": "0000004904",
+          "signal_available_date": "2025-10-30",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AES",
+          "cik": "0000874761",
+          "signal_available_date": "2025-11-05",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AFL",
+          "cik": "0000004977",
+          "signal_available_date": "2025-11-06",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AIG",
+          "cik": "0000005272",
+          "signal_available_date": "2025-11-06",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AIZ",
+          "cik": "0001267238",
+          "signal_available_date": "2025-11-07",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AJG",
+          "cik": "0000354190",
+          "signal_available_date": "2025-11-10",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AVY",
+          "cik": "0000008818",
+          "signal_available_date": "2025-10-29",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AWK",
+          "cik": "0001410636",
+          "signal_available_date": "2025-10-30",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AXON",
+          "cik": "0001069183",
+          "signal_available_date": "2025-11-05",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "AXP",
+          "cik": "0000004962",
+          "signal_available_date": "2025-10-20",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "BALL",
+          "cik": "0000009389",
+          "signal_available_date": "2025-11-05",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "BAX",
+          "cik": "0000010456",
+          "signal_available_date": "2025-11-05",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "BG",
+          "cik": "0001996862",
+          "signal_available_date": "2025-11-06",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "BIIB",
+          "cik": "0000875045",
+          "signal_available_date": "2025-10-31",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "BK",
+          "cik": "0001390777",
+          "signal_available_date": "2025-11-03",
+          "driver_bucket": "missing_market_metadata_latest"
+        },
+        {
+          "symbol": "BKNG",
+          "cik": "0001075531",
+          "signal_available_date": "2025-10-29",
+          "driver_bucket": "missing_market_metadata_latest"
+        }
+      ]
+    },
+    "metadata_gap_all_rows": [
+      {
+        "symbol": "BAC",
+        "cik": "0000070858",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AMZN",
+        "cik": "0001018724",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ABBV",
+        "cik": "0001551152",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ABNB",
+        "cik": "0001559720",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ABT",
+        "cik": "0000001800",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ACGL",
+        "cik": "0000947484",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ADM",
+        "cik": "0000007084",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CAT",
+        "cik": "0000018230",
+        "signal_available_date": "2025-11-04",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BA",
+        "cik": "0000012927",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AKAM",
+        "cik": "0001086222",
+        "signal_available_date": "2025-11-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ALB",
+        "cik": "0000915913",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ALGN",
+        "cik": "0001097149",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ALL",
+        "cik": "0000899051",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ALLE",
+        "cik": "0001579241",
+        "signal_available_date": "2025-10-24",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AMD",
+        "cik": "0000002488",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AME",
+        "cik": "0001037868",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AMGN",
+        "cik": "0000318154",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AMP",
+        "cik": "0000820027",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AMT",
+        "cik": "0001053507",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ANET",
+        "cik": "0001596532",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AOS",
+        "cik": "0000091142",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "APA",
+        "cik": "0001841666",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "APH",
+        "cik": "0000820313",
+        "signal_available_date": "2025-10-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AEE",
+        "cik": "0001002910",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AEP",
+        "cik": "0000004904",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AES",
+        "cik": "0000874761",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AFL",
+        "cik": "0000004977",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AIG",
+        "cik": "0000005272",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AIZ",
+        "cik": "0001267238",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AJG",
+        "cik": "0000354190",
+        "signal_available_date": "2025-11-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AVY",
+        "cik": "0000008818",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AWK",
+        "cik": "0001410636",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AXON",
+        "cik": "0001069183",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AXP",
+        "cik": "0000004962",
+        "signal_available_date": "2025-10-20",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BALL",
+        "cik": "0000009389",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BAX",
+        "cik": "0000010456",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BG",
+        "cik": "0001996862",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BIIB",
+        "cik": "0000875045",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BK",
+        "cik": "0001390777",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BKNG",
+        "cik": "0001075531",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BKR",
+        "cik": "0001701605",
+        "signal_available_date": "2025-10-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BLDR",
+        "cik": "0001316835",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "APP",
+        "cik": "0001751008",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "APTV",
+        "cik": "0001521332",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ARE",
+        "cik": "0001035443",
+        "signal_available_date": "2025-10-28",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ARES",
+        "cik": "0001176948",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AVB",
+        "cik": "0000915912",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "C",
+        "cik": "0000831001",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CARR",
+        "cik": "0001783180",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CB",
+        "cik": "0000896159",
+        "signal_available_date": "2025-10-28",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CBOE",
+        "cik": "0001374310",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BMY",
+        "cik": "0000014272",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BRO",
+        "cik": "0000079282",
+        "signal_available_date": "2025-10-28",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BSX",
+        "cik": "0000885725",
+        "signal_available_date": "2025-11-04",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BX",
+        "cik": "0001393818",
+        "signal_available_date": "2025-11-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BXP",
+        "cik": "0001037540",
+        "signal_available_date": "2025-11-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "APO",
+        "cik": "0001858681",
+        "signal_available_date": "2025-11-11",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "AON",
+        "cik": "0000315293",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "BLK",
+        "cik": "0002012383",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CVX",
+        "cik": "0000093410",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CBRE",
+        "cik": "0001138118",
+        "signal_available_date": "2025-10-24",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CCI",
+        "cik": "0001051470",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CDNS",
+        "cik": "0000813672",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CDW",
+        "cik": "0001402057",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CEG",
+        "cik": "0001868275",
+        "signal_available_date": "2025-11-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CF",
+        "cik": "0001324404",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CFG",
+        "cik": "0000759944",
+        "signal_available_date": "2025-11-04",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CHD",
+        "cik": "0000313927",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CHRW",
+        "cik": "0001043277",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CHTR",
+        "cik": "0001091667",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CMI",
+        "cik": "0000026172",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CMS",
+        "cik": "0000811156",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CNC",
+        "cik": "0001071739",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CNP",
+        "cik": "0001130310",
+        "signal_available_date": "2025-10-24",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "COF",
+        "cik": "0000927628",
+        "signal_available_date": "2025-11-04",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "COIN",
+        "cik": "0001679788",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "COP",
+        "cik": "0001163165",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CPAY",
+        "cik": "0001175454",
+        "signal_available_date": "2025-11-11",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CPT",
+        "cik": "0000906345",
+        "signal_available_date": "2025-11-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CRH",
+        "cik": "0000849395",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CRL",
+        "cik": "0001100682",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CINF",
+        "cik": "0000020286",
+        "signal_available_date": "2025-10-28",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CL",
+        "cik": "0000021665",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CMCSA",
+        "cik": "0001166691",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CME",
+        "cik": "0001156375",
+        "signal_available_date": "2025-10-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CMG",
+        "cik": "0001058090",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CVS",
+        "cik": "0000064803",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "D",
+        "cik": "0000715957",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DAL",
+        "cik": "0000027904",
+        "signal_available_date": "2025-10-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DASH",
+        "cik": "0001792789",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DD",
+        "cik": "0001666700",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DDOG",
+        "cik": "0001561550",
+        "signal_available_date": "2025-11-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DG",
+        "cik": "0000029534",
+        "signal_available_date": "2025-12-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DGX",
+        "cik": "0001022079",
+        "signal_available_date": "2025-10-22",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DHR",
+        "cik": "0000313616",
+        "signal_available_date": "2025-10-21",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DLR",
+        "cik": "0001297996",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DLTR",
+        "cik": "0000935703",
+        "signal_available_date": "2025-12-04",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DOC",
+        "cik": "0000765880",
+        "signal_available_date": "2025-10-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DOV",
+        "cik": "0000029905",
+        "signal_available_date": "2025-10-24",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CSGP",
+        "cik": "0001057352",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CSX",
+        "cik": "0000277948",
+        "signal_available_date": "2025-10-17",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CTRA",
+        "cik": "0000858470",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CTSH",
+        "cik": "0001058290",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CTVA",
+        "cik": "0001755672",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CVNA",
+        "cik": "0001690820",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DVN",
+        "cik": "0001090012",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EBAY",
+        "cik": "0001065088",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EFX",
+        "cik": "0000033185",
+        "signal_available_date": "2025-10-22",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "CI",
+        "cik": "0001739940",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DOW",
+        "cik": "0001751788",
+        "signal_available_date": "2025-10-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DPZ",
+        "cik": "0001286681",
+        "signal_available_date": "2025-10-15",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DTE",
+        "cik": "0000936340",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DVA",
+        "cik": "0000927066",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "DXCM",
+        "cik": "0001093557",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ECL",
+        "cik": "0000031462",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ED",
+        "cik": "0001047862",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EIX",
+        "cik": "0000827052",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EG",
+        "cik": "0001095073",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GOOGL",
+        "cik": "0001652044",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EPAM",
+        "cik": "0001352010",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EQIX",
+        "cik": "0001101239",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EQR",
+        "cik": "0000906107",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EQT",
+        "cik": "0000033213",
+        "signal_available_date": "2025-10-23",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ERIE",
+        "cik": "0000922621",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ES",
+        "cik": "0000072741",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ESS",
+        "cik": "0000920522",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ETN",
+        "cik": "0001551182",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ETR",
+        "cik": "0000065984",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EVRG",
+        "cik": "0001711269",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EW",
+        "cik": "0001099800",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EXC",
+        "cik": "0001109357",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EXE",
+        "cik": "0000895126",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EXPD",
+        "cik": "0000746515",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EXPE",
+        "cik": "0001324424",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EXR",
+        "cik": "0001289490",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "F",
+        "cik": "0000037996",
+        "signal_available_date": "2025-10-24",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FANG",
+        "cik": "0001539838",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ELV",
+        "cik": "0001156039",
+        "signal_available_date": "2025-10-22",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EME",
+        "cik": "0000105634",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "EOG",
+        "cik": "0000821189",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FIS",
+        "cik": "0001136893",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FISV",
+        "cik": "0000798354",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FITB",
+        "cik": "0000035527",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FIX",
+        "cik": "0001035983",
+        "signal_available_date": "2025-10-24",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FRT",
+        "cik": "0000034903",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FSLR",
+        "cik": "0001274494",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FTNT",
+        "cik": "0001262039",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FTV",
+        "cik": "0001659166",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GD",
+        "cik": "0000040533",
+        "signal_available_date": "2025-10-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GDDY",
+        "cik": "0001609711",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GE",
+        "cik": "0000040545",
+        "signal_available_date": "2025-10-22",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GEHC",
+        "cik": "0001932393",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GEV",
+        "cik": "0001996810",
+        "signal_available_date": "2025-10-23",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GILD",
+        "cik": "0000882095",
+        "signal_available_date": "2025-11-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GL",
+        "cik": "0000320335",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GLW",
+        "cik": "0000024741",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FCX",
+        "cik": "0000831259",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FE",
+        "cik": "0001031296",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HAL",
+        "cik": "0000045012",
+        "signal_available_date": "2025-10-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HAS",
+        "cik": "0000046080",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HBAN",
+        "cik": "0000049196",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HCA",
+        "cik": "0000860730",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HD",
+        "cik": "0000354950",
+        "signal_available_date": "2025-11-25",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HIG",
+        "cik": "0000874766",
+        "signal_available_date": "2025-10-28",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HII",
+        "cik": "0001501585",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HLT",
+        "cik": "0001585689",
+        "signal_available_date": "2025-10-23",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HON",
+        "cik": "0000773840",
+        "signal_available_date": "2025-10-24",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HOOD",
+        "cik": "0001783879",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HSIC",
+        "cik": "0001000228",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HST",
+        "cik": "0001070750",
+        "signal_available_date": "2025-11-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HSY",
+        "cik": "0000047111",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HUBB",
+        "cik": "0000048898",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GNRC",
+        "cik": "0001474735",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GPC",
+        "cik": "0000040987",
+        "signal_available_date": "2025-10-22",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GPN",
+        "cik": "0001123360",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GRMN",
+        "cik": "0001121788",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GS",
+        "cik": "0000886982",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GWW",
+        "cik": "0000277135",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HWM",
+        "cik": "0000004281",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "IBKR",
+        "cik": "0001381197",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "HUM",
+        "cik": "0000049071",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "FAST",
+        "cik": "0000815556",
+        "signal_available_date": "2025-10-17",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "GM",
+        "cik": "0001467858",
+        "signal_available_date": "2025-10-22",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "JNJ",
+        "cik": "0000200406",
+        "signal_available_date": "2025-10-23",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "KO",
+        "cik": "0000021344",
+        "signal_available_date": "2025-10-24",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "MRK",
+        "cik": "0000310158",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "JPM",
+        "cik": "0000019617",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "MCD",
+        "cik": "0000063908",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LIN",
+        "cik": "0001707925",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "IFF",
+        "cik": "0000051253",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "INCY",
+        "cik": "0000879169",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "INTC",
+        "cik": "0000050863",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "INVH",
+        "cik": "0001687229",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "IP",
+        "cik": "0000051434",
+        "signal_available_date": "2025-11-07",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "IQV",
+        "cik": "0001478242",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "IR",
+        "cik": "0001699150",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "IRM",
+        "cik": "0001020569",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ISRG",
+        "cik": "0001035267",
+        "signal_available_date": "2025-10-23",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "IT",
+        "cik": "0000749251",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ITW",
+        "cik": "0000049826",
+        "signal_available_date": "2025-10-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "JBHT",
+        "cik": "0000728535",
+        "signal_available_date": "2025-10-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "KDP",
+        "cik": "0001418135",
+        "signal_available_date": "2025-10-28",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "IBM",
+        "cik": "0000051143",
+        "signal_available_date": "2025-10-24",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "ICE",
+        "cik": "0001571949",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "IDXX",
+        "cik": "0000874716",
+        "signal_available_date": "2025-11-04",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "IEX",
+        "cik": "0000832101",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "KMI",
+        "cik": "0001506307",
+        "signal_available_date": "2025-10-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "KR",
+        "cik": "0000056873",
+        "signal_available_date": "2025-12-15",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "KVUE",
+        "cik": "0001944048",
+        "signal_available_date": "2025-11-04",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "L",
+        "cik": "0000060086",
+        "signal_available_date": "2025-11-04",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LDOS",
+        "cik": "0001336920",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LEN",
+        "cik": "0000920760",
+        "signal_available_date": "2025-10-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LH",
+        "cik": "0000920148",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LHX",
+        "cik": "0000202058",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LII",
+        "cik": "0001069202",
+        "signal_available_date": "2025-10-23",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LLY",
+        "cik": "0000059478",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LMT",
+        "cik": "0000936468",
+        "signal_available_date": "2025-10-22",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LNT",
+        "cik": "0000352541",
+        "signal_available_date": "2025-11-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LOW",
+        "cik": "0000060667",
+        "signal_available_date": "2025-11-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LULU",
+        "cik": "0001397187",
+        "signal_available_date": "2025-12-12",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LUV",
+        "cik": "0000092380",
+        "signal_available_date": "2025-10-24",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LVS",
+        "cik": "0001300514",
+        "signal_available_date": "2025-10-27",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "KHC",
+        "cik": "0001637459",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "KIM",
+        "cik": "0000879101",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "KKR",
+        "cik": "0001404912",
+        "signal_available_date": "2025-11-10",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "KMB",
+        "cik": "0000055785",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "KEY",
+        "cik": "0000091576",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LYB",
+        "cik": "0001489393",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "LYV",
+        "cik": "0001335258",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "MA",
+        "cik": "0001141391",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "MAA",
+        "cik": "0000912595",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "MAR",
+        "cik": "0001048286",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "MAS",
+        "cik": "0000062996",
+        "signal_available_date": "2025-10-30",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "IVZ",
+        "cik": "0000914208",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "PEP",
+        "cik": "0000077476",
+        "signal_available_date": "2025-10-09",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "PFE",
+        "cik": "0000078003",
+        "signal_available_date": "2025-11-05",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "RTX",
+        "cik": "0000101829",
+        "signal_available_date": "2025-10-22",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "UNH",
+        "cik": "0000731766",
+        "signal_available_date": "2025-10-29",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "UPS",
+        "cik": "0001090727",
+        "signal_available_date": "2025-11-06",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "SPGI",
+        "cik": "0000064040",
+        "signal_available_date": "2025-10-31",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "TMO",
+        "cik": "0000097745",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "WFC",
+        "cik": "0000072971",
+        "signal_available_date": "2025-11-03",
+        "driver_bucket": "missing_market_metadata_latest"
+      },
+      {
+        "symbol": "XOM",
+        "cik": "0000034088",
+        "signal_available_date": "2025-11-04",
+        "driver_bucket": "missing_market_metadata_latest"
+      }
+    ]
+  },
+  "forward_maturity": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "eval_date": "2026-04-07",
+    "calendar_days_1q_proxy": 95,
+    "raw_unresolved_forward_row_count": 61,
+    "true_repairable_forward_gap_count": 1,
+    "not_yet_matured_count": 60,
+    "maturity_bucket_counts": {
+      "not_yet_matured_for_1q_horizon": 60,
+      "symbol_price_link_missing": 1
+    },
+    "maturity_buckets_sample": {
+      "not_yet_matured_for_1q_horizon": [
+        {
+          "symbol": "PG",
+          "signal_date": "2026-01-23",
+          "cik": "0000080424",
+          "accession_no": "0000080424-26-000011",
+          "maturity_cutoff_date": "2026-04-28",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "COST",
+          "signal_date": "2026-03-12",
+          "cik": "0000909832",
+          "accession_no": "0000909832-26-000029",
+          "maturity_cutoff_date": "2026-06-15",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "AAPL",
+          "signal_date": "2026-02-02",
+          "cik": "0000320193",
+          "accession_no": "0000320193-26-000006",
+          "maturity_cutoff_date": "2026-05-08",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "MSFT",
+          "signal_date": "2026-01-29",
+          "cik": "0000789019",
+          "accession_no": "0001193125-26-027207",
+          "maturity_cutoff_date": "2026-05-04",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "ADBE",
+          "signal_date": "2026-03-26",
+          "cik": "0000796343",
+          "accession_no": "0000796343-26-000056",
+          "maturity_cutoff_date": "2026-06-29",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "ACN",
+          "signal_date": "2026-03-20",
+          "cik": "0001467373",
+          "accession_no": "0001467373-26-000014",
+          "maturity_cutoff_date": "2026-06-23",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "ADI",
+          "signal_date": "2026-02-19",
+          "cik": "0000006281",
+          "accession_no": "0000006281-26-000016",
+          "maturity_cutoff_date": "2026-05-25",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "ADP",
+          "signal_date": "2026-01-30",
+          "cik": "0000008670",
+          "accession_no": "0000008670-26-000011",
+          "maturity_cutoff_date": "2026-05-05",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "DIS",
+          "signal_date": "2026-02-03",
+          "cik": "0001744489",
+          "accession_no": "0001744489-26-000019",
+          "maturity_cutoff_date": "2026-05-09",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "NKE",
+          "signal_date": "2026-04-02",
+          "cik": "0000320187",
+          "accession_no": "0000320187-26-000037",
+          "maturity_cutoff_date": "2026-07-06",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "A",
+          "signal_date": "2026-03-04",
+          "cik": "0001090872",
+          "accession_no": "0001090872-26-000023",
+          "maturity_cutoff_date": "2026-06-07",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "AMAT",
+          "signal_date": "2026-02-20",
+          "cik": "0000006951",
+          "accession_no": "0001628280-26-009694",
+          "maturity_cutoff_date": "2026-05-26",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "AMCR",
+          "signal_date": "2026-02-05",
+          "cik": "0001748790",
+          "accession_no": "0001748790-26-000006",
+          "maturity_cutoff_date": "2026-05-11",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "APD",
+          "signal_date": "2026-02-02",
+          "cik": "0000002969",
+          "accession_no": "0000002969-26-000008",
+          "maturity_cutoff_date": "2026-05-08",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "AZO",
+          "signal_date": "2026-03-23",
+          "cik": "0000866787",
+          "accession_no": "0001104659-26-032757",
+          "maturity_cutoff_date": "2026-06-26",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "BDX",
+          "signal_date": "2026-02-10",
+          "cik": "0000010795",
+          "accession_no": "0000010795-26-000005",
+          "maturity_cutoff_date": "2026-05-16",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "BEN",
+          "signal_date": "2026-02-02",
+          "cik": "0000038777",
+          "accession_no": "0000038777-26-000033",
+          "maturity_cutoff_date": "2026-05-08",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "BF.B",
+          "signal_date": "2026-03-05",
+          "cik": "0000014693",
+          "accession_no": "0000014693-26-000010",
+          "maturity_cutoff_date": "2026-06-08",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "ATO",
+          "signal_date": "2026-02-04",
+          "cik": "0000731802",
+          "accession_no": "0000731802-26-000013",
+          "maturity_cutoff_date": "2026-05-10",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "AVGO",
+          "signal_date": "2026-03-12",
+          "cik": "0001730168",
+          "accession_no": "0001730168-26-000016",
+          "maturity_cutoff_date": "2026-06-15",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "CAG",
+          "signal_date": "2026-04-02",
+          "cik": "0000023217",
+          "accession_no": "0001104659-26-038548",
+          "maturity_cutoff_date": "2026-07-06",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "CAH",
+          "signal_date": "2026-02-06",
+          "cik": "0000721371",
+          "accession_no": "0000721371-26-000006",
+          "maturity_cutoff_date": "2026-05-12",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "CCL",
+          "signal_date": "2026-03-30",
+          "cik": "0000815097",
+          "accession_no": "0000815097-26-000037",
+          "maturity_cutoff_date": "2026-07-03",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "BR",
+          "signal_date": "2026-02-04",
+          "cik": "0001383312",
+          "accession_no": "0001628280-26-004859",
+          "maturity_cutoff_date": "2026-05-10",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "COHR",
+          "signal_date": "2026-02-05",
+          "cik": "0000820318",
+          "accession_no": "0000820318-26-000006",
+          "maturity_cutoff_date": "2026-05-11",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "COO",
+          "signal_date": "2026-03-09",
+          "cik": "0000711404",
+          "accession_no": "0001628280-26-015620",
+          "maturity_cutoff_date": "2026-06-12",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "CPB",
+          "signal_date": "2026-03-12",
+          "cik": "0000016732",
+          "accession_no": "0000016732-26-000006",
+          "maturity_cutoff_date": "2026-06-15",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "CPRT",
+          "signal_date": "2026-03-04",
+          "cik": "0000900075",
+          "accession_no": "0001193125-26-088593",
+          "maturity_cutoff_date": "2026-06-07",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "CIEN",
+          "signal_date": "2026-03-06",
+          "cik": "0000936395",
+          "accession_no": "0001628280-26-015152",
+          "maturity_cutoff_date": "2026-06-09",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "CLX",
+          "signal_date": "2026-02-04",
+          "cik": "0000021076",
+          "accession_no": "0000021076-26-000010",
+          "maturity_cutoff_date": "2026-05-10",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "DE",
+          "signal_date": "2026-02-27",
+          "cik": "0000315189",
+          "accession_no": "0001104659-26-020158",
+          "maturity_cutoff_date": "2026-06-02",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "DECK",
+          "signal_date": "2026-02-04",
+          "cik": "0000910521",
+          "accession_no": "0000910521-26-000005",
+          "maturity_cutoff_date": "2026-05-10",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "DHI",
+          "signal_date": "2026-01-23",
+          "cik": "0000882184",
+          "accession_no": "0000882184-26-000014",
+          "maturity_cutoff_date": "2026-04-28",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "CTAS",
+          "signal_date": "2026-01-08",
+          "cik": "0000723254",
+          "accession_no": "0000723254-26-000002",
+          "maturity_cutoff_date": "2026-04-13",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "CSCO",
+          "signal_date": "2026-02-18",
+          "cik": "0000858877",
+          "accession_no": "0000858877-26-000021",
+          "maturity_cutoff_date": "2026-05-24",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "DRI",
+          "signal_date": "2026-03-30",
+          "cik": "0000940944",
+          "accession_no": "0000940944-26-000009",
+          "maturity_cutoff_date": "2026-07-03",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "COR",
+          "signal_date": "2026-02-05",
+          "cik": "0001140859",
+          "accession_no": "0001140859-26-000006",
+          "maturity_cutoff_date": "2026-05-11",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "EA",
+          "signal_date": "2026-02-04",
+          "cik": "0000712515",
+          "accession_no": "0001628280-26-005101",
+          "maturity_cutoff_date": "2026-05-10",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "EL",
+          "signal_date": "2026-02-06",
+          "cik": "0001001250",
+          "accession_no": "0001001250-26-000006",
+          "maturity_cutoff_date": "2026-05-12",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "EMR",
+          "signal_date": "2026-02-04",
+          "cik": "0000032604",
+          "accession_no": "0000032604-26-000007",
+          "maturity_cutoff_date": "2026-05-10",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "FOXA",
+          "signal_date": "2026-02-05",
+          "cik": "0001754301",
+          "accession_no": "0001628280-26-005285",
+          "maturity_cutoff_date": "2026-05-11",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "GEN",
+          "signal_date": "2026-02-09",
+          "cik": "0000849399",
+          "accession_no": "0000849399-26-000004",
+          "maturity_cutoff_date": "2026-05-15",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "FDS",
+          "signal_date": "2026-04-02",
+          "cik": "0001013237",
+          "accession_no": "0001628280-26-022873",
+          "maturity_cutoff_date": "2026-07-06",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "FDX",
+          "signal_date": "2026-03-20",
+          "cik": "0001048911",
+          "accession_no": "0001048911-26-000011",
+          "maturity_cutoff_date": "2026-06-23",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "FFIV",
+          "signal_date": "2026-02-06",
+          "cik": "0001048695",
+          "accession_no": "0001048695-26-000023",
+          "maturity_cutoff_date": "2026-05-12",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "FICO",
+          "signal_date": "2026-01-29",
+          "cik": "0000814547",
+          "accession_no": "0000814547-26-000011",
+          "maturity_cutoff_date": "2026-05-04",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "HOLX",
+          "signal_date": "2026-01-30",
+          "cik": "0000859737",
+          "accession_no": "0000859737-26-000008",
+          "maturity_cutoff_date": "2026-05-05",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "HPE",
+          "signal_date": "2026-03-11",
+          "cik": "0001645590",
+          "accession_no": "0001645590-26-000032",
+          "maturity_cutoff_date": "2026-06-14",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "HPQ",
+          "signal_date": "2026-02-25",
+          "cik": "0000047217",
+          "accession_no": "0000047217-26-000011",
+          "maturity_cutoff_date": "2026-05-31",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        },
+        {
+          "symbol": "HRL",
+          "signal_date": "2026-02-27",
+          "cik": "0000048465",
+          "accession_no": "0000048465-26-000020",
+          "maturity_cutoff_date": "2026-06-02",
+          "bucket": "not_yet_matured_for_1q_horizon",
+          "calendar_days_proxy": 95
+        }
+      ],
+      "symbol_price_link_missing": [
+        {
+          "symbol": "BRK.B",
+          "signal_date": "2025-11-04",
+          "cik": "0001067983",
+          "accession_no": "0001193125-25-261548",
+          "maturity_cutoff_date": "2026-02-07",
+          "bucket": "symbol_price_link_missing"
+        }
+      ]
+    },
+    "maturity_all_rows": [
+      {
+        "symbol": "PG",
+        "signal_date": "2026-01-23",
+        "cik": "0000080424",
+        "accession_no": "0000080424-26-000011",
+        "maturity_cutoff_date": "2026-04-28",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "COST",
+        "signal_date": "2026-03-12",
+        "cik": "0000909832",
+        "accession_no": "0000909832-26-000029",
+        "maturity_cutoff_date": "2026-06-15",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "AAPL",
+        "signal_date": "2026-02-02",
+        "cik": "0000320193",
+        "accession_no": "0000320193-26-000006",
+        "maturity_cutoff_date": "2026-05-08",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "MSFT",
+        "signal_date": "2026-01-29",
+        "cik": "0000789019",
+        "accession_no": "0001193125-26-027207",
+        "maturity_cutoff_date": "2026-05-04",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "ADBE",
+        "signal_date": "2026-03-26",
+        "cik": "0000796343",
+        "accession_no": "0000796343-26-000056",
+        "maturity_cutoff_date": "2026-06-29",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "ACN",
+        "signal_date": "2026-03-20",
+        "cik": "0001467373",
+        "accession_no": "0001467373-26-000014",
+        "maturity_cutoff_date": "2026-06-23",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "ADI",
+        "signal_date": "2026-02-19",
+        "cik": "0000006281",
+        "accession_no": "0000006281-26-000016",
+        "maturity_cutoff_date": "2026-05-25",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "ADP",
+        "signal_date": "2026-01-30",
+        "cik": "0000008670",
+        "accession_no": "0000008670-26-000011",
+        "maturity_cutoff_date": "2026-05-05",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "DIS",
+        "signal_date": "2026-02-03",
+        "cik": "0001744489",
+        "accession_no": "0001744489-26-000019",
+        "maturity_cutoff_date": "2026-05-09",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "NKE",
+        "signal_date": "2026-04-02",
+        "cik": "0000320187",
+        "accession_no": "0000320187-26-000037",
+        "maturity_cutoff_date": "2026-07-06",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "A",
+        "signal_date": "2026-03-04",
+        "cik": "0001090872",
+        "accession_no": "0001090872-26-000023",
+        "maturity_cutoff_date": "2026-06-07",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "AMAT",
+        "signal_date": "2026-02-20",
+        "cik": "0000006951",
+        "accession_no": "0001628280-26-009694",
+        "maturity_cutoff_date": "2026-05-26",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "AMCR",
+        "signal_date": "2026-02-05",
+        "cik": "0001748790",
+        "accession_no": "0001748790-26-000006",
+        "maturity_cutoff_date": "2026-05-11",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "APD",
+        "signal_date": "2026-02-02",
+        "cik": "0000002969",
+        "accession_no": "0000002969-26-000008",
+        "maturity_cutoff_date": "2026-05-08",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "AZO",
+        "signal_date": "2026-03-23",
+        "cik": "0000866787",
+        "accession_no": "0001104659-26-032757",
+        "maturity_cutoff_date": "2026-06-26",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "BDX",
+        "signal_date": "2026-02-10",
+        "cik": "0000010795",
+        "accession_no": "0000010795-26-000005",
+        "maturity_cutoff_date": "2026-05-16",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "BEN",
+        "signal_date": "2026-02-02",
+        "cik": "0000038777",
+        "accession_no": "0000038777-26-000033",
+        "maturity_cutoff_date": "2026-05-08",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "BF.B",
+        "signal_date": "2026-03-05",
+        "cik": "0000014693",
+        "accession_no": "0000014693-26-000010",
+        "maturity_cutoff_date": "2026-06-08",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "ATO",
+        "signal_date": "2026-02-04",
+        "cik": "0000731802",
+        "accession_no": "0000731802-26-000013",
+        "maturity_cutoff_date": "2026-05-10",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "AVGO",
+        "signal_date": "2026-03-12",
+        "cik": "0001730168",
+        "accession_no": "0001730168-26-000016",
+        "maturity_cutoff_date": "2026-06-15",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "CAG",
+        "signal_date": "2026-04-02",
+        "cik": "0000023217",
+        "accession_no": "0001104659-26-038548",
+        "maturity_cutoff_date": "2026-07-06",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "CAH",
+        "signal_date": "2026-02-06",
+        "cik": "0000721371",
+        "accession_no": "0000721371-26-000006",
+        "maturity_cutoff_date": "2026-05-12",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "CCL",
+        "signal_date": "2026-03-30",
+        "cik": "0000815097",
+        "accession_no": "0000815097-26-000037",
+        "maturity_cutoff_date": "2026-07-03",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "BR",
+        "signal_date": "2026-02-04",
+        "cik": "0001383312",
+        "accession_no": "0001628280-26-004859",
+        "maturity_cutoff_date": "2026-05-10",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "COHR",
+        "signal_date": "2026-02-05",
+        "cik": "0000820318",
+        "accession_no": "0000820318-26-000006",
+        "maturity_cutoff_date": "2026-05-11",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "COO",
+        "signal_date": "2026-03-09",
+        "cik": "0000711404",
+        "accession_no": "0001628280-26-015620",
+        "maturity_cutoff_date": "2026-06-12",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "CPB",
+        "signal_date": "2026-03-12",
+        "cik": "0000016732",
+        "accession_no": "0000016732-26-000006",
+        "maturity_cutoff_date": "2026-06-15",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "CPRT",
+        "signal_date": "2026-03-04",
+        "cik": "0000900075",
+        "accession_no": "0001193125-26-088593",
+        "maturity_cutoff_date": "2026-06-07",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "CIEN",
+        "signal_date": "2026-03-06",
+        "cik": "0000936395",
+        "accession_no": "0001628280-26-015152",
+        "maturity_cutoff_date": "2026-06-09",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "CLX",
+        "signal_date": "2026-02-04",
+        "cik": "0000021076",
+        "accession_no": "0000021076-26-000010",
+        "maturity_cutoff_date": "2026-05-10",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "DE",
+        "signal_date": "2026-02-27",
+        "cik": "0000315189",
+        "accession_no": "0001104659-26-020158",
+        "maturity_cutoff_date": "2026-06-02",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "DECK",
+        "signal_date": "2026-02-04",
+        "cik": "0000910521",
+        "accession_no": "0000910521-26-000005",
+        "maturity_cutoff_date": "2026-05-10",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "DHI",
+        "signal_date": "2026-01-23",
+        "cik": "0000882184",
+        "accession_no": "0000882184-26-000014",
+        "maturity_cutoff_date": "2026-04-28",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "CTAS",
+        "signal_date": "2026-01-08",
+        "cik": "0000723254",
+        "accession_no": "0000723254-26-000002",
+        "maturity_cutoff_date": "2026-04-13",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "CSCO",
+        "signal_date": "2026-02-18",
+        "cik": "0000858877",
+        "accession_no": "0000858877-26-000021",
+        "maturity_cutoff_date": "2026-05-24",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "DRI",
+        "signal_date": "2026-03-30",
+        "cik": "0000940944",
+        "accession_no": "0000940944-26-000009",
+        "maturity_cutoff_date": "2026-07-03",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "COR",
+        "signal_date": "2026-02-05",
+        "cik": "0001140859",
+        "accession_no": "0001140859-26-000006",
+        "maturity_cutoff_date": "2026-05-11",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "EA",
+        "signal_date": "2026-02-04",
+        "cik": "0000712515",
+        "accession_no": "0001628280-26-005101",
+        "maturity_cutoff_date": "2026-05-10",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "EL",
+        "signal_date": "2026-02-06",
+        "cik": "0001001250",
+        "accession_no": "0001001250-26-000006",
+        "maturity_cutoff_date": "2026-05-12",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "EMR",
+        "signal_date": "2026-02-04",
+        "cik": "0000032604",
+        "accession_no": "0000032604-26-000007",
+        "maturity_cutoff_date": "2026-05-10",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "FOXA",
+        "signal_date": "2026-02-05",
+        "cik": "0001754301",
+        "accession_no": "0001628280-26-005285",
+        "maturity_cutoff_date": "2026-05-11",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "GEN",
+        "signal_date": "2026-02-09",
+        "cik": "0000849399",
+        "accession_no": "0000849399-26-000004",
+        "maturity_cutoff_date": "2026-05-15",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "FDS",
+        "signal_date": "2026-04-02",
+        "cik": "0001013237",
+        "accession_no": "0001628280-26-022873",
+        "maturity_cutoff_date": "2026-07-06",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "FDX",
+        "signal_date": "2026-03-20",
+        "cik": "0001048911",
+        "accession_no": "0001048911-26-000011",
+        "maturity_cutoff_date": "2026-06-23",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "FFIV",
+        "signal_date": "2026-02-06",
+        "cik": "0001048695",
+        "accession_no": "0001048695-26-000023",
+        "maturity_cutoff_date": "2026-05-12",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "FICO",
+        "signal_date": "2026-01-29",
+        "cik": "0000814547",
+        "accession_no": "0000814547-26-000011",
+        "maturity_cutoff_date": "2026-05-04",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "HOLX",
+        "signal_date": "2026-01-30",
+        "cik": "0000859737",
+        "accession_no": "0000859737-26-000008",
+        "maturity_cutoff_date": "2026-05-05",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "HPE",
+        "signal_date": "2026-03-11",
+        "cik": "0001645590",
+        "accession_no": "0001645590-26-000032",
+        "maturity_cutoff_date": "2026-06-14",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "HPQ",
+        "signal_date": "2026-02-25",
+        "cik": "0000047217",
+        "accession_no": "0000047217-26-000011",
+        "maturity_cutoff_date": "2026-05-31",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "HRL",
+        "signal_date": "2026-02-27",
+        "cik": "0000048465",
+        "accession_no": "0000048465-26-000020",
+        "maturity_cutoff_date": "2026-06-02",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "INTU",
+        "signal_date": "2026-02-27",
+        "cik": "0000896878",
+        "accession_no": "0000896878-26-000014",
+        "maturity_cutoff_date": "2026-06-02",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "J",
+        "signal_date": "2026-02-04",
+        "cik": "0000052988",
+        "accession_no": "0001628280-26-005006",
+        "maturity_cutoff_date": "2026-05-10",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "JBL",
+        "signal_date": "2026-01-12",
+        "cik": "0000898293",
+        "accession_no": "0001628280-26-001450",
+        "maturity_cutoff_date": "2026-04-17",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "JCI",
+        "signal_date": "2026-02-05",
+        "cik": "0000833444",
+        "accession_no": "0000833444-26-000019",
+        "maturity_cutoff_date": "2026-05-11",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "JKHY",
+        "signal_date": "2026-02-09",
+        "cik": "0000779152",
+        "accession_no": "0000779152-26-000009",
+        "maturity_cutoff_date": "2026-05-15",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "LITE",
+        "signal_date": "2026-02-04",
+        "cik": "0001633978",
+        "accession_no": "0001628280-26-005129",
+        "maturity_cutoff_date": "2026-05-10",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "LRCX",
+        "signal_date": "2026-01-30",
+        "cik": "0000707549",
+        "accession_no": "0000707549-26-000009",
+        "maturity_cutoff_date": "2026-05-05",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "KEYS",
+        "signal_date": "2026-03-06",
+        "cik": "0001601046",
+        "accession_no": "0001601046-26-000008",
+        "maturity_cutoff_date": "2026-06-09",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "KLAC",
+        "signal_date": "2026-02-02",
+        "cik": "0000319201",
+        "accession_no": "0000319201-26-000008",
+        "maturity_cutoff_date": "2026-05-08",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "MCHP",
+        "signal_date": "2026-02-06",
+        "cik": "0000827054",
+        "accession_no": "0000827054-26-000009",
+        "maturity_cutoff_date": "2026-05-12",
+        "bucket": "not_yet_matured_for_1q_horizon",
+        "calendar_days_proxy": 95
+      },
+      {
+        "symbol": "BRK.B",
+        "signal_date": "2025-11-04",
+        "cik": "0001067983",
+        "accession_no": "0001193125-25-261548",
+        "maturity_cutoff_date": "2026-02-07",
+        "bucket": "symbol_price_link_missing"
+      }
+    ],
+    "forward_gap_base": {
+      "metrics": {
+        "universe_name": "sp500_current",
+        "as_of_date": "2026-04-05",
+        "n_issuer_universe": 503,
+        "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "panel_limit_used": 8000,
+        "state_change_scores_limit_used": 50000,
+        "thin_input_share": 1.0,
+        "degraded_share": 0.0,
+        "strong_share": 0.0,
+        "usable_with_gaps_share": 0.0,
+        "n_issuer_resolved_cik": 5,
+        "n_issuer_with_factor_panel": 5,
+        "n_issuer_with_state_change_cik": 5,
+        "validation_panel_row_count": 312,
+        "n_issuer_no_validation_panel_row": 191,
+        "n_issuer_with_validation_panel_symbol": 312,
+        "n_issuer_with_next_quarter_excess": 251,
+        "validation_join_row_count": 251,
+        "joined_recipe_substrate_row_count": 243,
+        "dominant_exclusion_reasons": [
+          {
+            "reason": "no_validation_panel_for_symbol",
+            "count": 191
+          },
+          {
+            "reason": "missing_excess_return_1q",
+            "count": 61
+          },
+          {
+            "reason": "no_state_change_join",
+            "count": 8
+          }
+        ]
+      },
+      "row_reason_counts": {
+        "no_forward_row_next_quarter": 61
+      }
+    }
+  },
+  "state_change_pit": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "pit_unresolved_row_count": 8,
+    "historical_backfill_might_help_count": 0,
+    "pit_bucket_counts": {
+      "no_pre_signal_state_change_asof": 8
+    },
+    "pit_buckets_sample": {
+      "no_pre_signal_state_change_asof": [
+        {
+          "symbol": "WMT",
+          "cik": "0000104169",
+          "signal_date": "2025-12-04",
+          "earliest_sc": "2026-09-28",
+          "pit_bucket": "no_pre_signal_state_change_asof",
+          "delta_calendar_days": 298
+        },
+        {
+          "symbol": "NVDA",
+          "cik": "0001045810",
+          "signal_date": "2025-11-20",
+          "earliest_sc": "2026-09-28",
+          "pit_bucket": "no_pre_signal_state_change_asof",
+          "delta_calendar_days": 312
+        },
+        {
+          "symbol": "BBY",
+          "cik": "0000764478",
+          "signal_date": "2025-12-08",
+          "earliest_sc": "2026-09-28",
+          "pit_bucket": "no_pre_signal_state_change_asof",
+          "delta_calendar_days": 294
+        },
+        {
+          "symbol": "CRM",
+          "cik": "0001108524",
+          "signal_date": "2025-12-04",
+          "earliest_sc": "2026-09-28",
+          "pit_bucket": "no_pre_signal_state_change_asof",
+          "delta_calendar_days": 298
+        },
+        {
+          "symbol": "CRWD",
+          "cik": "0001535527",
+          "signal_date": "2025-12-03",
+          "earliest_sc": "2026-09-28",
+          "pit_bucket": "no_pre_signal_state_change_asof",
+          "delta_calendar_days": 299
+        },
+        {
+          "symbol": "DELL",
+          "cik": "0001571996",
+          "signal_date": "2025-12-10",
+          "earliest_sc": "2026-09-28",
+          "pit_bucket": "no_pre_signal_state_change_asof",
+          "delta_calendar_days": 292
+        },
+        {
+          "symbol": "DUK",
+          "cik": "0001326160",
+          "signal_date": "2025-11-10",
+          "earliest_sc": "2026-03-28",
+          "pit_bucket": "no_pre_signal_state_change_asof",
+          "delta_calendar_days": 138
+        },
+        {
+          "symbol": "ADSK",
+          "cik": "0000769397",
+          "signal_date": "2025-11-27",
+          "earliest_sc": "2026-09-28",
+          "pit_bucket": "no_pre_signal_state_change_asof",
+          "delta_calendar_days": 305
+        }
+      ]
+    },
+    "pit_all_rows": [
+      {
+        "symbol": "WMT",
+        "cik": "0000104169",
+        "signal_date": "2025-12-04",
+        "earliest_sc": "2026-09-28",
+        "pit_bucket": "no_pre_signal_state_change_asof",
+        "delta_calendar_days": 298
+      },
+      {
+        "symbol": "NVDA",
+        "cik": "0001045810",
+        "signal_date": "2025-11-20",
+        "earliest_sc": "2026-09-28",
+        "pit_bucket": "no_pre_signal_state_change_asof",
+        "delta_calendar_days": 312
+      },
+      {
+        "symbol": "BBY",
+        "cik": "0000764478",
+        "signal_date": "2025-12-08",
+        "earliest_sc": "2026-09-28",
+        "pit_bucket": "no_pre_signal_state_change_asof",
+        "delta_calendar_days": 294
+      },
+      {
+        "symbol": "CRM",
+        "cik": "0001108524",
+        "signal_date": "2025-12-04",
+        "earliest_sc": "2026-09-28",
+        "pit_bucket": "no_pre_signal_state_change_asof",
+        "delta_calendar_days": 298
+      },
+      {
+        "symbol": "CRWD",
+        "cik": "0001535527",
+        "signal_date": "2025-12-03",
+        "earliest_sc": "2026-09-28",
+        "pit_bucket": "no_pre_signal_state_change_asof",
+        "delta_calendar_days": 299
+      },
+      {
+        "symbol": "DELL",
+        "cik": "0001571996",
+        "signal_date": "2025-12-10",
+        "earliest_sc": "2026-09-28",
+        "pit_bucket": "no_pre_signal_state_change_asof",
+        "delta_calendar_days": 292
+      },
+      {
+        "symbol": "DUK",
+        "cik": "0001326160",
+        "signal_date": "2025-11-10",
+        "earliest_sc": "2026-03-28",
+        "pit_bucket": "no_pre_signal_state_change_asof",
+        "delta_calendar_days": 138
+      },
+      {
+        "symbol": "ADSK",
+        "cik": "0000769397",
+        "signal_date": "2025-11-27",
+        "earliest_sc": "2026-09-28",
+        "pit_bucket": "no_pre_signal_state_change_asof",
+        "delta_calendar_days": 305
+      }
+    ],
+    "state_change_join_base": {
+      "metrics": {
+        "universe_name": "sp500_current",
+        "as_of_date": "2026-04-05",
+        "n_issuer_universe": 503,
+        "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "panel_limit_used": 8000,
+        "state_change_scores_limit_used": 50000,
+        "thin_input_share": 1.0,
+        "degraded_share": 0.0,
+        "strong_share": 0.0,
+        "usable_with_gaps_share": 0.0,
+        "n_issuer_resolved_cik": 5,
+        "n_issuer_with_factor_panel": 5,
+        "n_issuer_with_state_change_cik": 5,
+        "validation_panel_row_count": 312,
+        "n_issuer_no_validation_panel_row": 191,
+        "n_issuer_with_validation_panel_symbol": 312,
+        "n_issuer_with_next_quarter_excess": 251,
+        "validation_join_row_count": 251,
+        "joined_recipe_substrate_row_count": 243,
+        "dominant_exclusion_reasons": [
+          {
+            "reason": "no_validation_panel_for_symbol",
+            "count": 191
+          },
+          {
+            "reason": "missing_excess_return_1q",
+            "count": 61
+          },
+          {
+            "reason": "no_state_change_join",
+            "count": 8
+          }
+        ]
+      },
+      "row_reason_counts": {
+        "all_state_change_as_of_after_signal_pit_gap": 8
+      }
+    }
+  },
+  "rerun_readiness": {},
+  "phase28": {
+    "phase28_recommendation": "continue_targeted_backfill",
+    "rationale": "레지스트리·메타·forward·PIT 중 타깃 백필 후보가 남음."
+  },
+  "production_scoring_boundary_note": "프로덕션 스코어링 경로는 변경하지 않음; Phase 27은 공개·연구 파이프라인 진단·좁은 수리만.",
+  "premium_note": "프리미엄 디스커버리 자동 오픈 없음; 본 패치는 premium 경계를 건드리지 않음."
+}

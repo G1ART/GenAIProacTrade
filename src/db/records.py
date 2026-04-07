@@ -284,9 +284,153 @@ def fetch_cik_map_for_tickers(client: Client, tickers: list[str]) -> dict[str, O
         for row in r.data or []:
             t = str(row.get("ticker") or "").upper().strip()
             cik = row.get("cik")
-            if t:
-                out[t] = str(cik) if cik is not None else None
+        if t:
+            out[t] = str(cik) if cik is not None else None
     return out
+
+
+def fetch_universe_memberships_for_as_of(
+    client: Client,
+    *,
+    universe_name: str,
+    as_of_date: str,
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("universe_memberships")
+        .select("symbol,cik,source_payload_json")
+        .eq("universe_name", universe_name)
+        .eq("as_of_date", as_of_date)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_market_symbol_registry_rows_for_symbols(
+    client: Client,
+    symbols: list[str],
+) -> dict[str, dict[str, Any]]:
+    if not symbols:
+        return {}
+    uniq: list[str] = []
+    seen: set[str] = set()
+    for s in symbols:
+        u = str(s).upper().strip()
+        if u and u not in seen:
+            seen.add(u)
+            uniq.append(u)
+    out: dict[str, dict[str, Any]] = {}
+    step = 120
+    for i in range(0, len(uniq), step):
+        part = uniq[i : i + step]
+        r = (
+            client.table("market_symbol_registry")
+            .select("*")
+            .in_("symbol", part)
+            .execute()
+        )
+        for row in r.data or []:
+            sym = str(row.get("symbol") or "").upper().strip()
+            if sym:
+                out[sym] = dict(row)
+    return out
+
+
+def fetch_market_symbol_registry_symbols_by_ciks(
+    client: Client,
+    ciks: list[str],
+) -> dict[str, list[str]]:
+    """정규화 CIK -> 레지스트리에 등록된 티커 목록."""
+    if not ciks:
+        return {}
+    uniq = sorted({str(c).strip() for c in ciks if c and str(c).strip()})
+    by_cik: dict[str, list[str]] = {}
+    step = 80
+    for i in range(0, len(uniq), step):
+        part = uniq[i : i + step]
+        r = (
+            client.table("market_symbol_registry")
+            .select("symbol,cik")
+            .in_("cik", part)
+            .execute()
+        )
+        for row in r.data or []:
+            ck = str(row.get("cik") or "").strip()
+            sym = str(row.get("symbol") or "").upper().strip()
+            if not ck or not sym:
+                continue
+            by_cik.setdefault(ck, []).append(sym)
+    for ck in by_cik:
+        by_cik[ck] = sorted(set(by_cik[ck]))
+    return by_cik
+
+
+def fetch_issuer_master_ciks_present(
+    client: Client,
+    ciks: list[str],
+) -> set[str]:
+    """issuer_master 에 실제 존재하는 CIK 집합(숫자형은 10자리 정규화로 조회)."""
+
+    def _nz(c: str) -> str:
+        t = str(c or "").strip()
+        if not t:
+            return ""
+        return t.zfill(10) if t.isdigit() else t
+
+    if not ciks:
+        return set()
+    uniq = sorted({_nz(c) for c in ciks if c and str(c).strip() and _nz(c)})
+    present: set[str] = set()
+    step = 80
+    for i in range(0, len(uniq), step):
+        part = uniq[i : i + step]
+        r = (
+            client.table("issuer_master")
+            .select("cik")
+            .in_("cik", part)
+            .execute()
+        )
+        for row in r.data or []:
+            ck = str(row.get("cik") or "").strip()
+            if ck:
+                present.add(ck)
+    return present
+
+
+def fetch_market_metadata_latest_rows_for_symbols(
+    client: Client,
+    symbols: list[str],
+) -> dict[str, dict[str, Any]]:
+    """심볼당 as_of_date가 가장 최근인 행 1건(동률이면 임의 1건)."""
+    if not symbols:
+        return {}
+    uniq: list[str] = []
+    seen: set[str] = set()
+    for s in symbols:
+        u = str(s).upper().strip()
+        if u and u not in seen:
+            seen.add(u)
+            uniq.append(u)
+    rows_by_sym: dict[str, list[dict[str, Any]]] = {u: [] for u in uniq}
+    step = 100
+    for i in range(0, len(uniq), step):
+        part = uniq[i : i + step]
+        r = (
+            client.table("market_metadata_latest")
+            .select("symbol,as_of_date,avg_daily_volume,source_name")
+            .in_("symbol", part)
+            .execute()
+        )
+        for row in r.data or []:
+            sym = str(row.get("symbol") or "").upper().strip()
+            if sym in rows_by_sym:
+                rows_by_sym[sym].append(dict(row))
+    best: dict[str, dict[str, Any]] = {}
+    for sym, rows in rows_by_sym.items():
+        if not rows:
+            continue
+        rows.sort(key=lambda x: str(x.get("as_of_date") or ""), reverse=True)
+        best[sym] = rows[0]
+    return best
 
 
 def fetch_cik_for_ticker(client: Client, *, ticker: str) -> Optional[str]:
@@ -1016,6 +1160,36 @@ def fetch_state_change_run(client: Client, *, run_id: str) -> Optional[dict[str,
     if not r.data:
         return None
     return dict(r.data[0])
+
+
+def fetch_state_change_runs_for_universe_recent(
+    client: Client, *, universe_name: str, limit: int = 20
+) -> list[dict[str, Any]]:
+    r = (
+        client.table("state_change_runs")
+        .select("*")
+        .eq("universe_name", universe_name.strip())
+        .order("finished_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
+def fetch_ingest_runs_by_run_types_recent(
+    client: Client, *, run_types: list[str], limit: int = 80
+) -> list[dict[str, Any]]:
+    if not run_types:
+        return []
+    r = (
+        client.table("ingest_runs")
+        .select("*")
+        .in_("run_type", run_types)
+        .order("started_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
 
 
 def fetch_state_change_candidate_class_counts(

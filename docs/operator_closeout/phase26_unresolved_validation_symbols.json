@@ -1,0 +1,957 @@
+[
+  {
+    "symbol": "FOX",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "GIS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "GOOG",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MCK",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MCO",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MDLZ",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MDT",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MET",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "META",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MGM",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MKC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MLM",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MMM",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MNST",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MO",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MOS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MPC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MPWR",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MRNA",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MRSH",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MSCI",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MSI",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MTB",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MTD",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "MU",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NCLH",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NDAQ",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NDSN",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NEE",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NEM",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NFLX",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NI",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NOC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NOW",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NRG",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NSC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NTAP",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NTRS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NUE",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NVR",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NWS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NWSA",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "NXPI",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "O",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ODFL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "OKE",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "OMC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ON",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ORCL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ORLY",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "OTIS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "OXY",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PANW",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PAYX",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PCAR",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PCG",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PEG",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PFG",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PGR",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PH",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PHM",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PKG",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PLD",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PLTR",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PM",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PNC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PNR",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PNW",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PODD",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "POOL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PPG",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PPL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PRU",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PSA",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PSKY",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PSX",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PTC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PWR",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "PYPL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "Q",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "QCOM",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "RCL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "REG",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "REGN",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "RF",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "RJF",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "RL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "RMD",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ROK",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ROL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ROP",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ROST",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "RSG",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "RVTY",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SATS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SBAC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SBUX",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SCHW",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SHW",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SJM",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SLB",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SMCI",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SNA",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SNDK",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SNPS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SO",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SOLV",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SPG",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SRE",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "STE",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "STLD",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "STT",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "STX",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "STZ",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SW",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SWK",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SWKS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SYF",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SYK",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "SYY",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "T",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TAP",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TDG",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TDY",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TECH",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TEL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TER",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TFC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TGT",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TJX",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TKO",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TMUS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TPL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TPR",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TRGP",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TRMB",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TROW",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TRV",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TSCO",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TSLA",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TSN",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TT",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TTD",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TTWO",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TXN",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TXT",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "TYL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "UAL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "UBER",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "UDR",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "UHS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ULTA",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "UNP",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "URI",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "USB",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "V",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VICI",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VLO",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VLTO",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VMC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VRSK",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VRSN",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VRT",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VRTX",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VST",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VTR",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VTRS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "VZ",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WAB",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WAT",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WBD",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WDAY",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WDC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WEC",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WELL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WM",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WMB",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WRB",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WSM",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WST",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WTW",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WY",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "WYNN",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "XEL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "XYL",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "XYZ",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "YUM",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ZBH",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ZBRA",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  },
+  {
+    "symbol": "ZTS",
+    "reason": "no_validation_panel_for_symbol",
+    "universe_name": "sp500_current"
+  }
+]

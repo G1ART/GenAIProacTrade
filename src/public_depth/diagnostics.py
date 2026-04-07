@@ -49,11 +49,13 @@ def compute_substrate_coverage(
     state_change_scores_limit: int = DEFAULT_STATE_CHANGE_SCORES_LIMIT,
     quality_run_lookback: int = 40,
     symbol_queues_out: dict[str, list[str]] | None = None,
+    joined_panels_out: list[dict[str, Any]] | None = None,
 ) -> tuple[dict[str, Any], dict[str, int]]:
     """
     유니버스 멤버십 최신 as_of 기준.
     반환: (metrics_json, exclusion_distribution flat dict for DB jsonb).
     symbol_queues_out 이 주어지면 Phase 18용으로 주요 제외 사유별 심볼 목록을 채운다(정렬된 리스트).
+    joined_panels_out 이 주어지면 fully-joined recipe 행(panel + state_change_row 요약)을 append한다(Phase 26).
     """
     as_of = dbrec.fetch_max_as_of_universe(client, universe_name=universe_name)
     symbols = (
@@ -97,6 +99,8 @@ def compute_substrate_coverage(
             exclusion_panel["empty_universe_or_no_as_of"] = 1
         if symbol_queues_out is not None:
             symbol_queues_out.clear()
+        if joined_panels_out is not None:
+            joined_panels_out.clear()
         return base, dict(exclusion_panel)
 
     cik_by_symbol = dbrec.fetch_cik_map_for_tickers(client, symbols)
@@ -173,6 +177,21 @@ def compute_substrate_coverage(
             exclusion_panel["missing_state_change_score"] += 1
             continue
         joined_substrate += 1
+        if joined_panels_out is not None:
+            pj = p.get("panel_json") if isinstance(p.get("panel_json"), dict) else {}
+            joined_panels_out.append(
+                {
+                    "symbol": sym,
+                    "cik": cik,
+                    "accession_no": str(p.get("accession_no") or ""),
+                    "factor_version": str(p.get("factor_version") or ""),
+                    "signal_available_date": sig,
+                    "excess_return_1q": safe_float(p.get(EXCESS_FIELD)),
+                    "state_change_score_v1": sc_score,
+                    "state_change_as_of_date": str(sc_row.get("as_of_date") or "")[:10],
+                    "panel_json": pj,
+                }
+            )
 
     symbols_missing_panel = symbols_upper - symbols_with_any_panel
     base["n_issuer_no_validation_panel_row"] = len(symbols_missing_panel)

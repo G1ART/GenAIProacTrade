@@ -1,0 +1,613 @@
+{
+  "decomposition": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+    "program_resolve": {
+      "ok": true,
+      "error": null
+    },
+    "substrate_metrics": {
+      "universe_name": "sp500_current",
+      "as_of_date": "2026-04-05",
+      "n_issuer_universe": 503,
+      "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+      "panel_limit_used": 8000,
+      "state_change_scores_limit_used": 50000,
+      "thin_input_share": 1.0,
+      "degraded_share": 0.0,
+      "strong_share": 0.0,
+      "usable_with_gaps_share": 0.0,
+      "n_issuer_resolved_cik": 313,
+      "n_issuer_with_factor_panel": 312,
+      "n_issuer_with_state_change_cik": 312,
+      "validation_panel_row_count": 312,
+      "n_issuer_no_validation_panel_row": 191,
+      "n_issuer_with_validation_panel_symbol": 312,
+      "n_issuer_with_next_quarter_excess": 251,
+      "validation_join_row_count": 251,
+      "joined_recipe_substrate_row_count": 243,
+      "dominant_exclusion_reasons": [
+        {
+          "reason": "no_validation_panel_for_symbol",
+          "count": 191
+        },
+        {
+          "reason": "missing_excess_return_1q",
+          "count": 61
+        },
+        {
+          "reason": "no_state_change_join",
+          "count": 8
+        }
+      ]
+    },
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 61,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 191
+    },
+    "rerun_readiness": {
+      "ok": true,
+      "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+      "universe_name": "sp500_current",
+      "program_quality_context_hint": "thin_input",
+      "substrate_snapshot": {
+        "universe_name": "sp500_current",
+        "as_of_date": "2026-04-05",
+        "n_issuer_universe": 503,
+        "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "panel_limit_used": 8000,
+        "state_change_scores_limit_used": 50000,
+        "thin_input_share": 1.0,
+        "degraded_share": 0.0,
+        "strong_share": 0.0,
+        "usable_with_gaps_share": 0.0,
+        "n_issuer_resolved_cik": 313,
+        "n_issuer_with_factor_panel": 312,
+        "n_issuer_with_state_change_cik": 312,
+        "validation_panel_row_count": 312,
+        "n_issuer_no_validation_panel_row": 191,
+        "n_issuer_with_validation_panel_symbol": 312,
+        "n_issuer_with_next_quarter_excess": 251,
+        "validation_join_row_count": 251,
+        "joined_recipe_substrate_row_count": 243,
+        "dominant_exclusion_reasons": [
+          {
+            "reason": "no_validation_panel_for_symbol",
+            "count": 191
+          },
+          {
+            "reason": "missing_excess_return_1q",
+            "count": 61
+          },
+          {
+            "reason": "no_state_change_join",
+            "count": 8
+          }
+        ]
+      },
+      "thresholds": {
+        "joined_phase15": 120,
+        "joined_phase16": 144,
+        "thin_share_max_phase15": 0.55,
+        "thin_share_max_phase16": 0.45
+      },
+      "recommend_rerun_phase15": false,
+      "recommend_rerun_phase16": false,
+      "notes": "Phase 15 권고: joined_recipe_substrate_row_count >= joined_phase15 이고 thin_input_share < thin_share_max_phase15. Phase 16은 joined·thin 바가 더 엄격함."
+    },
+    "cycle_quality_note": "thin_input_share 은 public_core_cycle_quality_runs 의 quality_class 비율에서 온다. joined recipe 행 품질과는 별개 축이다.",
+    "thin_input_quality_runs_in_lookback": 2,
+    "cycle_thin_driver_counts": {
+      "thin_insufficient_ge_075": 2
+    },
+    "cycle_trace_samples": [
+      {
+        "quality_run_id": "1724e913-f8a0-4a39-bb4f-191d2d2dc2e7",
+        "trace": {
+          "quality_class": "thin_input",
+          "threshold_constants": {
+            "THIN_INPUT_INSUFFICIENT_FRAC": 0.75,
+            "THIN_INPUT_COMBO_INSUFFICIENT_FRAC": 0.5,
+            "THIN_INPUT_COMBO_GATING_FRAC": 0.35,
+            "STRONG_INSUFFICIENT_FRAC": 0.4,
+            "STRONG_MIN_WATCHLIST": 1,
+            "STRONG_MIN_CASEBOOK": 1,
+            "STRONG_ALT_INSUFFICIENT_FRAC": 0.45,
+            "STRONG_ALT_MIN_WATCHLIST": 3,
+            "DEGRADED_HARNESS_ERROR_FRAC": 0.15
+          },
+          "metric_snapshot": {
+            "insufficient_data_fraction": 1.0,
+            "gating_high_missingness_fraction": 1.0,
+            "watchlist_selected": 0,
+            "casebook_entries_created": 165,
+            "candidates_scanned": 200
+          },
+          "failure_branches_evaluated": [],
+          "thin_classification_reasons": [
+            "insufficient_data_fraction>=0.75 (actual 1.0000)",
+            "combo insufficient>=0.5 and gating>=0.35 (actual ins=1.0000 gate=1.0000)"
+          ],
+          "near_strong_gate": false,
+          "gap_reasons_ranked": [
+            {
+              "rank": 1,
+              "reason_code": "high_insufficient_data_fraction",
+              "detail": "1.00 of candidates",
+              "weight": 1.0
+            },
+            {
+              "rank": 2,
+              "reason_code": "gating_high_missingness",
+              "detail": "1.00 with excluded_reason",
+              "weight": 1.0
+            },
+            {
+              "rank": 3,
+              "reason_code": "empty_watchlist_after_thresholding",
+              "detail": "watchlist_selected=0",
+              "weight": 0.35
+            }
+          ]
+        }
+      },
+      {
+        "quality_run_id": "b778147f-ba2f-4dd7-ba2e-296c4669e4a7",
+        "trace": {
+          "quality_class": "thin_input",
+          "threshold_constants": {
+            "THIN_INPUT_INSUFFICIENT_FRAC": 0.75,
+            "THIN_INPUT_COMBO_INSUFFICIENT_FRAC": 0.5,
+            "THIN_INPUT_COMBO_GATING_FRAC": 0.35,
+            "STRONG_INSUFFICIENT_FRAC": 0.4,
+            "STRONG_MIN_WATCHLIST": 1,
+            "STRONG_MIN_CASEBOOK": 1,
+            "STRONG_ALT_INSUFFICIENT_FRAC": 0.45,
+            "STRONG_ALT_MIN_WATCHLIST": 3,
+            "DEGRADED_HARNESS_ERROR_FRAC": 0.15
+          },
+          "metric_snapshot": {
+            "insufficient_data_fraction": 1.0,
+            "gating_high_missingness_fraction": 1.0,
+            "watchlist_selected": 0,
+            "casebook_entries_created": 165,
+            "candidates_scanned": 200
+          },
+          "failure_branches_evaluated": [],
+          "thin_classification_reasons": [
+            "insufficient_data_fraction>=0.75 (actual 1.0000)",
+            "combo insufficient>=0.5 and gating>=0.35 (actual ins=1.0000 gate=1.0000)"
+          ],
+          "near_strong_gate": false,
+          "gap_reasons_ranked": [
+            {
+              "rank": 1,
+              "reason_code": "high_insufficient_data_fraction",
+              "detail": "1.00 of candidates",
+              "weight": 1.0
+            },
+            {
+              "rank": 2,
+              "reason_code": "gating_high_missingness",
+              "detail": "1.00 with excluded_reason",
+              "weight": 1.0
+            },
+            {
+              "rank": 3,
+              "reason_code": "empty_watchlist_after_thresholding",
+              "detail": "watchlist_selected=0",
+              "weight": 0.35
+            }
+          ]
+        }
+      }
+    ],
+    "joined_substrate_row_count": 243,
+    "joined_substrate_driver_counts": {
+      "joined_but_market_metadata_flagged": 243
+    },
+    "joined_substrate_dominant_blockers": [
+      {
+        "reason": "joined_but_market_metadata_flagged",
+        "count": 243
+      }
+    ],
+    "joined_substrate_representative_samples": [
+      {
+        "symbol": "BAC",
+        "cik": "0000070858",
+        "accession_no": "0000070858-25-000405",
+        "signal_available_date": "2025-11-03",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "AMZN",
+        "cik": "0001018724",
+        "accession_no": "0001018724-25-000123",
+        "signal_available_date": "2025-10-31",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "ABBV",
+        "cik": "0001551152",
+        "accession_no": "0001551152-25-000049",
+        "signal_available_date": "2025-11-05",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "ABNB",
+        "cik": "0001559720",
+        "accession_no": "0001559720-25-000030",
+        "signal_available_date": "2025-11-07",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "ABT",
+        "cik": "0000001800",
+        "accession_no": "0001628280-25-047131",
+        "signal_available_date": "2025-10-30",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "ACGL",
+        "cik": "0000947484",
+        "accession_no": "0000947484-25-000085",
+        "signal_available_date": "2025-11-07",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "ADM",
+        "cik": "0000007084",
+        "accession_no": "0000007084-25-000052",
+        "signal_available_date": "2025-11-05",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "CAT",
+        "cik": "0000018230",
+        "accession_no": "0000018230-25-000048",
+        "signal_available_date": "2025-11-04",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "BA",
+        "cik": "0000012927",
+        "accession_no": "0001628280-25-047023",
+        "signal_available_date": "2025-10-30",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "AKAM",
+        "cik": "0001086222",
+        "accession_no": "0001086222-25-000256",
+        "signal_available_date": "2025-11-10",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "ALB",
+        "cik": "0000915913",
+        "accession_no": "0000915913-25-000162",
+        "signal_available_date": "2025-11-06",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "ALGN",
+        "cik": "0001097149",
+        "accession_no": "0001097149-25-000079",
+        "signal_available_date": "2025-11-06",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "ALL",
+        "cik": "0000899051",
+        "accession_no": "0000899051-25-000102",
+        "signal_available_date": "2025-11-06",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "ALLE",
+        "cik": "0001579241",
+        "accession_no": "0001579241-25-000043",
+        "signal_available_date": "2025-10-24",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "AMD",
+        "cik": "0000002488",
+        "accession_no": "0000002488-25-000166",
+        "signal_available_date": "2025-11-05",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "AME",
+        "cik": "0001037868",
+        "accession_no": "0001037868-25-000077",
+        "signal_available_date": "2025-10-31",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "AMGN",
+        "cik": "0000318154",
+        "accession_no": "0000318154-25-000072",
+        "signal_available_date": "2025-11-05",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "AMP",
+        "cik": "0000820027",
+        "accession_no": "0000820027-25-000080",
+        "signal_available_date": "2025-11-03",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "AMT",
+        "cik": "0001053507",
+        "accession_no": "0001053507-25-000149",
+        "signal_available_date": "2025-10-29",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "ANET",
+        "cik": "0001596532",
+        "accession_no": "0001596532-25-000286",
+        "signal_available_date": "2025-11-05",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "AOS",
+        "cik": "0000091142",
+        "accession_no": "0000091142-25-000150",
+        "signal_available_date": "2025-10-29",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "APA",
+        "cik": "0001841666",
+        "accession_no": "0001841666-25-000031",
+        "signal_available_date": "2025-11-07",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "APH",
+        "cik": "0000820313",
+        "accession_no": "0001104659-25-102142",
+        "signal_available_date": "2025-10-27",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "AEE",
+        "cik": "0001002910",
+        "accession_no": "0001002910-25-000129",
+        "signal_available_date": "2025-11-07",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      },
+      {
+        "symbol": "AEP",
+        "cik": "0000004904",
+        "accession_no": "0000004904-25-000171",
+        "signal_available_date": "2025-10-30",
+        "joined_row_driver": "joined_but_market_metadata_flagged",
+        "panel_quality_flags": [
+          "missing_market_metadata"
+        ]
+      }
+    ],
+    "dominant_exclusion_reasons": [
+      {
+        "reason": "no_validation_panel_for_symbol",
+        "count": 191
+      },
+      {
+        "reason": "missing_excess_return_1q",
+        "count": 61
+      },
+      {
+        "reason": "no_state_change_join",
+        "count": 8
+      }
+    ]
+  },
+  "effectiveness_validation": {
+    "ok": true,
+    "repair_path": "validation_panel_coverage",
+    "universe_name": "sp500_current",
+    "targets_identified_panel_rows": 0,
+    "diagnosis_bucket_counts": {
+      "no_cik_registry_for_symbol": 190,
+      "no_issuer_quarter_factor_panel_for_cik": 1
+    },
+    "current_no_validation_panel_exclusion_rows": 191,
+    "recent_substrate_closure_ingest_runs": [],
+    "approx_recent_success_upserts_top5": 0,
+    "likely_no_op": true,
+    "downstream_metrics_note": "substrate exclusion 행은 '심볼당 누락' 집계; 성공 upsert가 있어도 유니버스 심볼 문자열이 canonical 티커와 다르면 카운트가 그대로일 수 있음.",
+    "why_unchanged": [
+      "수리 대상 issuer_quarter 패널이 0건 — 누락 심볼이 validation_panel_build_omission 버킷이 아니면 Phase 25 수리는 적용되지 않음.",
+      "제외 심볼은 남아 있으나 진단상 빌드 누락 CIK가 없음 → 레지스트리/팩터/티커 정규화 불일치 등 데이터 부재 가능성."
+    ]
+  },
+  "effectiveness_forward": {
+    "ok": true,
+    "repair_path": "forward_return_backfill",
+    "universe_name": "sp500_current",
+    "targets_identified_panel_rows": 61,
+    "forward_gap_counts_snapshot": {
+      "no_forward_row_next_quarter": 61
+    },
+    "current_missing_excess_exclusion_rows": 61,
+    "recent_substrate_closure_ingest_runs": [
+      {
+        "id": "831c3b6e-42c3-42c9-a531-5e7f5d1a9d77",
+        "started_at": "2026-04-07T21:08:17.742567+00:00",
+        "completed_at": "2026-04-07T21:08:36.226026+00:00",
+        "status": "completed",
+        "success_count": 43,
+        "failure_count": 79,
+        "target_count": 61,
+        "metadata_json": {
+          "panel_rows": 61,
+          "universe_name": "sp500_current",
+          "n_input_panels": 61,
+          "substrate_closure": "forward_return_backfill",
+          "forward_gap_counts": {
+            "no_forward_row_next_quarter": 61
+          },
+          "distinct_cik_accession": 61
+        }
+      }
+    ],
+    "likely_no_op": false,
+    "why_unchanged": []
+  },
+  "effectiveness_state_change": {
+    "ok": true,
+    "repair_path": "state_change_engine",
+    "universe_name": "sp500_current",
+    "current_no_state_change_join_exclusion_rows": 8,
+    "latest_completed_state_change_runs": [
+      {
+        "id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "finished_at": "2026-04-07T21:09:32.797519+00:00",
+        "row_count": 2504,
+        "warning_count": 1
+      },
+      {
+        "id": "d911b273-1c8a-4bbe-b653-2c90b193f0c1",
+        "finished_at": "2026-04-07T16:19:22.701469+00:00",
+        "row_count": 2504,
+        "warning_count": 1
+      },
+      {
+        "id": "62a7bb3e-71e0-4430-9bf7-85b9a91e11e8",
+        "finished_at": "2026-04-07T07:12:56.144333+00:00",
+        "row_count": 2504,
+        "warning_count": 1
+      },
+      {
+        "id": "53efc261-645f-4e7e-b2ef-9486d5456222",
+        "finished_at": "2026-04-07T04:59:02.724432+00:00",
+        "row_count": 2504,
+        "warning_count": 1
+      },
+      {
+        "id": "b81ae428-0791-4823-bc2f-569847156984",
+        "finished_at": "2026-04-07T01:17:04.581299+00:00",
+        "row_count": 2504,
+        "warning_count": 1
+      }
+    ],
+    "note": "Phase 25 state 수리는 엔진 재실행만 수행; no_state_change_join 이 PIT 간극(시그널 이전 as_of 부재)이면 동일 메트릭이 유지될 수 있음.",
+    "likely_no_metric_delta_if": "최신 런이 이미 동일 한계(limit) 내에서 점수를 채웠거나, 조인 실패 행이 시그널·as_of 정렬 문제인 경우.",
+    "state_change_run_id_in_metrics": "39208f19-8d0e-4c35-9950-78963bb59a97"
+  },
+  "threshold_sensitivity": {
+    "ok": true,
+    "review_only": true,
+    "no_automatic_threshold_mutation": true,
+    "current_quality_class": "thin_input",
+    "current_insufficient_data_fraction": 1.0,
+    "scenarios": [
+      {
+        "label": "relax_thin_insufficient_to_085",
+        "hypothetical_quality_class": "thin_input"
+      },
+      {
+        "label": "relax_thin_insufficient_to_090",
+        "hypothetical_quality_class": "thin_input"
+      },
+      {
+        "label": "tighten_combo_gating_to_030",
+        "hypothetical_quality_class": "thin_input"
+      },
+      {
+        "label": "tighten_combo_insufficient_to_055",
+        "hypothetical_quality_class": "thin_input"
+      }
+    ],
+    "all_listed_scenarios_remain_thin_input": true,
+    "note": "모든 나열 시나리오에서 여전히 thin_input → 정책 민감도가 낮고 후보 데이터 자체가 얇을 가능성.",
+    "source_quality_run_id": "1724e913-f8a0-4a39-bb4f-191d2d2dc2e7"
+  },
+  "primary_blocker_category": "data_absence",
+  "leverageable_exclusion": "no_validation_panel_for_symbol",
+  "phase27": {
+    "phase27_recommendation": "targeted_data_backfill_next",
+    "rationale": "남은 블로커가 데이터/조인에 있고 좁은 백필이 레버리지가 될 수 있음."
+  },
+  "premium_auto_open": false,
+  "production_scoring_boundary": "thin_input_root_cause 는 진단·보내기만 수행; 프로덕션 스코어링 경로를 변경하지 않음."
+}

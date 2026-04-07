@@ -201,3 +201,85 @@ def run_market_metadata_refresh(settings: Any, *, universe_name: str) -> dict[st
         "rows_upserted": n,
         "provider": provider.name,
     }
+
+
+def run_market_metadata_hydration_for_symbols(
+    settings: Any,
+    *,
+    universe_name: str,
+    symbols: list[str],
+) -> dict[str, Any]:
+    """Phase 27: 유니버스 맥락 검증 후 지정 심볼만 메타데이터 갱신(전 유니버스 스캔 아님)."""
+    client = get_supabase_client(settings)
+    provider = get_market_provider()
+    as_of = fetch_max_as_of_universe(client, universe_name=universe_name)
+    if not as_of:
+        return {
+            "status": "failed",
+            "error": f"유니버스 {universe_name}: 멤버십 as_of 없음",
+        }
+    allowed = set(
+        fetch_symbols_universe_as_of(
+            client, universe_name=universe_name, as_of_date=as_of
+        )
+    )
+    want = sorted(
+        {
+            str(s).upper().strip()
+            for s in symbols
+            if s and str(s).strip() and str(s).upper().strip() in allowed
+        }
+    )
+    if not want:
+        return {
+            "status": "skipped",
+            "reason": "no_symbols_in_universe_or_empty_input",
+            "rows_upserted": 0,
+        }
+    run_id = ingest_run_create_started(
+        client,
+        run_type=MARKET_METADATA_REFRESH,
+        target_count=len(want),
+        metadata_json={
+            "universe_name": universe_name,
+            "provider": provider.name,
+            "phase27": "hydration_subset",
+            "symbol_count": len(want),
+        },
+    )
+    meta = provider.fetch_market_metadata(want)
+    n = 0
+    today = date.today().isoformat()
+    for m in meta:
+        upsert_market_metadata_latest(
+            client,
+            {
+                "symbol": m.symbol.upper(),
+                "cik": None,
+                "as_of_date": m.as_of_date.isoformat(),
+                "market_cap": m.market_cap,
+                "shares_outstanding": m.shares_outstanding,
+                "avg_daily_volume": m.avg_daily_volume,
+                "exchange": m.exchange,
+                "sector": m.sector,
+                "industry": m.industry,
+                "source_name": provider.name,
+                "metadata_json": dict(m.raw_payload),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+        n += 1
+    ingest_run_finalize(
+        client,
+        run_id=run_id,
+        status="completed",
+        success_count=n,
+        failure_count=0,
+        error_json={"note": "empty_if_provider_has_no_metadata"} if n == 0 else None,
+    )
+    return {
+        "status": "completed",
+        "rows_upserted": n,
+        "symbols_requested": len(want),
+        "provider": provider.name,
+    }

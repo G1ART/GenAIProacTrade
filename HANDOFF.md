@@ -1,3 +1,52 @@
+# HANDOFF — Phase 27 (Targeted backfill: registry, metadata, maturity, PIT)
+
+## 현재 제품 위치
+
+- **Phase 27 (본 패치)**: Phase 26에서 확정한 블로커를 **좁은 진단·수리**로 분해한다. **제네릭 기판 스프린트·임계 완화·Phase 15/16 강제·프리미엄 오픈·프로덕션 스코어 변경 없음**.
+- **CLI** (`--universe`, `--panel-limit`, `--program-id`, `--price-lookahead-days` 등):  
+  - `report-validation-registry-gaps` / `run-validation-registry-repair` / `export-validation-registry-gap-symbols`  
+  - `report-market-metadata-gap-drivers` / `run-market-metadata-hydration-repair` / `export-market-metadata-gap-rows`  
+  - `report-forward-gap-maturity` / `export-forward-gap-maturity-buckets` (`--eval-date` 선택)  
+  - `report-state-change-pit-gaps` / `export-state-change-pit-gap-rows` / `run-state-change-history-backfill-repair` (`--history-backfill-days`, `--state-change-limit`)  
+  - `write-phase27-targeted-backfill-review` → `docs/operator_closeout/phase27_targeted_backfill_review.md` (선택 `--bundle-out` JSON)
+- **코드**: `src/targeted_backfill/`, `db.records`(레지스트리·메타·멤버십 배치 조회), `market.price_ingest.run_market_metadata_hydration_for_symbols`.
+- **실측 수치**: 저장소만으로 고정 숫자 없음 — 운영자가 위 report/export 및 리뷰 작성으로 **증거·수리 후 블로커 카운트**를 채운다.
+- **Phase 28 권고(정확히 하나)**: 번들/stdout의 `phase28` — `rerun_phase15_16_now_open` \| `continue_targeted_backfill` \| `quality_policy_review_needed` \| `public_first_plateau_without_quality_unlock`.
+
+## 검증·테스트 (로컬)
+
+- `pytest src/tests/test_phase27_targeted_backfill.py -q`
+
+---
+
+# HANDOFF — Phase 26 (Thin-input root cause: drivers, repair audit, exports)
+
+## 현재 제품 위치
+
+- **Phase 26 (본 패치)**: Phase 25가 **제로 델타**였던 환경에서, `thin_input_share=1.0`이 **사이클 품질 정책(Phase 13)** 축인지 **기판 제외 축**인지 분해하고, Phase 25 수리 경로의 **no-op 여부**를 감사한다. **거버넌스·프리미엄 자동 오픈·임계 자동 완화 없음**.
+- **CLI** (`--universe`, `--panel-limit`, `--program-id latest`, `--quality-run-lookback`):  
+  - `report-thin-input-drivers` — thin 사이클 드라이버 + **joined recipe** 행의 `panel_json` 플래그 분해  
+  - `report-validation-repair-effectiveness` / `report-forward-backfill-effectiveness` / `report-state-change-repair-effectiveness`  
+  - `export-unresolved-validation-symbols` / `export-unresolved-forward-return-rows` / `export-unresolved-state-change-joins` (`--out`, `--format json|csv`)  
+  - `report-quality-threshold-sensitivity` — **검토 전용** 가상 임계 시나리오 (`no_automatic_threshold_mutation`)  
+  - `write-thin-input-root-cause-review` → `docs/operator_closeout/thin_input_root_cause_review.md` (선택 `--bundle-out` JSON)  
+  - `report-thin-input-root-cause-bundle` — 단일 JSON 번들
+- **코드**: `src/thin_input_root_cause/`, `public_depth.diagnostics.compute_substrate_coverage(..., joined_panels_out=)`, `db.records.fetch_ingest_runs_by_run_types_recent` / `fetch_state_change_runs_for_universe_recent`.
+- **1차 블로커 분류 (리뷰 번들)**: `data_absence` \| `join_logic` \| `quality_policy` \| `mixed` — joined 행이 전부 `panel_json` 깨끗하고 thin 사이클이 지속되면 **quality_policy** 쪽으로 기울어 분류.
+- **광범위 기판 스프린트**: 검증·forward 효과 감사에서 `likely_no_op: true`가 동시에면 **또 다른 제네릭 스프린트는 비효율 가능성이 높다**고 리뷰 MD에 명시.
+- **Phase 27 권고(정확히 하나)**: `targeted_data_backfill_next` \| `quality_policy_review_needed` \| `rerun_phase15_16_now_open` \| `public_first_plateau_without_quality_unlock` — 번들의 `phase27` 필드.
+
+## 검증·테스트 (로컬)
+
+- `pytest src/tests/test_phase26_thin_input_root_cause.py -q`
+
+## 패치 보고·증거
+
+- `docs/phase26_patch_report.md`
+- 실측 클로즈아웃 실행 기록·산출물 목록: `docs/phase26_evidence.md` (`docs/operator_closeout/thin_input_root_cause_review.md`, `phase26_root_cause_bundle.json`, 미해결 export 3종)
+
+---
+
 # HANDOFF — Phase 25 (Substrate closure: validation / forward / state-change join)
 
 ## 현재 제품 위치
@@ -42,7 +91,7 @@
 ## 검증·테스트 (로컬)
 
 - `pytest src/tests/test_phase24_public_first.py -q`
-- 전체: `pytest src/tests -q` — **309 passed**
+- 전체: `pytest src/tests -q` — **337 passed** (Phase 27 포함)
 
 ## 관측 분포·정책 자세 (2026-04-07, `sp500_current`, Phase 23 클로즈아웃 직후 맥락)
 
@@ -82,7 +131,7 @@
 ## 검증·테스트 (로컬)
 
 - `pytest src/tests/test_phase23_operator_closeout.py -q`
-- 전체: `pytest src/tests -q` — **309 passed** (Phase 24 포함; 외부 `edgar` DeprecationWarning만)
+- 전체: `pytest src/tests -q` — **337 passed** (Phase 27 포함) (Phase 24 포함; 외부 `edgar` DeprecationWarning만)
 
 ## 검증·운영 스냅샷 (2026-04-07, `sp500_current`, 원 커맨드 클로즈아웃)
 
@@ -129,14 +178,14 @@
 ## 검증·테스트 (로컬)
 
 - `pytest src/tests/test_phase22_public_depth_iteration.py -q` — **15 passed**
-- `pytest src/tests -q` — **309 passed** (Phase 24 포함; 외부 `edgar` DeprecationWarning 3건)
+- `pytest src/tests -q` — **337 passed** (Phase 27까지; 외부 `edgar` DeprecationWarning 3건)
 
 ## 검증·운영 스냅샷 (2026-04-01, 시리즈 브리프 + 전체 테스트 클로징)
 
 | 항목 | 결과 |
 |------|------|
 | `pytest src/tests/test_phase22_public_depth_iteration.py -q` | **15 passed** |
-| `PYTHONPATH=src pytest src/tests -q` | **309 passed** (Phase 24 포함); 경고 **3건**은 `edgar` 패키지 deprecation(테스트 실패 아님) |
+| `PYTHONPATH=src pytest src/tests -q` | **337 passed** (Phase 27까지); 경고 **3건**은 `edgar` 패키지 deprecation(테스트 실패 아님) |
 | Supabase `20250425100000_phase22_public_depth_iteration.sql` | 대상 프로젝트에 적용했다면 `smoke-phase22-public-depth-iteration`으로 REST/스키마 확인 |
 | 시리즈 브리프 | `report-latest-repair-state --program-id latest --universe <U> --active-series-id-only`로 얻은 UUID로 `export-public-depth-series-brief --series-id … --out …` 실행 완료 시 증거 체인 완료 |
 | 증거 상세 | `docs/phase22_evidence.md` |
