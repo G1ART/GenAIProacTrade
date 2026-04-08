@@ -17,10 +17,14 @@ def report_factor_panel_materialization_gaps(
     *,
     universe_name: str,
     panel_limit: int = 8000,
+    registry_report: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    reg = report_validation_registry_gaps(
-        client, universe_name=universe_name, panel_limit=panel_limit
-    )
+    if registry_report is not None:
+        reg = registry_report
+    else:
+        reg = report_validation_registry_gaps(
+            client, universe_name=universe_name, panel_limit=panel_limit
+        )
     if not reg.get("ok"):
         return {**reg, "materialization_bucket_counts": {}, "materialization_buckets": {}}
 

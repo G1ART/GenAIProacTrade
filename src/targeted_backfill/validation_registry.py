@@ -191,10 +191,20 @@ def report_validation_registry_gaps(
         if ck:
             val_by_cik[ck].append(dict(row))
 
+    raw_for_tickers: list[str] = []
+    seen_raw: set[str] = set()
+    for c in cik_by_symbol.values():
+        s = str(c).strip() if c is not None else ""
+        if not s or norm_cik(s) not in resolved_ciks:
+            continue
+        if s not in seen_raw:
+            seen_raw.add(s)
+            raw_for_tickers.append(s)
+    ticker_by_norm = dbrec.fetch_tickers_for_ciks(client, raw_for_tickers)
     canonical_for_cik: dict[str, str | None] = {}
     for ck in resolved_ciks:
         if ck:
-            canonical_for_cik[ck] = dbrec.fetch_ticker_for_cik(client, cik=ck)
+            canonical_for_cik[ck] = ticker_by_norm.get(ck)
 
     buckets = defaultdict(list)
     for su in missing:

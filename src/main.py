@@ -4580,6 +4580,522 @@ def _cmd_write_phase28_provider_metadata_review(args: argparse.Namespace) -> int
     return 0
 
 
+def _cmd_report_stale_validation_metadata_flags(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase29.stale_validation_metadata import report_stale_validation_metadata_flags
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_stale_validation_metadata_flags(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_validation_refresh_after_metadata_hydration(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase29.stale_validation_metadata import (
+        run_validation_refresh_after_metadata_hydration,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_validation_refresh_after_metadata_hydration(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        max_rebuilds=int(getattr(args, "max_validation_rebuilds", 800)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_stale_validation_metadata_rows(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase29.stale_validation_metadata import export_stale_validation_metadata_rows
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_stale_validation_metadata_rows(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        out_path=str(args.out),
+        fmt=str(getattr(args, "export_format", "json")).lower(),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_quarter_snapshot_backfill_gaps(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase29.quarter_snapshot_gaps import report_quarter_snapshot_backfill_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_quarter_snapshot_backfill_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_quarter_snapshot_backfill_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from phase29.quarter_snapshot_gaps import run_quarter_snapshot_backfill_repair
+
+    settings = load_settings()
+    configure_logging()
+    out = run_quarter_snapshot_backfill_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        max_cik_repairs=int(getattr(args, "max_cik_repairs", 25)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_quarter_snapshot_backfill_targets(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase29.quarter_snapshot_gaps import export_quarter_snapshot_backfill_targets
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_quarter_snapshot_backfill_targets(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        out_path=str(args.out),
+        fmt=str(getattr(args, "export_format", "json")).lower(),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase29_validation_refresh_and_snapshot_backfill(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase29.orchestrator import run_phase29_validation_refresh_and_snapshot_backfill
+    from phase29.review import write_phase29_validation_refresh_review_md
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase29_validation_refresh_and_snapshot_backfill(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+        max_validation_rebuilds=int(getattr(args, "max_validation_rebuilds", 800)),
+        max_quarter_snapshot_cik_repairs=int(
+            getattr(args, "max_quarter_snapshot_cik_repairs", 25)
+        ),
+        max_factor_cik_repairs=int(getattr(args, "max_factor_cik_repairs", 40)),
+        max_validation_cik_repairs=int(getattr(args, "max_validation_cik_repairs", 40)),
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        Path(bo).write_text(
+            json_lib.dumps(out, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+        print("phase29_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase29_validation_refresh_review_md(md, bundle=out)
+        print("phase29_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase29_validation_refresh_review(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase29.review import write_phase29_validation_refresh_review_md
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    path = write_phase29_validation_refresh_review_md(str(args.out), bundle=bundle)
+    print(json_lib.dumps({"ok": True, "wrote": path}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_report_filing_index_gap_targets(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase30.filing_index_gaps import report_filing_index_gap_targets
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_filing_index_gap_targets(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_filing_index_backfill_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from phase30.filing_index_gaps import run_filing_index_backfill_repair
+
+    settings = load_settings()
+    configure_logging()
+    out = run_filing_index_backfill_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        max_cik_repairs=int(getattr(args, "max_filing_index_cik_repairs", 40)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_filing_index_gap_targets(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase30.filing_index_gaps import export_filing_index_gap_targets
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_filing_index_gap_targets(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        out_path=str(args.out),
+        fmt=str(getattr(args, "export_format", "json")).lower(),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_silver_facts_materialization_gaps(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase30.silver_materialization import report_silver_facts_materialization_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_silver_facts_materialization_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_silver_facts_materialization_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from phase30.silver_materialization import run_silver_facts_materialization_repair
+
+    settings = load_settings()
+    configure_logging()
+    out = run_silver_facts_materialization_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        max_cik_repairs=int(getattr(args, "max_silver_materialization_cik_repairs", 10)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_empty_cik_gaps(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase30.empty_cik_cleanup import report_empty_cik_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_empty_cik_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase30_validation_substrate_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase30.orchestrator import run_phase30_validation_substrate_repair
+    from phase30.review import write_phase30_validation_substrate_review_md
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase30_validation_substrate_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+        max_filing_index_cik_repairs=int(
+            getattr(args, "max_filing_index_cik_repairs", 40)
+        ),
+        max_silver_materialization_cik_repairs=int(
+            getattr(args, "max_silver_materialization_cik_repairs", 10)
+        ),
+        max_downstream_ciks=int(getattr(args, "max_downstream_ciks", 60)),
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        Path(bo).write_text(
+            json_lib.dumps(out, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+        print("phase30_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase30_validation_substrate_review_md(md, bundle=out)
+        print("phase30_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase30_validation_substrate_review(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase30.review import write_phase30_validation_substrate_review_md
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    path = write_phase30_validation_substrate_review_md(str(args.out), bundle=bundle)
+    print(json_lib.dumps({"ok": True, "wrote": path}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_report_raw_facts_gap_targets(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase31.raw_facts_gaps import report_raw_facts_gap_targets
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    extra = str(getattr(args, "extra_ciks", "") or "").strip()
+    extra_list = [x.strip() for x in extra.split(",") if x.strip()] if extra else None
+    out = report_raw_facts_gap_targets(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        extra_ciks=extra_list,
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_raw_facts_gap_targets(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase31.raw_facts_gaps import export_raw_facts_gap_targets
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    extra = str(getattr(args, "extra_ciks", "") or "").strip()
+    extra_list = [x.strip() for x in extra.split(",") if x.strip()] if extra else None
+    out = export_raw_facts_gap_targets(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        out_path=str(args.out),
+        fmt=str(getattr(args, "export_format", "json")).lower(),
+        extra_ciks=extra_list,
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_raw_facts_backfill_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from phase31.raw_facts_repair import run_raw_facts_backfill_repair
+
+    settings = load_settings()
+    configure_logging()
+    extra = str(getattr(args, "extra_ciks", "") or "").strip()
+    extra_list = [x.strip() for x in extra.split(",") if x.strip()] if extra else None
+    out = run_raw_facts_backfill_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        max_cik_repairs=int(getattr(args, "max_raw_facts_cik_repairs", 45)),
+        extra_ciks=extra_list,
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_raw_present_no_silver_targets(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase31.silver_seam_repair import report_raw_present_no_silver_targets
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_raw_present_no_silver_targets(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_gis_like_silver_seam_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from phase31.silver_seam_repair import run_gis_like_silver_materialization_seam_repair
+
+    settings = load_settings()
+    configure_logging()
+    ps = str(getattr(args, "prioritize_symbols", "GIS") or "GIS").strip()
+    prio = tuple(s.strip().upper() for s in ps.split(",") if s.strip())
+    out = run_gis_like_silver_materialization_seam_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        max_cik_repairs=int(getattr(args, "max_silver_seam_cik_repairs", 5)),
+        prioritize_symbols=prio if prio else ("GIS",),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_deterministic_empty_cik_issuer_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from phase31.issuer_mapping_repair import run_deterministic_empty_cik_issuer_repair
+
+    settings = load_settings()
+    configure_logging()
+    out = run_deterministic_empty_cik_issuer_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        symbols_limit=int(getattr(args, "max_empty_cik_symbol_repairs", 20)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase31_raw_facts_bridge_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase31.orchestrator import run_phase31_raw_facts_bridge_repair
+    from phase31.review import write_phase31_raw_facts_bridge_review_md
+
+    settings = load_settings()
+    configure_logging()
+    extra = str(getattr(args, "extra_raw_gap_ciks", "") or "").strip()
+    extra_list = [x.strip() for x in extra.split(",") if x.strip()] if extra else None
+    out = run_phase31_raw_facts_bridge_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+        max_raw_facts_cik_repairs=int(
+            getattr(args, "max_raw_facts_cik_repairs", 45)
+        ),
+        max_silver_seam_cik_repairs=int(
+            getattr(args, "max_silver_seam_cik_repairs", 5)
+        ),
+        max_downstream_ciks=int(getattr(args, "max_downstream_ciks", 80)),
+        max_empty_cik_symbol_repairs=int(
+            getattr(args, "max_empty_cik_symbol_repairs", 20)
+        ),
+        extra_raw_gap_ciks=extra_list,
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        Path(bo).write_text(
+            json_lib.dumps(out, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+        print("phase31_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase31_raw_facts_bridge_review_md(md, bundle=out)
+        print("phase31_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase31_raw_facts_bridge_review(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase31.review import write_phase31_raw_facts_bridge_review_md
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    path = write_phase31_raw_facts_bridge_review_md(str(args.out), bundle=bundle)
+    print(json_lib.dumps({"ok": True, "wrote": path}, indent=2, ensure_ascii=False))
+    return 0
+
+
 def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
     from pathlib import Path
 
@@ -6833,6 +7349,387 @@ def build_parser() -> argparse.ArgumentParser:
         dest="out",
     )
     p28w.set_defaults(func=_cmd_write_phase28_provider_metadata_review)
+
+    p29sv = sub.add_parser(
+        "report-stale-validation-metadata-flags",
+        parents=[p27],
+        help="Phase 29: 메타는 있는데 검증 패널에 missing_market_metadata 남은 행",
+    )
+    p29sv.set_defaults(func=_cmd_report_stale_validation_metadata_flags)
+
+    p29sr = sub.add_parser(
+        "run-validation-refresh-after-metadata-hydration",
+        parents=[p27],
+        help="Phase 29: 위 후보 검증 패널 행 기반 재빌드(상한)",
+    )
+    p29sr.add_argument(
+        "--max-validation-rebuilds",
+        type=int,
+        default=800,
+        dest="max_validation_rebuilds",
+    )
+    p29sr.set_defaults(func=_cmd_run_validation_refresh_after_metadata_hydration)
+
+    p29sx = sub.add_parser(
+        "export-stale-validation-metadata-rows",
+        parents=[p27],
+        help="Phase 29: stale 검증 메타 플래그 후보 export",
+    )
+    p29sx.add_argument("--out", required=True)
+    p29sx.add_argument(
+        "--format",
+        choices=["json", "csv"],
+        default="json",
+        dest="export_format",
+    )
+    p29sx.set_defaults(func=_cmd_export_stale_validation_metadata_rows)
+
+    p29qg = sub.add_parser(
+        "report-quarter-snapshot-backfill-gaps",
+        parents=[p27],
+        help="Phase 29: missing_quarter_snapshot_for_cik 분류",
+    )
+    p29qg.set_defaults(func=_cmd_report_quarter_snapshot_backfill_gaps)
+
+    p29qr = sub.add_parser(
+        "run-quarter-snapshot-backfill-repair",
+        parents=[p27],
+        help="Phase 29: silver→스냅샷 재구성(상한)",
+    )
+    p29qr.add_argument(
+        "--max-cik-repairs",
+        type=int,
+        default=25,
+        dest="max_cik_repairs",
+    )
+    p29qr.set_defaults(func=_cmd_run_quarter_snapshot_backfill_repair)
+
+    p29qx = sub.add_parser(
+        "export-quarter-snapshot-backfill-targets",
+        parents=[p27],
+        help="Phase 29: 분기 스냅샷 갭 분류 export",
+    )
+    p29qx.add_argument("--out", required=True)
+    p29qx.add_argument(
+        "--format",
+        choices=["json", "csv"],
+        default="json",
+        dest="export_format",
+    )
+    p29qx.set_defaults(func=_cmd_export_quarter_snapshot_backfill_targets)
+
+    p29run = sub.add_parser(
+        "run-phase29-validation-refresh-and-snapshot-backfill",
+        parents=[p27],
+        help="Phase 29: 메타수화→검증갱신→스냅샷→팩터 물질화 오케스트레이션",
+    )
+    p29run.add_argument(
+        "--max-validation-rebuilds",
+        type=int,
+        default=800,
+        dest="max_validation_rebuilds",
+    )
+    p29run.add_argument(
+        "--max-quarter-snapshot-cik-repairs",
+        type=int,
+        default=25,
+        dest="max_quarter_snapshot_cik_repairs",
+    )
+    p29run.add_argument(
+        "--max-factor-cik-repairs",
+        type=int,
+        default=40,
+        dest="max_factor_cik_repairs",
+    )
+    p29run.add_argument(
+        "--max-validation-cik-repairs",
+        type=int,
+        default=40,
+        dest="max_validation_cik_repairs",
+    )
+    p29run.add_argument(
+        "--out-md",
+        default="",
+        dest="out_md",
+        help="리뷰 Markdown 경로(비우면 생략)",
+    )
+    p29run.add_argument(
+        "--bundle-out",
+        default="",
+        dest="bundle_out",
+        help="번들 JSON 경로(비우면 생략)",
+    )
+    p29run.set_defaults(func=_cmd_run_phase29_validation_refresh_and_snapshot_backfill)
+
+    p29w = sub.add_parser(
+        "write-phase29-validation-refresh-review",
+        help="Phase 29: 번들 JSON → phase29_validation_refresh_and_snapshot_backfill_review.md",
+    )
+    p29w.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p29w.add_argument(
+        "--out",
+        default="docs/operator_closeout/phase29_validation_refresh_and_snapshot_backfill_review.md",
+        dest="out",
+    )
+    p29w.set_defaults(func=_cmd_write_phase29_validation_refresh_review)
+
+    p30fig = sub.add_parser(
+        "report-filing-index-gap-targets",
+        parents=[p27],
+        help="Phase 30: no_filing_index_for_cik 타깃(Phase 29 분류 기반)",
+    )
+    p30fig.set_defaults(func=_cmd_report_filing_index_gap_targets)
+
+    p30fir = sub.add_parser(
+        "run-filing-index-backfill-repair",
+        parents=[p27],
+        help="Phase 30: 상한 SEC sample ingest로 filing_index 보강",
+    )
+    p30fir.add_argument(
+        "--max-filing-index-cik-repairs",
+        type=int,
+        default=40,
+        dest="max_filing_index_cik_repairs",
+    )
+    p30fir.set_defaults(func=_cmd_run_filing_index_backfill_repair)
+
+    p30fix = sub.add_parser(
+        "export-filing-index-gap-targets",
+        parents=[p27],
+        help="Phase 30: filing index 갭 타깃 export",
+    )
+    p30fix.add_argument("--out", required=True)
+    p30fix.add_argument(
+        "--export-format",
+        choices=["json", "csv"],
+        default="json",
+        dest="export_format",
+    )
+    p30fix.set_defaults(func=_cmd_export_filing_index_gap_targets)
+
+    p30srg = sub.add_parser(
+        "report-silver-facts-materialization-gaps",
+        parents=[p27],
+        help="Phase 30: raw_present_no_silver_facts 버킷",
+    )
+    p30srg.set_defaults(func=_cmd_report_silver_facts_materialization_gaps)
+
+    p30srr = sub.add_parser(
+        "run-silver-facts-materialization-repair",
+        parents=[p27],
+        help="Phase 30: raw→silver 적재 + 스냅샷 시도(상한)",
+    )
+    p30srr.add_argument(
+        "--max-silver-materialization-cik-repairs",
+        type=int,
+        default=10,
+        dest="max_silver_materialization_cik_repairs",
+    )
+    p30srr.set_defaults(func=_cmd_run_silver_facts_materialization_repair)
+
+    p30ec = sub.add_parser(
+        "report-empty-cik-gaps",
+        parents=[p27],
+        help="Phase 30: empty_cik 심볼 진단",
+    )
+    p30ec.set_defaults(func=_cmd_report_empty_cik_gaps)
+
+    p30run = sub.add_parser(
+        "run-phase30-validation-substrate-repair",
+        parents=[p27],
+        help="Phase 30: filing·silver·empty_cik + 좁은 하류 연쇄 + 번들",
+    )
+    p30run.add_argument(
+        "--max-filing-index-cik-repairs",
+        type=int,
+        default=40,
+        dest="max_filing_index_cik_repairs",
+    )
+    p30run.add_argument(
+        "--max-silver-materialization-cik-repairs",
+        type=int,
+        default=10,
+        dest="max_silver_materialization_cik_repairs",
+    )
+    p30run.add_argument(
+        "--max-downstream-ciks",
+        type=int,
+        default=60,
+        dest="max_downstream_ciks",
+    )
+    p30run.add_argument(
+        "--out-md",
+        default="",
+        dest="out_md",
+        help="리뷰 Markdown 경로(비우면 생략)",
+    )
+    p30run.add_argument(
+        "--bundle-out",
+        default="",
+        dest="bundle_out",
+        help="번들 JSON 경로(비우면 생략)",
+    )
+    p30run.set_defaults(func=_cmd_run_phase30_validation_substrate_repair)
+
+    p30w = sub.add_parser(
+        "write-phase30-validation-substrate-review",
+        help="Phase 30: 번들 JSON → phase30_validation_substrate_review.md",
+    )
+    p30w.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p30w.add_argument(
+        "--out",
+        default="docs/operator_closeout/phase30_validation_substrate_review.md",
+        dest="out",
+    )
+    p30w.set_defaults(func=_cmd_write_phase30_validation_substrate_review)
+
+    p31rfg = sub.add_parser(
+        "report-raw-facts-gap-targets",
+        parents=[p27],
+        help="Phase 31: filing_index_present_no_raw_facts + extra CIK",
+    )
+    p31rfg.add_argument(
+        "--extra-ciks",
+        default="",
+        dest="extra_ciks",
+        help="콤마 구분 CIK(선택)",
+    )
+    p31rfg.set_defaults(func=_cmd_report_raw_facts_gap_targets)
+
+    p31rfx = sub.add_parser(
+        "export-raw-facts-gap-targets",
+        parents=[p27],
+        help="Phase 31: raw facts 갭 타깃 export",
+    )
+    p31rfx.add_argument("--out", required=True)
+    p31rfx.add_argument(
+        "--export-format",
+        choices=["json", "csv"],
+        default="json",
+        dest="export_format",
+    )
+    p31rfx.add_argument(
+        "--extra-ciks",
+        default="",
+        dest="extra_ciks",
+    )
+    p31rfx.set_defaults(func=_cmd_export_raw_facts_gap_targets)
+
+    p31rfr = sub.add_parser(
+        "run-raw-facts-backfill-repair",
+        parents=[p27],
+        help="Phase 31: run_facts_extract_for_ticker → raw_xbrl_facts (상한)",
+    )
+    p31rfr.add_argument(
+        "--max-raw-facts-cik-repairs",
+        type=int,
+        default=45,
+        dest="max_raw_facts_cik_repairs",
+    )
+    p31rfr.add_argument(
+        "--extra-ciks",
+        default="",
+        dest="extra_ciks",
+    )
+    p31rfr.set_defaults(func=_cmd_run_raw_facts_backfill_repair)
+
+    p31rs = sub.add_parser(
+        "report-raw-present-no-silver-targets",
+        parents=[p27],
+        help="Phase 31: raw_present_no_silver_facts 타깃",
+    )
+    p31rs.set_defaults(func=_cmd_report_raw_present_no_silver_targets)
+
+    p31gis = sub.add_parser(
+        "run-gis-like-silver-seam-repair",
+        parents=[p27],
+        help="Phase 31: silver 이음새 + 스냅샷 + 하류(GIS 우선)",
+    )
+    p31gis.add_argument(
+        "--max-silver-seam-cik-repairs",
+        type=int,
+        default=5,
+        dest="max_silver_seam_cik_repairs",
+    )
+    p31gis.add_argument(
+        "--prioritize-symbols",
+        default="GIS",
+        dest="prioritize_symbols",
+        help="콤마 구분 심볼 우선순위",
+    )
+    p31gis.set_defaults(func=_cmd_run_gis_like_silver_seam_repair)
+
+    p31ec = sub.add_parser(
+        "run-deterministic-empty-cik-issuer-repair",
+        parents=[p27],
+        help="Phase 31: empty_cik issuer_mapping_gap 결정적 upsert",
+    )
+    p31ec.add_argument(
+        "--max-empty-cik-symbol-repairs",
+        type=int,
+        default=20,
+        dest="max_empty_cik_symbol_repairs",
+    )
+    p31ec.set_defaults(func=_cmd_run_deterministic_empty_cik_issuer_repair)
+
+    p31run = sub.add_parser(
+        "run-phase31-raw-facts-bridge-repair",
+        parents=[p27],
+        help="Phase 31: raw 브리지·silver·issuer·하류 + 번들",
+    )
+    p31run.add_argument(
+        "--max-raw-facts-cik-repairs",
+        type=int,
+        default=45,
+        dest="max_raw_facts_cik_repairs",
+    )
+    p31run.add_argument(
+        "--max-silver-seam-cik-repairs",
+        type=int,
+        default=5,
+        dest="max_silver_seam_cik_repairs",
+    )
+    p31run.add_argument(
+        "--max-downstream-ciks",
+        type=int,
+        default=80,
+        dest="max_downstream_ciks",
+    )
+    p31run.add_argument(
+        "--max-empty-cik-symbol-repairs",
+        type=int,
+        default=20,
+        dest="max_empty_cik_symbol_repairs",
+    )
+    p31run.add_argument(
+        "--extra-raw-gap-ciks",
+        default="",
+        dest="extra_raw_gap_ciks",
+        help="콤마 구분 CIK(리포트 타깃에 추가)",
+    )
+    p31run.add_argument(
+        "--out-md",
+        default="",
+        dest="out_md",
+    )
+    p31run.add_argument(
+        "--bundle-out",
+        default="",
+        dest="bundle_out",
+    )
+    p31run.set_defaults(func=_cmd_run_phase31_raw_facts_bridge_repair)
+
+    p31w = sub.add_parser(
+        "write-phase31-raw-facts-bridge-review",
+        help="Phase 31: 번들 → phase31_raw_facts_bridge_review.md",
+    )
+    p31w.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p31w.add_argument(
+        "--out",
+        default="docs/operator_closeout/phase31_raw_facts_bridge_review.md",
+        dest="out",
+    )
+    p31w.set_defaults(func=_cmd_write_phase31_raw_facts_bridge_review)
 
     p24c = sub.add_parser(
         "advance-public-first-cycle",

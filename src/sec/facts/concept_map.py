@@ -58,6 +58,23 @@ for _canon, _sources in CANONICAL_SOURCE_CONCEPTS.items():
             _SOURCE_TO_CANONICAL[_sc] = (_canon, _rank)
 
 
+def normalize_concept_key_for_mapping(source_concept: str) -> str:
+    """
+    EdgarTools/DataFrame 등에서 `us-gaap_Foo` 형태로 오는 개념명을 `us-gaap:Foo` 로 맞춘다.
+    """
+    key = (source_concept or "").strip()
+    if not key:
+        return key
+    lower = key.lower()
+    if lower.startswith("us-gaap_"):
+        return "us-gaap:" + key.split("_", 1)[1]
+    if lower.startswith("dei_"):
+        return "dei:" + key.split("_", 1)[1]
+    if lower.startswith("ifrs-full_"):
+        return "ifrs-full:" + key.split("_", 1)[1]
+    return key
+
+
 def map_source_concept(source_concept: str) -> Tuple[Optional[str], str]:
     """
     Returns:
@@ -66,19 +83,26 @@ def map_source_concept(source_concept: str) -> Tuple[Optional[str], str]:
     """
     if not source_concept or not isinstance(source_concept, str):
         return None, "unmapped"
-    key = source_concept.strip()
-    hit = _SOURCE_TO_CANONICAL.get(key)
-    if hit:
-        return hit[0], "mapped"
+    raw_key = source_concept.strip()
+    norm_key = normalize_concept_key_for_mapping(raw_key)
+    for key in (norm_key, raw_key):
+        if not key:
+            continue
+        hit = _SOURCE_TO_CANONICAL.get(key)
+        if hit:
+            return hit[0], "mapped"
     return None, "unmapped"
 
 
 def canonical_priority_for_concept(source_concept: str) -> int:
     """동일 canonical 후보 중 정렬용 (낮을수록 우선). 미매핑은 큰 값."""
-    hit = _SOURCE_TO_CANONICAL.get((source_concept or "").strip())
-    if not hit:
-        return 9999
-    return hit[1]
+    raw = (source_concept or "").strip()
+    nk = normalize_concept_key_for_mapping(raw)
+    for k in (nk, raw):
+        hit = _SOURCE_TO_CANONICAL.get(k)
+        if hit:
+            return hit[1]
+    return 9999
 
 
 def list_supported_canonicals() -> list[str]:

@@ -396,11 +396,43 @@ def fetch_issuer_master_ciks_present(
     return present
 
 
+def pick_best_market_metadata_row(
+    rows: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    """
+    동일 심볼에 복수 행일 때: as_of_date 내림차순, 동률이면 유동성 필드가 채워진 행 우선.
+    검증 패널 빌드·메타 갭 드라이버가 동일 규칙을 쓰도록 공유한다(Phase 29).
+    """
+    if not rows:
+        return None
+
+    def _key(r: dict[str, Any]) -> tuple[str, int, int]:
+        asof = str(r.get("as_of_date") or "")
+        liq = 1 if r.get("avg_daily_volume") is not None else 0
+        mc = 1 if r.get("market_cap") is not None else 0
+        return (asof, liq, mc)
+
+    best = max(rows, key=_key)
+    return dict(best)
+
+
+def fetch_market_metadata_latest_row_deterministic(
+    client: Client, *, symbol: str
+) -> dict[str, Any] | None:
+    """심볼당 market_metadata_latest 전 행을 읽은 뒤 pick_best 로 1건 선택."""
+    u = str(symbol).upper().strip()
+    if not u:
+        return None
+    r = client.table("market_metadata_latest").select("*").eq("symbol", u).execute()
+    rows = [dict(x) for x in (r.data or [])]
+    return pick_best_market_metadata_row(rows)
+
+
 def fetch_market_metadata_latest_rows_for_symbols(
     client: Client,
     symbols: list[str],
 ) -> dict[str, dict[str, Any]]:
-    """심볼당 as_of_date가 가장 최근인 행 1건(동률이면 임의 1건)."""
+    """심볼당 결정적 1건: as_of 내림차순·유동성 우선(`pick_best_market_metadata_row`)."""
     if not symbols:
         return {}
     uniq: list[str] = []
@@ -416,7 +448,7 @@ def fetch_market_metadata_latest_rows_for_symbols(
         part = uniq[i : i + step]
         r = (
             client.table("market_metadata_latest")
-            .select("symbol,as_of_date,avg_daily_volume,source_name")
+            .select("*")
             .in_("symbol", part)
             .execute()
         )
@@ -428,9 +460,52 @@ def fetch_market_metadata_latest_rows_for_symbols(
     for sym, rows in rows_by_sym.items():
         if not rows:
             continue
-        rows.sort(key=lambda x: str(x.get("as_of_date") or ""), reverse=True)
-        best[sym] = rows[0]
+        picked = pick_best_market_metadata_row(rows)
+        if picked:
+            best[sym] = picked
     return best
+
+
+def fetch_issuer_quarter_factor_panel_one(
+    client: Client,
+    *,
+    cik: str,
+    accession_no: str,
+    factor_version: str,
+) -> dict[str, Any] | None:
+    r = (
+        client.table("issuer_quarter_factor_panels")
+        .select("*")
+        .eq("cik", cik)
+        .eq("accession_no", accession_no)
+        .eq("factor_version", factor_version)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
+
+
+def fetch_factor_market_validation_panel_one(
+    client: Client,
+    *,
+    cik: str,
+    accession_no: str,
+    factor_version: str,
+) -> dict[str, Any] | None:
+    r = (
+        client.table("factor_market_validation_panels")
+        .select("*")
+        .eq("cik", cik)
+        .eq("accession_no", accession_no)
+        .eq("factor_version", factor_version)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
 
 
 def fetch_cik_for_ticker(client: Client, *, ticker: str) -> Optional[str]:
@@ -672,6 +747,52 @@ def fetch_ticker_for_cik(client: Client, *, cik: str) -> Optional[str]:
     if not q.data or not q.data[0].get("ticker"):
         return None
     return str(q.data[0]["ticker"]).upper().strip()
+
+
+def fetch_tickers_for_ciks(
+    client: Client, ciks: list[str]
+) -> dict[str, Optional[str]]:
+    """
+    norm_cik -> canonical ticker (대문자). `ciks`는 DB `issuer_master.cik`와 동일한 문자열(원본)이어야 한다.
+    청크 `in_` 조회만 사용 (CIK당 REST 1회 금지).
+    """
+    from collections import defaultdict
+
+    from research_validation.metrics import norm_cik
+
+    uniq_raw: list[str] = []
+    seen: set[str] = set()
+    for c in ciks:
+        s = str(c).strip() if c is not None else ""
+        if not s or s in seen:
+            continue
+        seen.add(s)
+        uniq_raw.append(s)
+
+    by_norm: dict[str, list[str]] = defaultdict(list)
+    if not uniq_raw:
+        return {}
+
+    chunk_size = 80
+    for i in range(0, len(uniq_raw), chunk_size):
+        part = uniq_raw[i : i + chunk_size]
+        r = (
+            client.table("issuer_master")
+            .select("cik,ticker")
+            .in_("cik", part)
+            .execute()
+        )
+        for row in r.data or []:
+            raw_cik = str(row.get("cik") or "").strip()
+            nc = norm_cik(raw_cik)
+            t = row.get("ticker")
+            if nc and t:
+                by_norm[nc].append(str(t).upper().strip())
+
+    out: dict[str, Optional[str]] = {}
+    for nc, ticks in by_norm.items():
+        out[nc] = sorted(ticks)[0] if ticks else None
+    return out
 
 
 def upsert_raw_market_prices_batch(

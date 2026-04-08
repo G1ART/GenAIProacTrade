@@ -1,3 +1,104 @@
+# HANDOFF — Phase 29 (Validation refresh + quarter snapshot backfill)
+
+## Phase 29.1 성능 핫픽스 (2026-04-01)
+
+- **병목**: `report_validation_registry_gaps` 가 `resolved_ciks` 마다 `fetch_ticker_for_cik`(REST 1회/CIK) N+1; Phase 29 `_snap()` 이 전·후 2회 호출되며, 동일 스냅 안에서 레지스트리 무거운 분석이 `report_factor_panel_materialization_gaps`·`report_quarter_snapshot_backfill_gaps` 경로로 **중복** 실행될 수 있었음.
+- **조치**: `db.records.fetch_tickers_for_ciks`(청크 `in_("cik", …)`); 레지스트리 리포트는 배치 맵만 사용. `_snap()` 에서 레지스트리 1회 → `registry_report` / `materialization_report` 로 팩터·분기 스냅 리포트에 전달. 오케스트레이션·CLI에 **grep 친화적** 진행 태그 stdout(`phase29_snapshot_*`, `phase29_*_done`, `phase29_bundle_written`, `phase29_review_written`).
+- **실 DB 완주 여부**: 이 저장소 패치만으로는 미검증 — 운영자가 아래 명령으로 1회 acceptance. 성공 시 산출물: `docs/operator_closeout/phase29_validation_refresh_and_snapshot_backfill_review.md`, `docs/operator_closeout/phase29_validation_refresh_and_snapshot_backfill_bundle.json`.
+- **다음 단계 (명시)**: 실 run이 끝까지 완료·위 두 파일 생성·stdout에 진행 태그 확인되면 **`review_completed_phase29_results`**. 여전히 정체·타임아웃·KeyboardInterrupt면 **`more_phase29_runtime_hotfix_needed`**.
+
+## 현재 제품 위치
+
+- **Phase 29**: Phase 28에서 메타 행은 생겼으나 **검증 패널 `panel_json`에 `missing_market_metadata`가 남는** 경우를 **행 기반 재빌드**로 갱신한다. `market_metadata_latest` 조회는 **`pick_best_market_metadata_row` / `fetch_market_metadata_latest_row_deterministic`** 로 as_of·유동성 우선 결정적 선택(검증 빌드·메타 갭 드라이버 공통).
+- **분기 스냅샷**: `report-quarter-snapshot-backfill-gaps` 로 `missing_quarter_snapshot_for_cik` 를 filing/raw/silver/스냅샷 결손 등으로 분류. `run-quarter-snapshot-backfill-repair` 는 **silver 있으나 스냅샷만 없는** CIK에 한해 `rebuild_quarter_snapshot_from_db` (상한); 전면 SEC 재수집은 **deferred**.
+- **오케스트레이션**: `run-phase29-validation-refresh-and-snapshot-backfill` — 순서: 메타 수화 → stale 검증 갱신 → 분기 스냅샷 수리 → Phase 28 팩터 물질화. `--out-md`, `--bundle-out`. MD만: `write-phase29-validation-refresh-review --bundle-in …`
+- **코드**: `src/phase29/`, `db.records`(메타 선택·factor/validation 단건 조회), `market.validation_panel_run`.
+- **테스트**: `pytest src/tests/test_phase29_validation_refresh.py src/tests/test_db_fetch_tickers_for_ciks.py -q`
+- **패치·증거**: `docs/phase29_patch_report.md`, `docs/phase29_evidence.md`
+- **실측 클로즈아웃 후 채울 것**: stale 갱신 건수·플래그 해소·`joined_market_metadata_flagged_count` 델타·분기 스냅샷 분류 변화 — 번들·리뷰 MD에 반영. Phase 29 번들의 **`phase30`** 필드는 “다음 분기” 힌트이며, **Phase 30 실행 후**에는 `phase30_validation_substrate_bundle.json` 의 **`phase31`** 를 따른다.
+
+---
+
+# HANDOFF — Phase 30 (Upstream validation substrate: filing / silver / snapshot)
+
+## 맥락 (Phase 29 번들에서의 해석)
+
+- 메타 `missing_market_metadata` 스테일 이슈가 해소된 뒤에도 **`missing_validation_symbol_count`**·**`missing_quarter_snapshot_for_cik`** 가 크게 남으면, 헤드라인 병목은 **상류 SEC 기판**(filing_index → raw_xbrl → silver_xbrl → issuer_quarter_snapshots) 쪽으로 이동한 것으로 본다.
+- Phase 30는 **유니버스 전면 스프린트가 아니라** Phase 29 **분기 스냅샷 분류**에서 나온 버킷별 **상한 수리**와, 수리에 **성공한 CIK에만** 스냅샷→팩터→검증 **좁은 하류 연쇄**를 수행한다.
+
+## CLI (`p27` 공통 인자: `--universe`, `--panel-limit`, `--program-id`, `--price-lookahead-days`)
+
+| 명령 | 역할 |
+|------|------|
+| `report-filing-index-gap-targets` | `no_filing_index_for_cik` 고유 CIK 타깃 |
+| `run-filing-index-backfill-repair` | `run_sample_ingest`(SEC)로 filing_index 보강; **`filing_index_repaired_now`**·**`raw_xbrl_present_after_filing_ingest_count`**·**`downstream_snapshot_present_after_filing_ingest_count`** 로 하류 과장 방지 (`repaired_now` = filing 터치와 동일) |
+| `export-filing-index-gap-targets` | 타깃 JSON/CSV |
+| `report-silver-facts-materialization-gaps` | `raw_present_no_silver_facts` |
+| `run-silver-facts-materialization-repair` | raw→`silver_xbrl_facts` 적재 후 스냅샷 재구성 시도, 분류 before/after 기록 |
+| `report-empty-cik-gaps` | `empty_cik` 심볼 멤버십·레지스트리·issuer 매핑 진단(v1 자동 변경 없음) |
+| `run-phase30-validation-substrate-repair` | 위 경로 일괄 + 하류 연쇄 + **`phase30_validation_substrate_bundle.json`** / **`phase30_validation_substrate_review.md`** |
+| `write-phase30-validation-substrate-review` | 번들만으로 MD 재생성 |
+
+## 코드
+
+- `src/phase30/` (`metrics`, `filing_index_gaps`, `silver_materialization`, `empty_cik_cleanup`, `downstream_cascade`, `phase31_recommend`, `orchestrator`, `review`).
+
+## 운영자가 번들로 채울 실측
+
+- **실제 수리·지연·차단 건수**(filing·silver·empty_cik), **before/after** `missing_validation_symbol_count`·`missing_quarter_snapshot_for_cik`·분류 counts·`factor_panel_missing_for_resolved_cik`·`joined_recipe_substrate_row_count`·`thin_input_share`.
+- 병목이 **filing_index 잔존**인지 **스냅샷/팩터/검증**으로 넘어갔는지 한 줄 요약.
+- **Phase 31** 단일 권고: 번들 `phase31.phase31_recommendation` + `rationale`.
+
+## 테스트
+
+`pytest src/tests/test_phase30_validation_substrate.py -q`
+
+## 패치 보고
+
+`docs/phase30_patch_report.md`
+
+---
+
+# HANDOFF — Phase 31 (Raw-facts bridge after filing-index repair)
+
+## 맥락 (Phase 30 실측)
+
+- `run_sample_ingest` 는 **filing_index·raw_sec_filings** 등과 **`raw_xbrl_facts`** 가 다른 파이프라인이라, filing-only 수리 후 **`filing_index_present_no_raw_facts`** 가 늘 수 있음.
+- Phase 31는 **`run_facts_extract_for_ticker`** 로 분류기가 읽는 **`raw_xbrl_facts`** 를 채우고, **GIS류**는 `concept` 문자열 정규화(`us-gaap_Foo` → `us-gaap:Foo`)로 silver 이음새를 좁히며, **NWSA류** `issuer_mapping_gap` 은 멤버십=레지스트리 CIK 일치 시 **`issuer_master` 결정적 upsert** 시도.
+
+## CLI (`p27` 공통 인자)
+
+| 명령 | 역할 |
+|------|------|
+| `report-raw-facts-gap-targets` | `filing_index_present_no_raw_facts` + 선택 `--extra-ciks` |
+| `export-raw-facts-gap-targets` | JSON/CSV |
+| `run-raw-facts-backfill-repair` | 상한 `run_facts_extract_for_ticker` → **repaired_to_raw_present** / deferred / blocked |
+| `report-raw-present-no-silver-targets` | `raw_present_no_silver_facts` 목록 |
+| `run-gis-like-silver-seam-repair` | silver 재물질화·스냅샷·**CIK당** 하류 (`--prioritize-symbols`, 상한) |
+| `run-deterministic-empty-cik-issuer-repair` | empty_cik 중 안전한 issuer upsert |
+| `run-phase31-raw-facts-bridge-repair` | 일괄 + **`phase31_raw_facts_bridge_bundle.json`** / **`phase31_raw_facts_bridge_review.md`** |
+| `write-phase31-raw-facts-bridge-review` | 번들 → MD |
+
+## 코드
+
+- `src/phase31/`, `sec.facts.concept_map`(언더스코어 정규화), `sec.facts.facts_pipeline.run_facts_extract_for_ticker`
+
+## 운영자가 번들로 채울 실측
+
+- **before/after** 분류·헤드라인 지표, raw 수리·GIS silver·NWSA issuer 결과, **어느 CIK가 팩터/검증까지 갔는지**(`downstream_substrate_retry.per_cik`).
+- 병목이 **raw → 스냅샷 → 팩터** 중 어디인지 한 줄.
+- **Phase 32**: 번들 `phase32.phase32_recommendation`.
+
+## 테스트
+
+`pytest src/tests/test_phase31_raw_facts_bridge.py -q`
+
+## 패치 보고
+
+`docs/phase31_patch_report.md`
+
+---
+
 # HANDOFF — Phase 28 (Provider metadata & factor panel materialization)
 
 ## 현재 제품 위치
@@ -39,8 +140,11 @@
   - `report-state-change-pit-gaps` / `export-state-change-pit-gap-rows` / `run-state-change-history-backfill-repair` (`--history-backfill-days`, `--state-change-limit`)  
   - `write-phase27-targeted-backfill-review` → **review-only** → `docs/operator_closeout/phase27_targeted_backfill_review.md` (선택 `--bundle-out` JSON)  
   - `run-targeted-backfill-repair-and-review` → registry+metadata 수리 후 동일 리뷰·번들 (`--repair-forward`, `--out`, `--bundle-out`)  
-  - **Phase 28** (동일 `--universe` 등): `report-factor-panel-materialization-gaps` / `run-factor-panel-materialization-repair` / `run-phase28-provider-metadata-and-panel-repair` / `write-phase28-provider-metadata-review`
-- **코드**: `src/targeted_backfill/`, `src/phase28/`, `db.records`(레지스트리·메타·멤버십 배치 조회), `market.price_ingest.run_market_metadata_hydration_for_symbols`.
+  - **Phase 28** (동일 `--universe` 등): `report-factor-panel-materialization-gaps` / `run-factor-panel-materialization-repair` / `run-phase28-provider-metadata-and-panel-repair` / `write-phase28-provider-metadata-review`  
+  - **Phase 29**: `report-stale-validation-metadata-flags` / `run-validation-refresh-after-metadata-hydration` / `export-stale-validation-metadata-rows` / `report-quarter-snapshot-backfill-gaps` / `run-quarter-snapshot-backfill-repair` / `export-quarter-snapshot-backfill-targets` / `run-phase29-validation-refresh-and-snapshot-backfill` / `write-phase29-validation-refresh-review`
+  - **Phase 30**: `report-filing-index-gap-targets` / `run-filing-index-backfill-repair` / `export-filing-index-gap-targets` / `report-silver-facts-materialization-gaps` / `run-silver-facts-materialization-repair` / `report-empty-cik-gaps` / `run-phase30-validation-substrate-repair` / `write-phase30-validation-substrate-review`
+  - **Phase 31**: `report-raw-facts-gap-targets` / `export-raw-facts-gap-targets` / `run-raw-facts-backfill-repair` / `report-raw-present-no-silver-targets` / `run-gis-like-silver-seam-repair` / `run-deterministic-empty-cik-issuer-repair` / `run-phase31-raw-facts-bridge-repair` / `write-phase31-raw-facts-bridge-review`
+- **코드**: `src/targeted_backfill/`, `src/phase28/`, `src/phase29/`, `db.records`(레지스트리·메타·멤버십 배치 조회), `market.price_ingest.run_market_metadata_hydration_for_symbols`, `market.validation_panel_run`.
 - **실측 수치**: 저장소만으로 고정 숫자 없음 — 운영자가 위 report/export 및 리뷰 작성으로 **증거·수리 후 블로커 카운트**를 채운다.
 - **Phase 28 권고(정확히 하나)**: 번들/stdout의 `phase28` — `rerun_phase15_16_now_open` \| `continue_targeted_backfill` \| `quality_policy_review_needed` \| `public_first_plateau_without_quality_unlock`.
 
@@ -130,7 +234,7 @@
 ## 검증·테스트 (로컬)
 
 - `pytest src/tests/test_phase24_public_first.py -q`
-- 전체: `pytest src/tests -q` — **351 passed** (Phase 28 포함)
+- 전체: `pytest src/tests -q` — **356 passed** (Phase 29 포함)
 
 ## 관측 분포·정책 자세 (2026-04-07, `sp500_current`, Phase 23 클로즈아웃 직후 맥락)
 
@@ -170,7 +274,7 @@
 ## 검증·테스트 (로컬)
 
 - `pytest src/tests/test_phase23_operator_closeout.py -q`
-- 전체: `pytest src/tests -q` — **351 passed** (Phase 28 포함) (Phase 24 포함; 외부 `edgar` DeprecationWarning만)
+- 전체: `pytest src/tests -q` — **356 passed** (Phase 29 포함) (Phase 24 포함; 외부 `edgar` DeprecationWarning만)
 
 ## 검증·운영 스냅샷 (2026-04-07, `sp500_current`, 원 커맨드 클로즈아웃)
 
@@ -217,14 +321,14 @@
 ## 검증·테스트 (로컬)
 
 - `pytest src/tests/test_phase22_public_depth_iteration.py -q` — **15 passed**
-- `pytest src/tests -q` — **351 passed** (Phase 28까지; 외부 `edgar` DeprecationWarning 3건)
+- `pytest src/tests -q` — **356 passed** (Phase 29까지; 외부 `edgar` DeprecationWarning 3건)
 
 ## 검증·운영 스냅샷 (2026-04-01, 시리즈 브리프 + 전체 테스트 클로징)
 
 | 항목 | 결과 |
 |------|------|
 | `pytest src/tests/test_phase22_public_depth_iteration.py -q` | **15 passed** |
-| `PYTHONPATH=src pytest src/tests -q` | **351 passed** (Phase 28까지); 경고 **3건**은 `edgar` 패키지 deprecation(테스트 실패 아님) |
+| `PYTHONPATH=src pytest src/tests -q` | **356 passed** (Phase 29까지); 경고 **3건**은 `edgar` 패키지 deprecation(테스트 실패 아님) |
 | Supabase `20250425100000_phase22_public_depth_iteration.sql` | 대상 프로젝트에 적용했다면 `smoke-phase22-public-depth-iteration`으로 REST/스키마 확인 |
 | 시리즈 브리프 | `report-latest-repair-state --program-id latest --universe <U> --active-series-id-only`로 얻은 UUID로 `export-public-depth-series-brief --series-id … --out …` 실행 완료 시 증거 체인 완료 |
 | 증거 상세 | `docs/phase22_evidence.md` |

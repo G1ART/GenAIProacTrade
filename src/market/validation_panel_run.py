@@ -9,6 +9,7 @@ from typing import Any
 from db.client import get_supabase_client
 from db.records import (
     fetch_factor_panels_all,
+    fetch_market_metadata_latest_row_deterministic,
     fetch_quarter_snapshot_by_accession,
     fetch_ticker_for_cik,
     upsert_factor_market_validation_panel,
@@ -36,19 +37,6 @@ def _fetch_forward_map(
         ht = str(row.get("horizon_type") or "")
         out[ht] = dict(row)
     return out
-
-
-def _fetch_metadata_row(client: Any, *, symbol: str) -> dict[str, Any] | None:
-    q = (
-        client.table("market_metadata_latest")
-        .select("*")
-        .eq("symbol", symbol.upper().strip())
-        .limit(1)
-        .execute()
-    )
-    if not q.data:
-        return None
-    return dict(q.data[0])
 
 
 def run_validation_panel_build_from_rows(
@@ -107,7 +95,11 @@ def _validation_panel_build_loop(
                 panel_json["signal_date_error"] = str(e)
         if not sym:
             panel_json["quality_flags"] = panel_json.get("quality_flags", []) + ["missing_ticker"]
-        fm = _fetch_metadata_row(client, symbol=sym) if sym else None
+        fm = (
+            fetch_market_metadata_latest_row_deterministic(client, symbol=sym)
+            if sym
+            else None
+        )
         fwd = _fetch_forward_map(client, symbol=sym, signal_date=sig_s) if (sym and sig_s) else {}
         m1 = fwd.get("next_month") or {}
         m1q = fwd.get("next_quarter") or {}

@@ -59,9 +59,6 @@ def run_phase28_provider_metadata_and_panel_repair(
         max_factor_cik_repairs=max_factor_cik_repairs,
         max_validation_cik_repairs=max_validation_cik_repairs,
     )
-    mat_report = report_factor_panel_materialization_gaps(
-        client, universe_name=universe_name, panel_limit=panel_limit
-    )
     meta_drv_a = report_market_metadata_gap_drivers(
         client,
         universe_name=universe_name,
@@ -74,6 +71,12 @@ def run_phase28_provider_metadata_and_panel_repair(
     )
     reg_a = report_validation_registry_gaps(
         client, universe_name=universe_name, panel_limit=panel_limit
+    )
+    mat_report = report_factor_panel_materialization_gaps(
+        client,
+        universe_name=universe_name,
+        panel_limit=panel_limit,
+        registry_report=reg_a,
     )
     rollup_a = registry_gap_rollup_for_bundle(reg_a.get("registry_bucket_counts"))
 

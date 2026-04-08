@@ -135,3 +135,35 @@ def test_factor_materialization_report_decomposes_factor_bucket(
     mb = rep["materialization_bucket_counts"]
     assert mb["missing_quarter_snapshot_for_cik"] == 1
     assert mb["snapshot_present_but_factor_panel_missing"] == 1
+
+
+@patch("phase28.factor_materialization.report_validation_registry_gaps")
+def test_factor_materialization_uses_registry_report_without_requery(
+    mock_reg: MagicMock,
+) -> None:
+    pre = {
+        "ok": True,
+        "metrics": {"as_of_date": "2024-01-15"},
+        "registry_buckets": {
+            "factor_panel_missing_for_resolved_cik": [],
+            "validation_panel_build_omission_for_cik": [],
+        },
+        "registry_bucket_counts": {},
+    }
+    client = MagicMock()
+    with patch(
+        "phase28.factor_materialization.dbrec.fetch_symbols_universe_as_of",
+        return_value=[],
+    ), patch(
+        "phase28.factor_materialization.dbrec.fetch_cik_map_for_tickers",
+        return_value={},
+    ):
+        from phase28.factor_materialization import report_factor_panel_materialization_gaps
+
+        report_factor_panel_materialization_gaps(
+            client,
+            universe_name="sp500_current",
+            panel_limit=100,
+            registry_report=pre,
+        )
+    mock_reg.assert_not_called()

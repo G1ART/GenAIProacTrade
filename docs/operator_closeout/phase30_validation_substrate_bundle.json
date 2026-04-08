@@ -1,0 +1,3280 @@
+{
+  "ok": true,
+  "universe_name": "sp500_current",
+  "before": {
+    "joined_recipe_substrate_row_count": 243,
+    "joined_market_metadata_flagged_count": 0,
+    "thin_input_share": 1.0,
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 61,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 191
+    },
+    "missing_validation_symbol_count": 191,
+    "registry_gap_rollup": {
+      "registry_blocker_symbol_total": 191,
+      "registry_repair_automation_eligible_count": 2,
+      "registry_upstream_or_pipeline_deferred_count": 189,
+      "per_bucket": {
+        "factor_panel_missing_for_resolved_cik": 189,
+        "issuer_master_missing_for_resolved_cik": 0,
+        "missing_symbol_alias_mapping": 0,
+        "missing_symbol_in_market_symbol_registry": 0,
+        "symbol_normalization_mismatch": 2,
+        "symbol_to_cik_registry_miss": 0,
+        "validation_panel_build_omission_for_cik": 0
+      }
+    },
+    "factor_panel_missing_for_resolved_cik": 189,
+    "missing_quarter_snapshot_for_cik": 189,
+    "quarter_snapshot_classification_counts": {
+      "empty_cik": 1,
+      "no_filing_index_for_cik": 187,
+      "raw_present_no_silver_facts": 1
+    }
+  },
+  "after": {
+    "joined_recipe_substrate_row_count": 243,
+    "joined_market_metadata_flagged_count": 0,
+    "thin_input_share": 1.0,
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 61,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 191
+    },
+    "missing_validation_symbol_count": 191,
+    "registry_gap_rollup": {
+      "registry_blocker_symbol_total": 191,
+      "registry_repair_automation_eligible_count": 2,
+      "registry_upstream_or_pipeline_deferred_count": 189,
+      "per_bucket": {
+        "factor_panel_missing_for_resolved_cik": 189,
+        "issuer_master_missing_for_resolved_cik": 0,
+        "missing_symbol_alias_mapping": 0,
+        "missing_symbol_in_market_symbol_registry": 0,
+        "symbol_normalization_mismatch": 2,
+        "symbol_to_cik_registry_miss": 0,
+        "validation_panel_build_omission_for_cik": 0
+      }
+    },
+    "factor_panel_missing_for_resolved_cik": 189,
+    "missing_quarter_snapshot_for_cik": 189,
+    "quarter_snapshot_classification_counts": {
+      "empty_cik": 1,
+      "filing_index_present_no_raw_facts": 40,
+      "no_filing_index_for_cik": 147,
+      "raw_present_no_silver_facts": 1
+    }
+  },
+  "filing_index_gap_targets": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "source": "phase29_quarter_snapshot_classification",
+    "no_filing_index_row_count": 187,
+    "no_filing_index_unique_cik_count": 187,
+    "targets": [
+      {
+        "symbol": "MCK",
+        "cik": "0000927653",
+        "norm_cik": "0000927653",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MCO",
+        "cik": "0001059556",
+        "norm_cik": "0001059556",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MDLZ",
+        "cik": "0001103982",
+        "norm_cik": "0001103982",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MDT",
+        "cik": "0001613103",
+        "norm_cik": "0001613103",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MET",
+        "cik": "0001099219",
+        "norm_cik": "0001099219",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "META",
+        "cik": "0001326801",
+        "norm_cik": "0001326801",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MGM",
+        "cik": "0000789570",
+        "norm_cik": "0000789570",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MKC",
+        "cik": "0000063754",
+        "norm_cik": "0000063754",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MLM",
+        "cik": "0000916076",
+        "norm_cik": "0000916076",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MMM",
+        "cik": "0000066740",
+        "norm_cik": "0000066740",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MNST",
+        "cik": "0000865752",
+        "norm_cik": "0000865752",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MO",
+        "cik": "0000764180",
+        "norm_cik": "0000764180",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MOS",
+        "cik": "0001285785",
+        "norm_cik": "0001285785",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MPC",
+        "cik": "0001510295",
+        "norm_cik": "0001510295",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MPWR",
+        "cik": "0001280452",
+        "norm_cik": "0001280452",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MRNA",
+        "cik": "0001682852",
+        "norm_cik": "0001682852",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MRSH",
+        "cik": "0000062709",
+        "norm_cik": "0000062709",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MS",
+        "cik": "0000895421",
+        "norm_cik": "0000895421",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MSCI",
+        "cik": "0001408198",
+        "norm_cik": "0001408198",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MSI",
+        "cik": "0000068505",
+        "norm_cik": "0000068505",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MTB",
+        "cik": "0000036270",
+        "norm_cik": "0000036270",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MTD",
+        "cik": "0001037646",
+        "norm_cik": "0001037646",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MU",
+        "cik": "0000723125",
+        "norm_cik": "0000723125",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NCLH",
+        "cik": "0001513761",
+        "norm_cik": "0001513761",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NDAQ",
+        "cik": "0001120193",
+        "norm_cik": "0001120193",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NDSN",
+        "cik": "0000072331",
+        "norm_cik": "0000072331",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NEE",
+        "cik": "0000753308",
+        "norm_cik": "0000753308",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NEM",
+        "cik": "0001164727",
+        "norm_cik": "0001164727",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NFLX",
+        "cik": "0001065280",
+        "norm_cik": "0001065280",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NI",
+        "cik": "0001111711",
+        "norm_cik": "0001111711",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NOC",
+        "cik": "0001133421",
+        "norm_cik": "0001133421",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NOW",
+        "cik": "0001373715",
+        "norm_cik": "0001373715",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NRG",
+        "cik": "0001013871",
+        "norm_cik": "0001013871",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NSC",
+        "cik": "0000702165",
+        "norm_cik": "0000702165",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NTAP",
+        "cik": "0001002047",
+        "norm_cik": "0001002047",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NTRS",
+        "cik": "0000073124",
+        "norm_cik": "0000073124",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NUE",
+        "cik": "0000073309",
+        "norm_cik": "0000073309",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NVR",
+        "cik": "0000906163",
+        "norm_cik": "0000906163",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NWS",
+        "cik": "0001564708",
+        "norm_cik": "0001564708",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NXPI",
+        "cik": "0001413447",
+        "norm_cik": "0001413447",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "O",
+        "cik": "0000726728",
+        "norm_cik": "0000726728",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ODFL",
+        "cik": "0000878927",
+        "norm_cik": "0000878927",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "OKE",
+        "cik": "0001039684",
+        "norm_cik": "0001039684",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "OMC",
+        "cik": "0000029989",
+        "norm_cik": "0000029989",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ON",
+        "cik": "0001097864",
+        "norm_cik": "0001097864",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ORCL",
+        "cik": "0001341439",
+        "norm_cik": "0001341439",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ORLY",
+        "cik": "0000898173",
+        "norm_cik": "0000898173",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "OTIS",
+        "cik": "0001781335",
+        "norm_cik": "0001781335",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "OXY",
+        "cik": "0000797468",
+        "norm_cik": "0000797468",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PANW",
+        "cik": "0001327567",
+        "norm_cik": "0001327567",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PAYX",
+        "cik": "0000723531",
+        "norm_cik": "0000723531",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PCAR",
+        "cik": "0000075362",
+        "norm_cik": "0000075362",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PCG",
+        "cik": "0001004980",
+        "norm_cik": "0001004980",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PEG",
+        "cik": "0000788784",
+        "norm_cik": "0000788784",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PFG",
+        "cik": "0001126328",
+        "norm_cik": "0001126328",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PGR",
+        "cik": "0000080661",
+        "norm_cik": "0000080661",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PH",
+        "cik": "0000076334",
+        "norm_cik": "0000076334",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PHM",
+        "cik": "0000822416",
+        "norm_cik": "0000822416",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PKG",
+        "cik": "0000075677",
+        "norm_cik": "0000075677",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PLD",
+        "cik": "0001045609",
+        "norm_cik": "0001045609",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PLTR",
+        "cik": "0001321655",
+        "norm_cik": "0001321655",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PM",
+        "cik": "0001413329",
+        "norm_cik": "0001413329",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PNC",
+        "cik": "0000713676",
+        "norm_cik": "0000713676",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PNR",
+        "cik": "0000077360",
+        "norm_cik": "0000077360",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PNW",
+        "cik": "0000764622",
+        "norm_cik": "0000764622",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PODD",
+        "cik": "0001145197",
+        "norm_cik": "0001145197",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "POOL",
+        "cik": "0000945841",
+        "norm_cik": "0000945841",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PPG",
+        "cik": "0000079879",
+        "norm_cik": "0000079879",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PPL",
+        "cik": "0000922224",
+        "norm_cik": "0000922224",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PRU",
+        "cik": "0001137774",
+        "norm_cik": "0001137774",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PSA",
+        "cik": "0001393311",
+        "norm_cik": "0001393311",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PSKY",
+        "cik": "0002041610",
+        "norm_cik": "0002041610",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PSX",
+        "cik": "0001534701",
+        "norm_cik": "0001534701",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PTC",
+        "cik": "0000857005",
+        "norm_cik": "0000857005",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PWR",
+        "cik": "0001050915",
+        "norm_cik": "0001050915",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PYPL",
+        "cik": "0001633917",
+        "norm_cik": "0001633917",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "Q",
+        "cik": "0002058873",
+        "norm_cik": "0002058873",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "QCOM",
+        "cik": "0000804328",
+        "norm_cik": "0000804328",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "RCL",
+        "cik": "0000884887",
+        "norm_cik": "0000884887",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "REG",
+        "cik": "0000910606",
+        "norm_cik": "0000910606",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "REGN",
+        "cik": "0000872589",
+        "norm_cik": "0000872589",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "RF",
+        "cik": "0001281761",
+        "norm_cik": "0001281761",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "RJF",
+        "cik": "0000720005",
+        "norm_cik": "0000720005",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "RL",
+        "cik": "0001037038",
+        "norm_cik": "0001037038",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "RMD",
+        "cik": "0000943819",
+        "norm_cik": "0000943819",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ROK",
+        "cik": "0001024478",
+        "norm_cik": "0001024478",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ROL",
+        "cik": "0000084839",
+        "norm_cik": "0000084839",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ROP",
+        "cik": "0000882835",
+        "norm_cik": "0000882835",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ROST",
+        "cik": "0000745732",
+        "norm_cik": "0000745732",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "RSG",
+        "cik": "0001060391",
+        "norm_cik": "0001060391",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "RVTY",
+        "cik": "0000031791",
+        "norm_cik": "0000031791",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SATS",
+        "cik": "0001415404",
+        "norm_cik": "0001415404",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SBAC",
+        "cik": "0001034054",
+        "norm_cik": "0001034054",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SBUX",
+        "cik": "0000829224",
+        "norm_cik": "0000829224",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SCHW",
+        "cik": "0000316709",
+        "norm_cik": "0000316709",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SHW",
+        "cik": "0000089800",
+        "norm_cik": "0000089800",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SJM",
+        "cik": "0000091419",
+        "norm_cik": "0000091419",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SLB",
+        "cik": "0000087347",
+        "norm_cik": "0000087347",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SMCI",
+        "cik": "0001375365",
+        "norm_cik": "0001375365",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SNA",
+        "cik": "0000091440",
+        "norm_cik": "0000091440",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SNDK",
+        "cik": "0002023554",
+        "norm_cik": "0002023554",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SNPS",
+        "cik": "0000883241",
+        "norm_cik": "0000883241",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SO",
+        "cik": "0000092122",
+        "norm_cik": "0000092122",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SOLV",
+        "cik": "0001964738",
+        "norm_cik": "0001964738",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SPG",
+        "cik": "0001063761",
+        "norm_cik": "0001063761",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SRE",
+        "cik": "0001032208",
+        "norm_cik": "0001032208",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "STE",
+        "cik": "0001757898",
+        "norm_cik": "0001757898",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "STLD",
+        "cik": "0001022671",
+        "norm_cik": "0001022671",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "STT",
+        "cik": "0000093751",
+        "norm_cik": "0000093751",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "STX",
+        "cik": "0001137789",
+        "norm_cik": "0001137789",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "STZ",
+        "cik": "0000016918",
+        "norm_cik": "0000016918",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SW",
+        "cik": "0002005951",
+        "norm_cik": "0002005951",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SWK",
+        "cik": "0000093556",
+        "norm_cik": "0000093556",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SWKS",
+        "cik": "0000004127",
+        "norm_cik": "0000004127",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SYF",
+        "cik": "0001601712",
+        "norm_cik": "0001601712",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SYK",
+        "cik": "0000310764",
+        "norm_cik": "0000310764",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "SYY",
+        "cik": "0000096021",
+        "norm_cik": "0000096021",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "T",
+        "cik": "0000732717",
+        "norm_cik": "0000732717",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TAP",
+        "cik": "0000024545",
+        "norm_cik": "0000024545",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TDG",
+        "cik": "0001260221",
+        "norm_cik": "0001260221",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TDY",
+        "cik": "0001094285",
+        "norm_cik": "0001094285",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TECH",
+        "cik": "0000842023",
+        "norm_cik": "0000842023",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TEL",
+        "cik": "0001385157",
+        "norm_cik": "0001385157",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TER",
+        "cik": "0000097210",
+        "norm_cik": "0000097210",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TFC",
+        "cik": "0000092230",
+        "norm_cik": "0000092230",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TGT",
+        "cik": "0000027419",
+        "norm_cik": "0000027419",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TJX",
+        "cik": "0000109198",
+        "norm_cik": "0000109198",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TKO",
+        "cik": "0001973266",
+        "norm_cik": "0001973266",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TMUS",
+        "cik": "0001283699",
+        "norm_cik": "0001283699",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TPL",
+        "cik": "0001811074",
+        "norm_cik": "0001811074",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TPR",
+        "cik": "0001116132",
+        "norm_cik": "0001116132",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TRGP",
+        "cik": "0001389170",
+        "norm_cik": "0001389170",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TRMB",
+        "cik": "0000864749",
+        "norm_cik": "0000864749",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TROW",
+        "cik": "0001113169",
+        "norm_cik": "0001113169",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TRV",
+        "cik": "0000086312",
+        "norm_cik": "0000086312",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TSCO",
+        "cik": "0000916365",
+        "norm_cik": "0000916365",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TSLA",
+        "cik": "0001318605",
+        "norm_cik": "0001318605",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TSN",
+        "cik": "0000100493",
+        "norm_cik": "0000100493",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TT",
+        "cik": "0001466258",
+        "norm_cik": "0001466258",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TTD",
+        "cik": "0001671933",
+        "norm_cik": "0001671933",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TTWO",
+        "cik": "0000946581",
+        "norm_cik": "0000946581",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TXN",
+        "cik": "0000097476",
+        "norm_cik": "0000097476",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TXT",
+        "cik": "0000217346",
+        "norm_cik": "0000217346",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "TYL",
+        "cik": "0000860731",
+        "norm_cik": "0000860731",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "UAL",
+        "cik": "0000100517",
+        "norm_cik": "0000100517",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "UBER",
+        "cik": "0001543151",
+        "norm_cik": "0001543151",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "UDR",
+        "cik": "0000074208",
+        "norm_cik": "0000074208",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "UHS",
+        "cik": "0000352915",
+        "norm_cik": "0000352915",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ULTA",
+        "cik": "0001403568",
+        "norm_cik": "0001403568",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "UNP",
+        "cik": "0000100885",
+        "norm_cik": "0000100885",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "URI",
+        "cik": "0001067701",
+        "norm_cik": "0001067701",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "USB",
+        "cik": "0000036104",
+        "norm_cik": "0000036104",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "V",
+        "cik": "0001403161",
+        "norm_cik": "0001403161",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VICI",
+        "cik": "0001705696",
+        "norm_cik": "0001705696",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VLO",
+        "cik": "0001035002",
+        "norm_cik": "0001035002",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VLTO",
+        "cik": "0001967680",
+        "norm_cik": "0001967680",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VMC",
+        "cik": "0001396009",
+        "norm_cik": "0001396009",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VRSK",
+        "cik": "0001442145",
+        "norm_cik": "0001442145",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VRSN",
+        "cik": "0001014473",
+        "norm_cik": "0001014473",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VRT",
+        "cik": "0001674101",
+        "norm_cik": "0001674101",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VRTX",
+        "cik": "0000875320",
+        "norm_cik": "0000875320",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VST",
+        "cik": "0001692819",
+        "norm_cik": "0001692819",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VTR",
+        "cik": "0000740260",
+        "norm_cik": "0000740260",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VTRS",
+        "cik": "0001792044",
+        "norm_cik": "0001792044",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "VZ",
+        "cik": "0000732712",
+        "norm_cik": "0000732712",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WAB",
+        "cik": "0000943452",
+        "norm_cik": "0000943452",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WAT",
+        "cik": "0001000697",
+        "norm_cik": "0001000697",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WBD",
+        "cik": "0001437107",
+        "norm_cik": "0001437107",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WDAY",
+        "cik": "0001327811",
+        "norm_cik": "0001327811",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WDC",
+        "cik": "0000106040",
+        "norm_cik": "0000106040",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WEC",
+        "cik": "0000783325",
+        "norm_cik": "0000783325",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WELL",
+        "cik": "0000766704",
+        "norm_cik": "0000766704",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WM",
+        "cik": "0000823768",
+        "norm_cik": "0000823768",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WMB",
+        "cik": "0000107263",
+        "norm_cik": "0000107263",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WRB",
+        "cik": "0000011544",
+        "norm_cik": "0000011544",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WSM",
+        "cik": "0000719955",
+        "norm_cik": "0000719955",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WST",
+        "cik": "0000105770",
+        "norm_cik": "0000105770",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WTW",
+        "cik": "0001140536",
+        "norm_cik": "0001140536",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WY",
+        "cik": "0000106535",
+        "norm_cik": "0000106535",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "WYNN",
+        "cik": "0001174922",
+        "norm_cik": "0001174922",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "XEL",
+        "cik": "0000072903",
+        "norm_cik": "0000072903",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "XYL",
+        "cik": "0001524472",
+        "norm_cik": "0001524472",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "XYZ",
+        "cik": "0001512673",
+        "norm_cik": "0001512673",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "YUM",
+        "cik": "0001041061",
+        "norm_cik": "0001041061",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ZBH",
+        "cik": "0001136869",
+        "norm_cik": "0001136869",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ZBRA",
+        "cik": "0000877212",
+        "norm_cik": "0000877212",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ZTS",
+        "cik": "0001555280",
+        "norm_cik": "0001555280",
+        "class": "no_filing_index_for_cik"
+      }
+    ],
+    "targets_sample": [
+      {
+        "symbol": "MCK",
+        "cik": "0000927653",
+        "norm_cik": "0000927653",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MCO",
+        "cik": "0001059556",
+        "norm_cik": "0001059556",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MDLZ",
+        "cik": "0001103982",
+        "norm_cik": "0001103982",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MDT",
+        "cik": "0001613103",
+        "norm_cik": "0001613103",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MET",
+        "cik": "0001099219",
+        "norm_cik": "0001099219",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "META",
+        "cik": "0001326801",
+        "norm_cik": "0001326801",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MGM",
+        "cik": "0000789570",
+        "norm_cik": "0000789570",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MKC",
+        "cik": "0000063754",
+        "norm_cik": "0000063754",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MLM",
+        "cik": "0000916076",
+        "norm_cik": "0000916076",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MMM",
+        "cik": "0000066740",
+        "norm_cik": "0000066740",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MNST",
+        "cik": "0000865752",
+        "norm_cik": "0000865752",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MO",
+        "cik": "0000764180",
+        "norm_cik": "0000764180",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MOS",
+        "cik": "0001285785",
+        "norm_cik": "0001285785",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MPC",
+        "cik": "0001510295",
+        "norm_cik": "0001510295",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MPWR",
+        "cik": "0001280452",
+        "norm_cik": "0001280452",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MRNA",
+        "cik": "0001682852",
+        "norm_cik": "0001682852",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MRSH",
+        "cik": "0000062709",
+        "norm_cik": "0000062709",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MS",
+        "cik": "0000895421",
+        "norm_cik": "0000895421",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MSCI",
+        "cik": "0001408198",
+        "norm_cik": "0001408198",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MSI",
+        "cik": "0000068505",
+        "norm_cik": "0000068505",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MTB",
+        "cik": "0000036270",
+        "norm_cik": "0000036270",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MTD",
+        "cik": "0001037646",
+        "norm_cik": "0001037646",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "MU",
+        "cik": "0000723125",
+        "norm_cik": "0000723125",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NCLH",
+        "cik": "0001513761",
+        "norm_cik": "0001513761",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NDAQ",
+        "cik": "0001120193",
+        "norm_cik": "0001120193",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NDSN",
+        "cik": "0000072331",
+        "norm_cik": "0000072331",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NEE",
+        "cik": "0000753308",
+        "norm_cik": "0000753308",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NEM",
+        "cik": "0001164727",
+        "norm_cik": "0001164727",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NFLX",
+        "cik": "0001065280",
+        "norm_cik": "0001065280",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NI",
+        "cik": "0001111711",
+        "norm_cik": "0001111711",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NOC",
+        "cik": "0001133421",
+        "norm_cik": "0001133421",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NOW",
+        "cik": "0001373715",
+        "norm_cik": "0001373715",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NRG",
+        "cik": "0001013871",
+        "norm_cik": "0001013871",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NSC",
+        "cik": "0000702165",
+        "norm_cik": "0000702165",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NTAP",
+        "cik": "0001002047",
+        "norm_cik": "0001002047",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NTRS",
+        "cik": "0000073124",
+        "norm_cik": "0000073124",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NUE",
+        "cik": "0000073309",
+        "norm_cik": "0000073309",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NVR",
+        "cik": "0000906163",
+        "norm_cik": "0000906163",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NWS",
+        "cik": "0001564708",
+        "norm_cik": "0001564708",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "NXPI",
+        "cik": "0001413447",
+        "norm_cik": "0001413447",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "O",
+        "cik": "0000726728",
+        "norm_cik": "0000726728",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ODFL",
+        "cik": "0000878927",
+        "norm_cik": "0000878927",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "OKE",
+        "cik": "0001039684",
+        "norm_cik": "0001039684",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "OMC",
+        "cik": "0000029989",
+        "norm_cik": "0000029989",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ON",
+        "cik": "0001097864",
+        "norm_cik": "0001097864",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ORCL",
+        "cik": "0001341439",
+        "norm_cik": "0001341439",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "ORLY",
+        "cik": "0000898173",
+        "norm_cik": "0000898173",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "OTIS",
+        "cik": "0001781335",
+        "norm_cik": "0001781335",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "OXY",
+        "cik": "0000797468",
+        "norm_cik": "0000797468",
+        "class": "no_filing_index_for_cik"
+      },
+      {
+        "symbol": "PANW",
+        "cik": "0001327567",
+        "norm_cik": "0001327567",
+        "class": "no_filing_index_for_cik"
+      }
+    ]
+  },
+  "filing_index_backfill_repair": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "repair": "filing_index_backfill",
+    "max_cik_repairs": 40,
+    "network_ingest_attempts": 40,
+    "repaired_now_count": 40,
+    "deferred_external_source_gap_count": 147,
+    "blocked_identity_or_mapping_issue_count": 0,
+    "repaired_now": [
+      {
+        "symbol": "MCK",
+        "cik": "0000927653",
+        "ticker": "MCK",
+        "ingest_summary": {
+          "ticker": "MCK",
+          "cik": "0000927653",
+          "accession_no": "0000927653-26-000045",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MCO",
+        "cik": "0001059556",
+        "ticker": "MCO",
+        "ingest_summary": {
+          "ticker": "MCO",
+          "cik": "0001059556",
+          "accession_no": "0001950068-26-000008",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MDLZ",
+        "cik": "0001103982",
+        "ticker": "MDLZ",
+        "ingest_summary": {
+          "ticker": "MDLZ",
+          "cik": "0001103982",
+          "accession_no": "0001628280-26-023648",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MDT",
+        "cik": "0001613103",
+        "ticker": "MDT",
+        "ingest_summary": {
+          "ticker": "MDT",
+          "cik": "0001613103",
+          "accession_no": "0000102909-26-001718",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MET",
+        "cik": "0001099219",
+        "ticker": "MET",
+        "ingest_summary": {
+          "ticker": "MET",
+          "cik": "0001099219",
+          "accession_no": "0001099219-26-000019",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "META",
+        "cik": "0001326801",
+        "ticker": "META",
+        "ingest_summary": {
+          "ticker": "META",
+          "cik": "0001326801",
+          "accession_no": "0001214659-26-003974",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MGM",
+        "cik": "0000789570",
+        "ticker": "MGM",
+        "ingest_summary": {
+          "ticker": "MGM",
+          "cik": "0000789570",
+          "accession_no": "0001193125-26-145626",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MKC",
+        "cik": "0000063754",
+        "ticker": "MKC",
+        "ingest_summary": {
+          "ticker": "MKC",
+          "cik": "0000063754",
+          "accession_no": "0000063754-26-000198",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MLM",
+        "cik": "0000916076",
+        "ticker": "MLM",
+        "ingest_summary": {
+          "ticker": "MLM",
+          "cik": "0000916076",
+          "accession_no": "0000102909-26-001776",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MMM",
+        "cik": "0000066740",
+        "ticker": "MMM",
+        "ingest_summary": {
+          "ticker": "MMM",
+          "cik": "0000066740",
+          "accession_no": "0000066740-26-000160",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MNST",
+        "cik": "0000865752",
+        "ticker": "MNST",
+        "ingest_summary": {
+          "ticker": "MNST",
+          "cik": "0000865752",
+          "accession_no": "0001104659-26-035993",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MO",
+        "cik": "0000764180",
+        "ticker": "MO",
+        "ingest_summary": {
+          "ticker": "MO",
+          "cik": "0000764180",
+          "accession_no": "0000764180-26-000052",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MOS",
+        "cik": "0001285785",
+        "ticker": "MOS",
+        "ingest_summary": {
+          "ticker": "MOS",
+          "cik": "0001285785",
+          "accession_no": "0001285785-26-000058",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MPC",
+        "cik": "0001510295",
+        "ticker": "MPC",
+        "ingest_summary": {
+          "ticker": "MPC",
+          "cik": "0001510295",
+          "accession_no": "0000102909-26-001738",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MPWR",
+        "cik": "0001280452",
+        "ticker": "MPWR",
+        "ingest_summary": {
+          "ticker": "MPWR",
+          "cik": "0001280452",
+          "accession_no": "0001950047-26-003278",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MRNA",
+        "cik": "0001682852",
+        "ticker": "MRNA",
+        "ingest_summary": {
+          "ticker": "MRNA",
+          "cik": "0001682852",
+          "accession_no": "0001682852-26-000053",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MRSH",
+        "cik": "0000062709",
+        "ticker": "MRSH",
+        "ingest_summary": {
+          "ticker": "MRSH",
+          "cik": "0000062709",
+          "accession_no": "0000062709-26-000075",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MS",
+        "cik": "0000895421",
+        "ticker": "MS",
+        "ingest_summary": {
+          "ticker": "MS",
+          "cik": "0000895421",
+          "accession_no": "0000950103-26-005490",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MSCI",
+        "cik": "0001408198",
+        "ticker": "MSCI",
+        "ingest_summary": {
+          "ticker": "MSCI",
+          "cik": "0001408198",
+          "accession_no": "0001408198-26-000027",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MSI",
+        "cik": "0000068505",
+        "ticker": "MSI",
+        "ingest_summary": {
+          "ticker": "MSI",
+          "cik": "0000068505",
+          "accession_no": "0001193125-26-145612",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MTB",
+        "cik": "0000036270",
+        "ticker": "MTB",
+        "ingest_summary": {
+          "ticker": "MTB",
+          "cik": "0000036270",
+          "accession_no": "0001628280-26-022025",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MTD",
+        "cik": "0001037646",
+        "ticker": "MTD",
+        "ingest_summary": {
+          "ticker": "MTD",
+          "cik": "0001037646",
+          "accession_no": "0000102909-26-001867",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "MU",
+        "cik": "0000723125",
+        "ticker": "MU",
+        "ingest_summary": {
+          "ticker": "MU",
+          "cik": "0000723125",
+          "accession_no": "0001632063-26-000002",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NCLH",
+        "cik": "0001513761",
+        "ticker": "NCLH",
+        "ingest_summary": {
+          "ticker": "NCLH",
+          "cik": "0001513761",
+          "accession_no": "0001104659-26-036211",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NDAQ",
+        "cik": "0001120193",
+        "ticker": "NDAQ",
+        "ingest_summary": {
+          "ticker": "NDAQ",
+          "cik": "0001120193",
+          "accession_no": "0001193125-26-145592",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NDSN",
+        "cik": "0000072331",
+        "ticker": "NDSN",
+        "ingest_summary": {
+          "ticker": "NDSN",
+          "cik": "0000072331",
+          "accession_no": "0000102909-26-001989",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NEE",
+        "cik": "0000753308",
+        "ticker": "NEE",
+        "ingest_summary": {
+          "ticker": "NEE",
+          "cik": "0000753308",
+          "accession_no": "0001950032-26-000008",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NEM",
+        "cik": "0001164727",
+        "ticker": "NEM",
+        "ingest_summary": {
+          "ticker": "NEM",
+          "cik": "0001164727",
+          "accession_no": "0001936354-26-000010",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NFLX",
+        "cik": "0001065280",
+        "ticker": "NFLX",
+        "ingest_summary": {
+          "ticker": "NFLX",
+          "cik": "0001065280",
+          "accession_no": "0001543133-26-000002",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NI",
+        "cik": "0001111711",
+        "ticker": "NI",
+        "ingest_summary": {
+          "ticker": "NI",
+          "cik": "0001111711",
+          "accession_no": "0001140361-26-011854",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NOC",
+        "cik": "0001133421",
+        "ticker": "NOC",
+        "ingest_summary": {
+          "ticker": "NOC",
+          "cik": "0001133421",
+          "accession_no": "0001133421-26-000008",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NOW",
+        "cik": "0001373715",
+        "ticker": "NOW",
+        "ingest_summary": {
+          "ticker": "NOW",
+          "cik": "0001373715",
+          "accession_no": "0001373715-26-000041",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NRG",
+        "cik": "0001013871",
+        "ticker": "NRG",
+        "ingest_summary": {
+          "ticker": "NRG",
+          "cik": "0001013871",
+          "accession_no": "0001104659-26-040368",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NSC",
+        "cik": "0000702165",
+        "ticker": "NSC",
+        "ingest_summary": {
+          "ticker": "NSC",
+          "cik": "0000702165",
+          "accession_no": "0001193125-26-140350",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NTAP",
+        "cik": "0001002047",
+        "ticker": "NTAP",
+        "ingest_summary": {
+          "ticker": "NTAP",
+          "cik": "0001002047",
+          "accession_no": "0000102909-26-001835",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NTRS",
+        "cik": "0000073124",
+        "ticker": "NTRS",
+        "ingest_summary": {
+          "ticker": "NTRS",
+          "cik": "0000073124",
+          "accession_no": "0001323371-26-000004",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NUE",
+        "cik": "0000073309",
+        "ticker": "NUE",
+        "ingest_summary": {
+          "ticker": "NUE",
+          "cik": "0000073309",
+          "accession_no": "0000102909-26-001992",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NVR",
+        "cik": "0000906163",
+        "ticker": "NVR",
+        "ingest_summary": {
+          "ticker": "NVR",
+          "cik": "0000906163",
+          "accession_no": "0000102909-26-001993",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NWS",
+        "cik": "0001564708",
+        "ticker": "NWS",
+        "ingest_summary": {
+          "ticker": "NWS",
+          "cik": "0001564708",
+          "accession_no": "0001564708-26-000073",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      },
+      {
+        "symbol": "NXPI",
+        "cik": "0001413447",
+        "ticker": "NXPI",
+        "ingest_summary": {
+          "ticker": "NXPI",
+          "cik": "0001413447",
+          "accession_no": "0000102909-26-000427",
+          "issuer_upserted": true,
+          "filing_index_inserted": true,
+          "filing_index_updated": false,
+          "raw_inserted": true,
+          "silver_inserted": true
+        }
+      }
+    ],
+    "deferred_external_source_gap_sample": [
+      {
+        "symbol": "O",
+        "cik": "0000726728",
+        "norm_cik": "0000726728",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "ODFL",
+        "cik": "0000878927",
+        "norm_cik": "0000878927",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "OKE",
+        "cik": "0001039684",
+        "norm_cik": "0001039684",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "OMC",
+        "cik": "0000029989",
+        "norm_cik": "0000029989",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "ON",
+        "cik": "0001097864",
+        "norm_cik": "0001097864",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "ORCL",
+        "cik": "0001341439",
+        "norm_cik": "0001341439",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "ORLY",
+        "cik": "0000898173",
+        "norm_cik": "0000898173",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "OTIS",
+        "cik": "0001781335",
+        "norm_cik": "0001781335",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "OXY",
+        "cik": "0000797468",
+        "norm_cik": "0000797468",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PANW",
+        "cik": "0001327567",
+        "norm_cik": "0001327567",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PAYX",
+        "cik": "0000723531",
+        "norm_cik": "0000723531",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PCAR",
+        "cik": "0000075362",
+        "norm_cik": "0000075362",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PCG",
+        "cik": "0001004980",
+        "norm_cik": "0001004980",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PEG",
+        "cik": "0000788784",
+        "norm_cik": "0000788784",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PFG",
+        "cik": "0001126328",
+        "norm_cik": "0001126328",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PGR",
+        "cik": "0000080661",
+        "norm_cik": "0000080661",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PH",
+        "cik": "0000076334",
+        "norm_cik": "0000076334",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PHM",
+        "cik": "0000822416",
+        "norm_cik": "0000822416",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PKG",
+        "cik": "0000075677",
+        "norm_cik": "0000075677",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PLD",
+        "cik": "0001045609",
+        "norm_cik": "0001045609",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PLTR",
+        "cik": "0001321655",
+        "norm_cik": "0001321655",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PM",
+        "cik": "0001413329",
+        "norm_cik": "0001413329",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PNC",
+        "cik": "0000713676",
+        "norm_cik": "0000713676",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PNR",
+        "cik": "0000077360",
+        "norm_cik": "0000077360",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PNW",
+        "cik": "0000764622",
+        "norm_cik": "0000764622",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PODD",
+        "cik": "0001145197",
+        "norm_cik": "0001145197",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "POOL",
+        "cik": "0000945841",
+        "norm_cik": "0000945841",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PPG",
+        "cik": "0000079879",
+        "norm_cik": "0000079879",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PPL",
+        "cik": "0000922224",
+        "norm_cik": "0000922224",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PRU",
+        "cik": "0001137774",
+        "norm_cik": "0001137774",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PSA",
+        "cik": "0001393311",
+        "norm_cik": "0001393311",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PSKY",
+        "cik": "0002041610",
+        "norm_cik": "0002041610",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PSX",
+        "cik": "0001534701",
+        "norm_cik": "0001534701",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PTC",
+        "cik": "0000857005",
+        "norm_cik": "0000857005",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PWR",
+        "cik": "0001050915",
+        "norm_cik": "0001050915",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "PYPL",
+        "cik": "0001633917",
+        "norm_cik": "0001633917",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "Q",
+        "cik": "0002058873",
+        "norm_cik": "0002058873",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "QCOM",
+        "cik": "0000804328",
+        "norm_cik": "0000804328",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "RCL",
+        "cik": "0000884887",
+        "norm_cik": "0000884887",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      },
+      {
+        "symbol": "REG",
+        "cik": "0000910606",
+        "norm_cik": "0000910606",
+        "class": "no_filing_index_for_cik",
+        "reason": "deferred_repair_cap"
+      }
+    ],
+    "blocked_identity_or_mapping_issue": [],
+    "preflight_unique_targets_count": 187
+  },
+  "silver_facts_materialization_preflight": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "raw_present_no_silver_facts_count": 1,
+    "targets": [
+      {
+        "symbol": "GIS",
+        "cik": "0000040704",
+        "norm_cik": "0000040704",
+        "class": "raw_present_no_silver_facts"
+      }
+    ]
+  },
+  "silver_facts_materialization_repair": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "repair": "silver_facts_materialization",
+    "max_cik_repairs": 10,
+    "cik_repairs_attempted": 1,
+    "actions": [
+      {
+        "cik": "0000040704",
+        "symbol": "GIS",
+        "materialize_silver": {
+          "cik": "0000040704",
+          "accession_count": 1,
+          "silver_inserted": 0,
+          "silver_skipped_existing": 0,
+          "raw_rows_unmapped_to_silver": 14
+        },
+        "classification_before": "raw_present_no_silver_facts",
+        "classification_after": "raw_present_no_silver_facts",
+        "quarter_snapshot_rebuild": {}
+      }
+    ],
+    "preflight": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "raw_present_no_silver_facts_count": 1,
+      "targets": [
+        {
+          "symbol": "GIS",
+          "cik": "0000040704",
+          "norm_cik": "0000040704",
+          "class": "raw_present_no_silver_facts"
+        }
+      ]
+    }
+  },
+  "empty_cik_cleanup": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "repair": "empty_cik_cleanup",
+    "mutating_repairs_applied": [],
+    "deterministic_repairs_applied": [],
+    "report": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "as_of_date": "2026-04-05",
+      "empty_cik_row_count": 1,
+      "diagnoses": [
+        {
+          "symbol": "NWSA",
+          "cik_on_row": "",
+          "norm_cik": "",
+          "diagnosis": "issuer_mapping_gap",
+          "detail": "no_cik_on_issuer_map_for_symbol"
+        }
+      ]
+    },
+    "note": "classification_only_no_automatic_mutations_in_v1"
+  },
+  "downstream_substrate_cascade": {
+    "ok": true,
+    "cik_count": 40,
+    "per_cik": [
+      {
+        "cik": "0000927653",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "4b521201-6aa5-4b20-a0b9-b5b05f926f05",
+          "cik": "0000927653",
+          "ticker": "MCK",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001059556",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "ab25c20f-1d8a-4c55-8fff-1236c03341fb",
+          "cik": "0001059556",
+          "ticker": "MCO",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001103982",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "d1c434f7-5266-4930-82a4-84be8940cdd3",
+          "cik": "0001103982",
+          "ticker": "MDLZ",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001613103",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "177a6131-dcaf-458a-a5d9-3199cd6e6602",
+          "cik": "0001613103",
+          "ticker": "MDT",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001099219",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "f4152791-b9c1-4f5d-9130-915e985b47ea",
+          "cik": "0001099219",
+          "ticker": "MET",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001326801",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "1c84ae3f-2945-4d05-8392-f45b2bfb5f39",
+          "cik": "0001326801",
+          "ticker": "META",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000789570",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "80dd0c75-8744-430f-98be-d3eddd1e798b",
+          "cik": "0000789570",
+          "ticker": "MGM",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000063754",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "5b06eca5-b067-425f-9e30-0c23a306a972",
+          "cik": "0000063754",
+          "ticker": "MKC",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000916076",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "df79cb9d-2119-4313-a40e-37ba15c0c8c5",
+          "cik": "0000916076",
+          "ticker": "MLM",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000066740",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "d4e747ad-37be-4cce-89d0-c1c2a5126322",
+          "cik": "0000066740",
+          "ticker": "MMM",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000865752",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "28fd0a3d-e6ea-4c8a-a931-b432c47e46e7",
+          "cik": "0000865752",
+          "ticker": "MNST",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000764180",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "db97d460-3acd-4941-8502-b0e70c4858a7",
+          "cik": "0000764180",
+          "ticker": "MO",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001285785",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "74f55d25-80e5-4c78-93e2-af7a0dbb1df2",
+          "cik": "0001285785",
+          "ticker": "MOS",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001510295",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "e460954e-d9db-462c-ba7a-8a138893b8a2",
+          "cik": "0001510295",
+          "ticker": "MPC",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001280452",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "93ad8e1a-8261-48a0-a552-73b629b40bbc",
+          "cik": "0001280452",
+          "ticker": "MPWR",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001682852",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "0d92e2e6-31a2-4f30-9c02-d5e287269fc6",
+          "cik": "0001682852",
+          "ticker": "MRNA",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000062709",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "a84855d6-1d83-4f4c-87fd-3e7e57c714a2",
+          "cik": "0000062709",
+          "ticker": "MRSH",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000895421",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "d6a51b0a-5045-49ba-8201-604f17ff35b5",
+          "cik": "0000895421",
+          "ticker": "MS",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001408198",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "26ad3f78-a74e-47fb-9c3c-8f9ffb92b315",
+          "cik": "0001408198",
+          "ticker": "MSCI",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000068505",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "2b12a611-a698-4e7c-b75f-10608cdbca71",
+          "cik": "0000068505",
+          "ticker": "MSI",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000036270",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "7f41f391-2138-411c-847f-cd77529a1c24",
+          "cik": "0000036270",
+          "ticker": "MTB",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001037646",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "b7e0488e-67f7-492b-bee7-82f79807ff76",
+          "cik": "0001037646",
+          "ticker": "MTD",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000723125",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "fb9e0a10-8c46-4cf7-94de-1cd65303f0ad",
+          "cik": "0000723125",
+          "ticker": "MU",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001513761",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "5ecb0b7a-9c16-439f-89e0-fb9bebd99749",
+          "cik": "0001513761",
+          "ticker": "NCLH",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001120193",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "370fcdae-9917-4898-b22e-ac063bda513c",
+          "cik": "0001120193",
+          "ticker": "NDAQ",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000072331",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "d09197d4-079e-40cf-b639-3b37b53e6a73",
+          "cik": "0000072331",
+          "ticker": "NDSN",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000753308",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "3e35d6b9-4707-4e3c-8fae-f4a59f7c013d",
+          "cik": "0000753308",
+          "ticker": "NEE",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001164727",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "7e14fe04-f039-418b-9408-d9a987efe050",
+          "cik": "0001164727",
+          "ticker": "NEM",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001065280",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "cd37c48b-5035-4823-92a0-726e2b61a509",
+          "cik": "0001065280",
+          "ticker": "NFLX",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001111711",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "d3d74bb7-a93a-4a15-b42e-2f22f0a2300f",
+          "cik": "0001111711",
+          "ticker": "NI",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001133421",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "30aee345-1871-4a76-93b5-a1c13e9596b0",
+          "cik": "0001133421",
+          "ticker": "NOC",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001373715",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "5f8d9816-229d-4e6e-a36c-a914854b81c2",
+          "cik": "0001373715",
+          "ticker": "NOW",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001013871",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "56672ec8-18b3-402b-b70d-7a3a7543749f",
+          "cik": "0001013871",
+          "ticker": "NRG",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000702165",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "7c0a631b-856b-4549-bbaa-1253d7991479",
+          "cik": "0000702165",
+          "ticker": "NSC",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001002047",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "ca935c13-7dd2-49f2-bb98-2198b01234d3",
+          "cik": "0001002047",
+          "ticker": "NTAP",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000073124",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "6bcfca05-06e6-4f03-8a15-144745c10bc4",
+          "cik": "0000073124",
+          "ticker": "NTRS",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000073309",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "19b30780-dfb0-49c1-a2eb-24f23b5729a3",
+          "cik": "0000073309",
+          "ticker": "NUE",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0000906163",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "d5a850fe-8690-497a-9f8f-453fd3c7a76e",
+          "cik": "0000906163",
+          "ticker": "NVR",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001564708",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "a4e2b473-21c8-482b-a2f6-f27cb361861f",
+          "cik": "0001564708",
+          "ticker": "NWS",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      },
+      {
+        "cik": "0001413447",
+        "snapshot_repairs": [],
+        "factor_panel": {
+          "run_type": "sec_factor_panel_build",
+          "run_id": "aedc5c0a-7e14-4af4-a635-0ab7f459b216",
+          "cik": "0001413447",
+          "ticker": "NXPI",
+          "status": "completed",
+          "target_count": 0,
+          "success_count": 0,
+          "failure_count": 0,
+          "skipped_existing": 0,
+          "errors": []
+        },
+        "validation_panel": {
+          "skipped": true,
+          "reason": "no_factor_panels"
+        }
+      }
+    ]
+  },
+  "phase31": {
+    "phase31_recommendation": "continue_bounded_sec_substrate_ingest",
+    "rationale": "no_filing_index_for_cik 감소 — 동일 상한·감사로 SEC substrate ingest 반복."
+  }
+}
