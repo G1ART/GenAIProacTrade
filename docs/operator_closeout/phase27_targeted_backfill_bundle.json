@@ -13,9 +13,9 @@
     "degraded_share": 0.0,
     "strong_share": 0.0,
     "usable_with_gaps_share": 0.0,
-    "n_issuer_resolved_cik": 5,
-    "n_issuer_with_factor_panel": 5,
-    "n_issuer_with_state_change_cik": 5,
+    "n_issuer_resolved_cik": 500,
+    "n_issuer_with_factor_panel": 312,
+    "n_issuer_with_state_change_cik": 312,
     "validation_panel_row_count": 312,
     "n_issuer_no_validation_panel_row": 191,
     "n_issuer_with_validation_panel_symbol": 312,
@@ -56,9 +56,9 @@
       "degraded_share": 0.0,
       "strong_share": 0.0,
       "usable_with_gaps_share": 0.0,
-      "n_issuer_resolved_cik": 5,
-      "n_issuer_with_factor_panel": 5,
-      "n_issuer_with_state_change_cik": 5,
+      "n_issuer_resolved_cik": 500,
+      "n_issuer_with_factor_panel": 312,
+      "n_issuer_with_state_change_cik": 312,
       "validation_panel_row_count": 312,
       "n_issuer_no_validation_panel_row": 191,
       "n_issuer_with_validation_panel_symbol": 312,
@@ -169,12 +169,12 @@
       "PYPL"
     ],
     "registry_buckets": {
-      "factor_panel_missing_for_resolved_cik": [
+      "symbol_normalization_mismatch": [
         "FOX",
-        "GIS",
         "GOOG"
       ],
-      "issuer_master_missing_for_resolved_cik": [
+      "factor_panel_missing_for_resolved_cik": [
+        "GIS",
         "MCK",
         "MCO",
         "MDLZ",
@@ -366,8 +366,8 @@
       ]
     },
     "registry_bucket_counts": {
-      "factor_panel_missing_for_resolved_cik": 3,
-      "issuer_master_missing_for_resolved_cik": 188
+      "symbol_normalization_mismatch": 2,
+      "factor_panel_missing_for_resolved_cik": 189
     }
   },
   "market_metadata_gaps": {
@@ -384,9 +384,9 @@
       "degraded_share": 0.0,
       "strong_share": 0.0,
       "usable_with_gaps_share": 0.0,
-      "n_issuer_resolved_cik": 5,
-      "n_issuer_with_factor_panel": 5,
-      "n_issuer_with_state_change_cik": 5,
+      "n_issuer_resolved_cik": 500,
+      "n_issuer_with_factor_panel": 312,
+      "n_issuer_with_state_change_cik": 312,
       "validation_panel_row_count": 312,
       "n_issuer_no_validation_panel_row": 191,
       "n_issuer_with_validation_panel_symbol": 312,
@@ -3161,9 +3161,9 @@
         "degraded_share": 0.0,
         "strong_share": 0.0,
         "usable_with_gaps_share": 0.0,
-        "n_issuer_resolved_cik": 5,
-        "n_issuer_with_factor_panel": 5,
-        "n_issuer_with_state_change_cik": 5,
+        "n_issuer_resolved_cik": 500,
+        "n_issuer_with_factor_panel": 312,
+        "n_issuer_with_state_change_cik": 312,
         "validation_panel_row_count": 312,
         "n_issuer_no_validation_panel_row": 191,
         "n_issuer_with_validation_panel_symbol": 312,
@@ -3344,9 +3344,9 @@
         "degraded_share": 0.0,
         "strong_share": 0.0,
         "usable_with_gaps_share": 0.0,
-        "n_issuer_resolved_cik": 5,
-        "n_issuer_with_factor_panel": 5,
-        "n_issuer_with_state_change_cik": 5,
+        "n_issuer_resolved_cik": 500,
+        "n_issuer_with_factor_panel": 312,
+        "n_issuer_with_state_change_cik": 312,
         "validation_panel_row_count": 312,
         "n_issuer_no_validation_panel_row": 191,
         "n_issuer_with_validation_panel_symbol": 312,
@@ -3373,11 +3373,1490 @@
       }
     }
   },
-  "rerun_readiness": {},
+  "rerun_readiness": {
+    "recommend_rerun_phase15": false,
+    "recommend_rerun_phase16": false,
+    "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+    "universe_name": "sp500_current",
+    "thresholds": {
+      "joined_phase15": 120,
+      "joined_phase16": 144,
+      "thin_share_max_phase15": 0.55,
+      "thin_share_max_phase16": 0.45
+    },
+    "notes": "Phase 15 권고: joined_recipe_substrate_row_count >= joined_phase15 이고 thin_input_share < thin_share_max_phase15. Phase 16은 joined·thin 바가 더 엄격함."
+  },
+  "revalidation_trigger_raw": {
+    "ok": true,
+    "program_id": "45ec4d1a-fd77-4254-9390-462da04d1d11",
+    "universe_name": "sp500_current",
+    "program_quality_context_hint": "thin_input",
+    "substrate_snapshot": {
+      "universe_name": "sp500_current",
+      "as_of_date": "2026-04-05",
+      "n_issuer_universe": 503,
+      "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+      "panel_limit_used": 8000,
+      "state_change_scores_limit_used": 50000,
+      "thin_input_share": 1.0,
+      "degraded_share": 0.0,
+      "strong_share": 0.0,
+      "usable_with_gaps_share": 0.0,
+      "n_issuer_resolved_cik": 500,
+      "n_issuer_with_factor_panel": 312,
+      "n_issuer_with_state_change_cik": 312,
+      "validation_panel_row_count": 312,
+      "n_issuer_no_validation_panel_row": 191,
+      "n_issuer_with_validation_panel_symbol": 312,
+      "n_issuer_with_next_quarter_excess": 251,
+      "validation_join_row_count": 251,
+      "joined_recipe_substrate_row_count": 243,
+      "dominant_exclusion_reasons": [
+        {
+          "reason": "no_validation_panel_for_symbol",
+          "count": 191
+        },
+        {
+          "reason": "missing_excess_return_1q",
+          "count": 61
+        },
+        {
+          "reason": "no_state_change_join",
+          "count": 8
+        }
+      ]
+    },
+    "thresholds": {
+      "joined_phase15": 120,
+      "joined_phase16": 144,
+      "thin_share_max_phase15": 0.55,
+      "thin_share_max_phase16": 0.45
+    },
+    "recommend_rerun_phase15": false,
+    "recommend_rerun_phase16": false,
+    "notes": "Phase 15 권고: joined_recipe_substrate_row_count >= joined_phase15 이고 thin_input_share < thin_share_max_phase15. Phase 16은 joined·thin 바가 더 엄격함."
+  },
+  "registry_gap_rollup": {
+    "registry_blocker_symbol_total": 191,
+    "registry_repair_automation_eligible_count": 2,
+    "registry_upstream_or_pipeline_deferred_count": 189,
+    "per_bucket": {
+      "factor_panel_missing_for_resolved_cik": 189,
+      "issuer_master_missing_for_resolved_cik": 0,
+      "missing_symbol_alias_mapping": 0,
+      "missing_symbol_in_market_symbol_registry": 0,
+      "symbol_normalization_mismatch": 2,
+      "symbol_to_cik_registry_miss": 0,
+      "validation_panel_build_omission_for_cik": 0
+    }
+  },
+  "wiring_warnings": [],
   "phase28": {
     "phase28_recommendation": "continue_targeted_backfill",
     "rationale": "레지스트리·메타·forward·PIT 중 타깃 백필 후보가 남음."
   },
   "production_scoring_boundary_note": "프로덕션 스코어링 경로는 변경하지 않음; Phase 27은 공개·연구 파이프라인 진단·좁은 수리만.",
-  "premium_note": "프리미엄 디스커버리 자동 오픈 없음; 본 패치는 premium 경계를 건드리지 않음."
+  "premium_note": "프리미엄 디스커버리 자동 오픈 없음; 본 패치는 premium 경계를 건드리지 않음.",
+  "repair_closeout": {
+    "validation_registry_repair": {
+      "ok": true,
+      "repair": "validation_registry",
+      "universe_name": "sp500_current",
+      "before": {
+        "missing_validation_symbol_count": 191,
+        "registry_bucket_counts": {
+          "symbol_normalization_mismatch": 2,
+          "factor_panel_missing_for_resolved_cik": 1,
+          "issuer_master_missing_for_resolved_cik": 188
+        }
+      },
+      "after": {
+        "missing_validation_symbol_count": 191,
+        "registry_bucket_counts": {
+          "symbol_normalization_mismatch": 2,
+          "factor_panel_missing_for_resolved_cik": 189
+        },
+        "joined_recipe_substrate_row_count": 243,
+        "n_issuer_with_validation_panel_symbol": 312,
+        "n_issuer_resolved_cik": 500,
+        "n_issuer_with_factor_panel": 312
+      },
+      "repair_actions": [
+        {
+          "symbol": "MCK",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000927653"
+        },
+        {
+          "symbol": "MCO",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001059556"
+        },
+        {
+          "symbol": "MDLZ",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001103982"
+        },
+        {
+          "symbol": "MDT",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001613103"
+        },
+        {
+          "symbol": "MET",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001099219"
+        },
+        {
+          "symbol": "META",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001326801"
+        },
+        {
+          "symbol": "MGM",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000789570"
+        },
+        {
+          "symbol": "MKC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000063754"
+        },
+        {
+          "symbol": "MLM",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000916076"
+        },
+        {
+          "symbol": "MMM",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000066740"
+        },
+        {
+          "symbol": "MNST",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000865752"
+        },
+        {
+          "symbol": "MO",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000764180"
+        },
+        {
+          "symbol": "MOS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001285785"
+        },
+        {
+          "symbol": "MPC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001510295"
+        },
+        {
+          "symbol": "MPWR",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001280452"
+        },
+        {
+          "symbol": "MRNA",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001682852"
+        },
+        {
+          "symbol": "MRSH",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000062709"
+        },
+        {
+          "symbol": "MS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000895421"
+        },
+        {
+          "symbol": "MSCI",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001408198"
+        },
+        {
+          "symbol": "MSI",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000068505"
+        },
+        {
+          "symbol": "MTB",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000036270"
+        },
+        {
+          "symbol": "MTD",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001037646"
+        },
+        {
+          "symbol": "MU",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000723125"
+        },
+        {
+          "symbol": "NCLH",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001513761"
+        },
+        {
+          "symbol": "NDAQ",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001120193"
+        },
+        {
+          "symbol": "NDSN",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000072331"
+        },
+        {
+          "symbol": "NEE",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000753308"
+        },
+        {
+          "symbol": "NEM",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001164727"
+        },
+        {
+          "symbol": "NFLX",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001065280"
+        },
+        {
+          "symbol": "NI",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001111711"
+        },
+        {
+          "symbol": "NOC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001133421"
+        },
+        {
+          "symbol": "NOW",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001373715"
+        },
+        {
+          "symbol": "NRG",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001013871"
+        },
+        {
+          "symbol": "NSC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000702165"
+        },
+        {
+          "symbol": "NTAP",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001002047"
+        },
+        {
+          "symbol": "NTRS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000073124"
+        },
+        {
+          "symbol": "NUE",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000073309"
+        },
+        {
+          "symbol": "NVR",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000906163"
+        },
+        {
+          "symbol": "NWS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001564708"
+        },
+        {
+          "symbol": "NXPI",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001413447"
+        },
+        {
+          "symbol": "O",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000726728"
+        },
+        {
+          "symbol": "ODFL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000878927"
+        },
+        {
+          "symbol": "OKE",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001039684"
+        },
+        {
+          "symbol": "OMC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000029989"
+        },
+        {
+          "symbol": "ON",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001097864"
+        },
+        {
+          "symbol": "ORCL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001341439"
+        },
+        {
+          "symbol": "ORLY",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000898173"
+        },
+        {
+          "symbol": "OTIS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001781335"
+        },
+        {
+          "symbol": "OXY",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000797468"
+        },
+        {
+          "symbol": "PANW",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001327567"
+        },
+        {
+          "symbol": "PAYX",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000723531"
+        },
+        {
+          "symbol": "PCAR",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000075362"
+        },
+        {
+          "symbol": "PCG",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001004980"
+        },
+        {
+          "symbol": "PEG",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000788784"
+        },
+        {
+          "symbol": "PFG",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001126328"
+        },
+        {
+          "symbol": "PGR",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000080661"
+        },
+        {
+          "symbol": "PH",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000076334"
+        },
+        {
+          "symbol": "PHM",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000822416"
+        },
+        {
+          "symbol": "PKG",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000075677"
+        },
+        {
+          "symbol": "PLD",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001045609"
+        },
+        {
+          "symbol": "PLTR",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001321655"
+        },
+        {
+          "symbol": "PM",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001413329"
+        },
+        {
+          "symbol": "PNC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000713676"
+        },
+        {
+          "symbol": "PNR",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000077360"
+        },
+        {
+          "symbol": "PNW",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000764622"
+        },
+        {
+          "symbol": "PODD",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001145197"
+        },
+        {
+          "symbol": "POOL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000945841"
+        },
+        {
+          "symbol": "PPG",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000079879"
+        },
+        {
+          "symbol": "PPL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000922224"
+        },
+        {
+          "symbol": "PRU",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001137774"
+        },
+        {
+          "symbol": "PSA",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001393311"
+        },
+        {
+          "symbol": "PSKY",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0002041610"
+        },
+        {
+          "symbol": "PSX",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001534701"
+        },
+        {
+          "symbol": "PTC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000857005"
+        },
+        {
+          "symbol": "PWR",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001050915"
+        },
+        {
+          "symbol": "PYPL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001633917"
+        },
+        {
+          "symbol": "Q",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0002058873"
+        },
+        {
+          "symbol": "QCOM",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000804328"
+        },
+        {
+          "symbol": "RCL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000884887"
+        },
+        {
+          "symbol": "REG",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000910606"
+        },
+        {
+          "symbol": "REGN",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000872589"
+        },
+        {
+          "symbol": "RF",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001281761"
+        },
+        {
+          "symbol": "RJF",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000720005"
+        },
+        {
+          "symbol": "RL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001037038"
+        },
+        {
+          "symbol": "RMD",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000943819"
+        },
+        {
+          "symbol": "ROK",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001024478"
+        },
+        {
+          "symbol": "ROL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000084839"
+        },
+        {
+          "symbol": "ROP",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000882835"
+        },
+        {
+          "symbol": "ROST",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000745732"
+        },
+        {
+          "symbol": "RSG",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001060391"
+        },
+        {
+          "symbol": "RVTY",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000031791"
+        },
+        {
+          "symbol": "SATS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001415404"
+        },
+        {
+          "symbol": "SBAC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001034054"
+        },
+        {
+          "symbol": "SBUX",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000829224"
+        },
+        {
+          "symbol": "SCHW",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000316709"
+        },
+        {
+          "symbol": "SHW",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000089800"
+        },
+        {
+          "symbol": "SJM",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000091419"
+        },
+        {
+          "symbol": "SLB",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000087347"
+        },
+        {
+          "symbol": "SMCI",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001375365"
+        },
+        {
+          "symbol": "SNA",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000091440"
+        },
+        {
+          "symbol": "SNDK",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0002023554"
+        },
+        {
+          "symbol": "SNPS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000883241"
+        },
+        {
+          "symbol": "SO",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000092122"
+        },
+        {
+          "symbol": "SOLV",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001964738"
+        },
+        {
+          "symbol": "SPG",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001063761"
+        },
+        {
+          "symbol": "SRE",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001032208"
+        },
+        {
+          "symbol": "STE",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001757898"
+        },
+        {
+          "symbol": "STLD",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001022671"
+        },
+        {
+          "symbol": "STT",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000093751"
+        },
+        {
+          "symbol": "STX",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001137789"
+        },
+        {
+          "symbol": "STZ",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000016918"
+        },
+        {
+          "symbol": "SW",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0002005951"
+        },
+        {
+          "symbol": "SWK",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000093556"
+        },
+        {
+          "symbol": "SWKS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000004127"
+        },
+        {
+          "symbol": "SYF",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001601712"
+        },
+        {
+          "symbol": "SYK",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000310764"
+        },
+        {
+          "symbol": "SYY",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000096021"
+        },
+        {
+          "symbol": "T",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000732717"
+        },
+        {
+          "symbol": "TAP",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000024545"
+        },
+        {
+          "symbol": "TDG",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001260221"
+        },
+        {
+          "symbol": "TDY",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001094285"
+        },
+        {
+          "symbol": "TECH",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000842023"
+        },
+        {
+          "symbol": "TEL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001385157"
+        },
+        {
+          "symbol": "TER",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000097210"
+        },
+        {
+          "symbol": "TFC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000092230"
+        },
+        {
+          "symbol": "TGT",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000027419"
+        },
+        {
+          "symbol": "TJX",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000109198"
+        },
+        {
+          "symbol": "TKO",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001973266"
+        },
+        {
+          "symbol": "TMUS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001283699"
+        },
+        {
+          "symbol": "TPL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001811074"
+        },
+        {
+          "symbol": "TPR",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001116132"
+        },
+        {
+          "symbol": "TRGP",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001389170"
+        },
+        {
+          "symbol": "TRMB",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000864749"
+        },
+        {
+          "symbol": "TROW",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001113169"
+        },
+        {
+          "symbol": "TRV",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000086312"
+        },
+        {
+          "symbol": "TSCO",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000916365"
+        },
+        {
+          "symbol": "TSLA",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001318605"
+        },
+        {
+          "symbol": "TSN",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000100493"
+        },
+        {
+          "symbol": "TT",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001466258"
+        },
+        {
+          "symbol": "TTD",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001671933"
+        },
+        {
+          "symbol": "TTWO",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000946581"
+        },
+        {
+          "symbol": "TXN",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000097476"
+        },
+        {
+          "symbol": "TXT",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000217346"
+        },
+        {
+          "symbol": "TYL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000860731"
+        },
+        {
+          "symbol": "UAL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000100517"
+        },
+        {
+          "symbol": "UBER",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001543151"
+        },
+        {
+          "symbol": "UDR",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000074208"
+        },
+        {
+          "symbol": "UHS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000352915"
+        },
+        {
+          "symbol": "ULTA",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001403568"
+        },
+        {
+          "symbol": "UNP",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000100885"
+        },
+        {
+          "symbol": "URI",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001067701"
+        },
+        {
+          "symbol": "USB",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000036104"
+        },
+        {
+          "symbol": "V",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001403161"
+        },
+        {
+          "symbol": "VICI",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001705696"
+        },
+        {
+          "symbol": "VLO",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001035002"
+        },
+        {
+          "symbol": "VLTO",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001967680"
+        },
+        {
+          "symbol": "VMC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001396009"
+        },
+        {
+          "symbol": "VRSK",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001442145"
+        },
+        {
+          "symbol": "VRSN",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001014473"
+        },
+        {
+          "symbol": "VRT",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001674101"
+        },
+        {
+          "symbol": "VRTX",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000875320"
+        },
+        {
+          "symbol": "VST",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001692819"
+        },
+        {
+          "symbol": "VTR",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000740260"
+        },
+        {
+          "symbol": "VTRS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001792044"
+        },
+        {
+          "symbol": "VZ",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000732712"
+        },
+        {
+          "symbol": "WAB",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000943452"
+        },
+        {
+          "symbol": "WAT",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001000697"
+        },
+        {
+          "symbol": "WBD",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001437107"
+        },
+        {
+          "symbol": "WDAY",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001327811"
+        },
+        {
+          "symbol": "WDC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000106040"
+        },
+        {
+          "symbol": "WEC",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000783325"
+        },
+        {
+          "symbol": "WELL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000766704"
+        },
+        {
+          "symbol": "WM",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000823768"
+        },
+        {
+          "symbol": "WMB",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000107263"
+        },
+        {
+          "symbol": "WRB",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000011544"
+        },
+        {
+          "symbol": "WSM",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000719955"
+        },
+        {
+          "symbol": "WST",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000105770"
+        },
+        {
+          "symbol": "WTW",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001140536"
+        },
+        {
+          "symbol": "WY",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000106535"
+        },
+        {
+          "symbol": "WYNN",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001174922"
+        },
+        {
+          "symbol": "XEL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000072903"
+        },
+        {
+          "symbol": "XYL",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001524472"
+        },
+        {
+          "symbol": "XYZ",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001512673"
+        },
+        {
+          "symbol": "YUM",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001041061"
+        },
+        {
+          "symbol": "ZBH",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001136869"
+        },
+        {
+          "symbol": "ZBRA",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0000877212"
+        },
+        {
+          "symbol": "ZTS",
+          "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+          "cik": "0001555280"
+        }
+      ],
+      "blocked_actions": [
+        {
+          "symbol": "FOX",
+          "kind": "deferred_symbol_normalization_mismatch",
+          "detail": "requires_validation_build_under_canonical_ticker"
+        },
+        {
+          "symbol": "GOOG",
+          "kind": "deferred_symbol_normalization_mismatch",
+          "detail": "requires_validation_build_under_canonical_ticker"
+        },
+        {
+          "symbol": "GIS",
+          "cik": "0000040704",
+          "kind": "repair_blocked_requires_factor_pipeline_or_accession_ingest"
+        }
+      ],
+      "deferred_actions": [
+        {
+          "symbol": "NWSA",
+          "cik": "0001564708",
+          "kind": "skipped_issuer_row_now_present_after_reverify"
+        }
+      ]
+    },
+    "market_metadata_hydration": {
+      "ok": true,
+      "repair": "market_metadata_hydration",
+      "universe_name": "sp500_current",
+      "before": {
+        "joined_market_metadata_flagged_count": 243
+      },
+      "after": {
+        "joined_market_metadata_flagged_count": 243
+      },
+      "hydration": {
+        "status": "completed",
+        "rows_upserted": 0,
+        "symbols_requested": 243,
+        "provider": "yahoo_chart"
+      },
+      "symbols_touched": [
+        "ABBV",
+        "ABNB",
+        "ABT",
+        "ACGL",
+        "ADM",
+        "AEE",
+        "AEP",
+        "AES",
+        "AFL",
+        "AIG",
+        "AIZ",
+        "AJG",
+        "AKAM",
+        "ALB",
+        "ALGN",
+        "ALL",
+        "ALLE",
+        "AMD",
+        "AME",
+        "AMGN",
+        "AMP",
+        "AMT",
+        "AMZN",
+        "ANET",
+        "AON",
+        "AOS",
+        "APA",
+        "APH",
+        "APO",
+        "APP",
+        "APTV",
+        "ARE",
+        "ARES",
+        "AVB",
+        "AVY",
+        "AWK",
+        "AXON",
+        "AXP",
+        "BA",
+        "BAC",
+        "BALL",
+        "BAX",
+        "BG",
+        "BIIB",
+        "BK",
+        "BKNG",
+        "BKR",
+        "BLDR",
+        "BLK",
+        "BMY",
+        "BRO",
+        "BSX",
+        "BX",
+        "BXP",
+        "C",
+        "CARR",
+        "CAT",
+        "CB",
+        "CBOE",
+        "CBRE",
+        "CCI",
+        "CDNS",
+        "CDW",
+        "CEG",
+        "CF",
+        "CFG",
+        "CHD",
+        "CHRW",
+        "CHTR",
+        "CI",
+        "CINF",
+        "CL",
+        "CMCSA",
+        "CME",
+        "CMG",
+        "CMI",
+        "CMS",
+        "CNC",
+        "CNP",
+        "COF",
+        "COIN",
+        "COP",
+        "CPAY",
+        "CPT",
+        "CRH",
+        "CRL",
+        "CSGP",
+        "CSX",
+        "CTRA",
+        "CTSH",
+        "CTVA",
+        "CVNA",
+        "CVS",
+        "CVX",
+        "D",
+        "DAL",
+        "DASH",
+        "DD",
+        "DDOG",
+        "DG",
+        "DGX",
+        "DHR",
+        "DLR",
+        "DLTR",
+        "DOC",
+        "DOV",
+        "DOW",
+        "DPZ",
+        "DTE",
+        "DVA",
+        "DVN",
+        "DXCM",
+        "EBAY",
+        "ECL",
+        "ED",
+        "EFX",
+        "EG",
+        "EIX",
+        "ELV",
+        "EME",
+        "EOG",
+        "EPAM",
+        "EQIX",
+        "EQR",
+        "EQT",
+        "ERIE",
+        "ES",
+        "ESS",
+        "ETN",
+        "ETR",
+        "EVRG",
+        "EW",
+        "EXC",
+        "EXE",
+        "EXPD",
+        "EXPE",
+        "EXR",
+        "F",
+        "FANG",
+        "FAST",
+        "FCX",
+        "FE",
+        "FIS",
+        "FISV",
+        "FITB",
+        "FIX",
+        "FRT",
+        "FSLR",
+        "FTNT",
+        "FTV",
+        "GD",
+        "GDDY",
+        "GE",
+        "GEHC",
+        "GEV",
+        "GILD",
+        "GL",
+        "GLW",
+        "GM",
+        "GNRC",
+        "GOOGL",
+        "GPC",
+        "GPN",
+        "GRMN",
+        "GS",
+        "GWW",
+        "HAL",
+        "HAS",
+        "HBAN",
+        "HCA",
+        "HD",
+        "HIG",
+        "HII",
+        "HLT",
+        "HON",
+        "HOOD",
+        "HSIC",
+        "HST",
+        "HSY",
+        "HUBB",
+        "HUM",
+        "HWM",
+        "IBKR",
+        "IBM",
+        "ICE",
+        "IDXX",
+        "IEX",
+        "IFF",
+        "INCY",
+        "INTC",
+        "INVH",
+        "IP",
+        "IQV",
+        "IR",
+        "IRM",
+        "ISRG",
+        "IT",
+        "ITW",
+        "IVZ",
+        "JBHT",
+        "JNJ",
+        "JPM",
+        "KDP",
+        "KEY",
+        "KHC",
+        "KIM",
+        "KKR",
+        "KMB",
+        "KMI",
+        "KO",
+        "KR",
+        "KVUE",
+        "L",
+        "LDOS",
+        "LEN",
+        "LH",
+        "LHX",
+        "LII",
+        "LIN",
+        "LLY",
+        "LMT",
+        "LNT",
+        "LOW",
+        "LULU",
+        "LUV",
+        "LVS",
+        "LYB",
+        "LYV",
+        "MA",
+        "MAA",
+        "MAR",
+        "MAS",
+        "MCD",
+        "MRK",
+        "PEP",
+        "PFE",
+        "RTX",
+        "SPGI",
+        "TMO",
+        "UNH",
+        "UPS",
+        "WFC",
+        "XOM"
+      ]
+    },
+    "forward_backfill": {
+      "ok": true,
+      "repair": "forward_return_backfill",
+      "universe_name": "sp500_current",
+      "before": {
+        "missing_excess_return_1q_exclusion_rows": 61,
+        "forward_row_reason_counts": {
+          "no_forward_row_next_quarter": 61
+        }
+      },
+      "after": {
+        "missing_excess_return_1q_exclusion_rows": 61,
+        "forward_row_reason_counts": {
+          "no_forward_row_next_quarter": 61
+        }
+      },
+      "repaired_panel_input_rows": 61,
+      "build_result": {
+        "status": "completed",
+        "panels_seen": 61,
+        "success_operations": 43,
+        "failures": 79,
+        "error_sample": [
+          {
+            "symbol": "APD",
+            "signal_date": "2026-02-02",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "ADI",
+            "signal_date": "2026-02-19",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "AMAT",
+            "signal_date": "2026-02-20",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "ADP",
+            "signal_date": "2026-01-30",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "BDX",
+            "signal_date": "2026-02-10",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "BF.B",
+            "signal_date": "2026-03-05",
+            "horizon": "next_month",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "BF.B",
+            "signal_date": "2026-03-05",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "CPB",
+            "signal_date": "2026-03-12",
+            "horizon": "next_month",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "CPB",
+            "signal_date": "2026-03-12",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "CLX",
+            "signal_date": "2026-02-04",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "CAG",
+            "signal_date": "2026-04-02",
+            "horizon": "next_month",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "CAG",
+            "signal_date": "2026-04-02",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "EMR",
+            "signal_date": "2026-02-04",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "BEN",
+            "signal_date": "2026-02-02",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "HPQ",
+            "signal_date": "2026-02-25",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "HRL",
+            "signal_date": "2026-02-27",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "J",
+            "signal_date": "2026-02-04",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "PG",
+            "signal_date": "2026-01-23",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "DE",
+            "signal_date": "2026-02-27",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          },
+          {
+            "symbol": "KLAC",
+            "signal_date": "2026-02-02",
+            "horizon": "next_quarter",
+            "error": "insufficient_price_history"
+          }
+        ],
+        "skipped": false
+      },
+      "tradeoffs": {
+        "primary_improved": false,
+        "primary_metric": "missing_excess_return_1q",
+        "secondary_metrics_worsened": [],
+        "silent_degradation": false
+      }
+    }
+  }
 }

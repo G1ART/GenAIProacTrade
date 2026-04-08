@@ -4454,11 +4454,129 @@ def _cmd_write_phase27_targeted_backfill_review(args: argparse.Namespace) -> int
         )
     print(
         json_lib.dumps(
-            {"ok": True, "wrote": str(outp), "phase28": bundle.get("phase28")},
+            {
+                "ok": True,
+                "wrote": str(outp),
+                "phase28": bundle.get("phase28"),
+                "wiring_warnings": bundle.get("wiring_warnings"),
+                "registry_gap_rollup": bundle.get("registry_gap_rollup"),
+            },
             indent=2,
             ensure_ascii=False,
         )
     )
+    return 0
+
+
+def _cmd_run_targeted_backfill_repair_and_review(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from targeted_backfill.repair_closeout import run_targeted_backfill_repair_and_review
+
+    settings = load_settings()
+    configure_logging()
+    out = run_targeted_backfill_repair_and_review(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        program_id_raw=str(getattr(args, "program_id", "") or "").strip() or None,
+        review_out=str(args.out),
+        bundle_out=str(getattr(args, "bundle_out", "") or "").strip() or None,
+        repair_forward=bool(getattr(args, "repair_forward", False)),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_factor_panel_materialization_gaps(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase28.factor_materialization import report_factor_panel_materialization_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_factor_panel_materialization_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_factor_panel_materialization_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from phase28.factor_materialization import run_factor_panel_materialization_repair
+
+    settings = load_settings()
+    configure_logging()
+    out = run_factor_panel_materialization_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        max_factor_cik_repairs=int(getattr(args, "max_factor_cik_repairs", 40)),
+        max_validation_cik_repairs=int(getattr(args, "max_validation_cik_repairs", 40)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase28_provider_metadata_and_panel_repair(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase28.orchestrator import run_phase28_provider_metadata_and_panel_repair
+    from phase28.review import write_phase28_provider_metadata_review_md
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase28_provider_metadata_and_panel_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+        max_factor_cik_repairs=int(getattr(args, "max_factor_cik_repairs", 40)),
+        max_validation_cik_repairs=int(getattr(args, "max_validation_cik_repairs", 40)),
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        Path(bo).write_text(
+            json_lib.dumps(out, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase28_provider_metadata_review_md(md, bundle=out)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase28_provider_metadata_review(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase28.review import write_phase28_provider_metadata_review_md
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "--bundle-in required"},
+                indent=2,
+            ),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    path = write_phase28_provider_metadata_review_md(
+        str(args.out),
+        bundle=bundle,
+    )
+    print(json_lib.dumps({"ok": True, "wrote": path}, indent=2, ensure_ascii=False))
     return 0
 
 
@@ -6617,6 +6735,104 @@ def build_parser() -> argparse.ArgumentParser:
         help="증거 번들 JSON 경로(선택)",
     )
     p27w.set_defaults(func=_cmd_write_phase27_targeted_backfill_review)
+
+    p27o = sub.add_parser(
+        "run-targeted-backfill-repair-and-review",
+        parents=[p27],
+        help="Phase 27.5: registry+metadata 수리(선택 forward) 후 리뷰·번들 재생성",
+    )
+    p27o.add_argument(
+        "--out",
+        default="docs/operator_closeout/phase27_targeted_backfill_review.md",
+        dest="out",
+    )
+    p27o.add_argument(
+        "--bundle-out",
+        default="",
+        dest="bundle_out",
+        help="번들 JSON 경로(비우면 JSON 생략)",
+    )
+    p27o.add_argument(
+        "--repair-forward",
+        action="store_true",
+        dest="repair_forward",
+        help="substrate forward backfill repair 포함",
+    )
+    p27o.set_defaults(func=_cmd_run_targeted_backfill_repair_and_review)
+
+    p28fg = sub.add_parser(
+        "report-factor-panel-materialization-gaps",
+        parents=[p27],
+        help="Phase 28: factor/validation 물질화 세분(스냅샷·패널 기준)",
+    )
+    p28fg.set_defaults(func=_cmd_report_factor_panel_materialization_gaps)
+
+    p28fr = sub.add_parser(
+        "run-factor-panel-materialization-repair",
+        parents=[p27],
+        help="Phase 28: factor 패널 빌드 + validation-only 빌드(상한)",
+    )
+    p28fr.add_argument(
+        "--max-factor-cik-repairs",
+        type=int,
+        default=40,
+        dest="max_factor_cik_repairs",
+    )
+    p28fr.add_argument(
+        "--max-validation-cik-repairs",
+        type=int,
+        default=40,
+        dest="max_validation_cik_repairs",
+    )
+    p28fr.set_defaults(func=_cmd_run_factor_panel_materialization_repair)
+
+    p28run = sub.add_parser(
+        "run-phase28-provider-metadata-and-panel-repair",
+        parents=[p27],
+        help="Phase 28: 메타 수화 + 팩터/검증 물질화 수리(오케스트레이션)",
+    )
+    p28run.add_argument(
+        "--max-factor-cik-repairs",
+        type=int,
+        default=40,
+        dest="max_factor_cik_repairs",
+    )
+    p28run.add_argument(
+        "--max-validation-cik-repairs",
+        type=int,
+        default=40,
+        dest="max_validation_cik_repairs",
+    )
+    p28run.add_argument(
+        "--out-md",
+        default="",
+        dest="out_md",
+        help="리뷰 Markdown 경로(비우면 생략)",
+    )
+    p28run.add_argument(
+        "--bundle-out",
+        default="",
+        dest="bundle_out",
+        help="번들 JSON 경로(비우면 생략)",
+    )
+    p28run.set_defaults(func=_cmd_run_phase28_provider_metadata_and_panel_repair)
+
+    p28w = sub.add_parser(
+        "write-phase28-provider-metadata-review",
+        help="Phase 28: 번들 JSON → phase28_provider_metadata_and_factor_panel_review.md",
+    )
+    p28w.add_argument(
+        "--bundle-in",
+        required=True,
+        dest="bundle_in",
+        help="run-phase28-provider-metadata-and-panel-repair 가 쓴 JSON",
+    )
+    p28w.add_argument(
+        "--out",
+        default="docs/operator_closeout/phase28_provider_metadata_and_factor_panel_review.md",
+        dest="out",
+    )
+    p28w.set_defaults(func=_cmd_write_phase28_provider_metadata_review)
 
     p24c = sub.add_parser(
         "advance-public-first-cycle",

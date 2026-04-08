@@ -284,8 +284,8 @@ def fetch_cik_map_for_tickers(client: Client, tickers: list[str]) -> dict[str, O
         for row in r.data or []:
             t = str(row.get("ticker") or "").upper().strip()
             cik = row.get("cik")
-        if t:
-            out[t] = str(cik) if cik is not None else None
+            if t:
+                out[t] = str(cik) if cik is not None else None
     return out
 
 

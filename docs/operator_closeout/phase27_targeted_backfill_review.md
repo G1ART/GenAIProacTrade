@@ -1,14 +1,21 @@
 # Phase 27 targeted backfill review
 
-- 생성 시각(UTC): `2026-04-07T22:35:03.662513+00:00`
+- 생성 시각(UTC): `2026-04-07T23:48:39.549776+00:00`
 - 유니버스: `sp500_current`
+- 시맨틱: `repair_and_review_closeout` — `write-phase27-targeted-backfill-review`는 **review-only**; 수리까지 포함하려면 **`run-targeted-backfill-repair-and-review`**.
+
+## 0) Registry gap rollup (Phase 28·집계)
+
+- registry_blocker_symbol_total: `191`
+- registry_repair_automation_eligible_count: `2`
+- registry_upstream_or_pipeline_deferred_count: `189`
 
 ## 1) 검증 미스 중 레지스트리·별칭 이슈
 
 레지스트리 버킷 카운트(미해결 검증 패널 심볼 기준):
 
-- `issuer_master_missing_for_resolved_cik`: 188
-- `factor_panel_missing_for_resolved_cik`: 3
+- `factor_panel_missing_for_resolved_cik`: 189
+- `symbol_normalization_mismatch`: 2
 
 ## 2) 조인 행이 메타데이터에만 막힌 규모
 
@@ -51,8 +58,12 @@ _수리 전후 델타는 운영자가 `run-validation-registry-repair` / `run-ma
 
 ### Rerun 게이트(참고)
 
-- recommend_rerun_phase15: `None`
-- recommend_rerun_phase16: `None`
+- recommend_rerun_phase15: `False`
+- recommend_rerun_phase16: `False`
+
+### Wiring warnings
+
+- (없음)
 
 ## 경계
 

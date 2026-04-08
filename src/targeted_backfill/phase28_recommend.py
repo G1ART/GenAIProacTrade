@@ -17,7 +17,7 @@ def recommend_phase28_branch(
     true_repairable_forward: int,
     joined_metadata_flagged: int,
     pit_backfill_candidates: int,
-    registry_alias_or_missing_count: int,
+    registry_blocker_total_count: int,
     thin_input_share_after: float | None,
 ) -> dict[str, Any]:
     if recommend_rerun_phase15 or recommend_rerun_phase16:
@@ -29,7 +29,7 @@ def recommend_phase28_branch(
         true_repairable_forward > 0
         or joined_metadata_flagged > 0
         or pit_backfill_candidates > 0
-        or registry_alias_or_missing_count > 0
+        or registry_blocker_total_count > 0
     ):
         return {
             "phase28_recommendation": PHASE28_CONTINUE_BACKFILL,

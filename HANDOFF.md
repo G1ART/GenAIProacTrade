@@ -1,4 +1,33 @@
+# HANDOFF — Phase 28 (Provider metadata & factor panel materialization)
+
+## 현재 제품 위치
+
+- **Phase 28**: Yahoo chart로 **`fetch_market_metadata`** 가 `avg_daily_volume`·`as_of_date`·`exchange` 를 채운다. **`run_market_metadata_hydration_for_symbols` / `run_market_metadata_refresh`** 는 `provider_rows_returned`, `rows_upserted`, `rows_already_current`, `rows_missing_after_requery` 를 반환하며, 프로바이더가 **0행**이면 **`status=blocked`**, `blocked_reason=provider_returned_zero_metadata_rows` (stub은 메타 행을 주므로 차단 아님).
+- **팩터 물질화**: `report-factor-panel-materialization-gaps` → 스냅샷 없음 / 스냅샷만 있고 factor 없음 / factor 있는데 validation 누락 등으로 세분. `run-factor-panel-materialization-repair` 는 CIK당 상한으로 `run_factor_panels_for_cik` + `run_validation_panel_build_from_rows` 호출.
+- **오케스트레이션**: `run-phase28-provider-metadata-and-panel-repair` (`--out-md`, `--bundle-out`, `--max-factor-cik-repairs`, `--max-validation-cik-repairs`). MD만 번들에서: `write-phase28-provider-metadata-review --bundle-in …`.
+- **코드**: `src/phase28/`, `src/market/providers/yahoo_chart_provider.py`, `src/market/price_ingest.py`.
+- **테스트**: `pytest src/tests/test_phase28_provider_metadata_and_factor_panel.py -q`
+- **패치·증거**: `docs/phase28_patch_report.md`, `docs/phase28_evidence.md` (리뷰에 넘길 문건 목록은 evidence 하단 표 참고)
+
+---
+
 # HANDOFF — Phase 27 (Targeted backfill: registry, metadata, maturity, PIT)
+
+## Phase 27.5 hotfix (2026, 계측·wiring·수리 범위)
+
+1. **`fetch_cik_map_for_tickers`**: `out[t]=...` 대입이 `for row in r.data` **루프 안**에 있도록 수정. 이전에는 청크당 마지막 행만 반영되어 `n_issuer_resolved_cik` 등이 비정상적으로 작아질 수 있었음.
+2. **`rerun_readiness`**: `build_revalidation_trigger`는 **최상위**에 `recommend_rerun_phase15`/`16`을 둠. 번들은 `_extract_rerun_readiness`로 채우며, 비정상 시 `wiring_warnings`에 명시(침묵 실패 금지).
+3. **Phase 28 집계**: `registry_gap_rollup` — `issuer_master_missing_for_resolved_cik` 등 전 버킷 합산 `registry_blocker_symbol_total`; 자동 수리 후보 vs 상류/파이프라인 지연 분리.
+4. **`run-validation-registry-repair`**: `symbol_to_cik_registry_miss`(멤버십 CIK로 registry upsert), `issuer_master_missing…`(멤버십·registry CIK 정합 시 `issuer_master` upsert), `factor_panel_missing…`(재검증 후 blocked/deferred), norm mismatch·validation omission은 **blocked** 명시. `blocked_actions` / `deferred_actions` 항상 반환.
+5. **시맨틱**: `write-phase27-targeted-backfill-review` = **review-only**. 수리+리뷰 한 번에: **`run-targeted-backfill-repair-and-review`** (`--repair-forward` 선택, `--bundle-out` 선택).
+6. **핫픽스 후**에만 Phase 28 분기를 신뢰 — 번들·리뷰의 `n_issuer_resolved_cik`·rerun bool·`phase28`를 재확인.
+
+### Phase 27.5 클로즈아웃 (재생성 번들, 2026-04-07 UTC)
+
+- **패치 보고**: `docs/phase27_5_hotfix_patch_report.md`
+- **실측 증거**: `docs/phase27_5_hotfix_evidence.md`
+- **핵심 숫자**: `n_issuer_resolved_cik=313`, `n_issuer_with_factor_panel=312`, `wiring_warnings=[]`, rerun15/16 **bool false**, `registry_blocker_symbol_total=191`, **`phase28_recommendation=continue_targeted_backfill`**
+- **다음 권고**: 제네릭 스프린트가 아니라 **타깃 백필 실행**(`run-validation-registry-repair` / `run-market-metadata-hydration-repair` 또는 `run-targeted-backfill-repair-and-review`) 후 동일 리뷰로 델타 확인. Rerun 15/16은 thin 게이트로 아직 닫힘.
 
 ## 현재 제품 위치
 
@@ -8,14 +37,24 @@
   - `report-market-metadata-gap-drivers` / `run-market-metadata-hydration-repair` / `export-market-metadata-gap-rows`  
   - `report-forward-gap-maturity` / `export-forward-gap-maturity-buckets` (`--eval-date` 선택)  
   - `report-state-change-pit-gaps` / `export-state-change-pit-gap-rows` / `run-state-change-history-backfill-repair` (`--history-backfill-days`, `--state-change-limit`)  
-  - `write-phase27-targeted-backfill-review` → `docs/operator_closeout/phase27_targeted_backfill_review.md` (선택 `--bundle-out` JSON)
-- **코드**: `src/targeted_backfill/`, `db.records`(레지스트리·메타·멤버십 배치 조회), `market.price_ingest.run_market_metadata_hydration_for_symbols`.
+  - `write-phase27-targeted-backfill-review` → **review-only** → `docs/operator_closeout/phase27_targeted_backfill_review.md` (선택 `--bundle-out` JSON)  
+  - `run-targeted-backfill-repair-and-review` → registry+metadata 수리 후 동일 리뷰·번들 (`--repair-forward`, `--out`, `--bundle-out`)  
+  - **Phase 28** (동일 `--universe` 등): `report-factor-panel-materialization-gaps` / `run-factor-panel-materialization-repair` / `run-phase28-provider-metadata-and-panel-repair` / `write-phase28-provider-metadata-review`
+- **코드**: `src/targeted_backfill/`, `src/phase28/`, `db.records`(레지스트리·메타·멤버십 배치 조회), `market.price_ingest.run_market_metadata_hydration_for_symbols`.
 - **실측 수치**: 저장소만으로 고정 숫자 없음 — 운영자가 위 report/export 및 리뷰 작성으로 **증거·수리 후 블로커 카운트**를 채운다.
 - **Phase 28 권고(정확히 하나)**: 번들/stdout의 `phase28` — `rerun_phase15_16_now_open` \| `continue_targeted_backfill` \| `quality_policy_review_needed` \| `public_first_plateau_without_quality_unlock`.
 
 ## 검증·테스트 (로컬)
 
 - `pytest src/tests/test_phase27_targeted_backfill.py -q`
+- `pytest src/tests/test_phase27_5_hotfix.py -q`
+
+## 패치 보고·증거
+
+- `docs/phase27_patch_report.md` (본패치 + 27.5 요약 절)
+- `docs/phase27_evidence.md` — Phase 27 재현·선택 수리
+- **27.5 hotfix**: `docs/phase27_5_hotfix_patch_report.md`, `docs/phase27_5_hotfix_evidence.md`
+- 번들·리뷰: `docs/operator_closeout/phase27_targeted_backfill_review.md`, `phase27_targeted_backfill_bundle.json`
 
 ---
 
@@ -91,7 +130,7 @@
 ## 검증·테스트 (로컬)
 
 - `pytest src/tests/test_phase24_public_first.py -q`
-- 전체: `pytest src/tests -q` — **337 passed** (Phase 27 포함)
+- 전체: `pytest src/tests -q` — **351 passed** (Phase 28 포함)
 
 ## 관측 분포·정책 자세 (2026-04-07, `sp500_current`, Phase 23 클로즈아웃 직후 맥락)
 
@@ -131,7 +170,7 @@
 ## 검증·테스트 (로컬)
 
 - `pytest src/tests/test_phase23_operator_closeout.py -q`
-- 전체: `pytest src/tests -q` — **337 passed** (Phase 27 포함) (Phase 24 포함; 외부 `edgar` DeprecationWarning만)
+- 전체: `pytest src/tests -q` — **351 passed** (Phase 28 포함) (Phase 24 포함; 외부 `edgar` DeprecationWarning만)
 
 ## 검증·운영 스냅샷 (2026-04-07, `sp500_current`, 원 커맨드 클로즈아웃)
 
@@ -178,14 +217,14 @@
 ## 검증·테스트 (로컬)
 
 - `pytest src/tests/test_phase22_public_depth_iteration.py -q` — **15 passed**
-- `pytest src/tests -q` — **337 passed** (Phase 27까지; 외부 `edgar` DeprecationWarning 3건)
+- `pytest src/tests -q` — **351 passed** (Phase 28까지; 외부 `edgar` DeprecationWarning 3건)
 
 ## 검증·운영 스냅샷 (2026-04-01, 시리즈 브리프 + 전체 테스트 클로징)
 
 | 항목 | 결과 |
 |------|------|
 | `pytest src/tests/test_phase22_public_depth_iteration.py -q` | **15 passed** |
-| `PYTHONPATH=src pytest src/tests -q` | **337 passed** (Phase 27까지); 경고 **3건**은 `edgar` 패키지 deprecation(테스트 실패 아님) |
+| `PYTHONPATH=src pytest src/tests -q` | **351 passed** (Phase 28까지); 경고 **3건**은 `edgar` 패키지 deprecation(테스트 실패 아님) |
 | Supabase `20250425100000_phase22_public_depth_iteration.sql` | 대상 프로젝트에 적용했다면 `smoke-phase22-public-depth-iteration`으로 REST/스키마 확인 |
 | 시리즈 브리프 | `report-latest-repair-state --program-id latest --universe <U> --active-series-id-only`로 얻은 UUID로 `export-public-depth-series-brief --series-id … --out …` 실행 완료 시 증거 체인 완료 |
 | 증거 상세 | `docs/phase22_evidence.md` |

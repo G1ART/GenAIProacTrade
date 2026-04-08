@@ -184,8 +184,63 @@ class YahooChartMarketProvider(MarketDataProvider):
         return all_bars
 
     def fetch_market_metadata(self, symbols: Sequence[str]) -> list[MarketMetadataRow]:
-        """Chart API만으로는 메타가 제한적 — 빈 리스트(MVP)."""
-        return []
+        """
+        일봉 차트(약 60거래일)로 평균 거래량·최종 as_of_date·거래소 메타를 채운다.
+        시총 등은 미제공(None). HTTP 실패·빈 차트 심볼은 건너뜀.
+        """
+        end_d = date.today()
+        start_d = end_d - timedelta(days=75)
+        p1 = int(
+            datetime.combine(start_d, datetime.min.time())
+            .replace(tzinfo=timezone.utc)
+            .timestamp()
+        )
+        p2 = int(
+            datetime.combine(end_d + timedelta(days=1), datetime.min.time())
+            .replace(tzinfo=timezone.utc)
+            .timestamp()
+        )
+        out: list[MarketMetadataRow] = []
+        for sym in symbols:
+            u = sym.upper().strip()
+            if not u:
+                continue
+            url = (
+                f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.request.quote(u)}"
+                f"?period1={p1}&period2={p2}&interval=1d"
+            )
+            try:
+                payload = _http_get_json(url)
+            except (urllib.error.URLError, json.JSONDecodeError, OSError) as e:
+                logger.warning("yahoo chart metadata 실패 %s: %s", u, e)
+                continue
+            bars = _parse_yahoo_chart(u, payload)
+            if not bars:
+                continue
+            vols = [b.volume for b in bars if b.volume is not None]
+            avg_v = float(sum(vols)) / len(vols) if vols else None
+            last = bars[-1]
+            r0 = (payload.get("chart") or {}).get("result") or [{}]
+            meta_extra = (r0[0].get("meta") if r0 else None) or {}
+            exch = meta_extra.get("exchangeName") or meta_extra.get("fullExchangeName")
+            out.append(
+                MarketMetadataRow(
+                    symbol=u,
+                    as_of_date=last.trade_date,
+                    market_cap=None,
+                    shares_outstanding=None,
+                    avg_daily_volume=avg_v,
+                    exchange=str(exch) if exch else None,
+                    sector=None,
+                    industry=None,
+                    raw_payload={
+                        "yahoo_chart_metadata": True,
+                        "bars_returned": len(bars),
+                        "meta": meta_extra,
+                    },
+                )
+            )
+        return out
 
     def fetch_index_constituents(self, index_name: str) -> list[ConstituentRow]:
         if index_name != "sp500_current":

@@ -130,7 +130,7 @@ def test_phase28_rerun_gate() -> None:
         true_repairable_forward=0,
         joined_metadata_flagged=0,
         pit_backfill_candidates=0,
-        registry_alias_or_missing_count=0,
+        registry_blocker_total_count=0,
         thin_input_share_after=1.0,
     )
     assert r["phase28_recommendation"] == PHASE28_RERUN_15_16
@@ -143,7 +143,7 @@ def test_phase28_continue_backfill() -> None:
         true_repairable_forward=3,
         joined_metadata_flagged=0,
         pit_backfill_candidates=0,
-        registry_alias_or_missing_count=0,
+        registry_blocker_total_count=0,
         thin_input_share_after=1.0,
     )
     assert r["phase28_recommendation"] == PHASE28_CONTINUE_BACKFILL
@@ -156,7 +156,7 @@ def test_phase28_quality_when_thin_persists() -> None:
         true_repairable_forward=0,
         joined_metadata_flagged=0,
         pit_backfill_candidates=0,
-        registry_alias_or_missing_count=0,
+        registry_blocker_total_count=0,
         thin_input_share_after=1.0,
     )
     assert r["phase28_recommendation"] == PHASE28_QUALITY
@@ -179,6 +179,7 @@ def test_targeted_backfill_no_premium_or_production_wiring() -> None:
         "targeted_backfill.state_change_pit",
         "targeted_backfill.review",
         "targeted_backfill.phase28_recommend",
+        "targeted_backfill.repair_closeout",
     ):
         m = importlib.import_module(mod_name)
         src = inspect.getsource(m)

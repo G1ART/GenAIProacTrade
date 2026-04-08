@@ -13,7 +13,10 @@ from targeted_backfill.forward_maturity import report_forward_gap_maturity
 from targeted_backfill.market_metadata_gaps import report_market_metadata_gap_drivers
 from targeted_backfill.phase28_recommend import recommend_phase28_branch
 from targeted_backfill.state_change_pit import report_state_change_pit_gaps
-from targeted_backfill.validation_registry import report_validation_registry_gaps
+from targeted_backfill.validation_registry import (
+    registry_gap_rollup_for_bundle,
+    report_validation_registry_gaps,
+)
 
 
 def _f(x: Any) -> str:
@@ -22,6 +25,29 @@ def _f(x: Any) -> str:
     if isinstance(x, float):
         return f"{x:.6f}".rstrip("0").rstrip(".")
     return str(x)
+
+
+def _extract_rerun_readiness(rerun: dict[str, Any]) -> dict[str, Any]:
+    """
+    `build_revalidation_trigger`는 최상위에 recommend_* 를 둔다.
+    과거 오류: rerun_readiness 중첩 키를 가정해 빈 dict 가 되던 케이스.
+    """
+    if isinstance(rerun.get("rerun_readiness"), dict):
+        return dict(rerun["rerun_readiness"])
+    if rerun.get("ok"):
+        return {
+            k: rerun[k]
+            for k in (
+                "recommend_rerun_phase15",
+                "recommend_rerun_phase16",
+                "program_id",
+                "universe_name",
+                "thresholds",
+                "notes",
+            )
+            if k in rerun
+        }
+    return {}
 
 
 def build_phase27_evidence_bundle(
@@ -60,11 +86,18 @@ def build_phase27_evidence_bundle(
         if pid
         else {"ok": False, "skipped": True, "reason": "program_id_unresolved"}
     )
-    rr = rerun.get("rerun_readiness") if isinstance(rerun.get("rerun_readiness"), dict) else {}
+    rr = _extract_rerun_readiness(rerun)
+    wiring_warnings: list[str] = []
+    if not pid:
+        wiring_warnings.append("program_id_unresolved_rerun_readiness_not_from_revalidation_trigger")
+    elif rerun.get("skipped"):
+        wiring_warnings.append(f"revalidation_skipped:{rerun.get('reason')}")
+    elif not rerun.get("ok"):
+        wiring_warnings.append(f"revalidation_trigger_failed:{rerun.get('error')}")
+    elif "recommend_rerun_phase15" not in rerun:
+        wiring_warnings.append("revalidation_ok_but_missing_recommend_rerun_keys_unexpected")
 
-    alias_missing = int(
-        (reg.get("registry_bucket_counts") or {}).get("missing_symbol_alias_mapping", 0)
-    ) + int((reg.get("registry_bucket_counts") or {}).get("missing_symbol_in_market_symbol_registry", 0))
+    rollup = registry_gap_rollup_for_bundle(reg.get("registry_bucket_counts"))
 
     phase28 = recommend_phase28_branch(
         recommend_rerun_phase15=bool(rr.get("recommend_rerun_phase15")),
@@ -72,7 +105,7 @@ def build_phase27_evidence_bundle(
         true_repairable_forward=int(fwd.get("true_repairable_forward_gap_count") or 0),
         joined_metadata_flagged=int(meta.get("joined_market_metadata_flagged_count") or 0),
         pit_backfill_candidates=int(pit.get("historical_backfill_might_help_count") or 0),
-        registry_alias_or_missing_count=alias_missing,
+        registry_blocker_total_count=int(rollup.get("registry_blocker_symbol_total") or 0),
         thin_input_share_after=metrics.get("thin_input_share")
         if isinstance(metrics.get("thin_input_share"), (int, float))
         else None,
@@ -89,6 +122,9 @@ def build_phase27_evidence_bundle(
         "forward_maturity": fwd,
         "state_change_pit": pit,
         "rerun_readiness": rr,
+        "revalidation_trigger_raw": rerun,
+        "registry_gap_rollup": rollup,
+        "wiring_warnings": wiring_warnings,
         "phase28": phase28,
         "production_scoring_boundary_note": (
             "프로덕션 스코어링 경로는 변경하지 않음; Phase 27은 공개·연구 파이프라인 진단·좁은 수리만."
@@ -115,12 +151,31 @@ def write_phase27_targeted_backfill_review_md(
     pit = bundle.get("state_change_pit") or {}
     p28 = bundle.get("phase28") or {}
     rr = bundle.get("rerun_readiness") or {}
+    roll = bundle.get("registry_gap_rollup") or {}
+    ww = bundle.get("wiring_warnings") or []
+    semantics = (
+        "repair_and_review_closeout"
+        if bundle.get("repair_closeout")
+        else "review_only_snapshot"
+    )
+
+    def _rb(v: Any) -> str:
+        if v is None:
+            return "null (wiring_warnings·revalidation_trigger_raw 확인)"
+        return str(bool(v))
 
     lines = [
         "# Phase 27 targeted backfill review",
         "",
         f"- 생성 시각(UTC): `{datetime.now(timezone.utc).isoformat()}`",
         f"- 유니버스: `{uni}`",
+        f"- 시맨틱: `{semantics}` — `write-phase27-targeted-backfill-review`는 **review-only**; 수리까지 포함하려면 **`run-targeted-backfill-repair-and-review`**.",
+        "",
+        "## 0) Registry gap rollup (Phase 28·집계)",
+        "",
+        f"- registry_blocker_symbol_total: `{_f(roll.get('registry_blocker_symbol_total'))}`",
+        f"- registry_repair_automation_eligible_count: `{_f(roll.get('registry_repair_automation_eligible_count'))}`",
+        f"- registry_upstream_or_pipeline_deferred_count: `{_f(roll.get('registry_upstream_or_pipeline_deferred_count'))}`",
         "",
         "## 1) 검증 미스 중 레지스트리·별칭 이슈",
         "",
@@ -185,8 +240,20 @@ def write_phase27_targeted_backfill_review_md(
             "",
             "### Rerun 게이트(참고)",
             "",
-            f"- recommend_rerun_phase15: `{rr.get('recommend_rerun_phase15')}`",
-            f"- recommend_rerun_phase16: `{rr.get('recommend_rerun_phase16')}`",
+            f"- recommend_rerun_phase15: `{_rb(rr.get('recommend_rerun_phase15'))}`",
+            f"- recommend_rerun_phase16: `{_rb(rr.get('recommend_rerun_phase16'))}`",
+            "",
+            "### Wiring warnings",
+            "",
+        ]
+    )
+    if ww:
+        for w in ww:
+            lines.append(f"- `{w}`")
+    else:
+        lines.append("- (없음)")
+    lines.extend(
+        [
             "",
             "## 경계",
             "",

@@ -19,6 +19,48 @@ _BUCKET_NO_FACTOR = "factor_panel_missing_for_resolved_cik"
 _BUCKET_NORM_MISMATCH = "symbol_normalization_mismatch"
 _BUCKET_VALIDATION_OMISSION = "validation_panel_build_omission_for_cik"
 
+# Phase 28·번들 집계용(심볼은 버킷 하나에만 분류됨).
+PHASE28_REGISTRY_BUCKETS = frozenset(
+    {
+        _BUCKET_MISSING_REGISTRY,
+        _BUCKET_ALIAS,
+        _BUCKET_SYMBOL_CIK_MISS,
+        _BUCKET_ISSUER_ORPHAN_CIK,
+        _BUCKET_NO_FACTOR,
+        _BUCKET_NORM_MISMATCH,
+        _BUCKET_VALIDATION_OMISSION,
+    }
+)
+
+
+def registry_gap_rollup_for_bundle(
+    registry_bucket_counts: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Phase 28 recommender·번들용 레지스트리 갭 규모(과소계상 방지)."""
+    c = registry_bucket_counts or {}
+
+    def _n(k: str) -> int:
+        return int(c.get(k) or 0)
+
+    automation = (
+        _n(_BUCKET_MISSING_REGISTRY)
+        + _n(_BUCKET_ALIAS)
+        + _n(_BUCKET_SYMBOL_CIK_MISS)
+        + _n(_BUCKET_NORM_MISMATCH)
+    )
+    upstream = (
+        _n(_BUCKET_ISSUER_ORPHAN_CIK)
+        + _n(_BUCKET_NO_FACTOR)
+        + _n(_BUCKET_VALIDATION_OMISSION)
+    )
+    total = sum(_n(k) for k in PHASE28_REGISTRY_BUCKETS)
+    return {
+        "registry_blocker_symbol_total": total,
+        "registry_repair_automation_eligible_count": automation,
+        "registry_upstream_or_pipeline_deferred_count": upstream,
+        "per_bucket": {k: _n(k) for k in sorted(PHASE28_REGISTRY_BUCKETS)},
+    }
+
 
 def _registry_cik_raw(reg: dict[str, Any] | None) -> str | None:
     if not reg:
@@ -198,6 +240,8 @@ def run_validation_registry_repair(
     miss_before = int(before.get("missing_symbol_count") or 0)
     as_of = (before.get("metrics") or {}).get("as_of_date")
     repaired: list[dict[str, Any]] = []
+    blocked_actions: list[dict[str, Any]] = []
+    deferred_actions: list[dict[str, Any]] = []
 
     if as_of:
         mem_rows = dbrec.fetch_universe_memberships_for_as_of(
@@ -274,6 +318,162 @@ def run_validation_registry_repair(
                 {"symbol": su, "kind": "upsert_registry_alias_copy", "from_symbol": donor_sym}
             )
 
+        symbols_univ = dbrec.fetch_symbols_universe_as_of(
+            c, universe_name=universe_name, as_of_date=str(as_of)[:10]
+        )
+        cik_by_symbol = dbrec.fetch_cik_map_for_tickers(c, symbols_univ)
+
+        for sym in buckets.get(_BUCKET_SYMBOL_CIK_MISS, []):
+            su = sym.upper().strip()
+            m = mem_by_sym.get(su)
+            if not m or not str(m.get("cik") or "").strip():
+                blocked_actions.append(
+                    {
+                        "symbol": su,
+                        "kind": "repair_blocked_requires_upstream_issuer_materialization",
+                        "detail": "symbol_to_cik_miss_no_membership_cik",
+                    }
+                )
+                continue
+            payload = m.get("source_payload_json") if isinstance(m.get("source_payload_json"), dict) else {}
+            name = str(payload.get("name") or "") or None
+            now = datetime.now(timezone.utc).isoformat()
+            dbrec.upsert_market_symbol_registry(
+                c,
+                {
+                    "symbol": su,
+                    "cik": str(m.get("cik")).strip(),
+                    "company_name": name,
+                    "exchange": None,
+                    "currency": "USD",
+                    "asset_type": "common_stock",
+                    "is_active": True,
+                    "first_seen_at": now,
+                    "last_seen_at": now,
+                    "source_name": str(m.get("source_name") or "universe_membership_cik_fill"),
+                    "created_at": now,
+                    "updated_at": now,
+                },
+            )
+            repaired.append({"symbol": su, "kind": "upsert_registry_from_membership_for_symbol_to_cik_miss"})
+
+        for sym in buckets.get(_BUCKET_NORM_MISMATCH, []):
+            su = sym.upper().strip()
+            blocked_actions.append(
+                {
+                    "symbol": su,
+                    "kind": "deferred_symbol_normalization_mismatch",
+                    "detail": "requires_validation_build_under_canonical_ticker",
+                }
+            )
+
+        for sym in buckets.get(_BUCKET_VALIDATION_OMISSION, []):
+            su = sym.upper().strip()
+            blocked_actions.append(
+                {
+                    "symbol": su,
+                    "kind": "repair_blocked_requires_validation_panel_build_pipeline",
+                }
+            )
+
+        iss_syms = list(buckets.get(_BUCKET_ISSUER_ORPHAN_CIK, []))
+        reg_iss = dbrec.fetch_market_symbol_registry_rows_for_symbols(c, iss_syms)
+        for sym in iss_syms:
+            su = sym.upper().strip()
+            reg_row = reg_iss.get(su)
+            cik_r = _registry_cik_raw(reg_row)
+            if not cik_r:
+                blocked_actions.append(
+                    {
+                        "symbol": su,
+                        "kind": "repair_blocked_requires_upstream_issuer_materialization",
+                        "detail": "issuer_orphan_no_registry_cik",
+                    }
+                )
+                continue
+            nc = norm_cik(cik_r)
+            present_raw = dbrec.fetch_issuer_master_ciks_present(c, [nc])
+            if nc in {norm_cik(x) for x in present_raw}:
+                deferred_actions.append(
+                    {
+                        "symbol": su,
+                        "cik": nc,
+                        "kind": "skipped_issuer_row_now_present_after_reverify",
+                    }
+                )
+                continue
+            m = mem_by_sym.get(su)
+            mem_cik = str(m.get("cik") or "").strip() if m else ""
+            if not mem_cik or norm_cik(mem_cik) != nc:
+                blocked_actions.append(
+                    {
+                        "symbol": su,
+                        "cik": nc,
+                        "kind": "repair_blocked_requires_upstream_issuer_materialization",
+                        "detail": "membership_cik_absent_or_mismatch_registry",
+                    }
+                )
+                continue
+            payload = m.get("source_payload_json") if isinstance(m.get("source_payload_json"), dict) else {}
+            name = str(payload.get("name") or (reg_row.get("company_name") if reg_row else "") or su)
+            now_iso = datetime.now(timezone.utc).isoformat()
+            dbrec.upsert_issuer_master(
+                c,
+                {
+                    "cik": nc,
+                    "ticker": su,
+                    "company_name": name,
+                    "sic": None,
+                    "sic_description": None,
+                    "latest_known_exchange": None,
+                    "is_active": True,
+                    "first_seen_at": now_iso,
+                    "last_seen_at": now_iso,
+                    "created_at": now_iso,
+                    "updated_at": now_iso,
+                },
+            )
+            repaired.append(
+                {
+                    "symbol": su,
+                    "kind": "upsert_issuer_master_from_membership_and_registry_cik",
+                    "cik": nc,
+                }
+            )
+
+        for sym in buckets.get(_BUCKET_NO_FACTOR, []):
+            su = sym.upper().strip()
+            raw_cik = cik_by_symbol.get(su)
+            if not raw_cik or not str(raw_cik).strip():
+                blocked_actions.append(
+                    {
+                        "symbol": su,
+                        "kind": "repair_blocked_requires_factor_pipeline_or_accession_ingest",
+                        "detail": "no_cik_on_issuer_map_for_symbol",
+                    }
+                )
+                continue
+            nc = norm_cik(raw_cik)
+            fmap = dbrec.fetch_issuer_quarter_factor_panels_for_ciks(
+                c, ciks=[nc], limit=max(panel_limit, 50_000)
+            )
+            if fmap:
+                deferred_actions.append(
+                    {
+                        "symbol": su,
+                        "cik": nc,
+                        "kind": "skipped_factor_panels_now_present_after_reverify",
+                    }
+                )
+                continue
+            blocked_actions.append(
+                {
+                    "symbol": su,
+                    "cik": nc,
+                    "kind": "repair_blocked_requires_factor_pipeline_or_accession_ingest",
+                }
+            )
+
     after = report_validation_registry_gaps(
         c, universe_name=universe_name, panel_limit=panel_limit
     )
@@ -294,8 +494,12 @@ def run_validation_registry_repair(
             "n_issuer_with_validation_panel_symbol": cov_m.get(
                 "n_issuer_with_validation_panel_symbol"
             ),
+            "n_issuer_resolved_cik": cov_m.get("n_issuer_resolved_cik"),
+            "n_issuer_with_factor_panel": cov_m.get("n_issuer_with_factor_panel"),
         },
         "repair_actions": repaired,
+        "blocked_actions": blocked_actions,
+        "deferred_actions": deferred_actions,
     }
 
 

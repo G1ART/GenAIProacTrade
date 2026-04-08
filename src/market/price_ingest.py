@@ -9,6 +9,7 @@ from typing import Any
 from db.client import get_supabase_client
 from db.records import (
     fetch_cik_map_for_tickers,
+    fetch_market_metadata_latest_rows_for_symbols,
     fetch_max_as_of_universe,
     fetch_symbols_universe_as_of,
     upsert_market_metadata_latest,
@@ -19,6 +20,7 @@ from db.records import (
 )
 from market.price_normalize import bars_to_silver_rows
 from market.provider_factory import get_market_provider
+from market.providers.base import MarketMetadataRow
 from market.run_types import (
     MARKET_METADATA_REFRESH,
     MARKET_PRICES_INGEST,
@@ -27,6 +29,33 @@ from market.run_types import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _metadata_row_current_enough(
+    existing: dict[str, Any],
+    m: MarketMetadataRow,
+) -> bool:
+    """동일 as_of·유사 avg_daily_volume 이면 upsert 생략."""
+    ex_asof = str(existing.get("as_of_date") or "")[:10]
+    m_asof = m.as_of_date.isoformat()
+    if ex_asof > m_asof:
+        return True
+    if ex_asof < m_asof:
+        return False
+    ex_v = existing.get("avg_daily_volume")
+    mv = m.avg_daily_volume
+    if ex_v is not None and mv is not None:
+        try:
+            return abs(float(ex_v) - float(mv)) < 1.0
+        except (TypeError, ValueError):
+            return False
+    return ex_v is None and mv is None
+
+
+def _symbol_still_missing_avg_meta(row: dict[str, Any] | None) -> bool:
+    if not row:
+        return True
+    return row.get("avg_daily_volume") is None
 
 
 def run_market_prices_ingest(
@@ -160,20 +189,54 @@ def run_market_metadata_refresh(settings: Any, *, universe_name: str) -> dict[st
     symbols = fetch_symbols_universe_as_of(
         client, universe_name=universe_name, as_of_date=as_of
     )
+    sym_list = sorted({str(s).upper().strip() for s in symbols if s})
     run_id = ingest_run_create_started(
         client,
         run_type=MARKET_METADATA_REFRESH,
-        target_count=len(symbols),
+        target_count=len(sym_list),
         metadata_json={"universe_name": universe_name, "provider": provider.name},
     )
-    meta = provider.fetch_market_metadata(symbols)
-    n = 0
-    today = date.today().isoformat()
+    pre_meta = fetch_market_metadata_latest_rows_for_symbols(client, sym_list)
+    meta = provider.fetch_market_metadata(sym_list)
+    provider_rows_returned = len(meta)
+    rows_attempted_for_upsert = 0
+    rows_already_current = 0
+    rows_upserted = 0
+    now_iso = datetime.now(timezone.utc).isoformat()
+    if sym_list and provider_rows_returned == 0:
+        ingest_run_finalize(
+            client,
+            run_id=run_id,
+            status="completed",
+            success_count=0,
+            failure_count=0,
+            error_json={
+                "blocked_reason": "provider_returned_zero_metadata_rows",
+                "provider": provider.name,
+            },
+        )
+        return {
+            "status": "blocked",
+            "blocked_reason": "provider_returned_zero_metadata_rows",
+            "symbols_requested": len(sym_list),
+            "provider_rows_returned": 0,
+            "rows_upserted": 0,
+            "rows_attempted_for_upsert": 0,
+            "rows_already_current": 0,
+            "rows_missing_after_requery": len(sym_list),
+            "provider": provider.name,
+        }
     for m in meta:
+        rows_attempted_for_upsert += 1
+        su = m.symbol.upper()
+        ex = pre_meta.get(su)
+        if ex and _metadata_row_current_enough(ex, m):
+            rows_already_current += 1
+            continue
         upsert_market_metadata_latest(
             client,
             {
-                "symbol": m.symbol.upper(),
+                "symbol": su,
                 "cik": None,
                 "as_of_date": m.as_of_date.isoformat(),
                 "market_cap": m.market_cap,
@@ -184,21 +247,30 @@ def run_market_metadata_refresh(settings: Any, *, universe_name: str) -> dict[st
                 "industry": m.industry,
                 "source_name": provider.name,
                 "metadata_json": dict(m.raw_payload),
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": now_iso,
             },
         )
-        n += 1
+        rows_upserted += 1
+    post_meta = fetch_market_metadata_latest_rows_for_symbols(client, sym_list)
+    rows_missing_after_requery = sum(
+        1 for s in sym_list if _symbol_still_missing_avg_meta(post_meta.get(s))
+    )
     ingest_run_finalize(
         client,
         run_id=run_id,
         status="completed",
-        success_count=n,
+        success_count=rows_upserted + rows_already_current,
         failure_count=0,
-        error_json={"note": "empty_if_provider_has_no_metadata"} if n == 0 else None,
+        error_json=None,
     )
     return {
         "status": "completed",
-        "rows_upserted": n,
+        "symbols_requested": len(sym_list),
+        "provider_rows_returned": provider_rows_returned,
+        "rows_attempted_for_upsert": rows_attempted_for_upsert,
+        "rows_already_current": rows_already_current,
+        "rows_upserted": rows_upserted,
+        "rows_missing_after_requery": rows_missing_after_requery,
         "provider": provider.name,
     }
 
@@ -247,14 +319,47 @@ def run_market_metadata_hydration_for_symbols(
             "symbol_count": len(want),
         },
     )
+    pre_meta = fetch_market_metadata_latest_rows_for_symbols(client, want)
     meta = provider.fetch_market_metadata(want)
-    n = 0
-    today = date.today().isoformat()
+    provider_rows_returned = len(meta)
+    rows_attempted_for_upsert = 0
+    rows_already_current = 0
+    rows_upserted = 0
+    now_iso = datetime.now(timezone.utc).isoformat()
+    if want and provider_rows_returned == 0:
+        ingest_run_finalize(
+            client,
+            run_id=run_id,
+            status="completed",
+            success_count=0,
+            failure_count=0,
+            error_json={
+                "blocked_reason": "provider_returned_zero_metadata_rows",
+                "provider": provider.name,
+            },
+        )
+        return {
+            "status": "blocked",
+            "blocked_reason": "provider_returned_zero_metadata_rows",
+            "symbols_requested": len(want),
+            "provider_rows_returned": 0,
+            "rows_upserted": 0,
+            "rows_attempted_for_upsert": 0,
+            "rows_already_current": 0,
+            "rows_missing_after_requery": len(want),
+            "provider": provider.name,
+        }
     for m in meta:
+        rows_attempted_for_upsert += 1
+        su = m.symbol.upper()
+        ex = pre_meta.get(su)
+        if ex and _metadata_row_current_enough(ex, m):
+            rows_already_current += 1
+            continue
         upsert_market_metadata_latest(
             client,
             {
-                "symbol": m.symbol.upper(),
+                "symbol": su,
                 "cik": None,
                 "as_of_date": m.as_of_date.isoformat(),
                 "market_cap": m.market_cap,
@@ -265,21 +370,29 @@ def run_market_metadata_hydration_for_symbols(
                 "industry": m.industry,
                 "source_name": provider.name,
                 "metadata_json": dict(m.raw_payload),
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": now_iso,
             },
         )
-        n += 1
+        rows_upserted += 1
+    post_meta = fetch_market_metadata_latest_rows_for_symbols(client, want)
+    rows_missing_after_requery = sum(
+        1 for s in want if _symbol_still_missing_avg_meta(post_meta.get(s))
+    )
     ingest_run_finalize(
         client,
         run_id=run_id,
         status="completed",
-        success_count=n,
+        success_count=rows_upserted + rows_already_current,
         failure_count=0,
-        error_json={"note": "empty_if_provider_has_no_metadata"} if n == 0 else None,
+        error_json=None,
     )
     return {
         "status": "completed",
-        "rows_upserted": n,
         "symbols_requested": len(want),
+        "provider_rows_returned": provider_rows_returned,
+        "rows_attempted_for_upsert": rows_attempted_for_upsert,
+        "rows_already_current": rows_already_current,
+        "rows_upserted": rows_upserted,
+        "rows_missing_after_requery": rows_missing_after_requery,
         "provider": provider.name,
     }
