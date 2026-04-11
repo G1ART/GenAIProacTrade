@@ -1,0 +1,37 @@
+{
+  "schema_version": 4,
+  "phase": "phase42",
+  "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+  "gate_status": "deferred",
+  "primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+  "lifecycle_snapshot": {
+    "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+    "hyp_score_publication_cadence_run_grid_lag_v1": "conditionally_supported",
+    "hyp_signal_availability_filing_boundary_v1": "conditionally_supported",
+    "hyp_issuer_sector_reporting_cadence_v1": "conditionally_supported",
+    "hyp_governance_safe_alternate_join_policy_v1": "conditionally_supported"
+  },
+  "blocking_reasons": [
+    "filing_proxy_or_blocker_rows_remain",
+    "sector_metadata_missing_rows_remain",
+    "await_stronger_falsifier_substrate"
+  ],
+  "reviewer_dependencies": [],
+  "required_followups": [
+    "Track scorecard deltas across runs using stable_run_digest.",
+    "Narrow claims where proxy_limited_retest_needed; add cohort B only with tight cap."
+  ],
+  "promotion_decision_notes": "Phase 42: evidence accumulation + blocker taxonomy + discrimination summary. No auto-promotion.",
+  "phase42_context": {
+    "all_families_leakage_passed_phase41": true,
+    "filing_proxy_row_count": 8,
+    "sector_missing_row_count": 8,
+    "any_family_outcome_discriminating": true,
+    "narrowing_headline": "at_least_one_family_outcome_discriminating"
+  },
+  "prior_gate_digest": {
+    "had_schema_version": 4,
+    "prior_primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+    "prior_phase": "phase41"
+  }
+}

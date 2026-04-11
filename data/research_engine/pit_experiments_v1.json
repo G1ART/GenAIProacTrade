@@ -1,0 +1,113 @@
+[
+  {
+    "experiment_id": "5118256e-341b-43ba-b5a9-7fd71c9d1dee",
+    "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+    "spec": {
+      "spec_id": "pit_spec_join_mismatch_fixture_v1",
+      "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+      "as_of_policy": "signal_available_date_strict_pit",
+      "state_change_run_mode": "reference_run_from_phase36_audit",
+      "join_key_variant": "pick_state_change_at_or_before_signal_default",
+      "notes": "Baseline spec mirrors production join; alternate specs to be executed in Phase 38."
+    },
+    "inputs_snapshot": {
+      "fixture_row_count": 8,
+      "fixture_symbols": [
+        "BBY",
+        "ADSK",
+        "CRM",
+        "CRWD",
+        "DELL",
+        "DUK",
+        "NVDA",
+        "WMT"
+      ],
+      "rows": [
+        {
+          "symbol": "BBY",
+          "cik": "0000764478",
+          "signal_available_date": "2025-12-08",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "ADSK",
+          "cik": "0000769397",
+          "signal_available_date": "2025-11-27",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "CRM",
+          "cik": "0001108524",
+          "signal_available_date": "2025-12-04",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "CRWD",
+          "cik": "0001535527",
+          "signal_available_date": "2025-12-03",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "DELL",
+          "cik": "0001571996",
+          "signal_available_date": "2025-12-10",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "DUK",
+          "cik": "0001326160",
+          "signal_available_date": "2025-11-10",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-03-28"
+        },
+        {
+          "symbol": "NVDA",
+          "cik": "0001045810",
+          "signal_available_date": "2025-11-20",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "WMT",
+          "cik": "0000104169",
+          "signal_available_date": "2025-12-04",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        }
+      ]
+    },
+    "outputs": {
+      "runner": "phase37_pit_experiment_scaffold_v1",
+      "engine_result": "scaffold_only_no_db_execution",
+      "summary": "Recorded deterministic fixture and spec; compare_alternates reserved for Phase 38 runner that replays join under alternate as-of assumptions."
+    },
+    "failure_modes": [],
+    "compared_alternates": [
+      {
+        "label": "baseline_phase36_run_reference",
+        "state_change_run_mode": "fixed_run_id_from_substrate_audit",
+        "expected": "join_key_mismatch_for_fixture_set"
+      },
+      {
+        "label": "alternate_not_yet_executed",
+        "state_change_run_mode": "earlier_as_of_run_or_explicit_lag_shim",
+        "expected": "TBD_phase38_db_bound_runner"
+      }
+    ],
+    "created_utc": "2026-04-10T16:46:00.731326+00:00",
+    "status": "recorded_scaffold"
+  }
+]

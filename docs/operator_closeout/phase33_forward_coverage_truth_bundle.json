@@ -1,0 +1,826 @@
+{
+  "ok": true,
+  "universe_name": "sp500_current",
+  "phase32_bundle_path": "docs/operator_closeout/phase32_forward_unlock_and_snapshot_cleanup_bundle.json",
+  "before": {
+    "joined_recipe_substrate_row_count": 243,
+    "joined_market_metadata_flagged_count": 0,
+    "thin_input_share": 1.0,
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 101,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 151
+    },
+    "missing_validation_symbol_count": 151,
+    "registry_gap_rollup": {
+      "registry_blocker_symbol_total": 151,
+      "registry_repair_automation_eligible_count": 3,
+      "registry_upstream_or_pipeline_deferred_count": 148,
+      "per_bucket": {
+        "factor_panel_missing_for_resolved_cik": 148,
+        "issuer_master_missing_for_resolved_cik": 0,
+        "missing_symbol_alias_mapping": 0,
+        "missing_symbol_in_market_symbol_registry": 0,
+        "symbol_normalization_mismatch": 3,
+        "symbol_to_cik_registry_miss": 0,
+        "validation_panel_build_omission_for_cik": 0
+      }
+    },
+    "factor_panel_missing_for_resolved_cik": 148,
+    "missing_quarter_snapshot_for_cik": 148,
+    "quarter_snapshot_classification_counts": {
+      "no_filing_index_for_cik": 147,
+      "raw_present_no_silver_facts": 1
+    },
+    "missing_excess_return_1q": 101
+  },
+  "after": {
+    "joined_recipe_substrate_row_count": 243,
+    "joined_market_metadata_flagged_count": 0,
+    "thin_input_share": 1.0,
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 101,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 151
+    },
+    "missing_validation_symbol_count": 151,
+    "registry_gap_rollup": {
+      "registry_blocker_symbol_total": 151,
+      "registry_repair_automation_eligible_count": 3,
+      "registry_upstream_or_pipeline_deferred_count": 148,
+      "per_bucket": {
+        "factor_panel_missing_for_resolved_cik": 148,
+        "issuer_master_missing_for_resolved_cik": 0,
+        "missing_symbol_alias_mapping": 0,
+        "missing_symbol_in_market_symbol_registry": 0,
+        "symbol_normalization_mismatch": 3,
+        "symbol_to_cik_registry_miss": 0,
+        "validation_panel_build_omission_for_cik": 0
+      }
+    },
+    "factor_panel_missing_for_resolved_cik": 148,
+    "missing_quarter_snapshot_for_cik": 148,
+    "quarter_snapshot_classification_counts": {
+      "no_filing_index_for_cik": 147,
+      "raw_present_no_silver_facts": 1
+    },
+    "missing_excess_return_1q": 101
+  },
+  "quarter_snapshot_classification_counts_after": {
+    "no_filing_index_for_cik": 147,
+    "raw_present_no_silver_facts": 1
+  },
+  "metric_truth_audit_start": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "phase32_touched_symbol_count": 30,
+    "forward_row_unblocked_now_count_bundle_phase32": 23,
+    "forward_return_unblocked_flag_count_in_per_symbol_after": 23,
+    "validation_panel_rows_for_touched_symbols": {
+      "row_count": 30,
+      "excess_null_row_count": 30,
+      "excess_present_row_count": 0
+    },
+    "symbol_cleared_from_missing_excess_queue_count": 0,
+    "touched_symbols_still_in_missing_excess_queue": [
+      "MCK",
+      "MCO",
+      "MDT",
+      "META",
+      "MGM",
+      "MKC",
+      "MLM",
+      "MNST",
+      "MO",
+      "MOS",
+      "MPWR",
+      "MRNA",
+      "MRSH",
+      "MSCI",
+      "MSI",
+      "MTD",
+      "MU",
+      "NCLH",
+      "NDSN",
+      "NEE",
+      "NFLX",
+      "NI",
+      "NOC",
+      "NRG",
+      "NSC",
+      "NTAP",
+      "NUE",
+      "NVR",
+      "NWSA",
+      "NXPI"
+    ],
+    "joined_recipe_substrate_row_count_phase32_before": 243,
+    "joined_recipe_substrate_row_count_live": 243,
+    "joined_recipe_unlocked_now_count_delta": 0,
+    "missing_excess_return_1q_headline_phase32_after_snapshot": 101,
+    "missing_excess_return_1q_headline_live": 101,
+    "why_repaired_count_did_not_reduce_headline_excess": "Phase 32의 repaired_to_forward_present는 심볼당 대표 시그널일 1건 기준으로 next_quarter excess가 채워졌는지 본 것이다. missing_excess_return_1q 큐는 해당 심볼의 검증 패널 행 중 excess가 하나라도 비면 심볼 전체를 큐에 넣는다. 따라서 일부 시그널만 채워도 심볼은 큐에 남을 수 있고, 다른 심볼/행이 새로 들어오면 헤드라인 카운트는 오히려 늘어난다.",
+    "metrics_live": {
+      "universe_name": "sp500_current",
+      "as_of_date": "2026-04-05",
+      "n_issuer_universe": 503,
+      "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+      "panel_limit_used": 8000,
+      "state_change_scores_limit_used": 50000,
+      "thin_input_share": 1.0,
+      "degraded_share": 0.0,
+      "strong_share": 0.0,
+      "usable_with_gaps_share": 0.0,
+      "n_issuer_resolved_cik": 500,
+      "n_issuer_with_factor_panel": 352,
+      "n_issuer_with_state_change_cik": 312,
+      "validation_panel_row_count": 352,
+      "n_issuer_no_validation_panel_row": 151,
+      "n_issuer_with_validation_panel_symbol": 352,
+      "n_issuer_with_next_quarter_excess": 251,
+      "validation_join_row_count": 251,
+      "joined_recipe_substrate_row_count": 243,
+      "dominant_exclusion_reasons": [
+        {
+          "reason": "no_validation_panel_for_symbol",
+          "count": 151
+        },
+        {
+          "reason": "missing_excess_return_1q",
+          "count": 101
+        },
+        {
+          "reason": "no_state_change_join",
+          "count": 8
+        }
+      ]
+    },
+    "exclusion_distribution_live": {
+      "missing_excess_return_1q": 101,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 151
+    }
+  },
+  "price_coverage_gap_report": {
+    "ok": true,
+    "source_error_row_count": 7,
+    "classified_rows": [
+      {
+        "symbol": "MKC",
+        "signal_date": "2026-04-01",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "MKC",
+          "signal_date": "2026-04-01",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=2",
+          "silver_row_count_in_window": 5,
+          "sessions_on_or_after_signal": 2
+        }
+      },
+      {
+        "symbol": "NDSN",
+        "signal_date": "2026-02-20",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "NDSN",
+          "signal_date": "2026-02-20",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=30",
+          "silver_row_count_in_window": 33,
+          "sessions_on_or_after_signal": 30
+        }
+      },
+      {
+        "symbol": "MU",
+        "signal_date": "2026-03-19",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "MU",
+          "signal_date": "2026-03-19",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=11",
+          "silver_row_count_in_window": 14,
+          "sessions_on_or_after_signal": 11
+        }
+      },
+      {
+        "symbol": "MCK",
+        "signal_date": "2026-02-05",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "MCK",
+          "signal_date": "2026-02-05",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=40",
+          "silver_row_count_in_window": 43,
+          "sessions_on_or_after_signal": 40
+        }
+      },
+      {
+        "symbol": "NTAP",
+        "signal_date": "2026-02-27",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "NTAP",
+          "signal_date": "2026-02-27",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=25",
+          "silver_row_count_in_window": 29,
+          "sessions_on_or_after_signal": 25
+        }
+      },
+      {
+        "symbol": "NWSA",
+        "signal_date": "2026-02-09",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "NWSA",
+          "signal_date": "2026-02-09",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=38",
+          "silver_row_count_in_window": 41,
+          "sessions_on_or_after_signal": 38
+        }
+      },
+      {
+        "symbol": "MDT",
+        "signal_date": "2026-02-25",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "MDT",
+          "signal_date": "2026-02-25",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=27",
+          "silver_row_count_in_window": 30,
+          "sessions_on_or_after_signal": 27
+        }
+      }
+    ],
+    "classification_counts": {
+      "lookahead_window_not_matured": 7
+    }
+  },
+  "price_coverage_backfill": {
+    "ok": true,
+    "repair": "price_coverage_backfill",
+    "report": {
+      "ok": true,
+      "source_error_row_count": 7,
+      "classified_rows": [
+        {
+          "symbol": "MKC",
+          "signal_date": "2026-04-01",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "MKC",
+            "signal_date": "2026-04-01",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=2",
+            "silver_row_count_in_window": 5,
+            "sessions_on_or_after_signal": 2
+          }
+        },
+        {
+          "symbol": "NDSN",
+          "signal_date": "2026-02-20",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "NDSN",
+            "signal_date": "2026-02-20",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=30",
+            "silver_row_count_in_window": 33,
+            "sessions_on_or_after_signal": 30
+          }
+        },
+        {
+          "symbol": "MU",
+          "signal_date": "2026-03-19",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "MU",
+            "signal_date": "2026-03-19",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=11",
+            "silver_row_count_in_window": 14,
+            "sessions_on_or_after_signal": 11
+          }
+        },
+        {
+          "symbol": "MCK",
+          "signal_date": "2026-02-05",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "MCK",
+            "signal_date": "2026-02-05",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=40",
+            "silver_row_count_in_window": 43,
+            "sessions_on_or_after_signal": 40
+          }
+        },
+        {
+          "symbol": "NTAP",
+          "signal_date": "2026-02-27",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "NTAP",
+            "signal_date": "2026-02-27",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=25",
+            "silver_row_count_in_window": 29,
+            "sessions_on_or_after_signal": 25
+          }
+        },
+        {
+          "symbol": "NWSA",
+          "signal_date": "2026-02-09",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "NWSA",
+            "signal_date": "2026-02-09",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=38",
+            "silver_row_count_in_window": 41,
+            "sessions_on_or_after_signal": 38
+          }
+        },
+        {
+          "symbol": "MDT",
+          "signal_date": "2026-02-25",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "MDT",
+            "signal_date": "2026-02-25",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=27",
+            "silver_row_count_in_window": 30,
+            "sessions_on_or_after_signal": 27
+          }
+        }
+      ],
+      "classification_counts": {
+        "lookahead_window_not_matured": 7
+      }
+    },
+    "ingest_attempted": false,
+    "price_coverage_repaired_now_count": 0,
+    "price_coverage_deferred_count": 0,
+    "price_coverage_blocked_count": 0,
+    "note": "no_missing_market_prices_daily_window_targets"
+  },
+  "forward_return_retry_after_price_repair": {
+    "ok": true,
+    "repair": "forward_return_retry_after_price_repair",
+    "symbols_from_phase32_errors": [
+      "MCK",
+      "MDT",
+      "MKC",
+      "MU",
+      "NDSN",
+      "NTAP",
+      "NWSA"
+    ],
+    "factor_panels_input": 7,
+    "forward_build": {
+      "status": "completed",
+      "panels_seen": 7,
+      "success_operations": 5,
+      "failures": 9,
+      "error_sample": [
+        {
+          "symbol": "MKC",
+          "signal_date": "2026-04-01",
+          "horizon": "next_month",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "MKC",
+          "signal_date": "2026-04-01",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "NDSN",
+          "signal_date": "2026-02-20",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "MU",
+          "signal_date": "2026-03-19",
+          "horizon": "next_month",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "MU",
+          "signal_date": "2026-03-19",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "MCK",
+          "signal_date": "2026-02-05",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "NTAP",
+          "signal_date": "2026-02-27",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "NWSA",
+          "signal_date": "2026-02-09",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "MDT",
+          "signal_date": "2026-02-25",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        }
+      ]
+    },
+    "metric_truth_before": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "phase32_touched_symbol_count": 30,
+      "forward_row_unblocked_now_count_bundle_phase32": 23,
+      "forward_return_unblocked_flag_count_in_per_symbol_after": 23,
+      "validation_panel_rows_for_touched_symbols": {
+        "row_count": 30,
+        "excess_null_row_count": 30,
+        "excess_present_row_count": 0
+      },
+      "symbol_cleared_from_missing_excess_queue_count": 0,
+      "touched_symbols_still_in_missing_excess_queue": [
+        "MCK",
+        "MCO",
+        "MDT",
+        "META",
+        "MGM",
+        "MKC",
+        "MLM",
+        "MNST",
+        "MO",
+        "MOS",
+        "MPWR",
+        "MRNA",
+        "MRSH",
+        "MSCI",
+        "MSI",
+        "MTD",
+        "MU",
+        "NCLH",
+        "NDSN",
+        "NEE",
+        "NFLX",
+        "NI",
+        "NOC",
+        "NRG",
+        "NSC",
+        "NTAP",
+        "NUE",
+        "NVR",
+        "NWSA",
+        "NXPI"
+      ],
+      "joined_recipe_substrate_row_count_phase32_before": 243,
+      "joined_recipe_substrate_row_count_live": 243,
+      "joined_recipe_unlocked_now_count_delta": 0,
+      "missing_excess_return_1q_headline_phase32_after_snapshot": 101,
+      "missing_excess_return_1q_headline_live": 101,
+      "why_repaired_count_did_not_reduce_headline_excess": "Phase 32의 repaired_to_forward_present는 심볼당 대표 시그널일 1건 기준으로 next_quarter excess가 채워졌는지 본 것이다. missing_excess_return_1q 큐는 해당 심볼의 검증 패널 행 중 excess가 하나라도 비면 심볼 전체를 큐에 넣는다. 따라서 일부 시그널만 채워도 심볼은 큐에 남을 수 있고, 다른 심볼/행이 새로 들어오면 헤드라인 카운트는 오히려 늘어난다.",
+      "metrics_live": {
+        "universe_name": "sp500_current",
+        "as_of_date": "2026-04-05",
+        "n_issuer_universe": 503,
+        "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "panel_limit_used": 8000,
+        "state_change_scores_limit_used": 50000,
+        "thin_input_share": 1.0,
+        "degraded_share": 0.0,
+        "strong_share": 0.0,
+        "usable_with_gaps_share": 0.0,
+        "n_issuer_resolved_cik": 500,
+        "n_issuer_with_factor_panel": 352,
+        "n_issuer_with_state_change_cik": 312,
+        "validation_panel_row_count": 352,
+        "n_issuer_no_validation_panel_row": 151,
+        "n_issuer_with_validation_panel_symbol": 352,
+        "n_issuer_with_next_quarter_excess": 251,
+        "validation_join_row_count": 251,
+        "joined_recipe_substrate_row_count": 243,
+        "dominant_exclusion_reasons": [
+          {
+            "reason": "no_validation_panel_for_symbol",
+            "count": 151
+          },
+          {
+            "reason": "missing_excess_return_1q",
+            "count": 101
+          },
+          {
+            "reason": "no_state_change_join",
+            "count": 8
+          }
+        ]
+      },
+      "exclusion_distribution_live": {
+        "missing_excess_return_1q": 101,
+        "no_state_change_join": 8,
+        "no_validation_panel_for_symbol": 151
+      }
+    },
+    "metric_truth_after": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "phase32_touched_symbol_count": 30,
+      "forward_row_unblocked_now_count_bundle_phase32": 23,
+      "forward_return_unblocked_flag_count_in_per_symbol_after": 23,
+      "validation_panel_rows_for_touched_symbols": {
+        "row_count": 30,
+        "excess_null_row_count": 30,
+        "excess_present_row_count": 0
+      },
+      "symbol_cleared_from_missing_excess_queue_count": 0,
+      "touched_symbols_still_in_missing_excess_queue": [
+        "MCK",
+        "MCO",
+        "MDT",
+        "META",
+        "MGM",
+        "MKC",
+        "MLM",
+        "MNST",
+        "MO",
+        "MOS",
+        "MPWR",
+        "MRNA",
+        "MRSH",
+        "MSCI",
+        "MSI",
+        "MTD",
+        "MU",
+        "NCLH",
+        "NDSN",
+        "NEE",
+        "NFLX",
+        "NI",
+        "NOC",
+        "NRG",
+        "NSC",
+        "NTAP",
+        "NUE",
+        "NVR",
+        "NWSA",
+        "NXPI"
+      ],
+      "joined_recipe_substrate_row_count_phase32_before": 243,
+      "joined_recipe_substrate_row_count_live": 243,
+      "joined_recipe_unlocked_now_count_delta": 0,
+      "missing_excess_return_1q_headline_phase32_after_snapshot": 101,
+      "missing_excess_return_1q_headline_live": 101,
+      "why_repaired_count_did_not_reduce_headline_excess": "Phase 32의 repaired_to_forward_present는 심볼당 대표 시그널일 1건 기준으로 next_quarter excess가 채워졌는지 본 것이다. missing_excess_return_1q 큐는 해당 심볼의 검증 패널 행 중 excess가 하나라도 비면 심볼 전체를 큐에 넣는다. 따라서 일부 시그널만 채워도 심볼은 큐에 남을 수 있고, 다른 심볼/행이 새로 들어오면 헤드라인 카운트는 오히려 늘어난다.",
+      "metrics_live": {
+        "universe_name": "sp500_current",
+        "as_of_date": "2026-04-05",
+        "n_issuer_universe": 503,
+        "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "panel_limit_used": 8000,
+        "state_change_scores_limit_used": 50000,
+        "thin_input_share": 1.0,
+        "degraded_share": 0.0,
+        "strong_share": 0.0,
+        "usable_with_gaps_share": 0.0,
+        "n_issuer_resolved_cik": 500,
+        "n_issuer_with_factor_panel": 352,
+        "n_issuer_with_state_change_cik": 312,
+        "validation_panel_row_count": 352,
+        "n_issuer_no_validation_panel_row": 151,
+        "n_issuer_with_validation_panel_symbol": 352,
+        "n_issuer_with_next_quarter_excess": 251,
+        "validation_join_row_count": 251,
+        "joined_recipe_substrate_row_count": 243,
+        "dominant_exclusion_reasons": [
+          {
+            "reason": "no_validation_panel_for_symbol",
+            "count": 151
+          },
+          {
+            "reason": "missing_excess_return_1q",
+            "count": 101
+          },
+          {
+            "reason": "no_state_change_join",
+            "count": 8
+          }
+        ]
+      },
+      "exclusion_distribution_live": {
+        "missing_excess_return_1q": 101,
+        "no_state_change_join": 8,
+        "no_validation_panel_for_symbol": 151
+      }
+    },
+    "joined_recipe_unlocked_delta_after_retry": 0,
+    "symbol_queue_cleared_delta_after_retry": 0
+  },
+  "metric_truth_audit_after": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "phase32_touched_symbol_count": 30,
+    "forward_row_unblocked_now_count_bundle_phase32": 23,
+    "forward_return_unblocked_flag_count_in_per_symbol_after": 23,
+    "validation_panel_rows_for_touched_symbols": {
+      "row_count": 30,
+      "excess_null_row_count": 30,
+      "excess_present_row_count": 0
+    },
+    "symbol_cleared_from_missing_excess_queue_count": 0,
+    "touched_symbols_still_in_missing_excess_queue": [
+      "MCK",
+      "MCO",
+      "MDT",
+      "META",
+      "MGM",
+      "MKC",
+      "MLM",
+      "MNST",
+      "MO",
+      "MOS",
+      "MPWR",
+      "MRNA",
+      "MRSH",
+      "MSCI",
+      "MSI",
+      "MTD",
+      "MU",
+      "NCLH",
+      "NDSN",
+      "NEE",
+      "NFLX",
+      "NI",
+      "NOC",
+      "NRG",
+      "NSC",
+      "NTAP",
+      "NUE",
+      "NVR",
+      "NWSA",
+      "NXPI"
+    ],
+    "joined_recipe_substrate_row_count_phase32_before": 243,
+    "joined_recipe_substrate_row_count_live": 243,
+    "joined_recipe_unlocked_now_count_delta": 0,
+    "missing_excess_return_1q_headline_phase32_after_snapshot": 101,
+    "missing_excess_return_1q_headline_live": 101,
+    "why_repaired_count_did_not_reduce_headline_excess": "Phase 32의 repaired_to_forward_present는 심볼당 대표 시그널일 1건 기준으로 next_quarter excess가 채워졌는지 본 것이다. missing_excess_return_1q 큐는 해당 심볼의 검증 패널 행 중 excess가 하나라도 비면 심볼 전체를 큐에 넣는다. 따라서 일부 시그널만 채워도 심볼은 큐에 남을 수 있고, 다른 심볼/행이 새로 들어오면 헤드라인 카운트는 오히려 늘어난다.",
+    "metrics_live": {
+      "universe_name": "sp500_current",
+      "as_of_date": "2026-04-05",
+      "n_issuer_universe": 503,
+      "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+      "panel_limit_used": 8000,
+      "state_change_scores_limit_used": 50000,
+      "thin_input_share": 1.0,
+      "degraded_share": 0.0,
+      "strong_share": 0.0,
+      "usable_with_gaps_share": 0.0,
+      "n_issuer_resolved_cik": 500,
+      "n_issuer_with_factor_panel": 352,
+      "n_issuer_with_state_change_cik": 312,
+      "validation_panel_row_count": 352,
+      "n_issuer_no_validation_panel_row": 151,
+      "n_issuer_with_validation_panel_symbol": 352,
+      "n_issuer_with_next_quarter_excess": 251,
+      "validation_join_row_count": 251,
+      "joined_recipe_substrate_row_count": 243,
+      "dominant_exclusion_reasons": [
+        {
+          "reason": "no_validation_panel_for_symbol",
+          "count": 151
+        },
+        {
+          "reason": "missing_excess_return_1q",
+          "count": 101
+        },
+        {
+          "reason": "no_state_change_join",
+          "count": 8
+        }
+      ]
+    },
+    "exclusion_distribution_live": {
+      "missing_excess_return_1q": 101,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 151
+    }
+  },
+  "gis_deterministic_inspect": {
+    "ok": true,
+    "cik": "0000040704",
+    "symbol": "GIS",
+    "outcome": "blocked_unmapped_concepts_remain_in_sample",
+    "blocked_reason": "concept_map_misses_for_sampled_raw_concepts",
+    "concepts_sampled": 13,
+    "unmapped_sample": [
+      {
+        "source_concept": "dei:AmendmentFlag",
+        "normalized_key": "dei:AmendmentFlag",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:CurrentFiscalYearEndDate",
+        "normalized_key": "dei:CurrentFiscalYearEndDate",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentFiscalPeriodFocus",
+        "normalized_key": "dei:DocumentFiscalPeriodFocus",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentFiscalYearFocus",
+        "normalized_key": "dei:DocumentFiscalYearFocus",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentPeriodEndDate",
+        "normalized_key": "dei:DocumentPeriodEndDate",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentQuarterlyReport",
+        "normalized_key": "dei:DocumentQuarterlyReport",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentTransitionReport",
+        "normalized_key": "dei:DocumentTransitionReport",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentType",
+        "normalized_key": "dei:DocumentType",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityCentralIndexKey",
+        "normalized_key": "dei:EntityCentralIndexKey",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityFileNumber",
+        "normalized_key": "dei:EntityFileNumber",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityIncorporationStateCountryCode",
+        "normalized_key": "dei:EntityIncorporationStateCountryCode",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityRegistrantName",
+        "normalized_key": "dei:EntityRegistrantName",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "us-gaap:SupplierFinanceProgramObligationStatementOfFinancialPositionExtensibleEnumeration",
+        "normalized_key": "us-gaap:SupplierFinanceProgramObligationStatementOfFinancialPositionExtensibleEnumeration",
+        "map_reason": "unmapped"
+      }
+    ],
+    "unmapped_count": 13
+  },
+  "stage_semantics_truth": {
+    "forward_row_unblocked_now_count": 5,
+    "forward_row_unblocked_note": "forward_returns upsert ops (next_month+next_quarter per panel row)",
+    "symbol_cleared_from_missing_excess_queue_count": 0,
+    "joined_recipe_unlocked_now_count": 0,
+    "price_coverage_repaired_now_count": 0,
+    "validation_panel_excess_null_rows_touched_set_live": 30
+  },
+  "phase34": {
+    "phase34_recommendation": "continue_forward_and_price_coverage_with_truth_metrics",
+    "rationale": "가격·forward 재시도에 진전이 있으나 joined/excess 헤드라인은 아직 — 시그널일·창 성숙·추가 심볼 확장을 상한 내에서 계속."
+  }
+}

@@ -5096,6 +5096,1778 @@ def _cmd_write_phase31_raw_facts_bridge_review(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_report_forward_return_gap_targets_after_phase31(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase32.forward_return_phase31 import (
+        report_forward_return_gap_targets_after_phase31,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_forward_return_gap_targets_after_phase31(
+        client,
+        bundle_path=str(getattr(args, "phase31_bundle_in", "")).strip(),
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        max_target_ciks=int(getattr(args, "max_forward_target_ciks", 80)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_forward_return_gap_targets_after_phase31(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase32.forward_return_phase31 import (
+        export_forward_return_gap_targets_after_phase31,
+        report_forward_return_gap_targets_after_phase31,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rep = report_forward_return_gap_targets_after_phase31(
+        client,
+        bundle_path=str(getattr(args, "phase31_bundle_in", "")).strip(),
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        max_target_ciks=int(getattr(args, "max_forward_target_ciks", 80)),
+    )
+    path = export_forward_return_gap_targets_after_phase31(
+        rep, out_json=str(args.out)
+    )
+    print(json_lib.dumps({"ok": True, "wrote": path}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_run_forward_return_backfill_for_phase31_touched(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase32.forward_return_phase31 import (
+        run_forward_return_backfill_for_phase31_touched,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_forward_return_backfill_for_phase31_touched(
+        settings,
+        bundle_path=str(getattr(args, "phase31_bundle_in", "")).strip(),
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+        max_target_ciks=int(getattr(args, "max_forward_target_ciks", 30)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_silver_present_snapshot_materialization_targets(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase32.silver_snapshot_cleanup import (
+        report_silver_present_snapshot_materialization_targets,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_silver_present_snapshot_materialization_targets(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_silver_present_snapshot_materialization_repair(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase32.silver_snapshot_cleanup import (
+        run_silver_present_snapshot_materialization_repair,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = run_silver_present_snapshot_materialization_repair(
+        settings,
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        max_cik_repairs=int(getattr(args, "max_silver_snapshot_cik_repairs", 15)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_retry_raw_facts_deferred_from_phase31_bundle(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase32.raw_deferred_retry import (
+        retry_raw_facts_deferred_from_phase31_bundle,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = retry_raw_facts_deferred_from_phase31_bundle(
+        settings,
+        bundle_path=str(getattr(args, "phase31_bundle_in", "")).strip(),
+        max_rows=int(getattr(args, "max_raw_deferred_rows", 20)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase32_forward_unlock_and_snapshot_cleanup(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase32.orchestrator import run_phase32_forward_unlock_and_snapshot_cleanup
+    from phase32.review import (
+        write_phase32_forward_unlock_and_snapshot_cleanup_bundle_json,
+        write_phase32_forward_unlock_and_snapshot_cleanup_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase32_forward_unlock_and_snapshot_cleanup(
+        settings,
+        universe_name=str(args.universe).strip(),
+        phase31_bundle_path=str(getattr(args, "phase31_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+        max_forward_target_ciks=int(getattr(args, "max_forward_target_ciks", 30)),
+        max_silver_snapshot_cik_repairs=int(
+            getattr(args, "max_silver_snapshot_cik_repairs", 15)
+        ),
+        max_raw_deferred_rows=int(getattr(args, "max_raw_deferred_rows", 20)),
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase32_forward_unlock_and_snapshot_cleanup_bundle_json(bo, bundle=out)
+        print("phase32_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase32_forward_unlock_and_snapshot_cleanup_review_md(md, bundle=out)
+        print("phase32_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase32_forward_unlock_and_snapshot_cleanup_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase32.review import (
+        write_phase32_forward_unlock_and_snapshot_cleanup_bundle_json,
+        write_phase32_forward_unlock_and_snapshot_cleanup_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase32_forward_unlock_and_snapshot_cleanup_review_md(
+        str(args.out_md), bundle=bundle
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase32_forward_unlock_and_snapshot_cleanup_bundle_json(
+            bo, bundle=bundle
+        )
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_report_forward_metric_truth_audit(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase33.metric_truth_audit import report_forward_metric_truth_audit
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_forward_metric_truth_audit(
+        client,
+        universe_name=str(args.universe).strip(),
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_forward_metric_truth_audit(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase33.metric_truth_audit import (
+        export_forward_metric_truth_audit,
+        report_forward_metric_truth_audit,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rep = report_forward_metric_truth_audit(
+        client,
+        universe_name=str(args.universe).strip(),
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    path = export_forward_metric_truth_audit(rep, out_json=str(args.out))
+    print(json_lib.dumps({"ok": True, "wrote": path}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_report_price_coverage_gaps_for_forward(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase33.price_coverage import report_price_coverage_gaps_for_forward
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_price_coverage_gaps_for_forward(
+        client,
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_price_coverage_backfill_for_forward(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase33.price_coverage import run_price_coverage_backfill_for_forward
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = run_price_coverage_backfill_for_forward(
+        settings,
+        client,
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_forward_return_retry_after_price_repair(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase33.forward_retry_after_price import (
+        run_forward_return_retry_after_price_repair,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_forward_return_retry_after_price_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_inspect_gis_deterministic_raw_silver_seam(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase33.gis_narrow import inspect_gis_raw_present_no_silver_deterministic
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = inspect_gis_raw_present_no_silver_deterministic(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase33_forward_coverage_truth(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from phase33.orchestrator import run_phase33_forward_coverage_truth
+    from phase33.review import (
+        write_phase33_forward_coverage_truth_bundle_json,
+        write_phase33_forward_coverage_truth_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase33_forward_coverage_truth(
+        settings,
+        universe_name=str(args.universe).strip(),
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase33_forward_coverage_truth_bundle_json(bo, bundle=out)
+        print("phase33_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase33_forward_coverage_truth_review_md(md, bundle=out)
+        print("phase33_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_forward_validation_propagation_gaps(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase34.propagation_audit import report_forward_validation_propagation_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_forward_validation_propagation_gaps(
+        client,
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_forward_validation_propagation_gaps(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase34.propagation_audit import (
+        export_forward_validation_propagation_gaps,
+        report_forward_validation_propagation_gaps,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rep = report_forward_validation_propagation_gaps(
+        client,
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    path = export_forward_validation_propagation_gaps(rep, out_json=str(args.out))
+    print(json_lib.dumps({"ok": True, "wrote": path}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_run_validation_refresh_after_forward_propagation(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase34.validation_refresh import (
+        run_validation_refresh_after_forward_propagation,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = run_validation_refresh_after_forward_propagation(
+        settings,
+        client,
+        universe_name=str(args.universe).strip(),
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_matured_forward_retry_targets(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase34.matured_forward_retry import report_matured_forward_retry_targets
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_matured_forward_retry_targets(
+        client,
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_matured_forward_retry_targets(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase34.matured_forward_retry import (
+        export_matured_forward_retry_targets,
+        report_matured_forward_retry_targets,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rep = report_matured_forward_retry_targets(
+        client,
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    path = export_matured_forward_retry_targets(rep, out_json=str(args.out))
+    print(json_lib.dumps({"ok": True, "wrote": path}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_run_matured_forward_retry(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from phase34.matured_forward_retry import run_matured_forward_retry
+
+    settings = load_settings()
+    configure_logging()
+    out = run_matured_forward_retry(
+        settings,
+        universe_name=str(args.universe).strip(),
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase34_forward_validation_propagation(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase34.orchestrator import run_phase34_forward_validation_propagation
+    from phase34.review import (
+        write_phase34_forward_validation_propagation_bundle_json,
+        write_phase34_forward_validation_propagation_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase34_forward_validation_propagation(
+        settings,
+        universe_name=str(args.universe).strip(),
+        phase32_bundle_path=str(getattr(args, "phase32_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase34_forward_validation_propagation_bundle_json(bo, bundle=out)
+        print("phase34_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase34_forward_validation_propagation_review_md(md, bundle=out)
+        print("phase34_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase34_forward_validation_propagation_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase34.review import (
+        write_phase34_forward_validation_propagation_bundle_json,
+        write_phase34_forward_validation_propagation_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase34_forward_validation_propagation_review_md(
+        str(args.out_md), bundle=bundle
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase34_forward_validation_propagation_bundle_json(
+            bo, bundle=bundle
+        )
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_report_forward_validation_join_displacement(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase35.join_displacement import report_forward_validation_join_displacement
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_forward_validation_join_displacement(
+        client,
+        universe_name=str(args.universe).strip(),
+        phase34_bundle_path=str(getattr(args, "phase34_bundle_in", "")).strip(),
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_forward_validation_join_displacement(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase35.join_displacement import (
+        export_forward_validation_join_displacement,
+        report_forward_validation_join_displacement,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rep = report_forward_validation_join_displacement(
+        client,
+        universe_name=str(args.universe).strip(),
+        phase34_bundle_path=str(getattr(args, "phase34_bundle_in", "")).strip(),
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+    )
+    path = export_forward_validation_join_displacement(rep, out_json=str(args.out))
+    print(json_lib.dumps({"ok": True, "wrote": path}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_report_state_change_join_gaps_after_phase34(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase35.state_change_join_gaps import (
+        report_state_change_join_gaps_after_phase34,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_state_change_join_gaps_after_phase34(
+        client,
+        universe_name=str(args.universe).strip(),
+        phase34_bundle_path=str(getattr(args, "phase34_bundle_in", "")).strip(),
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_state_change_join_refresh_after_phase34(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase35.state_change_refresh import run_state_change_join_refresh_after_phase34
+
+    settings = load_settings()
+    configure_logging()
+    out = run_state_change_join_refresh_after_phase34(
+        settings,
+        universe_name=str(args.universe).strip(),
+        phase34_bundle_path=str(getattr(args, "phase34_bundle_in", "")).strip(),
+        max_state_change_issuers=int(
+            getattr(args, "max_state_change_issuers", 2500)
+        ),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_matured_window_schedule_for_forward(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase35.matured_window_schedule import (
+        report_matured_window_schedule_for_forward,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_matured_window_schedule_for_forward(
+        client,
+        phase34_bundle_path=str(getattr(args, "phase34_bundle_in", "")).strip(),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_matured_window_schedule_for_forward(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase35.matured_window_schedule import (
+        export_matured_window_schedule_for_forward,
+        report_matured_window_schedule_for_forward,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    rep = report_matured_window_schedule_for_forward(
+        client,
+        phase34_bundle_path=str(getattr(args, "phase34_bundle_in", "")).strip(),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    path = export_matured_window_schedule_for_forward(rep, out_json=str(args.out))
+    print(json_lib.dumps({"ok": True, "wrote": path}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def _cmd_run_phase35_join_displacement_and_maturity(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase35.orchestrator import run_phase35_join_displacement_and_maturity
+    from phase35.review import (
+        write_phase35_join_displacement_and_maturity_bundle_json,
+        write_phase35_join_displacement_and_maturity_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase35_join_displacement_and_maturity(
+        settings,
+        universe_name=str(args.universe).strip(),
+        phase34_bundle_path=str(getattr(args, "phase34_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase35_join_displacement_and_maturity_bundle_json(bo, bundle=out)
+        print("phase35_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase35_join_displacement_and_maturity_review_md(md, bundle=out)
+        print("phase35_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase35_join_displacement_and_maturity_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase35.review import (
+        write_phase35_join_displacement_and_maturity_bundle_json,
+        write_phase35_join_displacement_and_maturity_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase35_join_displacement_and_maturity_review_md(
+        str(args.out_md), bundle=bundle
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase35_join_displacement_and_maturity_bundle_json(
+            bo, bundle=bundle
+        )
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_report_joined_metadata_flag_reconciliation_targets(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase36.joined_metadata_reconciliation import (
+        report_joined_metadata_flag_reconciliation_targets,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_joined_metadata_flag_reconciliation_targets(
+        client,
+        universe_name=str(args.universe).strip(),
+        phase35_bundle_path=str(getattr(args, "phase35_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_joined_metadata_flag_reconciliation_targets(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase36.joined_metadata_reconciliation import (
+        export_joined_metadata_flag_reconciliation_targets,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_joined_metadata_flag_reconciliation_targets(
+        client,
+        universe_name=str(args.universe).strip(),
+        phase35_bundle_path=str(getattr(args, "phase35_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        out_path=str(args.out),
+        fmt=str(getattr(args, "fmt", "json") or "json"),
+    )
+    print(json_lib.dumps({"ok": True, "wrote": out.get("export_path")}, indent=2))
+    return 0
+
+
+def _cmd_run_joined_metadata_reconciliation_repair(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase36.joined_metadata_reconciliation import (
+        run_joined_metadata_reconciliation_repair,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_joined_metadata_reconciliation_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        phase35_bundle_path=str(getattr(args, "phase35_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_joined_metadata_reconciliation_repair_two_pass(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase36.joined_metadata_reconciliation import (
+        run_joined_metadata_reconciliation_repair_two_pass,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_joined_metadata_reconciliation_repair_two_pass(
+        settings,
+        universe_name=str(args.universe).strip(),
+        phase35_bundle_path=str(getattr(args, "phase35_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_residual_state_change_join_gaps(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase36.residual_state_change_join import report_residual_state_change_join_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = report_residual_state_change_join_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_residual_state_change_join_gaps(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase36.residual_state_change_join import export_residual_state_change_join_gaps
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    out = export_residual_state_change_join_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+        out_path=str(args.out),
+        fmt=str(getattr(args, "fmt", "json") or "json"),
+    )
+    print(json_lib.dumps({"ok": True, "wrote": out.get("export_path")}, indent=2))
+    return 0
+
+
+def _cmd_run_residual_state_change_join_repair(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase36.residual_state_change_join import run_residual_state_change_join_repair
+
+    settings = load_settings()
+    configure_logging()
+    out = run_residual_state_change_join_repair(
+        settings,
+        universe_name=str(args.universe).strip(),
+        panel_limit=int(args.panel_limit),
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_report_substrate_freeze_readiness(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from phase33.gis_narrow import inspect_gis_raw_present_no_silver_deterministic
+    from phase33.metrics import collect_phase33_substrate_snapshot
+    from phase35.orchestrator import PHASE34_IMMATURE_SYMBOLS
+    from phase36.joined_metadata_reconciliation import (
+        report_joined_metadata_flag_reconciliation_targets,
+    )
+    from phase36.residual_state_change_join import report_residual_state_change_join_gaps
+    from phase36.substrate_freeze_readiness import report_substrate_freeze_readiness
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    panel_limit = int(args.panel_limit)
+    price_lookahead = int(getattr(args, "price_lookahead_days", 400))
+    after = collect_phase33_substrate_snapshot(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=panel_limit,
+        price_lookahead_days=price_lookahead,
+    )
+    meta_rep = report_joined_metadata_flag_reconciliation_targets(
+        client,
+        universe_name=str(args.universe).strip(),
+        phase35_bundle_path=str(getattr(args, "phase35_bundle_in", "")).strip(),
+        panel_limit=panel_limit,
+    )
+    meta_rows = list(meta_rep.get("rows") or [])
+    meta_summary = {
+        "metadata_flags_still_present_count": sum(
+            1 for r in meta_rows if r.get("has_metadata_flag")
+        ),
+    }
+    residual = report_residual_state_change_join_gaps(
+        client,
+        universe_name=str(args.universe).strip(),
+        panel_limit=panel_limit,
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+    )
+    gis_out = inspect_gis_raw_present_no_silver_deterministic(
+        client, universe_name=str(args.universe).strip(), panel_limit=panel_limit
+    )
+    freeze = report_substrate_freeze_readiness(
+        snapshot_after=after,
+        metadata_reconciliation=meta_summary,
+        residual_join_report_after=residual,
+        gis_outcome=str(gis_out.get("outcome") or ""),
+        immature_forward_symbol_count=len(PHASE34_IMMATURE_SYMBOLS),
+    )
+    out = {
+        "ok": True,
+        "universe_name": str(args.universe).strip(),
+        "substrate_snapshot": after,
+        "joined_metadata_flag_reconciliation_targets": meta_rep,
+        "residual_state_change_join_gaps": residual,
+        "gis_deterministic_inspect": gis_out,
+        "substrate_freeze_readiness": freeze,
+    }
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_export_research_engine_handoff_brief(args: argparse.Namespace) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase36.research_handoff_brief import export_research_engine_handoff_brief_json
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    brief = bundle.get("research_engine_handoff_brief") or {}
+    path = export_research_engine_handoff_brief_json(brief, str(args.out))
+    print(json_lib.dumps({"ok": True, "wrote": path}, indent=2))
+    return 0
+
+
+def _cmd_run_phase36_substrate_freeze_and_research_handoff(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase36.orchestrator import run_phase36_substrate_freeze_and_research_handoff
+    from phase36.review import (
+        write_phase36_substrate_freeze_and_research_handoff_bundle_json,
+        write_phase36_substrate_freeze_and_research_handoff_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase36_substrate_freeze_and_research_handoff(
+        settings,
+        universe_name=str(args.universe).strip(),
+        phase35_bundle_path=str(getattr(args, "phase35_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase36_substrate_freeze_and_research_handoff_bundle_json(bo, bundle=out)
+        print("phase36_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase36_substrate_freeze_and_research_handoff_review_md(md, bundle=out)
+        print("phase36_review_written", flush=True)
+    brief_out = str(getattr(args, "handoff_brief_out", "") or "").strip()
+    if brief_out:
+        from phase36.research_handoff_brief import (
+            export_research_engine_handoff_brief_json,
+        )
+
+        export_research_engine_handoff_brief_json(
+            out.get("research_engine_handoff_brief") or {}, brief_out
+        )
+        print("phase36_handoff_brief_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase36_substrate_freeze_and_research_handoff_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase36.review import (
+        write_phase36_substrate_freeze_and_research_handoff_bundle_json,
+        write_phase36_substrate_freeze_and_research_handoff_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase36_substrate_freeze_and_research_handoff_review_md(
+        str(args.out_md), bundle=bundle
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase36_substrate_freeze_and_research_handoff_bundle_json(
+            bo, bundle=bundle
+        )
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_run_phase36_1_complete_narrow_integrity_round(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase36.orchestrator import run_phase36_1_complete_narrow_integrity_round
+    from phase36.review import (
+        write_phase36_1_complete_narrow_integrity_round_bundle_json,
+        write_phase36_1_complete_narrow_integrity_round_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase36_1_complete_narrow_integrity_round(
+        settings,
+        universe_name=str(args.universe).strip(),
+        phase35_bundle_path=str(getattr(args, "phase35_bundle_in", "")).strip(),
+        panel_limit=int(args.panel_limit),
+        price_lookahead_days=int(getattr(args, "price_lookahead_days", 400)),
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase36_1_complete_narrow_integrity_round_bundle_json(bo, bundle=out)
+        print("phase36_1_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase36_1_complete_narrow_integrity_round_review_md(md, bundle=out)
+        print("phase36_1_review_written", flush=True)
+    brief_out = str(getattr(args, "handoff_brief_out", "") or "").strip()
+    if brief_out:
+        from phase36.research_handoff_brief import (
+            export_research_engine_handoff_brief_json,
+        )
+
+        export_research_engine_handoff_brief_json(
+            out.get("research_engine_handoff_brief") or {}, brief_out
+        )
+        print("phase36_1_handoff_brief_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase36_1_complete_narrow_integrity_round_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase36.review import (
+        write_phase36_1_complete_narrow_integrity_round_bundle_json,
+        write_phase36_1_complete_narrow_integrity_round_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase36_1_complete_narrow_integrity_round_review_md(
+        str(args.out_md), bundle=bundle
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase36_1_complete_narrow_integrity_round_bundle_json(
+            bo, bundle=bundle
+        )
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_run_phase37_research_engine_backlog_sprint(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase37.orchestrator import run_phase37_research_engine_backlog_sprint
+    from phase37.review import (
+        write_phase37_research_engine_backlog_sprint_bundle_json,
+        write_phase37_research_engine_backlog_sprint_review_md,
+    )
+
+    out = run_phase37_research_engine_backlog_sprint(
+        phase36_1_bundle_path=str(getattr(args, "phase36_1_bundle_in", "") or "").strip(),
+        research_data_dir=str(getattr(args, "research_data_dir", "") or "").strip()
+        or "data/research_engine",
+        explanation_out_path=str(getattr(args, "explanation_out", "") or "").strip()
+        or "docs/operator_closeout/phase37_explanation_prototype.md",
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase37_research_engine_backlog_sprint_bundle_json(bo, bundle=out)
+        print("phase37_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase37_research_engine_backlog_sprint_review_md(md, bundle=out)
+        print("phase37_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase37_research_engine_backlog_sprint_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase37.review import (
+        write_phase37_research_engine_backlog_sprint_bundle_json,
+        write_phase37_research_engine_backlog_sprint_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase37_research_engine_backlog_sprint_review_md(
+        str(args.out_md), bundle=bundle
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase37_research_engine_backlog_sprint_bundle_json(
+            bo, bundle=bundle
+        )
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+
+
+def _cmd_run_phase38_db_bound_pit_runner(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase38.orchestrator import run_phase38_db_bound_pit_runner
+    from phase38.review import (
+        write_phase38_db_bound_pit_runner_bundle_json,
+        write_phase38_db_bound_pit_runner_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase38_db_bound_pit_runner(
+        settings,
+        universe_name=str(args.universe).strip(),
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+        lag_calendar_days=int(getattr(args, "lag_calendar_days", 7)),
+        baseline_run_id=str(getattr(args, "baseline_run_id", "") or ""),
+        alternate_run_id=str(getattr(args, "alternate_run_id", "") or ""),
+        research_data_dir=str(getattr(args, "research_data_dir", "") or "").strip()
+        or "data/research_engine",
+        explanation_out=str(getattr(args, "explanation_out", "") or "").strip()
+        or "docs/operator_closeout/phase38_explanation_surface.md",
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase38_db_bound_pit_runner_bundle_json(bo, bundle=out)
+        print("phase38_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase38_db_bound_pit_runner_review_md(md, bundle=out)
+        print("phase38_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase38_db_bound_pit_runner_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase38.review import (
+        write_phase38_db_bound_pit_runner_bundle_json,
+        write_phase38_db_bound_pit_runner_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase38_db_bound_pit_runner_review_md(str(args.out_md), bundle=bundle)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase38_db_bound_pit_runner_bundle_json(bo, bundle=bundle)
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_run_phase39_hypothesis_family_expansion(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase39.orchestrator import run_phase39_hypothesis_family_expansion
+    from phase39.review import (
+        write_phase39_hypothesis_family_expansion_bundle_json,
+        write_phase39_hypothesis_family_expansion_review_md,
+    )
+
+    configure_logging()
+    out = run_phase39_hypothesis_family_expansion(
+        phase38_bundle_in=str(getattr(args, "phase38_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase38_db_bound_pit_runner_bundle.json",
+        research_data_dir=str(getattr(args, "research_data_dir", "") or "").strip()
+        or "data/research_engine",
+        explanation_out=str(getattr(args, "explanation_out", "") or "").strip()
+        or "docs/operator_closeout/phase39_explanation_surface_v2.md",
+        gate_history_filename=str(getattr(args, "gate_history_filename", "") or "").strip()
+        or "promotion_gate_history_v1.json",
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase39_hypothesis_family_expansion_bundle_json(bo, bundle=out)
+        print("phase39_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase39_hypothesis_family_expansion_review_md(md, bundle=out)
+        print("phase39_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase39_hypothesis_family_expansion_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase39.review import (
+        write_phase39_hypothesis_family_expansion_bundle_json,
+        write_phase39_hypothesis_family_expansion_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase39_hypothesis_family_expansion_review_md(str(args.out_md), bundle=bundle)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase39_hypothesis_family_expansion_bundle_json(bo, bundle=bundle)
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+
+
+def _cmd_run_phase40_family_spec_bindings(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase40.orchestrator import run_phase40_family_spec_bindings
+    from phase40.review import (
+        write_phase40_family_spec_bindings_bundle_json,
+        write_phase40_family_spec_bindings_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase40_family_spec_bindings(
+        settings,
+        universe_name=str(args.universe).strip(),
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+        lag_calendar_days=int(getattr(args, "lag_calendar_days", 7)),
+        baseline_run_id=str(getattr(args, "baseline_run_id", "") or ""),
+        alternate_run_id=str(getattr(args, "alternate_run_id", "") or ""),
+        research_data_dir=str(getattr(args, "research_data_dir", "") or "").strip()
+        or "data/research_engine",
+        governance_registry_path=str(
+            getattr(args, "governance_registry_path", "") or ""
+        ).strip()
+        or "data/research_engine/governance_join_policy_registry_v1.json",
+        phase38_bundle_ref=str(getattr(args, "phase38_bundle_ref", "") or "").strip()
+        or "docs/operator_closeout/phase38_db_bound_pit_runner_bundle.json",
+        bundle_out_ref=str(getattr(args, "bundle_out_ref", "") or "").strip()
+        or "docs/operator_closeout/phase40_family_spec_bindings_bundle.json",
+        explanation_out=str(getattr(args, "explanation_out", "") or "").strip()
+        or "docs/operator_closeout/phase40_explanation_surface_v3.md",
+        gate_history_filename=str(getattr(args, "gate_history_filename", "") or "").strip()
+        or "promotion_gate_history_v1.json",
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase40_family_spec_bindings_bundle_json(bo, bundle=out)
+        print("phase40_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase40_family_spec_bindings_review_md(md, bundle=out)
+        print("phase40_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase40_family_spec_bindings_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase40.review import (
+        write_phase40_family_spec_bindings_bundle_json,
+        write_phase40_family_spec_bindings_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase40_family_spec_bindings_review_md(str(args.out_md), bundle=bundle)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase40_family_spec_bindings_bundle_json(bo, bundle=bundle)
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_run_phase41_falsifier_substrate(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase41.orchestrator import run_phase41_falsifier_substrate
+    from phase41.review import (
+        write_phase41_falsifier_substrate_bundle_json,
+        write_phase41_falsifier_substrate_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase41_falsifier_substrate(
+        settings,
+        universe_name=str(args.universe).strip(),
+        state_change_scores_limit=int(
+            getattr(args, "state_change_scores_limit", 50_000)
+        ),
+        baseline_run_id=str(getattr(args, "baseline_run_id", "") or ""),
+        research_data_dir=str(getattr(args, "research_data_dir", "") or "").strip()
+        or "data/research_engine",
+        phase40_bundle_in=str(getattr(args, "phase40_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase40_family_spec_bindings_bundle.json",
+        bundle_out_ref=str(getattr(args, "bundle_out_ref", "") or "").strip()
+        or "docs/operator_closeout/phase41_falsifier_substrate_bundle.json",
+        explanation_out=str(getattr(args, "explanation_out", "") or "").strip()
+        or "docs/operator_closeout/phase41_explanation_surface_v4.md",
+        gate_history_filename=str(getattr(args, "gate_history_filename", "") or "").strip()
+        or "promotion_gate_history_v1.json",
+        filing_index_limit=int(getattr(args, "filing_index_limit", 200)),
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase41_falsifier_substrate_bundle_json(bo, bundle=out)
+        print("phase41_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase41_falsifier_substrate_review_md(md, bundle=out)
+        print("phase41_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase41_falsifier_substrate_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase41.review import (
+        write_phase41_falsifier_substrate_bundle_json,
+        write_phase41_falsifier_substrate_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase41_falsifier_substrate_review_md(str(args.out_md), bundle=bundle)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase41_falsifier_substrate_bundle_json(bo, bundle=bundle)
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_run_phase42_evidence_accumulation(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase42.orchestrator import run_phase42_evidence_accumulation
+    from phase42.review import (
+        write_phase42_evidence_accumulation_bundle_json,
+        write_phase42_evidence_accumulation_review_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    use_db = not bool(getattr(args, "bundle_substrate_only", False))
+    out = run_phase42_evidence_accumulation(
+        settings,
+        phase41_bundle_in=str(getattr(args, "phase41_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase41_falsifier_substrate_bundle.json",
+        research_data_dir=str(getattr(args, "research_data_dir", "") or "").strip()
+        or "data/research_engine",
+        use_supabase=use_db,
+        filing_index_limit=int(getattr(args, "filing_index_limit", 200)),
+        bundle_out_ref=str(getattr(args, "bundle_out_ref", "") or "").strip()
+        or "docs/operator_closeout/phase42_evidence_accumulation_bundle.json",
+        explanation_out=str(getattr(args, "explanation_out", "") or "").strip()
+        or "docs/operator_closeout/phase42_explanation_surface_v5.md",
+        gate_history_filename=str(getattr(args, "gate_history_filename", "") or "").strip()
+        or "promotion_gate_history_v1.json",
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase42_evidence_accumulation_bundle_json(bo, bundle=out)
+        print("phase42_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase42_evidence_accumulation_review_md(md, bundle=out)
+        print("phase42_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase42_evidence_accumulation_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase42.review import (
+        write_phase42_evidence_accumulation_bundle_json,
+        write_phase42_evidence_accumulation_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase42_evidence_accumulation_review_md(str(args.out_md), bundle=bundle)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase42_evidence_accumulation_bundle_json(bo, bundle=bundle)
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_run_phase43_targeted_substrate_backfill(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase43.explanation_v6 import render_phase43_explanation_v6_md
+    from phase43.orchestrator import run_phase43_targeted_substrate_backfill
+    from phase43.review import (
+        write_phase43_targeted_substrate_backfill_bundle_json,
+        write_phase43_targeted_substrate_backfill_review_md,
+        write_phase43_targeted_substrate_before_after_audit_md,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    out = run_phase43_targeted_substrate_backfill(
+        settings,
+        phase42_supabase_bundle_in=str(
+            getattr(args, "phase42_supabase_bundle_in", "") or ""
+        ).strip()
+        or "docs/operator_closeout/phase42_evidence_accumulation_bundle_supabase.json",
+        universe_name=str(getattr(args, "universe", "") or "").strip() or "sp500_current",
+        phase41_bundle_in=str(getattr(args, "phase41_bundle_in", "") or "").strip(),
+        state_change_scores_limit=int(getattr(args, "state_change_scores_limit", 50_000)),
+        baseline_run_id=str(getattr(args, "baseline_run_id", "") or ""),
+        filing_index_limit=int(getattr(args, "filing_index_limit", 200)),
+        max_filing_cik_repairs=int(getattr(args, "max_filing_cik_repairs", 8)),
+    )
+    ba_md = (
+        str(getattr(args, "before_after_audit_out", "") or "").strip()
+        or "docs/operator_closeout/phase43_targeted_substrate_before_after_audit.md"
+    )
+    p_ba = write_phase43_targeted_substrate_before_after_audit_md(
+        ba_md, rows=out.get("before_after_row_audit") or []
+    )
+    out["before_after_audit_md_path"] = p_ba
+
+    expl = (
+        str(getattr(args, "explanation_out", "") or "").strip()
+        or "docs/operator_closeout/phase43_explanation_surface_v6.md"
+    )
+    expl_p = Path(expl)
+    expl_p.parent.mkdir(parents=True, exist_ok=True)
+    expl_p.write_text(render_phase43_explanation_v6_md(bundle=out), encoding="utf-8")
+    out["explanation_v6"] = {"format": "markdown", "path": str(expl_p.resolve())}
+
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase43_targeted_substrate_backfill_bundle_json(bo, bundle=out)
+        print("phase43_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase43_targeted_substrate_backfill_review_md(md, bundle=out)
+        print("phase43_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase43_targeted_substrate_backfill_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase43.review import (
+        write_phase43_targeted_substrate_backfill_bundle_json,
+        write_phase43_targeted_substrate_backfill_review_md,
+        write_phase43_targeted_substrate_before_after_audit_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase43_targeted_substrate_backfill_review_md(str(args.out_md), bundle=bundle)
+    ba = str(getattr(args, "before_after_audit_out", "") or "").strip()
+    if ba:
+        write_phase43_targeted_substrate_before_after_audit_md(
+            ba, rows=bundle.get("before_after_row_audit") or []
+        )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase43_targeted_substrate_backfill_bundle_json(bo, bundle=bundle)
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_write_phase33_forward_coverage_truth_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase33.review import (
+        write_phase33_forward_coverage_truth_bundle_json,
+        write_phase33_forward_coverage_truth_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase33_forward_coverage_truth_review_md(
+        str(args.out_md), bundle=bundle
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase33_forward_coverage_truth_bundle_json(bo, bundle=bundle)
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
 def _cmd_report_public_core_cycle(args: argparse.Namespace) -> int:
     from pathlib import Path
 
@@ -7730,6 +9502,923 @@ def build_parser() -> argparse.ArgumentParser:
         dest="out",
     )
     p31w.set_defaults(func=_cmd_write_phase31_raw_facts_bridge_review)
+
+    p32bundle = argparse.ArgumentParser(add_help=False)
+    p32bundle.add_argument(
+        "--phase31-bundle-in",
+        required=True,
+        dest="phase31_bundle_in",
+        help="Phase 31 클로즈아웃 JSON 경로",
+    )
+
+    p32frg = sub.add_parser(
+        "report-forward-return-gap-targets-after-phase31",
+        parents=[p27, p32bundle],
+        help="Phase 32: Phase 31 터치×missing_excess forward 갭 분류",
+    )
+    p32frg.add_argument(
+        "--max-forward-target-ciks",
+        type=int,
+        default=80,
+        dest="max_forward_target_ciks",
+    )
+    p32frg.set_defaults(func=_cmd_report_forward_return_gap_targets_after_phase31)
+
+    p32frx = sub.add_parser(
+        "export-forward-return-gap-targets-after-phase31",
+        parents=[p27, p32bundle],
+        help="Phase 32: forward 갭 리포트 JSON export",
+    )
+    p32frx.add_argument("--out", required=True)
+    p32frx.add_argument(
+        "--max-forward-target-ciks",
+        type=int,
+        default=80,
+        dest="max_forward_target_ciks",
+    )
+    p32frx.set_defaults(func=_cmd_export_forward_return_gap_targets_after_phase31)
+
+    p32frb = sub.add_parser(
+        "run-forward-return-backfill-for-phase31-touched",
+        parents=[p27, p32bundle],
+        help="Phase 32: Phase 31 터치 상한 forward_returns 백필",
+    )
+    p32frb.add_argument(
+        "--max-forward-target-ciks",
+        type=int,
+        default=30,
+        dest="max_forward_target_ciks",
+    )
+    p32frb.set_defaults(func=_cmd_run_forward_return_backfill_for_phase31_touched)
+
+    p32snt = sub.add_parser(
+        "report-silver-present-snapshot-materialization-targets",
+        parents=[p27],
+        help="Phase 32: silver_present_snapshot_materialization_missing 타깃",
+    )
+    p32snt.set_defaults(func=_cmd_report_silver_present_snapshot_materialization_targets)
+
+    p32snr = sub.add_parser(
+        "run-silver-present-snapshot-materialization-repair",
+        parents=[p27],
+        help="Phase 32: silver→스냅샷 재구성 + 팩터·검증 cascade",
+    )
+    p32snr.add_argument(
+        "--max-silver-snapshot-cik-repairs",
+        type=int,
+        default=15,
+        dest="max_silver_snapshot_cik_repairs",
+    )
+    p32snr.set_defaults(func=_cmd_run_silver_present_snapshot_materialization_repair)
+
+    p32raw = sub.add_parser(
+        "retry-raw-facts-deferred-from-phase31-bundle",
+        parents=[p27, p32bundle],
+        help="Phase 32: deferred facts_extract_exception 재시도·분류",
+    )
+    p32raw.add_argument(
+        "--max-raw-deferred-rows",
+        type=int,
+        default=20,
+        dest="max_raw_deferred_rows",
+    )
+    p32raw.set_defaults(func=_cmd_retry_raw_facts_deferred_from_phase31_bundle)
+
+    p32run = sub.add_parser(
+        "run-phase32-forward-unlock-and-snapshot-cleanup",
+        parents=[p27, p32bundle],
+        help="Phase 32: forward 백필·스냅/GIS·raw 재시도 오케스트레이션",
+    )
+    p32run.add_argument(
+        "--max-forward-target-ciks",
+        type=int,
+        default=30,
+        dest="max_forward_target_ciks",
+    )
+    p32run.add_argument(
+        "--max-silver-snapshot-cik-repairs",
+        type=int,
+        default=15,
+        dest="max_silver_snapshot_cik_repairs",
+    )
+    p32run.add_argument(
+        "--max-raw-deferred-rows",
+        type=int,
+        default=20,
+        dest="max_raw_deferred_rows",
+    )
+    p32run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase32_forward_unlock_and_snapshot_cleanup_bundle.json",
+        dest="bundle_out",
+    )
+    p32run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase32_forward_unlock_and_snapshot_cleanup_review.md",
+        dest="out_md",
+    )
+    p32run.set_defaults(func=_cmd_run_phase32_forward_unlock_and_snapshot_cleanup)
+
+    p32w = sub.add_parser(
+        "write-phase32-forward-unlock-and-snapshot-cleanup-review",
+        help="Phase 32: 번들 → review MD (+ 선택 bundle JSON)",
+    )
+    p32w.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p32w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase32_forward_unlock_and_snapshot_cleanup_review.md",
+        dest="out_md",
+    )
+    p32w.add_argument(
+        "--bundle-out",
+        default="",
+        dest="bundle_out",
+    )
+    p32w.set_defaults(func=_cmd_write_phase32_forward_unlock_and_snapshot_cleanup_review)
+
+    p33bundle = argparse.ArgumentParser(add_help=False)
+    p33bundle.add_argument(
+        "--phase32-bundle-in",
+        required=True,
+        dest="phase32_bundle_in",
+        help="Phase 32 closeout JSON path",
+    )
+
+    p33gap = argparse.ArgumentParser(add_help=False)
+    p33gap.add_argument(
+        "--phase32-bundle-in",
+        required=True,
+        dest="phase32_bundle_in",
+    )
+    p33gap.add_argument(
+        "--price-lookahead-days",
+        type=int,
+        default=400,
+        dest="price_lookahead_days",
+    )
+
+    p33mf = sub.add_parser(
+        "report-forward-metric-truth-audit",
+        parents=[p27, p33bundle],
+        help="Phase 33: row vs symbol-queue vs joined truth (Phase 32 touched set)",
+    )
+    p33mf.set_defaults(func=_cmd_report_forward_metric_truth_audit)
+
+    p33mfx = sub.add_parser(
+        "export-forward-metric-truth-audit",
+        parents=[p27, p33bundle],
+        help="Phase 33: export metric truth audit JSON",
+    )
+    p33mfx.add_argument("--out", required=True)
+    p33mfx.set_defaults(func=_cmd_export_forward_metric_truth_audit)
+
+    p33pc = sub.add_parser(
+        "report-price-coverage-gaps-for-forward",
+        parents=[p33gap],
+        help="Phase 33: classify insufficient_price_history from Phase 32 bundle",
+    )
+    p33pc.set_defaults(func=_cmd_report_price_coverage_gaps_for_forward)
+
+    p33pbr = sub.add_parser(
+        "run-price-coverage-backfill-for-forward",
+        parents=[p33gap],
+        help="Phase 33: deterministic price ingest for missing_window class",
+    )
+    p33pbr.set_defaults(func=_cmd_run_price_coverage_backfill_for_forward)
+
+    p33fwr = sub.add_parser(
+        "run-forward-return-retry-after-price-repair",
+        parents=[p27, p33bundle],
+        help="Phase 33: forward rebuild for Phase 32 NQ error symbols",
+    )
+    p33fwr.set_defaults(func=_cmd_run_forward_return_retry_after_price_repair)
+
+    p33gis = sub.add_parser(
+        "inspect-gis-deterministic-raw-silver-seam",
+        parents=[p27],
+        help="Phase 33: GIS concept-map sample only (narrow)",
+    )
+    p33gis.set_defaults(func=_cmd_inspect_gis_deterministic_raw_silver_seam)
+
+    p33run = sub.add_parser(
+        "run-phase33-forward-coverage-truth",
+        parents=[p27, p33bundle],
+        help="Phase 33: truth audit + price + forward retry + GIS + bundle",
+    )
+    p33run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase33_forward_coverage_truth_bundle.json",
+        dest="bundle_out",
+    )
+    p33run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase33_forward_coverage_truth_review.md",
+        dest="out_md",
+    )
+    p33run.set_defaults(func=_cmd_run_phase33_forward_coverage_truth)
+
+    p33w = sub.add_parser(
+        "write-phase33-forward-coverage-truth-review",
+        help="Phase 33: bundle to review MD (+ optional JSON copy)",
+    )
+    p33w.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p33w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase33_forward_coverage_truth_review.md",
+        dest="out_md",
+    )
+    p33w.add_argument("--bundle-out", default="", dest="bundle_out")
+    p33w.set_defaults(func=_cmd_write_phase33_forward_coverage_truth_review)
+
+    p34pv = sub.add_parser(
+        "report-forward-validation-propagation-gaps",
+        parents=[p27, p33bundle],
+        help="Phase 34: forward vs validation excess (터치 심볼)",
+    )
+    p34pv.set_defaults(func=_cmd_report_forward_validation_propagation_gaps)
+
+    p34pve = sub.add_parser(
+        "export-forward-validation-propagation-gaps",
+        parents=[p27, p33bundle],
+        help="Phase 34: export propagation gap JSON",
+    )
+    p34pve.add_argument("--out", required=True)
+    p34pve.set_defaults(func=_cmd_export_forward_validation_propagation_gaps)
+
+    p34vr = sub.add_parser(
+        "run-validation-refresh-after-forward-propagation",
+        parents=[p27, p33bundle],
+        help="Phase 34: bounded validation panel rebuild (forward present, excess null)",
+    )
+    p34vr.set_defaults(func=_cmd_run_validation_refresh_after_forward_propagation)
+
+    p34mt = sub.add_parser(
+        "report-matured-forward-retry-targets",
+        parents=[p33gap],
+        help="Phase 34: Phase32 NQ errors 중 성숙 창만 분리",
+    )
+    p34mt.set_defaults(func=_cmd_report_matured_forward_retry_targets)
+
+    p34mte = sub.add_parser(
+        "export-matured-forward-retry-targets",
+        parents=[p33gap],
+        help="Phase 34: export matured retry targets JSON",
+    )
+    p34mte.add_argument("--out", required=True)
+    p34mte.set_defaults(func=_cmd_export_matured_forward_retry_targets)
+
+    p34mr = sub.add_parser(
+        "run-matured-forward-retry",
+        parents=[p27, p33bundle],
+        help="Phase 34: forward rebuild for maturity_eligible only",
+    )
+    p34mr.set_defaults(func=_cmd_run_matured_forward_retry)
+
+    p34run = sub.add_parser(
+        "run-phase34-forward-validation-propagation",
+        parents=[p27, p33bundle],
+        help="Phase 34: 전파 감사·refresh·성숙 retry·가격·GIS·번들",
+    )
+    p34run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase34_forward_validation_propagation_bundle.json",
+        dest="bundle_out",
+    )
+    p34run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase34_forward_validation_propagation_review.md",
+        dest="out_md",
+    )
+    p34run.set_defaults(func=_cmd_run_phase34_forward_validation_propagation)
+
+    p34w = sub.add_parser(
+        "write-phase34-forward-validation-propagation-review",
+        help="Phase 34: bundle → review MD (+ optional JSON copy)",
+    )
+    p34w.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p34w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase34_forward_validation_propagation_review.md",
+        dest="out_md",
+    )
+    p34w.add_argument("--bundle-out", default="", dest="bundle_out")
+    p34w.set_defaults(func=_cmd_write_phase34_forward_validation_propagation_review)
+
+    p34in = argparse.ArgumentParser(add_help=False)
+    p34in.add_argument(
+        "--phase34-bundle-in",
+        required=True,
+        dest="phase34_bundle_in",
+        help="Phase 34 closeout JSON path",
+    )
+
+    p35scd = argparse.ArgumentParser(add_help=False)
+    p35scd.add_argument(
+        "--phase34-bundle-in",
+        required=True,
+        dest="phase34_bundle_in",
+    )
+    p35scd.add_argument(
+        "--state-change-scores-limit",
+        type=int,
+        default=50_000,
+        dest="state_change_scores_limit",
+    )
+
+    p34in_pl = argparse.ArgumentParser(add_help=False)
+    p34in_pl.add_argument(
+        "--phase34-bundle-in",
+        required=True,
+        dest="phase34_bundle_in",
+    )
+    p34in_pl.add_argument(
+        "--price-lookahead-days",
+        type=int,
+        default=400,
+        dest="price_lookahead_days",
+    )
+
+    p35refresh = argparse.ArgumentParser(add_help=False)
+    p35refresh.add_argument(
+        "--phase34-bundle-in",
+        required=True,
+        dest="phase34_bundle_in",
+    )
+    p35refresh.add_argument(
+        "--max-state-change-issuers",
+        type=int,
+        default=2500,
+        dest="max_state_change_issuers",
+    )
+
+    p35jd = sub.add_parser(
+        "report-forward-validation-join-displacement",
+        parents=[p27, p35scd],
+        help="Phase 35: Phase34 synchronized rows vs joined recipe substrate",
+    )
+    p35jd.set_defaults(func=_cmd_report_forward_validation_join_displacement)
+
+    p35jde = sub.add_parser(
+        "export-forward-validation-join-displacement",
+        parents=[p27, p35scd],
+        help="Phase 35: export join displacement JSON",
+    )
+    p35jde.add_argument("--out", required=True)
+    p35jde.set_defaults(func=_cmd_export_forward_validation_join_displacement)
+
+    p35scg = sub.add_parser(
+        "report-state-change-join-gaps-after-phase34",
+        parents=[p27, p35scd],
+        help="Phase 35: state_change join seam audit on synchronized set",
+    )
+    p35scg.set_defaults(func=_cmd_report_state_change_join_gaps_after_phase34)
+
+    p35scr = sub.add_parser(
+        "run-state-change-join-refresh-after-phase34",
+        parents=[p27, p35refresh],
+        help="Phase 35: bounded state_change rerun for repairable buckets",
+    )
+    p35scr.set_defaults(func=_cmd_run_state_change_join_refresh_after_phase34)
+
+    p35mws = sub.add_parser(
+        "report-matured-window-schedule-for-forward",
+        parents=[p34in_pl],
+        help="Phase 35: immature 7 schedule + eligibility",
+    )
+    p35mws.set_defaults(func=_cmd_report_matured_window_schedule_for_forward)
+
+    p35mwse = sub.add_parser(
+        "export-matured-window-schedule-for-forward",
+        parents=[p34in_pl],
+        help="Phase 35: export maturity schedule JSON",
+    )
+    p35mwse.add_argument("--out", required=True)
+    p35mwse.set_defaults(func=_cmd_export_matured_window_schedule_for_forward)
+
+    p35run = sub.add_parser(
+        "run-phase35-join-displacement-and-maturity",
+        parents=[p27, p34in],
+        help="Phase 35: displacement, gaps, maturity, price, state_change, GIS, bundle",
+    )
+    p35run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase35_join_displacement_and_maturity_bundle.json",
+        dest="bundle_out",
+    )
+    p35run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase35_join_displacement_and_maturity_review.md",
+        dest="out_md",
+    )
+    p35run.set_defaults(func=_cmd_run_phase35_join_displacement_and_maturity)
+
+    p35w = sub.add_parser(
+        "write-phase35-join-displacement-and-maturity-review",
+        help="Phase 35: bundle to review MD (+ optional JSON copy)",
+    )
+    p35w.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p35w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase35_join_displacement_and_maturity_review.md",
+        dest="out_md",
+    )
+    p35w.add_argument("--bundle-out", default="", dest="bundle_out")
+    p35w.set_defaults(func=_cmd_write_phase35_join_displacement_and_maturity_review)
+
+    p36in = argparse.ArgumentParser(add_help=False)
+    p36in.add_argument(
+        "--phase35-bundle-in",
+        required=True,
+        dest="phase35_bundle_in",
+        help="Phase 35 closeout JSON path",
+    )
+
+    p36sc = argparse.ArgumentParser(add_help=False)
+    p36sc.add_argument(
+        "--state-change-scores-limit",
+        type=int,
+        default=50_000,
+        dest="state_change_scores_limit",
+    )
+
+    p36meta = sub.add_parser(
+        "report-joined-metadata-flag-reconciliation-targets",
+        parents=[p27, p36in],
+        help="Phase 36: Phase35 newly joined rows metadata flag audit",
+    )
+    p36meta.set_defaults(func=_cmd_report_joined_metadata_flag_reconciliation_targets)
+
+    p36metae = sub.add_parser(
+        "export-joined-metadata-flag-reconciliation-targets",
+        parents=[p27, p36in],
+        help="Phase 36: export metadata reconciliation targets JSON/CSV",
+    )
+    p36metae.add_argument("--out", required=True)
+    p36metae.add_argument("--fmt", default="json", choices=("json", "csv"))
+    p36metae.set_defaults(func=_cmd_export_joined_metadata_flag_reconciliation_targets)
+
+    p36metar = sub.add_parser(
+        "run-joined-metadata-reconciliation-repair",
+        parents=[p27, p36in],
+        help="Phase 36: two-pass metadata repair (hydration → mid → stale rebuild → after)",
+    )
+    p36metar.set_defaults(func=_cmd_run_joined_metadata_reconciliation_repair)
+
+    p36metar2 = sub.add_parser(
+        "run-joined-metadata-reconciliation-repair-two-pass",
+        parents=[p27, p36in],
+        help="Phase 36.1: explicit alias for two-pass joined metadata reconciliation",
+    )
+    p36metar2.set_defaults(func=_cmd_run_joined_metadata_reconciliation_repair_two_pass)
+
+    p36res = sub.add_parser(
+        "report-residual-state-change-join-gaps",
+        parents=[p27, p36sc],
+        help="Phase 36: classify residual no_state_change_join panel rows",
+    )
+    p36res.set_defaults(func=_cmd_report_residual_state_change_join_gaps)
+
+    p36rese = sub.add_parser(
+        "export-residual-state-change-join-gaps",
+        parents=[p27, p36sc],
+        help="Phase 36: export residual join gaps JSON/CSV",
+    )
+    p36rese.add_argument("--out", required=True)
+    p36rese.add_argument("--fmt", default="json", choices=("json", "csv"))
+    p36rese.set_defaults(func=_cmd_export_residual_state_change_join_gaps)
+
+    p36resr = sub.add_parser(
+        "run-residual-state-change-join-repair",
+        parents=[p27, p36sc],
+        help="Phase 36: bounded state_change for not_built residual CIKs only",
+    )
+    p36resr.set_defaults(func=_cmd_run_residual_state_change_join_repair)
+
+    p36freeze = sub.add_parser(
+        "report-substrate-freeze-readiness",
+        parents=[p27, p36in, p36sc],
+        help="Phase 36: substrate freeze recommendation (non-vague)",
+    )
+    p36freeze.set_defaults(func=_cmd_report_substrate_freeze_readiness)
+
+    p36brief = sub.add_parser(
+        "export-research-engine-handoff-brief",
+        help="Phase 36: write handoff brief JSON from phase36 bundle",
+    )
+    p36brief.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p36brief.add_argument("--out", required=True)
+    p36brief.set_defaults(func=_cmd_export_research_engine_handoff_brief)
+
+    p36run = sub.add_parser(
+        "run-phase36-substrate-freeze-and-research-handoff",
+        parents=[p27, p36in, p36sc],
+        help="Phase 36: meta recon + residual SC + freeze + handoff bundle",
+    )
+    p36run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase36_substrate_freeze_and_research_handoff_bundle.json",
+        dest="bundle_out",
+    )
+    p36run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase36_substrate_freeze_and_research_handoff_review.md",
+        dest="out_md",
+    )
+    p36run.add_argument(
+        "--handoff-brief-out",
+        default="",
+        dest="handoff_brief_out",
+        help="Optional path for research_engine_handoff_brief JSON only",
+    )
+    p36run.set_defaults(func=_cmd_run_phase36_substrate_freeze_and_research_handoff)
+
+    p36w = sub.add_parser(
+        "write-phase36-substrate-freeze-and-research-handoff-review",
+        help="Phase 36: bundle to review MD (+ optional JSON copy)",
+    )
+    p36w.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p36w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase36_substrate_freeze_and_research_handoff_review.md",
+        dest="out_md",
+    )
+    p36w.add_argument("--bundle-out", default="", dest="bundle_out")
+    p36w.set_defaults(func=_cmd_write_phase36_substrate_freeze_and_research_handoff_review)
+
+    p361run = sub.add_parser(
+        "run-phase36-1-complete-narrow-integrity-round",
+        parents=[p27, p36in, p36sc],
+        help="Phase 36.1: two-pass meta + PIT deferral report + freeze + handoff (no broad SC)",
+    )
+    p361run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase36_1_complete_narrow_integrity_round_bundle.json",
+        dest="bundle_out",
+    )
+    p361run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase36_1_complete_narrow_integrity_round_review.md",
+        dest="out_md",
+    )
+    p361run.add_argument(
+        "--handoff-brief-out",
+        default="",
+        dest="handoff_brief_out",
+        help="Optional path for research_engine_handoff_brief JSON only",
+    )
+    p361run.set_defaults(func=_cmd_run_phase36_1_complete_narrow_integrity_round)
+
+    p361w = sub.add_parser(
+        "write-phase36-1-complete-narrow-integrity-round-review",
+        help="Phase 36.1: bundle to review MD (+ optional JSON copy)",
+    )
+    p361w.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p361w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase36_1_complete_narrow_integrity_round_review.md",
+        dest="out_md",
+    )
+    p361w.add_argument("--bundle-out", default="", dest="bundle_out")
+    p361w.set_defaults(func=_cmd_write_phase36_1_complete_narrow_integrity_round_review)
+
+    p37run = sub.add_parser(
+        "run-phase37-research-engine-backlog-sprint",
+        help="Phase 37: hypothesis registry, PIT scaffold, casebook, adversarial review, explanation prototype",
+    )
+    p37run.add_argument(
+        "--phase36-1-bundle-in",
+        default="docs/operator_closeout/phase36_1_complete_narrow_integrity_round_bundle.json",
+        dest="phase36_1_bundle_in",
+    )
+    p37run.add_argument(
+        "--research-data-dir",
+        default="data/research_engine",
+        dest="research_data_dir",
+    )
+    p37run.add_argument(
+        "--explanation-out",
+        default="docs/operator_closeout/phase37_explanation_prototype.md",
+        dest="explanation_out",
+    )
+    p37run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase37_research_engine_backlog_sprint_bundle.json",
+        dest="bundle_out",
+    )
+    p37run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase37_research_engine_backlog_sprint_review.md",
+        dest="out_md",
+    )
+    p37run.set_defaults(func=_cmd_run_phase37_research_engine_backlog_sprint)
+
+    p37w = sub.add_parser(
+        "write-phase37-research-engine-backlog-sprint-review",
+        help="Phase 37: bundle to review MD (+ optional JSON copy)",
+    )
+    p37w.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p37w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase37_research_engine_backlog_sprint_review.md",
+        dest="out_md",
+    )
+    p37w.add_argument("--bundle-out", default="", dest="bundle_out")
+    p37w.set_defaults(func=_cmd_write_phase37_research_engine_backlog_sprint_review)
+
+    p38run = sub.add_parser(
+        "run-phase38-db-bound-pit-runner",
+        parents=[p27],
+        help="Phase 38: DB-bound PIT replay for join_key_mismatch fixture + gate + casebook",
+    )
+    p38run.add_argument(
+        "--state-change-scores-limit",
+        type=int,
+        default=50_000,
+        dest="state_change_scores_limit",
+    )
+    p38run.add_argument(
+        "--lag-calendar-days",
+        type=int,
+        default=7,
+        dest="lag_calendar_days",
+    )
+    p38run.add_argument("--baseline-run-id", default="", dest="baseline_run_id")
+    p38run.add_argument("--alternate-run-id", default="", dest="alternate_run_id")
+    p38run.add_argument(
+        "--research-data-dir",
+        default="data/research_engine",
+        dest="research_data_dir",
+    )
+    p38run.add_argument(
+        "--explanation-out",
+        default="docs/operator_closeout/phase38_explanation_surface.md",
+        dest="explanation_out",
+    )
+    p38run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase38_db_bound_pit_runner_bundle.json",
+        dest="bundle_out",
+    )
+    p38run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase38_db_bound_pit_runner_review.md",
+        dest="out_md",
+    )
+    p38run.set_defaults(func=_cmd_run_phase38_db_bound_pit_runner)
+
+    p38w = sub.add_parser(
+        "write-phase38-db-bound-pit-runner-review",
+        help="Phase 38: bundle to review MD (+ optional JSON copy)",
+    )
+    p38w.add_argument("--bundle-in", required=True, dest="bundle_in")
+    p38w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase38_db_bound_pit_runner_review.md",
+        dest="out_md",
+    )
+    p38w.add_argument("--bundle-out", default="", dest="bundle_out")
+    p38w.set_defaults(func=_cmd_write_phase38_db_bound_pit_runner_review)
+
+    p39run = sub.add_parser(
+        "run-phase39-hypothesis-family-expansion",
+        help="Phase 39: broaden hypothesis families, lifecycle, multi-stance review, gate v2, explanation v2",
+    )
+    p39run.add_argument(
+        "--phase38-bundle-in",
+        default="docs/operator_closeout/phase38_db_bound_pit_runner_bundle.json",
+    )
+    p39run.add_argument("--research-data-dir", default="data/research_engine")
+    p39run.add_argument(
+        "--explanation-out",
+        default="docs/operator_closeout/phase39_explanation_surface_v2.md",
+    )
+    p39run.add_argument(
+        "--gate-history-filename",
+        default="promotion_gate_history_v1.json",
+    )
+    p39run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase39_hypothesis_family_expansion_bundle.json",
+    )
+    p39run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase39_hypothesis_family_expansion_review.md",
+    )
+    p39run.set_defaults(func=_cmd_run_phase39_hypothesis_family_expansion)
+
+    p39w = sub.add_parser(
+        "write-phase39-hypothesis-family-expansion-review",
+        help="Regenerate Phase 39 review MD (and optional bundle JSON) from bundle-in",
+    )
+    p39w.add_argument("--bundle-in", required=True)
+    p39w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase39_hypothesis_family_expansion_review.md",
+    )
+    p39w.add_argument("--bundle-out", default="")
+    p39w.set_defaults(func=_cmd_write_phase39_hypothesis_family_expansion_review)
+
+    p40run = sub.add_parser(
+        "run-phase40-family-spec-bindings",
+        help="Phase 40: PIT family specs, shared leakage audit, lifecycle/gate v3 (Supabase)",
+    )
+    p40run.add_argument("--universe", required=True)
+    p40run.add_argument("--state-change-scores-limit", type=int, default=50_000)
+    p40run.add_argument("--lag-calendar-days", type=int, default=7)
+    p40run.add_argument("--baseline-run-id", default="")
+    p40run.add_argument("--alternate-run-id", default="")
+    p40run.add_argument("--research-data-dir", default="data/research_engine")
+    p40run.add_argument(
+        "--governance-registry-path",
+        default="data/research_engine/governance_join_policy_registry_v1.json",
+    )
+    p40run.add_argument(
+        "--phase38-bundle-ref",
+        default="docs/operator_closeout/phase38_db_bound_pit_runner_bundle.json",
+    )
+    p40run.add_argument(
+        "--bundle-out-ref",
+        default="docs/operator_closeout/phase40_family_spec_bindings_bundle.json",
+    )
+    p40run.add_argument(
+        "--explanation-out",
+        default="docs/operator_closeout/phase40_explanation_surface_v3.md",
+    )
+    p40run.add_argument(
+        "--gate-history-filename",
+        default="promotion_gate_history_v1.json",
+    )
+    p40run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase40_family_spec_bindings_bundle.json",
+    )
+    p40run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase40_family_spec_bindings_review.md",
+    )
+    p40run.set_defaults(func=_cmd_run_phase40_family_spec_bindings)
+
+    p40w = sub.add_parser(
+        "write-phase40-family-spec-bindings-review",
+        help="Phase 40: bundle to review MD (+ optional JSON copy)",
+    )
+    p40w.add_argument("--bundle-in", required=True)
+    p40w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase40_family_spec_bindings_review.md",
+    )
+    p40w.add_argument("--bundle-out", default="")
+    p40w.set_defaults(func=_cmd_write_phase40_family_spec_bindings_review)
+
+    p41run = sub.add_parser(
+        "run-phase41-falsifier-substrate",
+        help="Phase 41: filing_index + sector metadata; rerun 2 families; gate v4 (Supabase)",
+    )
+    p41run.add_argument("--universe", required=True)
+    p41run.add_argument("--state-change-scores-limit", type=int, default=50_000)
+    p41run.add_argument("--baseline-run-id", default="")
+    p41run.add_argument("--research-data-dir", default="data/research_engine")
+    p41run.add_argument(
+        "--phase40-bundle-in",
+        default="docs/operator_closeout/phase40_family_spec_bindings_bundle.json",
+        help="Phase 40 bundle for before/after comparison (optional path)",
+    )
+    p41run.add_argument(
+        "--bundle-out-ref",
+        default="docs/operator_closeout/phase41_falsifier_substrate_bundle.json",
+    )
+    p41run.add_argument(
+        "--explanation-out",
+        default="docs/operator_closeout/phase41_explanation_surface_v4.md",
+    )
+    p41run.add_argument(
+        "--gate-history-filename",
+        default="promotion_gate_history_v1.json",
+    )
+    p41run.add_argument("--filing-index-limit", type=int, default=200)
+    p41run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase41_falsifier_substrate_bundle.json",
+    )
+    p41run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase41_falsifier_substrate_review.md",
+    )
+    p41run.set_defaults(func=_cmd_run_phase41_falsifier_substrate)
+
+    p41w = sub.add_parser(
+        "write-phase41-falsifier-substrate-review",
+        help="Phase 41: bundle to review MD (+ optional JSON copy)",
+    )
+    p41w.add_argument("--bundle-in", required=True)
+    p41w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase41_falsifier_substrate_review.md",
+    )
+    p41w.add_argument("--bundle-out", default="")
+    p41w.set_defaults(func=_cmd_write_phase41_falsifier_substrate_review)
+
+    p42run = sub.add_parser(
+        "run-phase42-evidence-accumulation",
+        help="Phase 42: blocker taxonomy + discrimination + narrowing + gate (Phase 41 bundle)",
+    )
+    p42run.add_argument(
+        "--phase41-bundle-in",
+        default="docs/operator_closeout/phase41_falsifier_substrate_bundle.json",
+    )
+    p42run.add_argument("--research-data-dir", default="data/research_engine")
+    p42run.add_argument(
+        "--bundle-substrate-only",
+        action="store_true",
+        help="Do not call Supabase; replay blockers from Phase 41 pit filing/sector per_row",
+    )
+    p42run.add_argument("--filing-index-limit", type=int, default=200)
+    p42run.add_argument(
+        "--bundle-out-ref",
+        default="docs/operator_closeout/phase42_evidence_accumulation_bundle.json",
+    )
+    p42run.add_argument(
+        "--explanation-out",
+        default="docs/operator_closeout/phase42_explanation_surface_v5.md",
+    )
+    p42run.add_argument(
+        "--gate-history-filename",
+        default="promotion_gate_history_v1.json",
+    )
+    p42run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase42_evidence_accumulation_bundle.json",
+    )
+    p42run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase42_evidence_accumulation_review.md",
+    )
+    p42run.set_defaults(func=_cmd_run_phase42_evidence_accumulation)
+
+    p42w = sub.add_parser(
+        "write-phase42-evidence-accumulation-review",
+        help="Phase 42: bundle to review MD (+ optional JSON copy)",
+    )
+    p42w.add_argument("--bundle-in", required=True)
+    p42w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase42_evidence_accumulation_review.md",
+    )
+    p42w.add_argument("--bundle-out", default="")
+    p42w.set_defaults(func=_cmd_write_phase42_evidence_accumulation_review)
+
+    p43run = sub.add_parser(
+        "run-phase43-targeted-substrate-backfill",
+        help="Phase 43: 8-row cohort filing+metadata backfill, Phase41/42 Supabase retest",
+    )
+    p43run.add_argument(
+        "--phase42-supabase-bundle-in",
+        default="docs/operator_closeout/phase42_evidence_accumulation_bundle_supabase.json",
+    )
+    p43run.add_argument("--universe", default="sp500_current")
+    p43run.add_argument(
+        "--phase41-bundle-in",
+        default="",
+        help="Optional; default from Phase 42 bundle phase41_bundle_path",
+    )
+    p43run.add_argument("--state-change-scores-limit", type=int, default=50_000)
+    p43run.add_argument("--baseline-run-id", default="")
+    p43run.add_argument("--filing-index-limit", type=int, default=200)
+    p43run.add_argument("--max-filing-cik-repairs", type=int, default=8)
+    p43run.add_argument(
+        "--before-after-audit-out",
+        default="docs/operator_closeout/phase43_targeted_substrate_before_after_audit.md",
+    )
+    p43run.add_argument(
+        "--explanation-out",
+        default="docs/operator_closeout/phase43_explanation_surface_v6.md",
+    )
+    p43run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase43_targeted_substrate_backfill_bundle.json",
+    )
+    p43run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase43_targeted_substrate_backfill_review.md",
+    )
+    p43run.set_defaults(func=_cmd_run_phase43_targeted_substrate_backfill)
+
+    p43w = sub.add_parser(
+        "write-phase43-targeted-substrate-backfill-review",
+        help="Phase 43: bundle to review MD (+ optional before/after audit + JSON copy)",
+    )
+    p43w.add_argument("--bundle-in", required=True)
+    p43w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase43_targeted_substrate_backfill_review.md",
+    )
+    p43w.add_argument(
+        "--before-after-audit-out",
+        default="",
+        help="If set, regenerate before/after audit MD from bundle rows",
+    )
+    p43w.add_argument("--bundle-out", default="")
+    p43w.set_defaults(func=_cmd_write_phase43_targeted_substrate_backfill_review)
 
     p24c = sub.add_parser(
         "advance-public-first-cycle",

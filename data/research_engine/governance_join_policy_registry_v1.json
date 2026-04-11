@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "policy_id": "governance_registry_bound_pick_v1",
+  "description": "Research-only join evaluation bound: signal_available_date plus N calendar days (distinct from Phase 38 lag=7).",
+  "lag_calendar_days": 14
+}

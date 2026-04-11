@@ -153,6 +153,7 @@ def run_raw_facts_backfill_repair(
         "blocked_mapping_or_schema_seam_count": len(blocked_mapping_or_schema_seam),
         "repaired_to_raw_present": repaired_to_raw_present,
         "deferred_external_source_gap_sample": deferred_external_source_gap[:50],
+        "deferred_external_source_gap_all": deferred_external_source_gap[:120],
         "blocked_mapping_or_schema_seam": blocked_mapping_or_schema_seam[:60],
         "preflight": pre,
     }

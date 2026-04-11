@@ -1,0 +1,488 @@
+{
+  "ok": true,
+  "phase": "phase37_research_engine_backlog_sprint_1",
+  "generated_utc": "2026-04-10T16:46:00.732862+00:00",
+  "ground_truth_phase36_1": {
+    "joined_recipe_substrate_row_count": 266,
+    "joined_market_metadata_flagged_count": 0,
+    "thin_input_share": 1.0,
+    "missing_excess_return_1q": 78,
+    "missing_validation_symbol_count": 151,
+    "missing_quarter_snapshot_for_cik": 148,
+    "factor_panel_missing_for_resolved_cik": 148,
+    "no_state_change_join": 8,
+    "metadata_flags_cleared_now_count": 23,
+    "metadata_flags_still_present_count": 0,
+    "metadata_reconciliation_bucket_counts_before": {
+      "stale_metadata_flag_after_join": 23
+    },
+    "metadata_reconciliation_bucket_counts_mid": {
+      "stale_metadata_flag_after_join": 23
+    },
+    "metadata_reconciliation_bucket_counts_after": {
+      "other_join_metadata_seam": 23
+    },
+    "validation_rebuild_target_count_after_hydration": 23,
+    "residual_join_rows_still_blocked_count": 8,
+    "residual_pit_deferred_row_count": 8,
+    "maturity_deferred_symbol_count": 7,
+    "gis_outcome": "blocked_unmapped_concepts_remain_in_sample",
+    "substrate_freeze_recommendation": "freeze_public_core_and_shift_to_research_engine",
+    "phase37_recommendation": "execute_research_engine_backlog_sprint"
+  },
+  "research_engine_constitution": {
+    "version": 1,
+    "pillars": [
+      {
+        "pillar_id": "hypothesis_forge",
+        "summary": "Turn substrate-stable signals into testable hypotheses with explicit falsifiers.",
+        "python_modules": [
+          "phase37.hypothesis_registry"
+        ],
+        "persistent_artifacts": [
+          "data/research_engine/hypotheses_v1.json"
+        ],
+        "work_unit_types": [
+          "hypothesis.create",
+          "hypothesis.attach_metrics",
+          "hypothesis.transition_status"
+        ]
+      },
+      {
+        "pillar_id": "pit_validation_lab",
+        "summary": "Deterministic PIT replay under explicit as-of / join / lag boundaries.",
+        "python_modules": [
+          "phase37.pit_experiment"
+        ],
+        "persistent_artifacts": [
+          "data/research_engine/pit_experiments_v1.json"
+        ],
+        "work_unit_types": [
+          "pit.bind_spec",
+          "pit.execute_scaffold",
+          "pit.compare_alternate_boundary"
+        ]
+      },
+      {
+        "pillar_id": "adversarial_peer_review",
+        "summary": "Structured challenges to thesis, mechanism, and data lineage — queryable, not chat logs.",
+        "python_modules": [
+          "phase37.adversarial_review"
+        ],
+        "persistent_artifacts": [
+          "data/research_engine/adversarial_reviews_v1.json"
+        ],
+        "work_unit_types": [
+          "review.submit",
+          "review.resolve",
+          "review.record_impact"
+        ]
+      },
+      {
+        "pillar_id": "promotion_gate",
+        "summary": "Explicit criteria before a hypothesis influences product surfaces (no auto-promotion).",
+        "python_modules": [
+          "phase37.hypothesis_registry"
+        ],
+        "persistent_artifacts": [],
+        "work_unit_types": [
+          "gate.checklist",
+          "gate.block",
+          "gate.record_decision"
+        ]
+      },
+      {
+        "pillar_id": "residual_memory_casebook",
+        "summary": "Deferred substrate tails as first-class cases with reopen conditions.",
+        "python_modules": [
+          "phase37.casebook"
+        ],
+        "persistent_artifacts": [
+          "data/research_engine/casebook_v1.json"
+        ],
+        "work_unit_types": [
+          "casebook.upsert",
+          "casebook.reassess_trigger"
+        ]
+      },
+      {
+        "pillar_id": "user_facing_explanation_layer",
+        "summary": "Judgment-augmenting narratives tied to evidence, not buy/sell simplification.",
+        "python_modules": [
+          "phase37.explanation_surface"
+        ],
+        "persistent_artifacts": [
+          "docs/operator_closeout/phase37_explanation_prototype.md"
+        ],
+        "work_unit_types": [
+          "explain.render_hypothesis",
+          "explain.render_signal_case"
+        ]
+      }
+    ],
+    "non_goals": [
+      "broad_substrate_repair_as_headline",
+      "auto_promote_hypothesis",
+      "production_scoring_rewrite_without_governance",
+      "generic_ai_stock_picker_ux"
+    ]
+  },
+  "executable_vs_conceptual": {
+    "executable_now": [
+      "JSON hypothesis objects (hypotheses_v1.json)",
+      "JSON casebook entries (casebook_v1.json)",
+      "PIT experiment scaffold record (pit_experiments_v1.json) — inputs/alternates only",
+      "Adversarial review records (adversarial_reviews_v1.json)",
+      "Explanation prototype markdown (phase37_explanation_prototype.md)"
+    ],
+    "conceptual_phase38": [
+      "DB-bound PIT replay comparing alternate as_of / run specs",
+      "Promotion gate checklist persistence and enforcement hooks",
+      "User-facing app surface wiring (API/UI) beyond static MD"
+    ]
+  },
+  "hypothesis_registry_v1": {
+    "hypotheses": [
+      {
+        "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+        "title": "Residual no_state_change_join (join_key_mismatch) reflects score-run as-of vs signal-date ordering, not missing SC build",
+        "economic_thesis": "For a subset of joined recipe rows, state_change scores exist but the earliest as_of in the referenced run is after the signal_available_date; joins fail under current PIT keys while economic content may still be coherent under alternate as-of or lag conventions.",
+        "expected_mechanism": "Replaying join logic under alternate state_change run selection or explicit lag windows will reclassify some rows from join_key_mismatch to joined or to a documented exclusion bucket.",
+        "applicable_horizon": "1y",
+        "dependent_features": [
+          "state_change_scores.as_of",
+          "signal_available_date",
+          "pick_state_change_at_or_before_signal",
+          "joined_recipe_substrate_row"
+        ],
+        "dependent_metrics": [
+          "no_state_change_join_headline",
+          "residual_join_bucket_counts.state_change_built_but_join_key_mismatch"
+        ],
+        "required_substrate_scope": {
+          "universe": "sp500_current",
+          "residual_bucket": "state_change_built_but_join_key_mismatch",
+          "fixture_symbols": [
+            "ADSK",
+            "BBY",
+            "CRM",
+            "CRWD",
+            "DELL",
+            "DUK",
+            "NVDA",
+            "WMT"
+          ]
+        },
+        "falsifiers": [
+          "All eight rows remain join_key_mismatch under every deterministic alternate run spec in the PIT harness.",
+          "Alternate boundaries introduce lookahead or non-PIT leakage per audit rules."
+        ],
+        "status": "under_test"
+      }
+    ]
+  },
+  "pit_lab": {
+    "fixture_join_key_mismatch_rows": [
+      {
+        "symbol": "BBY",
+        "cik": "0000764478",
+        "signal_available_date": "2025-12-08",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "ADSK",
+        "cik": "0000769397",
+        "signal_available_date": "2025-11-27",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "CRM",
+        "cik": "0001108524",
+        "signal_available_date": "2025-12-04",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "CRWD",
+        "cik": "0001535527",
+        "signal_available_date": "2025-12-03",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "DELL",
+        "cik": "0001571996",
+        "signal_available_date": "2025-12-10",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "DUK",
+        "cik": "0001326160",
+        "signal_available_date": "2025-11-10",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-03-28"
+      },
+      {
+        "symbol": "NVDA",
+        "cik": "0001045810",
+        "signal_available_date": "2025-11-20",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "WMT",
+        "cik": "0000104169",
+        "signal_available_date": "2025-12-04",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      }
+    ],
+    "default_spec": {
+      "spec_id": "pit_spec_join_mismatch_fixture_v1",
+      "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+      "as_of_policy": "signal_available_date_strict_pit",
+      "state_change_run_mode": "reference_run_from_phase36_audit",
+      "join_key_variant": "pick_state_change_at_or_before_signal_default",
+      "notes": "Baseline spec mirrors production join; alternate specs to be executed in Phase 38."
+    },
+    "experiments": [
+      {
+        "experiment_id": "5118256e-341b-43ba-b5a9-7fd71c9d1dee",
+        "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+        "spec": {
+          "spec_id": "pit_spec_join_mismatch_fixture_v1",
+          "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+          "as_of_policy": "signal_available_date_strict_pit",
+          "state_change_run_mode": "reference_run_from_phase36_audit",
+          "join_key_variant": "pick_state_change_at_or_before_signal_default",
+          "notes": "Baseline spec mirrors production join; alternate specs to be executed in Phase 38."
+        },
+        "inputs_snapshot": {
+          "fixture_row_count": 8,
+          "fixture_symbols": [
+            "BBY",
+            "ADSK",
+            "CRM",
+            "CRWD",
+            "DELL",
+            "DUK",
+            "NVDA",
+            "WMT"
+          ],
+          "rows": [
+            {
+              "symbol": "BBY",
+              "cik": "0000764478",
+              "signal_available_date": "2025-12-08",
+              "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+              "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+              "first_state_change_as_of_in_run": "2026-09-28"
+            },
+            {
+              "symbol": "ADSK",
+              "cik": "0000769397",
+              "signal_available_date": "2025-11-27",
+              "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+              "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+              "first_state_change_as_of_in_run": "2026-09-28"
+            },
+            {
+              "symbol": "CRM",
+              "cik": "0001108524",
+              "signal_available_date": "2025-12-04",
+              "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+              "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+              "first_state_change_as_of_in_run": "2026-09-28"
+            },
+            {
+              "symbol": "CRWD",
+              "cik": "0001535527",
+              "signal_available_date": "2025-12-03",
+              "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+              "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+              "first_state_change_as_of_in_run": "2026-09-28"
+            },
+            {
+              "symbol": "DELL",
+              "cik": "0001571996",
+              "signal_available_date": "2025-12-10",
+              "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+              "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+              "first_state_change_as_of_in_run": "2026-09-28"
+            },
+            {
+              "symbol": "DUK",
+              "cik": "0001326160",
+              "signal_available_date": "2025-11-10",
+              "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+              "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+              "first_state_change_as_of_in_run": "2026-03-28"
+            },
+            {
+              "symbol": "NVDA",
+              "cik": "0001045810",
+              "signal_available_date": "2025-11-20",
+              "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+              "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+              "first_state_change_as_of_in_run": "2026-09-28"
+            },
+            {
+              "symbol": "WMT",
+              "cik": "0000104169",
+              "signal_available_date": "2025-12-04",
+              "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+              "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+              "first_state_change_as_of_in_run": "2026-09-28"
+            }
+          ]
+        },
+        "outputs": {
+          "runner": "phase37_pit_experiment_scaffold_v1",
+          "engine_result": "scaffold_only_no_db_execution",
+          "summary": "Recorded deterministic fixture and spec; compare_alternates reserved for Phase 38 runner that replays join under alternate as-of assumptions."
+        },
+        "failure_modes": [],
+        "compared_alternates": [
+          {
+            "label": "baseline_phase36_run_reference",
+            "state_change_run_mode": "fixed_run_id_from_substrate_audit",
+            "expected": "join_key_mismatch_for_fixture_set"
+          },
+          {
+            "label": "alternate_not_yet_executed",
+            "state_change_run_mode": "earlier_as_of_run_or_explicit_lag_shim",
+            "expected": "TBD_phase38_db_bound_runner"
+          }
+        ],
+        "created_utc": "2026-04-10T16:46:00.731326+00:00",
+        "status": "recorded_scaffold"
+      }
+    ]
+  },
+  "adversarial_reviews_v1": [
+    {
+      "review_id": "17b65b06-5001-401a-be26-25064897af17",
+      "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+      "reviewer_stance": "data_lineage_auditor",
+      "critique_category": "pit_integrity",
+      "challenge_text": "Alternate state_change run selection might smuggle lookahead if the run's as_of grid is not strictly ≤ signal_available_date under the same governance rules as production.",
+      "decision_impact": "require_extra_test",
+      "resolution": "deferred",
+      "resolution_notes": "Deferred until Phase 38 DB-bound PIT runner proves deterministic boundaries for each alternate spec; no promotion until documented.",
+      "created_utc": "2026-04-10T16:46:00.731179+00:00"
+    }
+  ],
+  "casebook_v1": [
+    {
+      "case_id": "case_pit_no_sc_join_key_mismatch_8",
+      "category": "pit_lab_residual",
+      "title": "no_state_change_join — state_change_built_but_join_key_mismatch (8 symbols)",
+      "why_unresolved": "Earliest state_change as_of in the referenced score run is after signal_available_date; default PIT join key does not match — not a missing state_change build.",
+      "why_not_headline_work": "Broad state_change rerun does not address as-of ordering; would duplicate Phase 36 policy and risks non-deterministic churn. Belongs in PIT experiment harness, not closure sprint.",
+      "status_change_triggers": [
+        "PIT harness documents a deterministic alternate run spec that clears join without leakage",
+        "Governance explicitly changes join_key policy for this bucket"
+      ],
+      "linked_symbols": [
+        "ADSK",
+        "BBY",
+        "CRM",
+        "CRWD",
+        "DELL",
+        "DUK",
+        "NVDA",
+        "WMT"
+      ],
+      "linked_ciks": [],
+      "metadata": {
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch"
+      }
+    },
+    {
+      "case_id": "case_gis_unmapped_concept_seam",
+      "category": "gis_narrow_sample",
+      "title": "GIS deterministic inspect — blocked_unmapped_concepts_remain_in_sample",
+      "why_unresolved": "Sampled raw concepts (e.g. DEI fields) lack deterministic map entries in the concept map.",
+      "why_not_headline_work": "Phase 36 non-goal: large GIS expansion during substrate closure; low ROI vs joined headline.",
+      "status_change_triggers": [
+        "Targeted concept map PR with regression tests",
+        "Explicit product decision to expand GIS coverage for issuer narrative features"
+      ],
+      "linked_symbols": [],
+      "linked_ciks": [],
+      "metadata": {
+        "blocked_reason": "concept_map_misses_for_sampled_raw_concepts",
+        "unmapped_count": 13
+      }
+    },
+    {
+      "case_id": "case_maturity_immature_nq_7",
+      "category": "forward_window_calendar",
+      "title": "Immature next-quarter forward window — 7 symbols (Phase 34/35 schedule)",
+      "why_unresolved": "Price lookahead window not matured for NQ excess computation at audit as_of.",
+      "why_not_headline_work": "Time solves a subset; forcing ingest would violate lookahead / PIT calendar policy.",
+      "status_change_triggers": [
+        "matured_forward_retry eligible per report_matured_window_schedule_for_forward",
+        "Calendar / lookahead policy update"
+      ],
+      "linked_symbols": [],
+      "linked_ciks": [],
+      "metadata": {
+        "symbols_example": [
+          "MCK",
+          "MDT",
+          "MKC",
+          "MU",
+          "NDSN",
+          "NTAP",
+          "NWSA"
+        ],
+        "note": "Exact set from phase34/35 bundles; verify on refresh."
+      }
+    },
+    {
+      "case_id": "case_registry_tail_151",
+      "category": "registry_upstream_deferred",
+      "title": "missing_validation_symbol_count — registry / upstream pipeline tail",
+      "why_unresolved": "Majority bucket factor_panel_missing_for_resolved_cik and filing_index upstream gaps; not specific to joined recipe closure.",
+      "why_not_headline_work": "Substrate freeze treats low-ROI registry tail as deferred background; avoids broad filing campaign.",
+      "status_change_triggers": [
+        "Phase-scoped backfill sprint with explicit CIK budget",
+        "Product requires full SP500 validation coverage"
+      ],
+      "linked_symbols": [],
+      "linked_ciks": [],
+      "metadata": {
+        "missing_validation_symbol_count": 151,
+        "factor_panel_missing_for_resolved_cik": 148
+      }
+    }
+  ],
+  "explanation_prototype": {
+    "format": "markdown",
+    "path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase37_explanation_prototype.md",
+    "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+    "signal_symbol": "BBY"
+  },
+  "persistent_artifact_paths": {
+    "hypotheses_v1": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/hypotheses_v1.json",
+    "casebook_v1": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/casebook_v1.json",
+    "pit_experiments_v1": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/pit_experiments_v1.json",
+    "adversarial_reviews_v1": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/adversarial_reviews_v1.json"
+  },
+  "phase38": {
+    "phase38_recommendation": "bind_pit_experiment_runner_to_db_and_execute_alternate_as_of_specs",
+    "rationale": "Hypothesis registry, casebook, and scaffold experiments exist; the next increment is a deterministic DB-bound PIT runner that replays join logic under alternate specs, persists results, and feeds adversarial review resolution — without broad substrate repair campaigns."
+  }
+}

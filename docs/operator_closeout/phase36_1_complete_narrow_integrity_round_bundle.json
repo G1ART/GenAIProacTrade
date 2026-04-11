@@ -1,0 +1,1597 @@
+{
+  "ok": true,
+  "phase": "phase36_1_complete_narrow_integrity_round",
+  "universe_name": "sp500_current",
+  "phase35_bundle_path": "docs/operator_closeout/phase35_join_displacement_and_maturity_bundle.json",
+  "phase37_recommendation": "execute_research_engine_backlog_sprint",
+  "before": {
+    "joined_recipe_substrate_row_count": 266,
+    "joined_market_metadata_flagged_count": 23,
+    "thin_input_share": 1.0,
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 78,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 151
+    },
+    "missing_validation_symbol_count": 151,
+    "registry_gap_rollup": {
+      "registry_blocker_symbol_total": 151,
+      "registry_repair_automation_eligible_count": 3,
+      "registry_upstream_or_pipeline_deferred_count": 148,
+      "per_bucket": {
+        "factor_panel_missing_for_resolved_cik": 148,
+        "issuer_master_missing_for_resolved_cik": 0,
+        "missing_symbol_alias_mapping": 0,
+        "missing_symbol_in_market_symbol_registry": 0,
+        "symbol_normalization_mismatch": 3,
+        "symbol_to_cik_registry_miss": 0,
+        "validation_panel_build_omission_for_cik": 0
+      }
+    },
+    "factor_panel_missing_for_resolved_cik": 148,
+    "missing_quarter_snapshot_for_cik": 148,
+    "quarter_snapshot_classification_counts": {
+      "no_filing_index_for_cik": 147,
+      "raw_present_no_silver_facts": 1
+    },
+    "missing_excess_return_1q": 78
+  },
+  "after": {
+    "joined_recipe_substrate_row_count": 266,
+    "joined_market_metadata_flagged_count": 0,
+    "thin_input_share": 1.0,
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 78,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 151
+    },
+    "missing_validation_symbol_count": 151,
+    "registry_gap_rollup": {
+      "registry_blocker_symbol_total": 151,
+      "registry_repair_automation_eligible_count": 3,
+      "registry_upstream_or_pipeline_deferred_count": 148,
+      "per_bucket": {
+        "factor_panel_missing_for_resolved_cik": 148,
+        "issuer_master_missing_for_resolved_cik": 0,
+        "missing_symbol_alias_mapping": 0,
+        "missing_symbol_in_market_symbol_registry": 0,
+        "symbol_normalization_mismatch": 3,
+        "symbol_to_cik_registry_miss": 0,
+        "validation_panel_build_omission_for_cik": 0
+      }
+    },
+    "factor_panel_missing_for_resolved_cik": 148,
+    "missing_quarter_snapshot_for_cik": 148,
+    "quarter_snapshot_classification_counts": {
+      "no_filing_index_for_cik": 147,
+      "raw_present_no_silver_facts": 1
+    },
+    "missing_excess_return_1q": 78
+  },
+  "joined_metadata_flag_reconciliation_targets": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "phase35_newly_joined_target_count": 23,
+    "rows": [
+      {
+        "symbol": "MSI",
+        "cik": "0000068505",
+        "accession_no": "0000068505-25-000052",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-31",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "MO",
+        "cik": "0000764180",
+        "accession_no": "0000764180-25-000130",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-31",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "MGM",
+        "cik": "0000789570",
+        "accession_no": "0000789570-25-000074",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "MNST",
+        "cik": "0000865752",
+        "accession_no": "0001104659-25-107944",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "MLM",
+        "cik": "0000916076",
+        "accession_no": "0001193125-25-264566",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-05",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "MTD",
+        "cik": "0001037646",
+        "accession_no": "0001037646-25-000058",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-10",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "MCO",
+        "cik": "0001059556",
+        "accession_no": "0001628280-25-046118",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-24",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "MPWR",
+        "cik": "0001280452",
+        "accession_no": "0001437749-25-033332",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "MOS",
+        "cik": "0001285785",
+        "accession_no": "0001628280-25-049494",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "META",
+        "cik": "0001326801",
+        "accession_no": "0001628280-25-047240",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "MSCI",
+        "cik": "0001408198",
+        "accession_no": "0001408198-25-000196",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "MRNA",
+        "cik": "0001682852",
+        "accession_no": "0001682852-25-000075",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "MRSH",
+        "cik": "0000062709",
+        "accession_no": "0000062709-25-000125",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-17",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "NSC",
+        "cik": "0000702165",
+        "accession_no": "0001628280-25-046128",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-24",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "NEE",
+        "cik": "0000753308",
+        "accession_no": "0000753308-25-000056",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "NVR",
+        "cik": "0000906163",
+        "accession_no": "0000906163-25-000121",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "NRG",
+        "cik": "0001013871",
+        "accession_no": "0001013871-25-000025",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "NFLX",
+        "cik": "0001065280",
+        "accession_no": "0001065280-25-000406",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-23",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "NI",
+        "cik": "0001111711",
+        "accession_no": "0001111711-25-000055",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "NOC",
+        "cik": "0001133421",
+        "accession_no": "0001133421-25-000053",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-22",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "NXPI",
+        "cik": "0001413447",
+        "accession_no": "0001413447-25-000120",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "NCLH",
+        "cik": "0001513761",
+        "accession_no": "0001104659-25-106057",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-05",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      },
+      {
+        "symbol": "NUE",
+        "cik": "0000073309",
+        "accession_no": "0001193125-25-276207",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-13",
+        "in_joined_substrate": true,
+        "has_metadata_flag": true,
+        "reconciliation_bucket": "stale_metadata_flag_after_join",
+        "detail": "panel_json_stale_missing_market_metadata"
+      }
+    ],
+    "metadata_flagged_in_target_set_count": 23,
+    "reconciliation_bucket_counts": {
+      "stale_metadata_flag_after_join": 23
+    }
+  },
+  "joined_metadata_reconciliation_two_pass": {
+    "ok": true,
+    "repair": "joined_metadata_reconciliation_repair_two_pass",
+    "universe_name": "sp500_current",
+    "metadata_flags_cleared_now_count": 23,
+    "metadata_flags_still_present_count": 0,
+    "targets_flagged_before": 23,
+    "hydration": {
+      "skipped": true
+    },
+    "report_before": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "phase35_newly_joined_target_count": 23,
+      "rows": [
+        {
+          "symbol": "MSI",
+          "cik": "0000068505",
+          "accession_no": "0000068505-25-000052",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-31",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MO",
+          "cik": "0000764180",
+          "accession_no": "0000764180-25-000130",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-31",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MGM",
+          "cik": "0000789570",
+          "accession_no": "0000789570-25-000074",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-30",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MNST",
+          "cik": "0000865752",
+          "accession_no": "0001104659-25-107944",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-07",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MLM",
+          "cik": "0000916076",
+          "accession_no": "0001193125-25-264566",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-05",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MTD",
+          "cik": "0001037646",
+          "accession_no": "0001037646-25-000058",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-10",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MCO",
+          "cik": "0001059556",
+          "accession_no": "0001628280-25-046118",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-24",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MPWR",
+          "cik": "0001280452",
+          "accession_no": "0001437749-25-033332",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-06",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MOS",
+          "cik": "0001285785",
+          "accession_no": "0001628280-25-049494",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-06",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "META",
+          "cik": "0001326801",
+          "accession_no": "0001628280-25-047240",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-30",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MSCI",
+          "cik": "0001408198",
+          "accession_no": "0001408198-25-000196",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-29",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MRNA",
+          "cik": "0001682852",
+          "accession_no": "0001682852-25-000075",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-07",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MRSH",
+          "cik": "0000062709",
+          "accession_no": "0000062709-25-000125",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-17",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NSC",
+          "cik": "0000702165",
+          "accession_no": "0001628280-25-046128",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-24",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NEE",
+          "cik": "0000753308",
+          "accession_no": "0000753308-25-000056",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-29",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NVR",
+          "cik": "0000906163",
+          "accession_no": "0000906163-25-000121",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-06",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NRG",
+          "cik": "0001013871",
+          "accession_no": "0001013871-25-000025",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-07",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NFLX",
+          "cik": "0001065280",
+          "accession_no": "0001065280-25-000406",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-23",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NI",
+          "cik": "0001111711",
+          "accession_no": "0001111711-25-000055",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-30",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NOC",
+          "cik": "0001133421",
+          "accession_no": "0001133421-25-000053",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-22",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NXPI",
+          "cik": "0001413447",
+          "accession_no": "0001413447-25-000120",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-29",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NCLH",
+          "cik": "0001513761",
+          "accession_no": "0001104659-25-106057",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-05",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NUE",
+          "cik": "0000073309",
+          "accession_no": "0001193125-25-276207",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-13",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        }
+      ],
+      "metadata_flagged_in_target_set_count": 23,
+      "reconciliation_bucket_counts": {
+        "stale_metadata_flag_after_join": 23
+      }
+    },
+    "report_mid": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "phase35_newly_joined_target_count": 23,
+      "rows": [
+        {
+          "symbol": "MSI",
+          "cik": "0000068505",
+          "accession_no": "0000068505-25-000052",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-31",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MO",
+          "cik": "0000764180",
+          "accession_no": "0000764180-25-000130",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-31",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MGM",
+          "cik": "0000789570",
+          "accession_no": "0000789570-25-000074",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-30",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MNST",
+          "cik": "0000865752",
+          "accession_no": "0001104659-25-107944",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-07",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MLM",
+          "cik": "0000916076",
+          "accession_no": "0001193125-25-264566",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-05",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MTD",
+          "cik": "0001037646",
+          "accession_no": "0001037646-25-000058",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-10",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MCO",
+          "cik": "0001059556",
+          "accession_no": "0001628280-25-046118",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-24",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MPWR",
+          "cik": "0001280452",
+          "accession_no": "0001437749-25-033332",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-06",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MOS",
+          "cik": "0001285785",
+          "accession_no": "0001628280-25-049494",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-06",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "META",
+          "cik": "0001326801",
+          "accession_no": "0001628280-25-047240",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-30",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MSCI",
+          "cik": "0001408198",
+          "accession_no": "0001408198-25-000196",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-29",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MRNA",
+          "cik": "0001682852",
+          "accession_no": "0001682852-25-000075",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-07",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "MRSH",
+          "cik": "0000062709",
+          "accession_no": "0000062709-25-000125",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-17",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NSC",
+          "cik": "0000702165",
+          "accession_no": "0001628280-25-046128",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-24",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NEE",
+          "cik": "0000753308",
+          "accession_no": "0000753308-25-000056",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-29",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NVR",
+          "cik": "0000906163",
+          "accession_no": "0000906163-25-000121",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-06",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NRG",
+          "cik": "0001013871",
+          "accession_no": "0001013871-25-000025",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-07",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NFLX",
+          "cik": "0001065280",
+          "accession_no": "0001065280-25-000406",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-23",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NI",
+          "cik": "0001111711",
+          "accession_no": "0001111711-25-000055",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-30",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NOC",
+          "cik": "0001133421",
+          "accession_no": "0001133421-25-000053",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-22",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NXPI",
+          "cik": "0001413447",
+          "accession_no": "0001413447-25-000120",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-29",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NCLH",
+          "cik": "0001513761",
+          "accession_no": "0001104659-25-106057",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-05",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        },
+        {
+          "symbol": "NUE",
+          "cik": "0000073309",
+          "accession_no": "0001193125-25-276207",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-13",
+          "in_joined_substrate": true,
+          "has_metadata_flag": true,
+          "reconciliation_bucket": "stale_metadata_flag_after_join",
+          "detail": "panel_json_stale_missing_market_metadata"
+        }
+      ],
+      "metadata_flagged_in_target_set_count": 23,
+      "reconciliation_bucket_counts": {
+        "stale_metadata_flag_after_join": 23
+      }
+    },
+    "validation_rebuild_target_count_after_hydration": 23,
+    "validation_rebuild_factor_panels_submitted": 23,
+    "validation_rebuild": {
+      "status": "completed",
+      "rows_upserted": 23,
+      "failures": 0,
+      "error_sample": []
+    },
+    "report_after": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "phase35_newly_joined_target_count": 23,
+      "rows": [
+        {
+          "symbol": "MSI",
+          "cik": "0000068505",
+          "accession_no": "0000068505-25-000052",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-31",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "MO",
+          "cik": "0000764180",
+          "accession_no": "0000764180-25-000130",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-31",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "MGM",
+          "cik": "0000789570",
+          "accession_no": "0000789570-25-000074",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-30",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "MNST",
+          "cik": "0000865752",
+          "accession_no": "0001104659-25-107944",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-07",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "MLM",
+          "cik": "0000916076",
+          "accession_no": "0001193125-25-264566",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-05",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "MTD",
+          "cik": "0001037646",
+          "accession_no": "0001037646-25-000058",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-10",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "MCO",
+          "cik": "0001059556",
+          "accession_no": "0001628280-25-046118",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-24",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "MPWR",
+          "cik": "0001280452",
+          "accession_no": "0001437749-25-033332",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-06",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "MOS",
+          "cik": "0001285785",
+          "accession_no": "0001628280-25-049494",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-06",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "META",
+          "cik": "0001326801",
+          "accession_no": "0001628280-25-047240",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-30",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "MSCI",
+          "cik": "0001408198",
+          "accession_no": "0001408198-25-000196",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-29",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "MRNA",
+          "cik": "0001682852",
+          "accession_no": "0001682852-25-000075",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-07",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "MRSH",
+          "cik": "0000062709",
+          "accession_no": "0000062709-25-000125",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-17",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "NSC",
+          "cik": "0000702165",
+          "accession_no": "0001628280-25-046128",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-24",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "NEE",
+          "cik": "0000753308",
+          "accession_no": "0000753308-25-000056",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-29",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "NVR",
+          "cik": "0000906163",
+          "accession_no": "0000906163-25-000121",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-06",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "NRG",
+          "cik": "0001013871",
+          "accession_no": "0001013871-25-000025",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-07",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "NFLX",
+          "cik": "0001065280",
+          "accession_no": "0001065280-25-000406",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-23",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "NI",
+          "cik": "0001111711",
+          "accession_no": "0001111711-25-000055",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-30",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "NOC",
+          "cik": "0001133421",
+          "accession_no": "0001133421-25-000053",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-22",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "NXPI",
+          "cik": "0001413447",
+          "accession_no": "0001413447-25-000120",
+          "factor_version": "v1",
+          "signal_available_date": "2025-10-29",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "NCLH",
+          "cik": "0001513761",
+          "accession_no": "0001104659-25-106057",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-05",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        },
+        {
+          "symbol": "NUE",
+          "cik": "0000073309",
+          "accession_no": "0001193125-25-276207",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-13",
+          "in_joined_substrate": true,
+          "has_metadata_flag": false,
+          "reconciliation_bucket": "other_join_metadata_seam",
+          "detail": "flag_cleared_or_unexpected_state"
+        }
+      ],
+      "metadata_flagged_in_target_set_count": 0,
+      "reconciliation_bucket_counts": {
+        "other_join_metadata_seam": 23
+      }
+    }
+  },
+  "residual_state_change_join_report": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+    "state_change_scores_loaded": 353,
+    "no_state_change_join_headline": 8,
+    "residual_row_count": 8,
+    "residual_join_bucket_counts": {
+      "state_change_built_but_join_key_mismatch": 8
+    },
+    "rows": [
+      {
+        "symbol": "BBY",
+        "cik": "0000764478",
+        "accession_no": "0000764478-25-000057",
+        "factor_version": "v1",
+        "signal_available_date": "2025-12-08",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "ADSK",
+        "cik": "0000769397",
+        "accession_no": "0000769397-25-000129",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-27",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "CRM",
+        "cik": "0001108524",
+        "accession_no": "0001108524-25-000238",
+        "factor_version": "v1",
+        "signal_available_date": "2025-12-04",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "CRWD",
+        "cik": "0001535527",
+        "accession_no": "0001535527-25-000033",
+        "factor_version": "v1",
+        "signal_available_date": "2025-12-03",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "DELL",
+        "cik": "0001571996",
+        "accession_no": "0001571996-25-000127",
+        "factor_version": "v1",
+        "signal_available_date": "2025-12-10",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "DUK",
+        "cik": "0001326160",
+        "accession_no": "0001326160-25-000192",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-10",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-03-28"
+      },
+      {
+        "symbol": "NVDA",
+        "cik": "0001045810",
+        "accession_no": "0001045810-25-000230",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-20",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "WMT",
+        "cik": "0000104169",
+        "accession_no": "0000104169-25-000191",
+        "factor_version": "v1",
+        "signal_available_date": "2025-12-04",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      }
+    ]
+  },
+  "residual_pit_deferral": {
+    "policy": "no_broad_state_change_rerun",
+    "scope": "join_key_mismatch_and_similar_buckets_are_pit_as_of_boundary_cases_not_headline_closure",
+    "deferred_row_count": 8,
+    "residual_join_bucket_counts": {
+      "state_change_built_but_join_key_mismatch": 8
+    },
+    "symbols_deferred": [
+      "ADSK",
+      "BBY",
+      "CRM",
+      "CRWD",
+      "DELL",
+      "DUK",
+      "NVDA",
+      "WMT"
+    ],
+    "rows": [
+      {
+        "symbol": "BBY",
+        "cik": "0000764478",
+        "accession_no": "0000764478-25-000057",
+        "factor_version": "v1",
+        "signal_available_date": "2025-12-08",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "ADSK",
+        "cik": "0000769397",
+        "accession_no": "0000769397-25-000129",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-27",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "CRM",
+        "cik": "0001108524",
+        "accession_no": "0001108524-25-000238",
+        "factor_version": "v1",
+        "signal_available_date": "2025-12-04",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "CRWD",
+        "cik": "0001535527",
+        "accession_no": "0001535527-25-000033",
+        "factor_version": "v1",
+        "signal_available_date": "2025-12-03",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "DELL",
+        "cik": "0001571996",
+        "accession_no": "0001571996-25-000127",
+        "factor_version": "v1",
+        "signal_available_date": "2025-12-10",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "DUK",
+        "cik": "0001326160",
+        "accession_no": "0001326160-25-000192",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-10",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-03-28"
+      },
+      {
+        "symbol": "NVDA",
+        "cik": "0001045810",
+        "accession_no": "0001045810-25-000230",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-20",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      },
+      {
+        "symbol": "WMT",
+        "cik": "0000104169",
+        "accession_no": "0000104169-25-000191",
+        "factor_version": "v1",
+        "signal_available_date": "2025-12-04",
+        "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+        "first_state_change_as_of_in_run": "2026-09-28"
+      }
+    ]
+  },
+  "gis_deterministic_inspect": {
+    "ok": true,
+    "cik": "0000040704",
+    "symbol": "GIS",
+    "outcome": "blocked_unmapped_concepts_remain_in_sample",
+    "blocked_reason": "concept_map_misses_for_sampled_raw_concepts",
+    "concepts_sampled": 13,
+    "unmapped_sample": [
+      {
+        "source_concept": "dei:AmendmentFlag",
+        "normalized_key": "dei:AmendmentFlag",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:CurrentFiscalYearEndDate",
+        "normalized_key": "dei:CurrentFiscalYearEndDate",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentFiscalPeriodFocus",
+        "normalized_key": "dei:DocumentFiscalPeriodFocus",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentFiscalYearFocus",
+        "normalized_key": "dei:DocumentFiscalYearFocus",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentPeriodEndDate",
+        "normalized_key": "dei:DocumentPeriodEndDate",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentQuarterlyReport",
+        "normalized_key": "dei:DocumentQuarterlyReport",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentTransitionReport",
+        "normalized_key": "dei:DocumentTransitionReport",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentType",
+        "normalized_key": "dei:DocumentType",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityCentralIndexKey",
+        "normalized_key": "dei:EntityCentralIndexKey",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityFileNumber",
+        "normalized_key": "dei:EntityFileNumber",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityIncorporationStateCountryCode",
+        "normalized_key": "dei:EntityIncorporationStateCountryCode",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityRegistrantName",
+        "normalized_key": "dei:EntityRegistrantName",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "us-gaap:SupplierFinanceProgramObligationStatementOfFinancialPositionExtensibleEnumeration",
+        "normalized_key": "us-gaap:SupplierFinanceProgramObligationStatementOfFinancialPositionExtensibleEnumeration",
+        "map_reason": "unmapped"
+      }
+    ],
+    "unmapped_count": 13
+  },
+  "substrate_freeze_readiness": {
+    "ok": true,
+    "blocker_mix": {
+      "low_roi_registry_tail": 151,
+      "factor_or_quarter_snapshot_tail": 148,
+      "external_calendar_maturity_blockers": 7,
+      "narrow_gis_mapping_blocker": 1,
+      "joined_substrate_headline_rows": 266
+    },
+    "substrate_freeze_recommendation": "freeze_public_core_and_shift_to_research_engine",
+    "rationale": "headline_joined_stable_registry_tail_treated_as_low_roi_deferred; residual_no_sc_rows_8_non_repairable_buckets_only_defer_pit_lab; shift_primary_build_energy_to_research_engine_and_user_facing_layer"
+  },
+  "research_engine_handoff_brief": {
+    "ok": true,
+    "generated_utc": "2026-04-10T06:50:18.515921+00:00",
+    "universe_name": "sp500_current",
+    "premise": "This system is public-data-first, point-in-time, research-governed investment intelligence—not a generic AI stock picker. Optimize for economic interpretation power.",
+    "substrate_headline": {
+      "joined_recipe_substrate_row_count": 266,
+      "joined_market_metadata_flagged_count": 0,
+      "no_state_change_join": 8,
+      "missing_excess_return_1q": 78,
+      "thin_input_share": 1.0
+    },
+    "substrate_freeze_recommendation": "freeze_public_core_and_shift_to_research_engine",
+    "phase37_recommendation": "execute_research_engine_backlog_sprint",
+    "residual_join_audit_tail": {
+      "residual_row_count": 8,
+      "bucket_counts": {
+        "state_change_built_but_join_key_mismatch": 8
+      }
+    },
+    "metadata_reconciliation_tail": {
+      "metadata_flags_still_present_count": 0,
+      "metadata_flags_cleared_now_count": 23
+    },
+    "pit_lab_no_state_change_deferral": {
+      "policy": "no_broad_state_change_rerun",
+      "scope": "join_key_mismatch_and_similar_buckets_are_pit_as_of_boundary_cases_not_headline_closure",
+      "deferred_row_count": 8,
+      "residual_join_bucket_counts": {
+        "state_change_built_but_join_key_mismatch": 8
+      },
+      "symbols_deferred": [
+        "ADSK",
+        "BBY",
+        "CRM",
+        "CRWD",
+        "DELL",
+        "DUK",
+        "NVDA",
+        "WMT"
+      ],
+      "rows": [
+        {
+          "symbol": "BBY",
+          "cik": "0000764478",
+          "accession_no": "0000764478-25-000057",
+          "factor_version": "v1",
+          "signal_available_date": "2025-12-08",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "ADSK",
+          "cik": "0000769397",
+          "accession_no": "0000769397-25-000129",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-27",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "CRM",
+          "cik": "0001108524",
+          "accession_no": "0001108524-25-000238",
+          "factor_version": "v1",
+          "signal_available_date": "2025-12-04",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "CRWD",
+          "cik": "0001535527",
+          "accession_no": "0001535527-25-000033",
+          "factor_version": "v1",
+          "signal_available_date": "2025-12-03",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "DELL",
+          "cik": "0001571996",
+          "accession_no": "0001571996-25-000127",
+          "factor_version": "v1",
+          "signal_available_date": "2025-12-10",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "DUK",
+          "cik": "0001326160",
+          "accession_no": "0001326160-25-000192",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-10",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-03-28"
+        },
+        {
+          "symbol": "NVDA",
+          "cik": "0001045810",
+          "accession_no": "0001045810-25-000230",
+          "factor_version": "v1",
+          "signal_available_date": "2025-11-20",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        },
+        {
+          "symbol": "WMT",
+          "cik": "0000104169",
+          "accession_no": "0000104169-25-000191",
+          "factor_version": "v1",
+          "signal_available_date": "2025-12-04",
+          "residual_join_bucket": "state_change_built_but_join_key_mismatch",
+          "blocked_reason": "earliest_state_change_as_of_after_signal_no_pit_match",
+          "first_state_change_as_of_in_run": "2026-09-28"
+        }
+      ]
+    },
+    "next_build_agenda": {
+      "hypothesis_forge": "Turn stable joined recipe rows into testable hypotheses with explicit PIT windows and falsifiers.",
+      "pit_validation_lab": "Replay joins under alternate as-of and score-run boundaries; document join_key_mismatch vs not_built separation.",
+      "adversarial_peer_review": "Challenge factor coverage, excess definitions, and state_change lag assumptions.",
+      "promotion_gate": "Only promote signals that survive documented data lineage and thin-input gates.",
+      "residual_memory_casebook": "Keep registry tail, GIS misses, and immature NQ rows as explicit deferred cases—not noise.",
+      "user_facing_explanation_layer": "Expose why-investors-should-care narratives tied to evidence bundles, not black-box scores."
+    },
+    "explicit_non_goals": [
+      "Broad filing-index or raw-facts campaigns as headline work",
+      "Threshold relaxation or production scoring logic changes without governance",
+      "Large GIS concept-map expansion in the same sprint as substrate closure"
+    ]
+  },
+  "phase37": {
+    "phase37_recommendation": "execute_research_engine_backlog_sprint",
+    "rationale": "Public-core substrate sufficient for MVP freeze; primary energy to hypothesis forge, PIT lab, promotion gate, casebook, explanation layer."
+  },
+  "closeout_summary": {
+    "joined_recipe_substrate_row_count": 266,
+    "joined_market_metadata_flagged_count": 0,
+    "thin_input_share": 1.0,
+    "missing_excess_return_1q": 78,
+    "missing_validation_symbol_count": 151,
+    "missing_quarter_snapshot_for_cik": 148,
+    "factor_panel_missing_for_resolved_cik": 148,
+    "no_state_change_join": 8,
+    "metadata_flags_cleared_now_count": 23,
+    "metadata_flags_still_present_count": 0,
+    "metadata_reconciliation_bucket_counts_before": {
+      "stale_metadata_flag_after_join": 23
+    },
+    "metadata_reconciliation_bucket_counts_mid": {
+      "stale_metadata_flag_after_join": 23
+    },
+    "metadata_reconciliation_bucket_counts_after": {
+      "other_join_metadata_seam": 23
+    },
+    "validation_rebuild_target_count_after_hydration": 23,
+    "residual_join_rows_still_blocked_count": 8,
+    "residual_pit_deferred_row_count": 8,
+    "maturity_deferred_symbol_count": 7,
+    "gis_outcome": "blocked_unmapped_concepts_remain_in_sample",
+    "substrate_freeze_recommendation": "freeze_public_core_and_shift_to_research_engine",
+    "phase37_recommendation": "execute_research_engine_backlog_sprint"
+  }
+}

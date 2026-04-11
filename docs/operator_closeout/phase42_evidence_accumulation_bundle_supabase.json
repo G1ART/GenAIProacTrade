@@ -1,0 +1,802 @@
+{
+  "ok": true,
+  "phase": "phase42_evidence_accumulation",
+  "generated_utc": "2026-04-11T05:54:33.329066+00:00",
+  "phase41_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase41_falsifier_substrate_bundle.json",
+  "bundle_out_ref": "phase42_evidence_accumulation_bundle_supabase.json",
+  "pit_execution": {
+    "ok": true,
+    "experiment_id": "f85f3524-73eb-4403-bf0e-c347c06d011f",
+    "generated_utc": "2026-04-11T02:45:40.250605+00:00",
+    "universe_name": "sp500_current",
+    "fixture_row_count": 8,
+    "baseline_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+    "state_change_scores_limit": 50000,
+    "scores_loaded": {
+      "baseline": 353
+    },
+    "families_executed": [
+      {
+        "family_id": "signal_filing_boundary_v1",
+        "hypothesis_id": "hyp_signal_availability_filing_boundary_v1",
+        "spec_keys_executed": [
+          "filing_public_ts_strict_pick"
+        ],
+        "description": "Strict PIT pick at filing-public bound from filing_index when available; otherwise explicit signal_available_date proxy (labeled).",
+        "row_results": [
+          {
+            "symbol": "BBY",
+            "cik": "0000764478",
+            "signal_available_date": "2025-12-08",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-08",
+                "filing_substrate_classification": "filing_public_ts_unavailable",
+                "filing_bound_source": "signal_available_date_proxy",
+                "explicit_proxy": true,
+                "filing_accession_no": null,
+                "filing_form": null
+              }
+            }
+          },
+          {
+            "symbol": "ADSK",
+            "cik": "0000769397",
+            "signal_available_date": "2025-11-27",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-27",
+                "filing_substrate_classification": "filing_public_ts_unavailable",
+                "filing_bound_source": "signal_available_date_proxy",
+                "explicit_proxy": true,
+                "filing_accession_no": null,
+                "filing_form": null
+              }
+            }
+          },
+          {
+            "symbol": "CRM",
+            "cik": "0001108524",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "filing_substrate_classification": "filing_public_ts_unavailable",
+                "filing_bound_source": "signal_available_date_proxy",
+                "explicit_proxy": true,
+                "filing_accession_no": null,
+                "filing_form": null
+              }
+            }
+          },
+          {
+            "symbol": "CRWD",
+            "cik": "0001535527",
+            "signal_available_date": "2025-12-03",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-03",
+                "filing_substrate_classification": "filing_public_ts_unavailable",
+                "filing_bound_source": "signal_available_date_proxy",
+                "explicit_proxy": true,
+                "filing_accession_no": null,
+                "filing_form": null
+              }
+            }
+          },
+          {
+            "symbol": "DELL",
+            "cik": "0001571996",
+            "signal_available_date": "2025-12-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-10",
+                "filing_substrate_classification": "filing_public_ts_unavailable",
+                "filing_bound_source": "signal_available_date_proxy",
+                "explicit_proxy": true,
+                "filing_accession_no": null,
+                "filing_form": null
+              }
+            }
+          },
+          {
+            "symbol": "DUK",
+            "cik": "0001326160",
+            "signal_available_date": "2025-11-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-10",
+                "filing_substrate_classification": "filing_public_ts_unavailable",
+                "filing_bound_source": "signal_available_date_proxy",
+                "explicit_proxy": true,
+                "filing_accession_no": null,
+                "filing_form": null
+              }
+            }
+          },
+          {
+            "symbol": "NVDA",
+            "cik": "0001045810",
+            "signal_available_date": "2025-11-20",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-20",
+                "filing_substrate_classification": "filing_public_ts_unavailable",
+                "filing_bound_source": "signal_available_date_proxy",
+                "explicit_proxy": true,
+                "filing_accession_no": null,
+                "filing_form": null
+              }
+            }
+          },
+          {
+            "symbol": "WMT",
+            "cik": "0000104169",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "filing_substrate_classification": "filing_public_ts_unavailable",
+                "filing_bound_source": "signal_available_date_proxy",
+                "explicit_proxy": true,
+                "filing_accession_no": null,
+                "filing_form": null
+              }
+            }
+          }
+        ],
+        "summary_counts_by_spec": {
+          "filing_public_ts_strict_pick": {
+            "still_join_key_mismatch": 8,
+            "reclassified_to_joined": 0,
+            "reclassified_to_other_exclusion": 0,
+            "invalid_due_to_leakage_or_non_pit": 0
+          }
+        },
+        "joined_any_row": false,
+        "leakage_audit": {
+          "passed": true,
+          "violations": [],
+          "rule": "Any picked row must have as_of_date <= signal_bound for that spec."
+        },
+        "falsifier_substrate_note": "phase41_filing_index_wired"
+      },
+      {
+        "family_id": "issuer_sector_reporting_cadence_v1",
+        "hypothesis_id": "hyp_issuer_sector_reporting_cadence_v1",
+        "spec_keys_executed": [
+          "sector_stratified_signal_pick_v1"
+        ],
+        "description": "Production-equivalent PIT pick per row with sector stratum from market_metadata_latest; unknown stratum when sector missing.",
+        "row_results": [
+          {
+            "symbol": "BBY",
+            "cik": "0000764478",
+            "signal_available_date": "2025-12-08",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "sector_stratified_signal_pick_v1": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-08",
+                "sector_stratum": "unknown",
+                "sector_substrate_classification": "sector_metadata_missing"
+              }
+            }
+          },
+          {
+            "symbol": "ADSK",
+            "cik": "0000769397",
+            "signal_available_date": "2025-11-27",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "sector_stratified_signal_pick_v1": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-27",
+                "sector_stratum": "unknown",
+                "sector_substrate_classification": "sector_metadata_missing"
+              }
+            }
+          },
+          {
+            "symbol": "CRM",
+            "cik": "0001108524",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "sector_stratified_signal_pick_v1": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "sector_stratum": "unknown",
+                "sector_substrate_classification": "sector_metadata_missing"
+              }
+            }
+          },
+          {
+            "symbol": "CRWD",
+            "cik": "0001535527",
+            "signal_available_date": "2025-12-03",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "sector_stratified_signal_pick_v1": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-03",
+                "sector_stratum": "unknown",
+                "sector_substrate_classification": "sector_metadata_missing"
+              }
+            }
+          },
+          {
+            "symbol": "DELL",
+            "cik": "0001571996",
+            "signal_available_date": "2025-12-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "sector_stratified_signal_pick_v1": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-10",
+                "sector_stratum": "unknown",
+                "sector_substrate_classification": "sector_metadata_missing"
+              }
+            }
+          },
+          {
+            "symbol": "DUK",
+            "cik": "0001326160",
+            "signal_available_date": "2025-11-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "sector_stratified_signal_pick_v1": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-10",
+                "sector_stratum": "unknown",
+                "sector_substrate_classification": "sector_metadata_missing"
+              }
+            }
+          },
+          {
+            "symbol": "NVDA",
+            "cik": "0001045810",
+            "signal_available_date": "2025-11-20",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "sector_stratified_signal_pick_v1": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-20",
+                "sector_stratum": "unknown",
+                "sector_substrate_classification": "sector_metadata_missing"
+              }
+            }
+          },
+          {
+            "symbol": "WMT",
+            "cik": "0000104169",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "sector_stratified_signal_pick_v1": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "sector_stratum": "unknown",
+                "sector_substrate_classification": "sector_metadata_missing"
+              }
+            }
+          }
+        ],
+        "summary_counts_by_spec": {
+          "sector_stratified_signal_pick_v1": {
+            "still_join_key_mismatch": 8,
+            "reclassified_to_joined": 0,
+            "reclassified_to_other_exclusion": 0,
+            "invalid_due_to_leakage_or_non_pit": 0
+          }
+        },
+        "sector_stratum_outcome_counts": {
+          "unknown": {
+            "still_join_key_mismatch": 8,
+            "reclassified_to_joined": 0,
+            "reclassified_to_other_exclusion": 0,
+            "invalid_due_to_leakage_or_non_pit": 0
+          }
+        },
+        "joined_any_row": false,
+        "leakage_audit": {
+          "passed": true,
+          "violations": [],
+          "rule": "Any picked row must have as_of_date <= signal_bound for that spec."
+        },
+        "falsifier_substrate_note": "phase41_sector_metadata_wired"
+      }
+    ],
+    "families_executed_count": 2,
+    "implemented_family_spec_count": 2,
+    "all_families_leakage_passed": true,
+    "filing_substrate": {
+      "per_row": [
+        {
+          "symbol": "BBY",
+          "cik": "0000764478",
+          "classification": "filing_public_ts_unavailable",
+          "effective_pick_bound_ymd": "2025-12-08",
+          "filing_bound_source": "signal_available_date_proxy",
+          "explicit_proxy": true,
+          "accession_no": null,
+          "form": null,
+          "filed_at_ymd": null,
+          "acceptance_date_prefix": null
+        },
+        {
+          "symbol": "ADSK",
+          "cik": "0000769397",
+          "classification": "filing_public_ts_unavailable",
+          "effective_pick_bound_ymd": "2025-11-27",
+          "filing_bound_source": "signal_available_date_proxy",
+          "explicit_proxy": true,
+          "accession_no": null,
+          "form": null,
+          "filed_at_ymd": null,
+          "acceptance_date_prefix": null
+        },
+        {
+          "symbol": "CRM",
+          "cik": "0001108524",
+          "classification": "filing_public_ts_unavailable",
+          "effective_pick_bound_ymd": "2025-12-04",
+          "filing_bound_source": "signal_available_date_proxy",
+          "explicit_proxy": true,
+          "accession_no": null,
+          "form": null,
+          "filed_at_ymd": null,
+          "acceptance_date_prefix": null
+        },
+        {
+          "symbol": "CRWD",
+          "cik": "0001535527",
+          "classification": "filing_public_ts_unavailable",
+          "effective_pick_bound_ymd": "2025-12-03",
+          "filing_bound_source": "signal_available_date_proxy",
+          "explicit_proxy": true,
+          "accession_no": null,
+          "form": null,
+          "filed_at_ymd": null,
+          "acceptance_date_prefix": null
+        },
+        {
+          "symbol": "DELL",
+          "cik": "0001571996",
+          "classification": "filing_public_ts_unavailable",
+          "effective_pick_bound_ymd": "2025-12-10",
+          "filing_bound_source": "signal_available_date_proxy",
+          "explicit_proxy": true,
+          "accession_no": null,
+          "form": null,
+          "filed_at_ymd": null,
+          "acceptance_date_prefix": null
+        },
+        {
+          "symbol": "DUK",
+          "cik": "0001326160",
+          "classification": "filing_public_ts_unavailable",
+          "effective_pick_bound_ymd": "2025-11-10",
+          "filing_bound_source": "signal_available_date_proxy",
+          "explicit_proxy": true,
+          "accession_no": null,
+          "form": null,
+          "filed_at_ymd": null,
+          "acceptance_date_prefix": null
+        },
+        {
+          "symbol": "NVDA",
+          "cik": "0001045810",
+          "classification": "filing_public_ts_unavailable",
+          "effective_pick_bound_ymd": "2025-11-20",
+          "filing_bound_source": "signal_available_date_proxy",
+          "explicit_proxy": true,
+          "accession_no": null,
+          "form": null,
+          "filed_at_ymd": null,
+          "acceptance_date_prefix": null
+        },
+        {
+          "symbol": "WMT",
+          "cik": "0000104169",
+          "classification": "filing_public_ts_unavailable",
+          "effective_pick_bound_ymd": "2025-12-04",
+          "filing_bound_source": "signal_available_date_proxy",
+          "explicit_proxy": true,
+          "accession_no": null,
+          "form": null,
+          "filed_at_ymd": null,
+          "acceptance_date_prefix": null
+        }
+      ],
+      "summary": {
+        "row_count": 8,
+        "by_classification": {
+          "filing_public_ts_unavailable": 8
+        },
+        "rows_with_explicit_signal_proxy": 8
+      }
+    },
+    "sector_substrate": {
+      "per_row": [
+        {
+          "symbol": "BBY",
+          "cik": "0000764478",
+          "classification": "sector_metadata_missing",
+          "sector_label": null,
+          "industry_label": null
+        },
+        {
+          "symbol": "ADSK",
+          "cik": "0000769397",
+          "classification": "sector_metadata_missing",
+          "sector_label": null,
+          "industry_label": null
+        },
+        {
+          "symbol": "CRM",
+          "cik": "0001108524",
+          "classification": "sector_metadata_missing",
+          "sector_label": null,
+          "industry_label": null
+        },
+        {
+          "symbol": "CRWD",
+          "cik": "0001535527",
+          "classification": "sector_metadata_missing",
+          "sector_label": null,
+          "industry_label": null
+        },
+        {
+          "symbol": "DELL",
+          "cik": "0001571996",
+          "classification": "sector_metadata_missing",
+          "sector_label": null,
+          "industry_label": null
+        },
+        {
+          "symbol": "DUK",
+          "cik": "0001326160",
+          "classification": "sector_metadata_missing",
+          "sector_label": null,
+          "industry_label": null
+        },
+        {
+          "symbol": "NVDA",
+          "cik": "0001045810",
+          "classification": "sector_metadata_missing",
+          "sector_label": null,
+          "industry_label": null
+        },
+        {
+          "symbol": "WMT",
+          "cik": "0000104169",
+          "classification": "sector_metadata_missing",
+          "sector_label": null,
+          "industry_label": null
+        }
+      ],
+      "summary": {
+        "row_count": 8,
+        "by_classification": {
+          "sector_metadata_missing": 8
+        },
+        "distinct_sector_labels": []
+      }
+    }
+  },
+  "row_level_blockers": [
+    {
+      "symbol": "BBY",
+      "cik": "0000764478",
+      "signal_available_date": "2025-12-08",
+      "blocker_replay_source": "supabase_fresh",
+      "filing_blocker_cause": "no_10k_10q_rows_for_cik",
+      "filing_index_row_count": 10,
+      "n_10k_10q": 0,
+      "sector_blocker_cause": "no_market_metadata_row_for_symbol"
+    },
+    {
+      "symbol": "ADSK",
+      "cik": "0000769397",
+      "signal_available_date": "2025-11-27",
+      "blocker_replay_source": "supabase_fresh",
+      "filing_blocker_cause": "only_post_signal_filings_available",
+      "filing_index_row_count": 10,
+      "n_10k_10q": 1,
+      "n_post_signal_10kq": 1,
+      "sector_blocker_cause": "no_market_metadata_row_for_symbol"
+    },
+    {
+      "symbol": "CRM",
+      "cik": "0001108524",
+      "signal_available_date": "2025-12-04",
+      "blocker_replay_source": "supabase_fresh",
+      "filing_blocker_cause": "no_10k_10q_rows_for_cik",
+      "filing_index_row_count": 10,
+      "n_10k_10q": 0,
+      "sector_blocker_cause": "no_market_metadata_row_for_symbol"
+    },
+    {
+      "symbol": "CRWD",
+      "cik": "0001535527",
+      "signal_available_date": "2025-12-03",
+      "blocker_replay_source": "supabase_fresh",
+      "filing_blocker_cause": "no_10k_10q_rows_for_cik",
+      "filing_index_row_count": 10,
+      "n_10k_10q": 0,
+      "sector_blocker_cause": "no_market_metadata_row_for_symbol"
+    },
+    {
+      "symbol": "DELL",
+      "cik": "0001571996",
+      "signal_available_date": "2025-12-10",
+      "blocker_replay_source": "supabase_fresh",
+      "filing_blocker_cause": "no_10k_10q_rows_for_cik",
+      "filing_index_row_count": 10,
+      "n_10k_10q": 0,
+      "sector_blocker_cause": "no_market_metadata_row_for_symbol"
+    },
+    {
+      "symbol": "DUK",
+      "cik": "0001326160",
+      "signal_available_date": "2025-11-10",
+      "blocker_replay_source": "supabase_fresh",
+      "filing_blocker_cause": "no_10k_10q_rows_for_cik",
+      "filing_index_row_count": 10,
+      "n_10k_10q": 0,
+      "sector_blocker_cause": "no_market_metadata_row_for_symbol"
+    },
+    {
+      "symbol": "NVDA",
+      "cik": "0001045810",
+      "signal_available_date": "2025-11-20",
+      "blocker_replay_source": "supabase_fresh",
+      "filing_blocker_cause": "no_10k_10q_rows_for_cik",
+      "filing_index_row_count": 6,
+      "n_10k_10q": 0,
+      "sector_blocker_cause": "no_market_metadata_row_for_symbol"
+    },
+    {
+      "symbol": "WMT",
+      "cik": "0000104169",
+      "signal_available_date": "2025-12-04",
+      "blocker_replay_source": "supabase_fresh",
+      "filing_blocker_cause": "no_10k_10q_rows_for_cik",
+      "filing_index_row_count": 12,
+      "n_10k_10q": 0,
+      "sector_blocker_cause": "no_market_metadata_row_for_symbol"
+    }
+  ],
+  "family_evidence_scorecard": {
+    "cohort_label": "phase41_fixture_row_results",
+    "cohort_row_count": 8,
+    "filing_blocker_distribution": {
+      "no_10k_10q_rows_for_cik": 7,
+      "only_post_signal_filings_available": 1
+    },
+    "sector_blocker_distribution": {
+      "no_market_metadata_row_for_symbol": 8
+    },
+    "phase41_families": [
+      "signal_filing_boundary_v1",
+      "issuer_sector_reporting_cadence_v1"
+    ],
+    "outcome_discriminating_family_count": 2,
+    "identical_rollup_groups": []
+  },
+  "evidence_density_by_family": {
+    "by_family": {
+      "signal_filing_boundary_v1": {
+        "cohort_rows": 8,
+        "rows_with_exact_public_ts": 0,
+        "rows_with_filed_date_only": 0,
+        "rows_proxy_or_blocked": 8
+      },
+      "issuer_sector_reporting_cadence_v1": {
+        "cohort_rows": 8,
+        "rows_with_sector_metadata": 0,
+        "rows_sector_blocked": 8
+      }
+    },
+    "cohort_row_count": 8
+  },
+  "discrimination_summary": {
+    "n_families_compared": 2,
+    "outcome_rollup_signature_by_family": {
+      "signal_filing_boundary_v1": "(('filing_public_ts_strict_pick', (('invalid_due_to_leakage_or_non_pit', 0), ('reclassified_to_joined', 0), ('reclassified_to_other_exclusion', 0), ('still_join_key_mismatch', 8))),)",
+      "issuer_sector_reporting_cadence_v1": "(('sector_stratified_signal_pick_v1', (('invalid_due_to_leakage_or_non_pit', 0), ('reclassified_to_joined', 0), ('reclassified_to_other_exclusion', 0), ('still_join_key_mismatch', 8))),)"
+    },
+    "families_with_identical_rollups_groups": [],
+    "live_and_discriminating_family_ids": [
+      "signal_filing_boundary_v1",
+      "issuer_sector_reporting_cadence_v1"
+    ],
+    "any_family_outcome_discriminating": true
+  },
+  "hypothesis_narrowing": {
+    "by_family_id": {
+      "signal_filing_boundary_v1": {
+        "hypothesis_id": "hyp_signal_availability_filing_boundary_v1",
+        "narrowing_status": "live_and_discriminating",
+        "proxy_limited_substrate": true,
+        "suggested_claim_adjustment": null
+      },
+      "issuer_sector_reporting_cadence_v1": {
+        "hypothesis_id": "hyp_issuer_sector_reporting_cadence_v1",
+        "narrowing_status": "live_and_discriminating",
+        "proxy_limited_substrate": true,
+        "suggested_claim_adjustment": null
+      }
+    },
+    "headline": "at_least_one_family_outcome_discriminating"
+  },
+  "family_rerun_unchanged_digest": {
+    "signal_filing_boundary_v1": {
+      "unchanged_rollups": true,
+      "spec_keys_before": [
+        "filing_public_ts_strict_pick"
+      ],
+      "spec_keys_after": [
+        "filing_public_ts_strict_pick"
+      ]
+    },
+    "issuer_sector_reporting_cadence_v1": {
+      "unchanged_rollups": false,
+      "spec_keys_before": [
+        "stratified_fixture_only_replay"
+      ],
+      "spec_keys_after": [
+        "sector_stratified_signal_pick_v1"
+      ]
+    }
+  },
+  "stable_run_digest": "edfd0b7d36ecb2de",
+  "promotion_gate_phase42": {
+    "schema_version": 4,
+    "phase": "phase42",
+    "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+    "gate_status": "deferred",
+    "primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+    "lifecycle_snapshot": {
+      "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+      "hyp_score_publication_cadence_run_grid_lag_v1": "conditionally_supported",
+      "hyp_signal_availability_filing_boundary_v1": "conditionally_supported",
+      "hyp_issuer_sector_reporting_cadence_v1": "conditionally_supported",
+      "hyp_governance_safe_alternate_join_policy_v1": "conditionally_supported"
+    },
+    "blocking_reasons": [
+      "filing_proxy_or_blocker_rows_remain",
+      "sector_metadata_missing_rows_remain",
+      "await_stronger_falsifier_substrate"
+    ],
+    "reviewer_dependencies": [],
+    "required_followups": [
+      "Track scorecard deltas across runs using stable_run_digest.",
+      "Narrow claims where proxy_limited_retest_needed; add cohort B only with tight cap."
+    ],
+    "promotion_decision_notes": "Phase 42: evidence accumulation + blocker taxonomy + discrimination summary. No auto-promotion.",
+    "phase42_context": {
+      "all_families_leakage_passed_phase41": true,
+      "filing_proxy_row_count": 8,
+      "sector_missing_row_count": 8,
+      "any_family_outcome_discriminating": true,
+      "narrowing_headline": "at_least_one_family_outcome_discriminating"
+    },
+    "prior_gate_digest": {
+      "had_schema_version": 4,
+      "prior_primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+      "prior_phase": "phase42"
+    }
+  },
+  "promotion_gate_primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+  "phase43": {
+    "phase43_recommendation": "substrate_backfill_or_narrow_claims_then_retest_v1",
+    "rationale": "Proxy filing bounds or missing sector rows remain; strengthen rows (backfill) or narrow claims before expecting cleaner discrimination."
+  },
+  "promotion_gate_history_path": "/private/var/folders/ks/6lzf50957y9831rmtsj3csmc0000gn/T/phase42_audit_oifui_8d/promotion_gate_history_v1.json",
+  "persistent_writes": {
+    "promotion_gate_v1": "/private/var/folders/ks/6lzf50957y9831rmtsj3csmc0000gn/T/phase42_audit_oifui_8d/promotion_gate_v1.json",
+    "promotion_gate_history_v1": "/private/var/folders/ks/6lzf50957y9831rmtsj3csmc0000gn/T/phase42_audit_oifui_8d/promotion_gate_history_v1.json"
+  },
+  "explanation_v5": {
+    "format": "markdown",
+    "path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase42_explanation_surface_v5_supabase.md"
+  }
+}

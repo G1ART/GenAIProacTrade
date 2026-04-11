@@ -1,0 +1,2416 @@
+{
+  "ok": true,
+  "universe_name": "sp500_current",
+  "phase32_bundle_path": "docs/operator_closeout/phase32_forward_unlock_and_snapshot_cleanup_bundle.json",
+  "before": {
+    "joined_recipe_substrate_row_count": 243,
+    "joined_market_metadata_flagged_count": 0,
+    "thin_input_share": 1.0,
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 101,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 151
+    },
+    "missing_validation_symbol_count": 151,
+    "registry_gap_rollup": {
+      "registry_blocker_symbol_total": 151,
+      "registry_repair_automation_eligible_count": 3,
+      "registry_upstream_or_pipeline_deferred_count": 148,
+      "per_bucket": {
+        "factor_panel_missing_for_resolved_cik": 148,
+        "issuer_master_missing_for_resolved_cik": 0,
+        "missing_symbol_alias_mapping": 0,
+        "missing_symbol_in_market_symbol_registry": 0,
+        "symbol_normalization_mismatch": 3,
+        "symbol_to_cik_registry_miss": 0,
+        "validation_panel_build_omission_for_cik": 0
+      }
+    },
+    "factor_panel_missing_for_resolved_cik": 148,
+    "missing_quarter_snapshot_for_cik": 148,
+    "quarter_snapshot_classification_counts": {
+      "no_filing_index_for_cik": 147,
+      "raw_present_no_silver_facts": 1
+    },
+    "missing_excess_return_1q": 101
+  },
+  "after": {
+    "joined_recipe_substrate_row_count": 243,
+    "joined_market_metadata_flagged_count": 0,
+    "thin_input_share": 1.0,
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 78,
+      "no_state_change_join": 31,
+      "no_validation_panel_for_symbol": 151
+    },
+    "missing_validation_symbol_count": 151,
+    "registry_gap_rollup": {
+      "registry_blocker_symbol_total": 151,
+      "registry_repair_automation_eligible_count": 3,
+      "registry_upstream_or_pipeline_deferred_count": 148,
+      "per_bucket": {
+        "factor_panel_missing_for_resolved_cik": 148,
+        "issuer_master_missing_for_resolved_cik": 0,
+        "missing_symbol_alias_mapping": 0,
+        "missing_symbol_in_market_symbol_registry": 0,
+        "symbol_normalization_mismatch": 3,
+        "symbol_to_cik_registry_miss": 0,
+        "validation_panel_build_omission_for_cik": 0
+      }
+    },
+    "factor_panel_missing_for_resolved_cik": 148,
+    "missing_quarter_snapshot_for_cik": 148,
+    "quarter_snapshot_classification_counts": {
+      "no_filing_index_for_cik": 147,
+      "raw_present_no_silver_facts": 1
+    },
+    "missing_excess_return_1q": 78
+  },
+  "propagation_gap_before": {
+    "ok": true,
+    "phase32_touched_symbol_count": 30,
+    "validation_panel_rows_scanned": 30,
+    "forward_row_present_count": 23,
+    "classification_counts": {
+      "forward_present_validation_not_refreshed": 23,
+      "forward_present_validation_refresh_failed": 0,
+      "forward_not_present_window_not_matured": 7,
+      "forward_not_present_other_gap": 0,
+      "synchronized": 0
+    },
+    "gap_row_count": 30,
+    "rows": [
+      {
+        "symbol": "MCK",
+        "cik": "0000927653",
+        "accession_no": "0000927653-26-000017",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-05",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MCK",
+          "signal_date": "2026-02-05",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=40",
+          "silver_row_count_in_window": 43,
+          "sessions_on_or_after_signal": 40
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "MCO",
+        "cik": "0001059556",
+        "accession_no": "0001628280-25-046118",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-24",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.04982438243867837,
+        "price_gap": {
+          "symbol": "MCO",
+          "signal_date": "2025-10-24",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 114,
+          "sessions_on_or_after_signal": 110
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MDT",
+        "cik": "0001613103",
+        "accession_no": "0001628280-26-011107",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-25",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MDT",
+          "signal_date": "2026-02-25",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=27",
+          "silver_row_count_in_window": 30,
+          "sessions_on_or_after_signal": 27
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "META",
+        "cik": "0001326801",
+        "accession_no": "0001628280-25-047240",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.05137391613747466,
+        "price_gap": {
+          "symbol": "META",
+          "signal_date": "2025-10-30",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 106
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MGM",
+        "cik": "0000789570",
+        "accession_no": "0000789570-25-000074",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.08049040063246893,
+        "price_gap": {
+          "symbol": "MGM",
+          "signal_date": "2025-10-30",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 106
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MKC",
+        "cik": "0000063754",
+        "accession_no": "0000063754-26-000192",
+        "factor_version": "v1",
+        "signal_available_date": "2026-04-01",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MKC",
+          "signal_date": "2026-04-01",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=2",
+          "silver_row_count_in_window": 5,
+          "sessions_on_or_after_signal": 2
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "MLM",
+        "cik": "0000916076",
+        "accession_no": "0001193125-25-264566",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-05",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.1214906325911127,
+        "price_gap": {
+          "symbol": "MLM",
+          "signal_date": "2025-11-05",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 105,
+          "sessions_on_or_after_signal": 102
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MNST",
+        "cik": "0000865752",
+        "accession_no": "0001104659-25-107944",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.13952789893762962,
+        "price_gap": {
+          "symbol": "MNST",
+          "signal_date": "2025-11-07",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 100
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MO",
+        "cik": "0000764180",
+        "accession_no": "0000764180-25-000130",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-31",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.14853031168806075,
+        "price_gap": {
+          "symbol": "MO",
+          "signal_date": "2025-10-31",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 105
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MOS",
+        "cik": "0001285785",
+        "accession_no": "0001628280-25-049494",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.18646158809596236,
+        "price_gap": {
+          "symbol": "MOS",
+          "signal_date": "2025-11-06",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 101
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MPWR",
+        "cik": "0001280452",
+        "accession_no": "0001437749-25-033332",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.24991818687525136,
+        "price_gap": {
+          "symbol": "MPWR",
+          "signal_date": "2025-11-06",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 101
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MRNA",
+        "cik": "0001682852",
+        "accession_no": "0001682852-25-000075",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.6961168740933963,
+        "price_gap": {
+          "symbol": "MRNA",
+          "signal_date": "2025-11-07",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 100
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MRSH",
+        "cik": "0000062709",
+        "accession_no": "0000062709-25-000125",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-17",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": -0.0538184939110099,
+        "price_gap": {
+          "symbol": "MRSH",
+          "signal_date": "2025-10-17",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 119,
+          "sessions_on_or_after_signal": 115
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MSCI",
+        "cik": "0001408198",
+        "accession_no": "0001408198-25-000196",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.06725659827967623,
+        "price_gap": {
+          "symbol": "MSCI",
+          "signal_date": "2025-10-29",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 110,
+          "sessions_on_or_after_signal": 107
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MSI",
+        "cik": "0000068505",
+        "accession_no": "0000068505-25-000052",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-31",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.0011692462240409096,
+        "price_gap": {
+          "symbol": "MSI",
+          "signal_date": "2025-10-31",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 105
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MTD",
+        "cik": "0001037646",
+        "accession_no": "0001037646-25-000058",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-10",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": -0.036475362889377916,
+        "price_gap": {
+          "symbol": "MTD",
+          "signal_date": "2025-11-10",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 102,
+          "sessions_on_or_after_signal": 99
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "MU",
+        "cik": "0000723125",
+        "accession_no": "0000723125-26-000006",
+        "factor_version": "v1",
+        "signal_available_date": "2026-03-19",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MU",
+          "signal_date": "2026-03-19",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=11",
+          "silver_row_count_in_window": 14,
+          "sessions_on_or_after_signal": 11
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "NCLH",
+        "cik": "0001513761",
+        "accession_no": "0001104659-25-106057",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-05",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.24197787720994457,
+        "price_gap": {
+          "symbol": "NCLH",
+          "signal_date": "2025-11-05",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 105,
+          "sessions_on_or_after_signal": 102
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "NDSN",
+        "cik": "0000072331",
+        "accession_no": "0000072331-26-000014",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-20",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "NDSN",
+          "signal_date": "2026-02-20",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=30",
+          "silver_row_count_in_window": 33,
+          "sessions_on_or_after_signal": 30
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "NEE",
+        "cik": "0000753308",
+        "accession_no": "0000753308-25-000056",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.0727647580020383,
+        "price_gap": {
+          "symbol": "NEE",
+          "signal_date": "2025-10-29",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 110,
+          "sessions_on_or_after_signal": 107
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "NFLX",
+        "cik": "0001065280",
+        "accession_no": "0001065280-25-000406",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-23",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": -0.2372632592604753,
+        "price_gap": {
+          "symbol": "NFLX",
+          "signal_date": "2025-10-23",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 114,
+          "sessions_on_or_after_signal": 111
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "NI",
+        "cik": "0001111711",
+        "accession_no": "0001111711-25-000055",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.042749816892537096,
+        "price_gap": {
+          "symbol": "NI",
+          "signal_date": "2025-10-30",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 106
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "NOC",
+        "cik": "0001133421",
+        "accession_no": "0001133421-25-000053",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-22",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.12269274946904019,
+        "price_gap": {
+          "symbol": "NOC",
+          "signal_date": "2025-10-22",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 115,
+          "sessions_on_or_after_signal": 112
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "NRG",
+        "cik": "0001013871",
+        "accession_no": "0001013871-25-000025",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": -0.09839280383768922,
+        "price_gap": {
+          "symbol": "NRG",
+          "signal_date": "2025-11-07",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 100
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "NSC",
+        "cik": "0000702165",
+        "accession_no": "0001628280-25-046128",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-24",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.025940972800142292,
+        "price_gap": {
+          "symbol": "NSC",
+          "signal_date": "2025-10-24",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 114,
+          "sessions_on_or_after_signal": 110
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "NTAP",
+        "cik": "0001002047",
+        "accession_no": "0001193125-26-076622",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-27",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "NTAP",
+          "signal_date": "2026-02-27",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=25",
+          "silver_row_count_in_window": 29,
+          "sessions_on_or_after_signal": 25
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "NUE",
+        "cik": "0000073309",
+        "accession_no": "0001193125-25-276207",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-13",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.25256449000383085,
+        "price_gap": {
+          "symbol": "NUE",
+          "signal_date": "2025-11-13",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 99,
+          "sessions_on_or_after_signal": 96
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "NVR",
+        "cik": "0000906163",
+        "accession_no": "0000906163-25-000121",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.0857983454947866,
+        "price_gap": {
+          "symbol": "NVR",
+          "signal_date": "2025-11-06",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 101
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      },
+      {
+        "symbol": "NWSA",
+        "cik": "0001564708",
+        "accession_no": "0001564708-26-000029",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-09",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "NWSA",
+          "signal_date": "2026-02-09",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=38",
+          "silver_row_count_in_window": 41,
+          "sessions_on_or_after_signal": 38
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "NXPI",
+        "cik": "0001413447",
+        "accession_no": "0001413447-25-000120",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": 0.09976336318438417,
+        "price_gap": {
+          "symbol": "NXPI",
+          "signal_date": "2025-10-29",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 110,
+          "sessions_on_or_after_signal": 107
+        },
+        "classification": "forward_present_validation_not_refreshed"
+      }
+    ]
+  },
+  "propagation_gap_after_refresh": {
+    "ok": true,
+    "phase32_touched_symbol_count": 30,
+    "validation_panel_rows_scanned": 30,
+    "forward_row_present_count": 23,
+    "classification_counts": {
+      "forward_present_validation_not_refreshed": 0,
+      "forward_present_validation_refresh_failed": 0,
+      "forward_not_present_window_not_matured": 7,
+      "forward_not_present_other_gap": 0,
+      "synchronized": 23
+    },
+    "gap_row_count": 7,
+    "rows": [
+      {
+        "symbol": "MCK",
+        "cik": "0000927653",
+        "accession_no": "0000927653-26-000017",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-05",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MCK",
+          "signal_date": "2026-02-05",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=40",
+          "silver_row_count_in_window": 43,
+          "sessions_on_or_after_signal": 40
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "MDT",
+        "cik": "0001613103",
+        "accession_no": "0001628280-26-011107",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-25",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MDT",
+          "signal_date": "2026-02-25",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=27",
+          "silver_row_count_in_window": 30,
+          "sessions_on_or_after_signal": 27
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "MKC",
+        "cik": "0000063754",
+        "accession_no": "0000063754-26-000192",
+        "factor_version": "v1",
+        "signal_available_date": "2026-04-01",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MKC",
+          "signal_date": "2026-04-01",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=2",
+          "silver_row_count_in_window": 5,
+          "sessions_on_or_after_signal": 2
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "MSI",
+        "cik": "0000068505",
+        "accession_no": "0000068505-25-000052",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-31",
+        "validation_excess_return_1q": 0.0011692462240409096,
+        "forward_next_quarter_excess": 0.0011692462240409096,
+        "price_gap": {
+          "symbol": "MSI",
+          "signal_date": "2025-10-31",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 105
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MO",
+        "cik": "0000764180",
+        "accession_no": "0000764180-25-000130",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-31",
+        "validation_excess_return_1q": 0.14853031168806075,
+        "forward_next_quarter_excess": 0.14853031168806075,
+        "price_gap": {
+          "symbol": "MO",
+          "signal_date": "2025-10-31",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 105
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MGM",
+        "cik": "0000789570",
+        "accession_no": "0000789570-25-000074",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "validation_excess_return_1q": 0.08049040063246893,
+        "forward_next_quarter_excess": 0.08049040063246893,
+        "price_gap": {
+          "symbol": "MGM",
+          "signal_date": "2025-10-30",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 106
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MNST",
+        "cik": "0000865752",
+        "accession_no": "0001104659-25-107944",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "validation_excess_return_1q": 0.13952789893762962,
+        "forward_next_quarter_excess": 0.13952789893762962,
+        "price_gap": {
+          "symbol": "MNST",
+          "signal_date": "2025-11-07",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 100
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MLM",
+        "cik": "0000916076",
+        "accession_no": "0001193125-25-264566",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-05",
+        "validation_excess_return_1q": 0.1214906325911127,
+        "forward_next_quarter_excess": 0.1214906325911127,
+        "price_gap": {
+          "symbol": "MLM",
+          "signal_date": "2025-11-05",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 105,
+          "sessions_on_or_after_signal": 102
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MTD",
+        "cik": "0001037646",
+        "accession_no": "0001037646-25-000058",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-10",
+        "validation_excess_return_1q": -0.036475362889377916,
+        "forward_next_quarter_excess": -0.036475362889377916,
+        "price_gap": {
+          "symbol": "MTD",
+          "signal_date": "2025-11-10",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 102,
+          "sessions_on_or_after_signal": 99
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MCO",
+        "cik": "0001059556",
+        "accession_no": "0001628280-25-046118",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-24",
+        "validation_excess_return_1q": 0.04982438243867837,
+        "forward_next_quarter_excess": 0.04982438243867837,
+        "price_gap": {
+          "symbol": "MCO",
+          "signal_date": "2025-10-24",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 114,
+          "sessions_on_or_after_signal": 110
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MPWR",
+        "cik": "0001280452",
+        "accession_no": "0001437749-25-033332",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "validation_excess_return_1q": 0.24991818687525136,
+        "forward_next_quarter_excess": 0.24991818687525136,
+        "price_gap": {
+          "symbol": "MPWR",
+          "signal_date": "2025-11-06",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 101
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MOS",
+        "cik": "0001285785",
+        "accession_no": "0001628280-25-049494",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "validation_excess_return_1q": 0.18646158809596236,
+        "forward_next_quarter_excess": 0.18646158809596236,
+        "price_gap": {
+          "symbol": "MOS",
+          "signal_date": "2025-11-06",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 101
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "META",
+        "cik": "0001326801",
+        "accession_no": "0001628280-25-047240",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "validation_excess_return_1q": 0.05137391613747466,
+        "forward_next_quarter_excess": 0.05137391613747466,
+        "price_gap": {
+          "symbol": "META",
+          "signal_date": "2025-10-30",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 106
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MSCI",
+        "cik": "0001408198",
+        "accession_no": "0001408198-25-000196",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "validation_excess_return_1q": 0.06725659827967623,
+        "forward_next_quarter_excess": 0.06725659827967623,
+        "price_gap": {
+          "symbol": "MSCI",
+          "signal_date": "2025-10-29",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 110,
+          "sessions_on_or_after_signal": 107
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MRNA",
+        "cik": "0001682852",
+        "accession_no": "0001682852-25-000075",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "validation_excess_return_1q": 0.6961168740933963,
+        "forward_next_quarter_excess": 0.6961168740933963,
+        "price_gap": {
+          "symbol": "MRNA",
+          "signal_date": "2025-11-07",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 100
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MU",
+        "cik": "0000723125",
+        "accession_no": "0000723125-26-000006",
+        "factor_version": "v1",
+        "signal_available_date": "2026-03-19",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MU",
+          "signal_date": "2026-03-19",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=11",
+          "silver_row_count_in_window": 14,
+          "sessions_on_or_after_signal": 11
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "NDSN",
+        "cik": "0000072331",
+        "accession_no": "0000072331-26-000014",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-20",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "NDSN",
+          "signal_date": "2026-02-20",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=30",
+          "silver_row_count_in_window": 33,
+          "sessions_on_or_after_signal": 30
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "NTAP",
+        "cik": "0001002047",
+        "accession_no": "0001193125-26-076622",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-27",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "NTAP",
+          "signal_date": "2026-02-27",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=25",
+          "silver_row_count_in_window": 29,
+          "sessions_on_or_after_signal": 25
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "NWSA",
+        "cik": "0001564708",
+        "accession_no": "0001564708-26-000029",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-09",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "NWSA",
+          "signal_date": "2026-02-09",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=38",
+          "silver_row_count_in_window": 41,
+          "sessions_on_or_after_signal": 38
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "MRSH",
+        "cik": "0000062709",
+        "accession_no": "0000062709-25-000125",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-17",
+        "validation_excess_return_1q": -0.0538184939110099,
+        "forward_next_quarter_excess": -0.0538184939110099,
+        "price_gap": {
+          "symbol": "MRSH",
+          "signal_date": "2025-10-17",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 119,
+          "sessions_on_or_after_signal": 115
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NSC",
+        "cik": "0000702165",
+        "accession_no": "0001628280-25-046128",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-24",
+        "validation_excess_return_1q": 0.025940972800142292,
+        "forward_next_quarter_excess": 0.025940972800142292,
+        "price_gap": {
+          "symbol": "NSC",
+          "signal_date": "2025-10-24",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 114,
+          "sessions_on_or_after_signal": 110
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NEE",
+        "cik": "0000753308",
+        "accession_no": "0000753308-25-000056",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "validation_excess_return_1q": 0.0727647580020383,
+        "forward_next_quarter_excess": 0.0727647580020383,
+        "price_gap": {
+          "symbol": "NEE",
+          "signal_date": "2025-10-29",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 110,
+          "sessions_on_or_after_signal": 107
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NVR",
+        "cik": "0000906163",
+        "accession_no": "0000906163-25-000121",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "validation_excess_return_1q": 0.0857983454947866,
+        "forward_next_quarter_excess": 0.0857983454947866,
+        "price_gap": {
+          "symbol": "NVR",
+          "signal_date": "2025-11-06",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 101
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NRG",
+        "cik": "0001013871",
+        "accession_no": "0001013871-25-000025",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "validation_excess_return_1q": -0.09839280383768922,
+        "forward_next_quarter_excess": -0.09839280383768922,
+        "price_gap": {
+          "symbol": "NRG",
+          "signal_date": "2025-11-07",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 100
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NFLX",
+        "cik": "0001065280",
+        "accession_no": "0001065280-25-000406",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-23",
+        "validation_excess_return_1q": -0.2372632592604753,
+        "forward_next_quarter_excess": -0.2372632592604753,
+        "price_gap": {
+          "symbol": "NFLX",
+          "signal_date": "2025-10-23",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 114,
+          "sessions_on_or_after_signal": 111
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NI",
+        "cik": "0001111711",
+        "accession_no": "0001111711-25-000055",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "validation_excess_return_1q": 0.042749816892537096,
+        "forward_next_quarter_excess": 0.042749816892537096,
+        "price_gap": {
+          "symbol": "NI",
+          "signal_date": "2025-10-30",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 106
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NOC",
+        "cik": "0001133421",
+        "accession_no": "0001133421-25-000053",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-22",
+        "validation_excess_return_1q": 0.12269274946904019,
+        "forward_next_quarter_excess": 0.12269274946904019,
+        "price_gap": {
+          "symbol": "NOC",
+          "signal_date": "2025-10-22",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 115,
+          "sessions_on_or_after_signal": 112
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NXPI",
+        "cik": "0001413447",
+        "accession_no": "0001413447-25-000120",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "validation_excess_return_1q": 0.09976336318438417,
+        "forward_next_quarter_excess": 0.09976336318438417,
+        "price_gap": {
+          "symbol": "NXPI",
+          "signal_date": "2025-10-29",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 110,
+          "sessions_on_or_after_signal": 107
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NCLH",
+        "cik": "0001513761",
+        "accession_no": "0001104659-25-106057",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-05",
+        "validation_excess_return_1q": 0.24197787720994457,
+        "forward_next_quarter_excess": 0.24197787720994457,
+        "price_gap": {
+          "symbol": "NCLH",
+          "signal_date": "2025-11-05",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 105,
+          "sessions_on_or_after_signal": 102
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NUE",
+        "cik": "0000073309",
+        "accession_no": "0001193125-25-276207",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-13",
+        "validation_excess_return_1q": 0.25256449000383085,
+        "forward_next_quarter_excess": 0.25256449000383085,
+        "price_gap": {
+          "symbol": "NUE",
+          "signal_date": "2025-11-13",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 99,
+          "sessions_on_or_after_signal": 96
+        },
+        "classification": "synchronized"
+      }
+    ]
+  },
+  "propagation_gap_final": {
+    "ok": true,
+    "phase32_touched_symbol_count": 30,
+    "validation_panel_rows_scanned": 30,
+    "forward_row_present_count": 23,
+    "classification_counts": {
+      "forward_present_validation_not_refreshed": 0,
+      "forward_present_validation_refresh_failed": 0,
+      "forward_not_present_window_not_matured": 7,
+      "forward_not_present_other_gap": 0,
+      "synchronized": 23
+    },
+    "gap_row_count": 7,
+    "rows": [
+      {
+        "symbol": "MCK",
+        "cik": "0000927653",
+        "accession_no": "0000927653-26-000017",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-05",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MCK",
+          "signal_date": "2026-02-05",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=40",
+          "silver_row_count_in_window": 43,
+          "sessions_on_or_after_signal": 40
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "MDT",
+        "cik": "0001613103",
+        "accession_no": "0001628280-26-011107",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-25",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MDT",
+          "signal_date": "2026-02-25",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=27",
+          "silver_row_count_in_window": 30,
+          "sessions_on_or_after_signal": 27
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "MKC",
+        "cik": "0000063754",
+        "accession_no": "0000063754-26-000192",
+        "factor_version": "v1",
+        "signal_available_date": "2026-04-01",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MKC",
+          "signal_date": "2026-04-01",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=2",
+          "silver_row_count_in_window": 5,
+          "sessions_on_or_after_signal": 2
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "MSI",
+        "cik": "0000068505",
+        "accession_no": "0000068505-25-000052",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-31",
+        "validation_excess_return_1q": 0.0011692462240409096,
+        "forward_next_quarter_excess": 0.0011692462240409096,
+        "price_gap": {
+          "symbol": "MSI",
+          "signal_date": "2025-10-31",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 105
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MO",
+        "cik": "0000764180",
+        "accession_no": "0000764180-25-000130",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-31",
+        "validation_excess_return_1q": 0.14853031168806075,
+        "forward_next_quarter_excess": 0.14853031168806075,
+        "price_gap": {
+          "symbol": "MO",
+          "signal_date": "2025-10-31",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 105
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MGM",
+        "cik": "0000789570",
+        "accession_no": "0000789570-25-000074",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "validation_excess_return_1q": 0.08049040063246893,
+        "forward_next_quarter_excess": 0.08049040063246893,
+        "price_gap": {
+          "symbol": "MGM",
+          "signal_date": "2025-10-30",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 106
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MNST",
+        "cik": "0000865752",
+        "accession_no": "0001104659-25-107944",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "validation_excess_return_1q": 0.13952789893762962,
+        "forward_next_quarter_excess": 0.13952789893762962,
+        "price_gap": {
+          "symbol": "MNST",
+          "signal_date": "2025-11-07",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 100
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MLM",
+        "cik": "0000916076",
+        "accession_no": "0001193125-25-264566",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-05",
+        "validation_excess_return_1q": 0.1214906325911127,
+        "forward_next_quarter_excess": 0.1214906325911127,
+        "price_gap": {
+          "symbol": "MLM",
+          "signal_date": "2025-11-05",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 105,
+          "sessions_on_or_after_signal": 102
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MTD",
+        "cik": "0001037646",
+        "accession_no": "0001037646-25-000058",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-10",
+        "validation_excess_return_1q": -0.036475362889377916,
+        "forward_next_quarter_excess": -0.036475362889377916,
+        "price_gap": {
+          "symbol": "MTD",
+          "signal_date": "2025-11-10",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 102,
+          "sessions_on_or_after_signal": 99
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MCO",
+        "cik": "0001059556",
+        "accession_no": "0001628280-25-046118",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-24",
+        "validation_excess_return_1q": 0.04982438243867837,
+        "forward_next_quarter_excess": 0.04982438243867837,
+        "price_gap": {
+          "symbol": "MCO",
+          "signal_date": "2025-10-24",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 114,
+          "sessions_on_or_after_signal": 110
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MPWR",
+        "cik": "0001280452",
+        "accession_no": "0001437749-25-033332",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "validation_excess_return_1q": 0.24991818687525136,
+        "forward_next_quarter_excess": 0.24991818687525136,
+        "price_gap": {
+          "symbol": "MPWR",
+          "signal_date": "2025-11-06",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 101
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MOS",
+        "cik": "0001285785",
+        "accession_no": "0001628280-25-049494",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "validation_excess_return_1q": 0.18646158809596236,
+        "forward_next_quarter_excess": 0.18646158809596236,
+        "price_gap": {
+          "symbol": "MOS",
+          "signal_date": "2025-11-06",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 101
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "META",
+        "cik": "0001326801",
+        "accession_no": "0001628280-25-047240",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "validation_excess_return_1q": 0.05137391613747466,
+        "forward_next_quarter_excess": 0.05137391613747466,
+        "price_gap": {
+          "symbol": "META",
+          "signal_date": "2025-10-30",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 106
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MSCI",
+        "cik": "0001408198",
+        "accession_no": "0001408198-25-000196",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "validation_excess_return_1q": 0.06725659827967623,
+        "forward_next_quarter_excess": 0.06725659827967623,
+        "price_gap": {
+          "symbol": "MSCI",
+          "signal_date": "2025-10-29",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 110,
+          "sessions_on_or_after_signal": 107
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MRNA",
+        "cik": "0001682852",
+        "accession_no": "0001682852-25-000075",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "validation_excess_return_1q": 0.6961168740933963,
+        "forward_next_quarter_excess": 0.6961168740933963,
+        "price_gap": {
+          "symbol": "MRNA",
+          "signal_date": "2025-11-07",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 100
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "MU",
+        "cik": "0000723125",
+        "accession_no": "0000723125-26-000006",
+        "factor_version": "v1",
+        "signal_available_date": "2026-03-19",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "MU",
+          "signal_date": "2026-03-19",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=11",
+          "silver_row_count_in_window": 14,
+          "sessions_on_or_after_signal": 11
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "NDSN",
+        "cik": "0000072331",
+        "accession_no": "0000072331-26-000014",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-20",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "NDSN",
+          "signal_date": "2026-02-20",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=30",
+          "silver_row_count_in_window": 33,
+          "sessions_on_or_after_signal": 30
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "NTAP",
+        "cik": "0001002047",
+        "accession_no": "0001193125-26-076622",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-27",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "NTAP",
+          "signal_date": "2026-02-27",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=25",
+          "silver_row_count_in_window": 29,
+          "sessions_on_or_after_signal": 25
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "NWSA",
+        "cik": "0001564708",
+        "accession_no": "0001564708-26-000029",
+        "factor_version": "v1",
+        "signal_available_date": "2026-02-09",
+        "validation_excess_return_1q": null,
+        "forward_next_quarter_excess": null,
+        "price_gap": {
+          "symbol": "NWSA",
+          "signal_date": "2026-02-09",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=38",
+          "silver_row_count_in_window": 41,
+          "sessions_on_or_after_signal": 38
+        },
+        "classification": "forward_not_present_window_not_matured"
+      },
+      {
+        "symbol": "MRSH",
+        "cik": "0000062709",
+        "accession_no": "0000062709-25-000125",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-17",
+        "validation_excess_return_1q": -0.0538184939110099,
+        "forward_next_quarter_excess": -0.0538184939110099,
+        "price_gap": {
+          "symbol": "MRSH",
+          "signal_date": "2025-10-17",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 119,
+          "sessions_on_or_after_signal": 115
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NSC",
+        "cik": "0000702165",
+        "accession_no": "0001628280-25-046128",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-24",
+        "validation_excess_return_1q": 0.025940972800142292,
+        "forward_next_quarter_excess": 0.025940972800142292,
+        "price_gap": {
+          "symbol": "NSC",
+          "signal_date": "2025-10-24",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 114,
+          "sessions_on_or_after_signal": 110
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NEE",
+        "cik": "0000753308",
+        "accession_no": "0000753308-25-000056",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "validation_excess_return_1q": 0.0727647580020383,
+        "forward_next_quarter_excess": 0.0727647580020383,
+        "price_gap": {
+          "symbol": "NEE",
+          "signal_date": "2025-10-29",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 110,
+          "sessions_on_or_after_signal": 107
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NVR",
+        "cik": "0000906163",
+        "accession_no": "0000906163-25-000121",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-06",
+        "validation_excess_return_1q": 0.0857983454947866,
+        "forward_next_quarter_excess": 0.0857983454947866,
+        "price_gap": {
+          "symbol": "NVR",
+          "signal_date": "2025-11-06",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 101
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NRG",
+        "cik": "0001013871",
+        "accession_no": "0001013871-25-000025",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-07",
+        "validation_excess_return_1q": -0.09839280383768922,
+        "forward_next_quarter_excess": -0.09839280383768922,
+        "price_gap": {
+          "symbol": "NRG",
+          "signal_date": "2025-11-07",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 104,
+          "sessions_on_or_after_signal": 100
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NFLX",
+        "cik": "0001065280",
+        "accession_no": "0001065280-25-000406",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-23",
+        "validation_excess_return_1q": -0.2372632592604753,
+        "forward_next_quarter_excess": -0.2372632592604753,
+        "price_gap": {
+          "symbol": "NFLX",
+          "signal_date": "2025-10-23",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 114,
+          "sessions_on_or_after_signal": 111
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NI",
+        "cik": "0001111711",
+        "accession_no": "0001111711-25-000055",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-30",
+        "validation_excess_return_1q": 0.042749816892537096,
+        "forward_next_quarter_excess": 0.042749816892537096,
+        "price_gap": {
+          "symbol": "NI",
+          "signal_date": "2025-10-30",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 109,
+          "sessions_on_or_after_signal": 106
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NOC",
+        "cik": "0001133421",
+        "accession_no": "0001133421-25-000053",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-22",
+        "validation_excess_return_1q": 0.12269274946904019,
+        "forward_next_quarter_excess": 0.12269274946904019,
+        "price_gap": {
+          "symbol": "NOC",
+          "signal_date": "2025-10-22",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 115,
+          "sessions_on_or_after_signal": 112
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NXPI",
+        "cik": "0001413447",
+        "accession_no": "0001413447-25-000120",
+        "factor_version": "v1",
+        "signal_available_date": "2025-10-29",
+        "validation_excess_return_1q": 0.09976336318438417,
+        "forward_next_quarter_excess": 0.09976336318438417,
+        "price_gap": {
+          "symbol": "NXPI",
+          "signal_date": "2025-10-29",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 110,
+          "sessions_on_or_after_signal": 107
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NCLH",
+        "cik": "0001513761",
+        "accession_no": "0001104659-25-106057",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-05",
+        "validation_excess_return_1q": 0.24197787720994457,
+        "forward_next_quarter_excess": 0.24197787720994457,
+        "price_gap": {
+          "symbol": "NCLH",
+          "signal_date": "2025-11-05",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 105,
+          "sessions_on_or_after_signal": 102
+        },
+        "classification": "synchronized"
+      },
+      {
+        "symbol": "NUE",
+        "cik": "0000073309",
+        "accession_no": "0001193125-25-276207",
+        "factor_version": "v1",
+        "signal_available_date": "2025-11-13",
+        "validation_excess_return_1q": 0.25256449000383085,
+        "forward_next_quarter_excess": 0.25256449000383085,
+        "price_gap": {
+          "symbol": "NUE",
+          "signal_date": "2025-11-13",
+          "classification": "would_compute_now",
+          "detail": "forward_math_ok",
+          "silver_row_count_in_window": 99,
+          "sessions_on_or_after_signal": 96
+        },
+        "classification": "synchronized"
+      }
+    ]
+  },
+  "validation_refresh": {
+    "ok": true,
+    "repair": "validation_refresh_after_forward_propagation",
+    "target_factor_key_count": 23,
+    "panels_refreshed": 23,
+    "factor_panel_missing_for_keys": [],
+    "validation_panel_build": {
+      "status": "completed",
+      "rows_upserted": 23,
+      "failures": 0,
+      "error_sample": []
+    },
+    "validation_excess_filled_now_count": 23,
+    "validation_excess_still_null_after_refresh_count": 0,
+    "refresh_failed_keys": [],
+    "metric_truth_before": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "phase32_touched_symbol_count": 30,
+      "forward_row_unblocked_now_count_bundle_phase32": 23,
+      "forward_return_unblocked_flag_count_in_per_symbol_after": 23,
+      "validation_panel_rows_for_touched_symbols": {
+        "row_count": 30,
+        "excess_null_row_count": 30,
+        "excess_present_row_count": 0
+      },
+      "symbol_cleared_from_missing_excess_queue_count": 0,
+      "touched_symbols_still_in_missing_excess_queue": [
+        "MCK",
+        "MCO",
+        "MDT",
+        "META",
+        "MGM",
+        "MKC",
+        "MLM",
+        "MNST",
+        "MO",
+        "MOS",
+        "MPWR",
+        "MRNA",
+        "MRSH",
+        "MSCI",
+        "MSI",
+        "MTD",
+        "MU",
+        "NCLH",
+        "NDSN",
+        "NEE",
+        "NFLX",
+        "NI",
+        "NOC",
+        "NRG",
+        "NSC",
+        "NTAP",
+        "NUE",
+        "NVR",
+        "NWSA",
+        "NXPI"
+      ],
+      "joined_recipe_substrate_row_count_phase32_before": 243,
+      "joined_recipe_substrate_row_count_live": 243,
+      "joined_recipe_unlocked_now_count_delta": 0,
+      "missing_excess_return_1q_headline_phase32_after_snapshot": 101,
+      "missing_excess_return_1q_headline_live": 101,
+      "why_repaired_count_did_not_reduce_headline_excess": "Phase 32의 repaired_to_forward_present는 심볼당 대표 시그널일 1건 기준으로 next_quarter excess가 채워졌는지 본 것이다. missing_excess_return_1q 큐는 해당 심볼의 검증 패널 행 중 excess가 하나라도 비면 심볼 전체를 큐에 넣는다. 따라서 일부 시그널만 채워도 심볼은 큐에 남을 수 있고, 다른 심볼/행이 새로 들어오면 헤드라인 카운트는 오히려 늘어난다.",
+      "metrics_live": {
+        "universe_name": "sp500_current",
+        "as_of_date": "2026-04-05",
+        "n_issuer_universe": 503,
+        "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "panel_limit_used": 8000,
+        "state_change_scores_limit_used": 50000,
+        "thin_input_share": 1.0,
+        "degraded_share": 0.0,
+        "strong_share": 0.0,
+        "usable_with_gaps_share": 0.0,
+        "n_issuer_resolved_cik": 500,
+        "n_issuer_with_factor_panel": 352,
+        "n_issuer_with_state_change_cik": 312,
+        "validation_panel_row_count": 352,
+        "n_issuer_no_validation_panel_row": 151,
+        "n_issuer_with_validation_panel_symbol": 352,
+        "n_issuer_with_next_quarter_excess": 251,
+        "validation_join_row_count": 251,
+        "joined_recipe_substrate_row_count": 243,
+        "dominant_exclusion_reasons": [
+          {
+            "reason": "no_validation_panel_for_symbol",
+            "count": 151
+          },
+          {
+            "reason": "missing_excess_return_1q",
+            "count": 101
+          },
+          {
+            "reason": "no_state_change_join",
+            "count": 8
+          }
+        ]
+      },
+      "exclusion_distribution_live": {
+        "missing_excess_return_1q": 101,
+        "no_state_change_join": 8,
+        "no_validation_panel_for_symbol": 151
+      }
+    },
+    "metric_truth_after": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "phase32_touched_symbol_count": 30,
+      "forward_row_unblocked_now_count_bundle_phase32": 23,
+      "forward_return_unblocked_flag_count_in_per_symbol_after": 23,
+      "validation_panel_rows_for_touched_symbols": {
+        "row_count": 30,
+        "excess_null_row_count": 7,
+        "excess_present_row_count": 23
+      },
+      "symbol_cleared_from_missing_excess_queue_count": 23,
+      "touched_symbols_still_in_missing_excess_queue": [
+        "MCK",
+        "MDT",
+        "MKC",
+        "MU",
+        "NDSN",
+        "NTAP",
+        "NWSA"
+      ],
+      "joined_recipe_substrate_row_count_phase32_before": 243,
+      "joined_recipe_substrate_row_count_live": 243,
+      "joined_recipe_unlocked_now_count_delta": 0,
+      "missing_excess_return_1q_headline_phase32_after_snapshot": 101,
+      "missing_excess_return_1q_headline_live": 78,
+      "why_repaired_count_did_not_reduce_headline_excess": "Phase 32의 repaired_to_forward_present는 심볼당 대표 시그널일 1건 기준으로 next_quarter excess가 채워졌는지 본 것이다. missing_excess_return_1q 큐는 해당 심볼의 검증 패널 행 중 excess가 하나라도 비면 심볼 전체를 큐에 넣는다. 따라서 일부 시그널만 채워도 심볼은 큐에 남을 수 있고, 다른 심볼/행이 새로 들어오면 헤드라인 카운트는 오히려 늘어난다.",
+      "metrics_live": {
+        "universe_name": "sp500_current",
+        "as_of_date": "2026-04-05",
+        "n_issuer_universe": 503,
+        "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "panel_limit_used": 8000,
+        "state_change_scores_limit_used": 50000,
+        "thin_input_share": 1.0,
+        "degraded_share": 0.0,
+        "strong_share": 0.0,
+        "usable_with_gaps_share": 0.0,
+        "n_issuer_resolved_cik": 500,
+        "n_issuer_with_factor_panel": 352,
+        "n_issuer_with_state_change_cik": 312,
+        "validation_panel_row_count": 352,
+        "n_issuer_no_validation_panel_row": 151,
+        "n_issuer_with_validation_panel_symbol": 352,
+        "n_issuer_with_next_quarter_excess": 274,
+        "validation_join_row_count": 274,
+        "joined_recipe_substrate_row_count": 243,
+        "dominant_exclusion_reasons": [
+          {
+            "reason": "no_validation_panel_for_symbol",
+            "count": 151
+          },
+          {
+            "reason": "missing_excess_return_1q",
+            "count": 78
+          },
+          {
+            "reason": "no_state_change_join",
+            "count": 31
+          }
+        ]
+      },
+      "exclusion_distribution_live": {
+        "missing_excess_return_1q": 78,
+        "no_state_change_join": 31,
+        "no_validation_panel_for_symbol": 151
+      }
+    },
+    "symbol_cleared_from_missing_excess_queue_count_before": 0,
+    "symbol_cleared_from_missing_excess_queue_count_after": 23,
+    "joined_recipe_unlocked_now_count": 0,
+    "gap_report_snapshot": {
+      "forward_row_present_count": 23,
+      "classification_counts": {
+        "forward_present_validation_not_refreshed": 23,
+        "forward_present_validation_refresh_failed": 0,
+        "forward_not_present_window_not_matured": 7,
+        "forward_not_present_other_gap": 0,
+        "synchronized": 0
+      }
+    }
+  },
+  "matured_forward_retry_targets": {
+    "ok": true,
+    "source_error_row_count": 7,
+    "maturity_eligible_count": 0,
+    "still_not_matured_count": 7,
+    "missing_market_prices_daily_window_count": 0,
+    "registry_or_time_alignment_issue_count": 0,
+    "rows": [
+      {
+        "symbol": "MKC",
+        "signal_date": "2026-04-01",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "MKC",
+          "signal_date": "2026-04-01",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=2",
+          "silver_row_count_in_window": 5,
+          "sessions_on_or_after_signal": 2
+        },
+        "retry_bucket": "still_lookahead_window_not_matured"
+      },
+      {
+        "symbol": "NDSN",
+        "signal_date": "2026-02-20",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "NDSN",
+          "signal_date": "2026-02-20",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=30",
+          "silver_row_count_in_window": 33,
+          "sessions_on_or_after_signal": 30
+        },
+        "retry_bucket": "still_lookahead_window_not_matured"
+      },
+      {
+        "symbol": "MU",
+        "signal_date": "2026-03-19",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "MU",
+          "signal_date": "2026-03-19",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=11",
+          "silver_row_count_in_window": 14,
+          "sessions_on_or_after_signal": 11
+        },
+        "retry_bucket": "still_lookahead_window_not_matured"
+      },
+      {
+        "symbol": "MCK",
+        "signal_date": "2026-02-05",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "MCK",
+          "signal_date": "2026-02-05",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=40",
+          "silver_row_count_in_window": 43,
+          "sessions_on_or_after_signal": 40
+        },
+        "retry_bucket": "still_lookahead_window_not_matured"
+      },
+      {
+        "symbol": "NTAP",
+        "signal_date": "2026-02-27",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "NTAP",
+          "signal_date": "2026-02-27",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=25",
+          "silver_row_count_in_window": 29,
+          "sessions_on_or_after_signal": 25
+        },
+        "retry_bucket": "still_lookahead_window_not_matured"
+      },
+      {
+        "symbol": "NWSA",
+        "signal_date": "2026-02-09",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "NWSA",
+          "signal_date": "2026-02-09",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=38",
+          "silver_row_count_in_window": 41,
+          "sessions_on_or_after_signal": 38
+        },
+        "retry_bucket": "still_lookahead_window_not_matured"
+      },
+      {
+        "symbol": "MDT",
+        "signal_date": "2026-02-25",
+        "horizon": "next_quarter",
+        "error": "insufficient_price_history",
+        "price_gap": {
+          "symbol": "MDT",
+          "signal_date": "2026-02-25",
+          "classification": "lookahead_window_not_matured",
+          "detail": "calendar_window_reaches_past_today_sessions_after_signal=27",
+          "silver_row_count_in_window": 30,
+          "sessions_on_or_after_signal": 27
+        },
+        "retry_bucket": "still_lookahead_window_not_matured"
+      }
+    ],
+    "maturity_eligible_rows": []
+  },
+  "matured_forward_retry": {
+    "ok": true,
+    "repair": "matured_forward_retry",
+    "skipped": true,
+    "reason": "no_maturity_eligible_targets",
+    "target_report": {
+      "ok": true,
+      "source_error_row_count": 7,
+      "maturity_eligible_count": 0,
+      "still_not_matured_count": 7,
+      "missing_market_prices_daily_window_count": 0,
+      "registry_or_time_alignment_issue_count": 0,
+      "rows": [
+        {
+          "symbol": "MKC",
+          "signal_date": "2026-04-01",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "MKC",
+            "signal_date": "2026-04-01",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=2",
+            "silver_row_count_in_window": 5,
+            "sessions_on_or_after_signal": 2
+          },
+          "retry_bucket": "still_lookahead_window_not_matured"
+        },
+        {
+          "symbol": "NDSN",
+          "signal_date": "2026-02-20",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "NDSN",
+            "signal_date": "2026-02-20",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=30",
+            "silver_row_count_in_window": 33,
+            "sessions_on_or_after_signal": 30
+          },
+          "retry_bucket": "still_lookahead_window_not_matured"
+        },
+        {
+          "symbol": "MU",
+          "signal_date": "2026-03-19",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "MU",
+            "signal_date": "2026-03-19",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=11",
+            "silver_row_count_in_window": 14,
+            "sessions_on_or_after_signal": 11
+          },
+          "retry_bucket": "still_lookahead_window_not_matured"
+        },
+        {
+          "symbol": "MCK",
+          "signal_date": "2026-02-05",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "MCK",
+            "signal_date": "2026-02-05",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=40",
+            "silver_row_count_in_window": 43,
+            "sessions_on_or_after_signal": 40
+          },
+          "retry_bucket": "still_lookahead_window_not_matured"
+        },
+        {
+          "symbol": "NTAP",
+          "signal_date": "2026-02-27",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "NTAP",
+            "signal_date": "2026-02-27",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=25",
+            "silver_row_count_in_window": 29,
+            "sessions_on_or_after_signal": 25
+          },
+          "retry_bucket": "still_lookahead_window_not_matured"
+        },
+        {
+          "symbol": "NWSA",
+          "signal_date": "2026-02-09",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "NWSA",
+            "signal_date": "2026-02-09",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=38",
+            "silver_row_count_in_window": 41,
+            "sessions_on_or_after_signal": 38
+          },
+          "retry_bucket": "still_lookahead_window_not_matured"
+        },
+        {
+          "symbol": "MDT",
+          "signal_date": "2026-02-25",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history",
+          "price_gap": {
+            "symbol": "MDT",
+            "signal_date": "2026-02-25",
+            "classification": "lookahead_window_not_matured",
+            "detail": "calendar_window_reaches_past_today_sessions_after_signal=27",
+            "silver_row_count_in_window": 30,
+            "sessions_on_or_after_signal": 27
+          },
+          "retry_bucket": "still_lookahead_window_not_matured"
+        }
+      ],
+      "maturity_eligible_rows": []
+    },
+    "forward_build": {
+      "skipped": true
+    },
+    "matured_forward_retry_success_count": 0,
+    "metric_truth_before": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "phase32_touched_symbol_count": 30,
+      "forward_row_unblocked_now_count_bundle_phase32": 23,
+      "forward_return_unblocked_flag_count_in_per_symbol_after": 23,
+      "validation_panel_rows_for_touched_symbols": {
+        "row_count": 30,
+        "excess_null_row_count": 7,
+        "excess_present_row_count": 23
+      },
+      "symbol_cleared_from_missing_excess_queue_count": 23,
+      "touched_symbols_still_in_missing_excess_queue": [
+        "MCK",
+        "MDT",
+        "MKC",
+        "MU",
+        "NDSN",
+        "NTAP",
+        "NWSA"
+      ],
+      "joined_recipe_substrate_row_count_phase32_before": 243,
+      "joined_recipe_substrate_row_count_live": 243,
+      "joined_recipe_unlocked_now_count_delta": 0,
+      "missing_excess_return_1q_headline_phase32_after_snapshot": 101,
+      "missing_excess_return_1q_headline_live": 78,
+      "why_repaired_count_did_not_reduce_headline_excess": "Phase 32의 repaired_to_forward_present는 심볼당 대표 시그널일 1건 기준으로 next_quarter excess가 채워졌는지 본 것이다. missing_excess_return_1q 큐는 해당 심볼의 검증 패널 행 중 excess가 하나라도 비면 심볼 전체를 큐에 넣는다. 따라서 일부 시그널만 채워도 심볼은 큐에 남을 수 있고, 다른 심볼/행이 새로 들어오면 헤드라인 카운트는 오히려 늘어난다.",
+      "metrics_live": {
+        "universe_name": "sp500_current",
+        "as_of_date": "2026-04-05",
+        "n_issuer_universe": 503,
+        "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "panel_limit_used": 8000,
+        "state_change_scores_limit_used": 50000,
+        "thin_input_share": 1.0,
+        "degraded_share": 0.0,
+        "strong_share": 0.0,
+        "usable_with_gaps_share": 0.0,
+        "n_issuer_resolved_cik": 500,
+        "n_issuer_with_factor_panel": 352,
+        "n_issuer_with_state_change_cik": 312,
+        "validation_panel_row_count": 352,
+        "n_issuer_no_validation_panel_row": 151,
+        "n_issuer_with_validation_panel_symbol": 352,
+        "n_issuer_with_next_quarter_excess": 274,
+        "validation_join_row_count": 274,
+        "joined_recipe_substrate_row_count": 243,
+        "dominant_exclusion_reasons": [
+          {
+            "reason": "no_validation_panel_for_symbol",
+            "count": 151
+          },
+          {
+            "reason": "missing_excess_return_1q",
+            "count": 78
+          },
+          {
+            "reason": "no_state_change_join",
+            "count": 31
+          }
+        ]
+      },
+      "exclusion_distribution_live": {
+        "missing_excess_return_1q": 78,
+        "no_state_change_join": 31,
+        "no_validation_panel_for_symbol": 151
+      }
+    },
+    "metric_truth_after": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "phase32_touched_symbol_count": 30,
+      "forward_row_unblocked_now_count_bundle_phase32": 23,
+      "forward_return_unblocked_flag_count_in_per_symbol_after": 23,
+      "validation_panel_rows_for_touched_symbols": {
+        "row_count": 30,
+        "excess_null_row_count": 7,
+        "excess_present_row_count": 23
+      },
+      "symbol_cleared_from_missing_excess_queue_count": 23,
+      "touched_symbols_still_in_missing_excess_queue": [
+        "MCK",
+        "MDT",
+        "MKC",
+        "MU",
+        "NDSN",
+        "NTAP",
+        "NWSA"
+      ],
+      "joined_recipe_substrate_row_count_phase32_before": 243,
+      "joined_recipe_substrate_row_count_live": 243,
+      "joined_recipe_unlocked_now_count_delta": 0,
+      "missing_excess_return_1q_headline_phase32_after_snapshot": 101,
+      "missing_excess_return_1q_headline_live": 78,
+      "why_repaired_count_did_not_reduce_headline_excess": "Phase 32의 repaired_to_forward_present는 심볼당 대표 시그널일 1건 기준으로 next_quarter excess가 채워졌는지 본 것이다. missing_excess_return_1q 큐는 해당 심볼의 검증 패널 행 중 excess가 하나라도 비면 심볼 전체를 큐에 넣는다. 따라서 일부 시그널만 채워도 심볼은 큐에 남을 수 있고, 다른 심볼/행이 새로 들어오면 헤드라인 카운트는 오히려 늘어난다.",
+      "metrics_live": {
+        "universe_name": "sp500_current",
+        "as_of_date": "2026-04-05",
+        "n_issuer_universe": 503,
+        "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "panel_limit_used": 8000,
+        "state_change_scores_limit_used": 50000,
+        "thin_input_share": 1.0,
+        "degraded_share": 0.0,
+        "strong_share": 0.0,
+        "usable_with_gaps_share": 0.0,
+        "n_issuer_resolved_cik": 500,
+        "n_issuer_with_factor_panel": 352,
+        "n_issuer_with_state_change_cik": 312,
+        "validation_panel_row_count": 352,
+        "n_issuer_no_validation_panel_row": 151,
+        "n_issuer_with_validation_panel_symbol": 352,
+        "n_issuer_with_next_quarter_excess": 274,
+        "validation_join_row_count": 274,
+        "joined_recipe_substrate_row_count": 243,
+        "dominant_exclusion_reasons": [
+          {
+            "reason": "no_validation_panel_for_symbol",
+            "count": 151
+          },
+          {
+            "reason": "missing_excess_return_1q",
+            "count": 78
+          },
+          {
+            "reason": "no_state_change_join",
+            "count": 31
+          }
+        ]
+      },
+      "exclusion_distribution_live": {
+        "missing_excess_return_1q": 78,
+        "no_state_change_join": 31,
+        "no_validation_panel_for_symbol": 151
+      }
+    }
+  },
+  "price_backfill_propagation_missing_window": {
+    "ok": true,
+    "repair": "bounded_price_ingest_propagation_missing_window",
+    "ingest_attempted": false,
+    "price_coverage_repaired_now_count": 0,
+    "note": "no_missing_market_prices_daily_window_in_propagation_rows"
+  },
+  "quarter_snapshot_classification_counts_after": {
+    "no_filing_index_for_cik": 147,
+    "raw_present_no_silver_facts": 1
+  },
+  "gis_deterministic_inspect": {
+    "ok": true,
+    "cik": "0000040704",
+    "symbol": "GIS",
+    "outcome": "blocked_unmapped_concepts_remain_in_sample",
+    "blocked_reason": "concept_map_misses_for_sampled_raw_concepts",
+    "concepts_sampled": 13,
+    "unmapped_sample": [
+      {
+        "source_concept": "dei:AmendmentFlag",
+        "normalized_key": "dei:AmendmentFlag",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:CurrentFiscalYearEndDate",
+        "normalized_key": "dei:CurrentFiscalYearEndDate",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentFiscalPeriodFocus",
+        "normalized_key": "dei:DocumentFiscalPeriodFocus",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentFiscalYearFocus",
+        "normalized_key": "dei:DocumentFiscalYearFocus",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentPeriodEndDate",
+        "normalized_key": "dei:DocumentPeriodEndDate",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentQuarterlyReport",
+        "normalized_key": "dei:DocumentQuarterlyReport",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentTransitionReport",
+        "normalized_key": "dei:DocumentTransitionReport",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:DocumentType",
+        "normalized_key": "dei:DocumentType",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityCentralIndexKey",
+        "normalized_key": "dei:EntityCentralIndexKey",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityFileNumber",
+        "normalized_key": "dei:EntityFileNumber",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityIncorporationStateCountryCode",
+        "normalized_key": "dei:EntityIncorporationStateCountryCode",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "dei:EntityRegistrantName",
+        "normalized_key": "dei:EntityRegistrantName",
+        "map_reason": "unmapped"
+      },
+      {
+        "source_concept": "us-gaap:SupplierFinanceProgramObligationStatementOfFinancialPositionExtensibleEnumeration",
+        "normalized_key": "us-gaap:SupplierFinanceProgramObligationStatementOfFinancialPositionExtensibleEnumeration",
+        "map_reason": "unmapped"
+      }
+    ],
+    "unmapped_count": 13
+  },
+  "closeout_summary": {
+    "joined_recipe_substrate_row_count": 243,
+    "thin_input_share": 1.0,
+    "missing_excess_return_1q": 78,
+    "missing_validation_symbol_count": 151,
+    "missing_quarter_snapshot_for_cik": 148,
+    "factor_panel_missing_for_resolved_cik": 148,
+    "forward_row_present_count": 23,
+    "validation_excess_filled_now_count": 23,
+    "symbol_cleared_from_missing_excess_queue_count": 23,
+    "symbol_cleared_from_missing_excess_queue_delta": 23,
+    "joined_recipe_unlocked_now_count": 0,
+    "matured_forward_retry_success_count": 0,
+    "still_not_matured_count": 7,
+    "price_coverage_repaired_now_count": 0,
+    "gis_outcome": "blocked_unmapped_concepts_remain_in_sample",
+    "gis_blocked_reason": "concept_map_misses_for_sampled_raw_concepts",
+    "phase35": {
+      "phase35_recommendation": "re_audit_forward_validation_join_and_schedule_matured_windows",
+      "rationale": "기판 또는 터치 집합 전파·forward에 진전 — 동일 상한으로 재감사 및 성숙 창만 후속 재시도."
+    }
+  },
+  "phase35": {
+    "phase35_recommendation": "re_audit_forward_validation_join_and_schedule_matured_windows",
+    "rationale": "기판 또는 터치 집합 전파·forward에 진전 — 동일 상한으로 재감사 및 성숙 창만 후속 재시도."
+  }
+}

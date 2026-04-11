@@ -1,0 +1,402 @@
+{
+  "ok": true,
+  "phase": "phase38_db_bound_pit_runner",
+  "generated_utc": "2026-04-10T18:26:47.398074+00:00",
+  "universe_name": "sp500_current",
+  "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+  "pit_execution": {
+    "ok": true,
+    "experiment_id": "41dea3b0-02fe-46d8-951d-e2778af01e9f",
+    "generated_utc": "2026-04-10T18:26:47.390832+00:00",
+    "universe_name": "sp500_current",
+    "fixture_row_count": 8,
+    "state_change_scores_limit": 50000,
+    "lag_calendar_days": 7,
+    "runs_resolved": {
+      "baseline_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+      "alternate_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+      "completed_runs_considered": 13
+    },
+    "executed_specs": [
+      {
+        "spec_key": "baseline_production_equivalent",
+        "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+        "signal_policy": "signal_available_date_strict",
+        "description": "Same pick rule as Phase 36 residual audit: bisect_right on as_of grid vs signal date."
+      },
+      {
+        "spec_key": "alternate_prior_completed_run",
+        "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "signal_policy": "signal_available_date_strict",
+        "description": "Second-most-recent completed run for universe (if distinct from baseline); same pick rule — tests whether an older score grid changes join classification.",
+        "skipped_reason": null
+      },
+      {
+        "spec_key": "lag_calendar_signal_bound",
+        "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+        "signal_policy": "signal_available_date_plus_7_calendar_days",
+        "description": "Baseline run scores; evaluation uses signal + N calendar days as upper bound for as_of (simulates later join decision without using post-signal price data)."
+      }
+    ],
+    "row_results": [
+      {
+        "symbol": "BBY",
+        "cik": "0000764478",
+        "signal_available_date": "2025-12-08",
+        "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "baseline": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        },
+        "alternate_prior_run": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97"
+        },
+        "lag_signal_bound": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "effective_signal_bound": "2025-12-15",
+          "lag_calendar_days": 7,
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        }
+      },
+      {
+        "symbol": "ADSK",
+        "cik": "0000769397",
+        "signal_available_date": "2025-11-27",
+        "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "baseline": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        },
+        "alternate_prior_run": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97"
+        },
+        "lag_signal_bound": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "effective_signal_bound": "2025-12-04",
+          "lag_calendar_days": 7,
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        }
+      },
+      {
+        "symbol": "CRM",
+        "cik": "0001108524",
+        "signal_available_date": "2025-12-04",
+        "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "baseline": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        },
+        "alternate_prior_run": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97"
+        },
+        "lag_signal_bound": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "effective_signal_bound": "2025-12-11",
+          "lag_calendar_days": 7,
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        }
+      },
+      {
+        "symbol": "CRWD",
+        "cik": "0001535527",
+        "signal_available_date": "2025-12-03",
+        "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "baseline": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        },
+        "alternate_prior_run": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97"
+        },
+        "lag_signal_bound": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "effective_signal_bound": "2025-12-10",
+          "lag_calendar_days": 7,
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        }
+      },
+      {
+        "symbol": "DELL",
+        "cik": "0001571996",
+        "signal_available_date": "2025-12-10",
+        "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "baseline": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        },
+        "alternate_prior_run": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97"
+        },
+        "lag_signal_bound": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "effective_signal_bound": "2025-12-17",
+          "lag_calendar_days": 7,
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        }
+      },
+      {
+        "symbol": "DUK",
+        "cik": "0001326160",
+        "signal_available_date": "2025-11-10",
+        "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "baseline": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        },
+        "alternate_prior_run": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97"
+        },
+        "lag_signal_bound": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "effective_signal_bound": "2025-11-17",
+          "lag_calendar_days": 7,
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        }
+      },
+      {
+        "symbol": "NVDA",
+        "cik": "0001045810",
+        "signal_available_date": "2025-11-20",
+        "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "baseline": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        },
+        "alternate_prior_run": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97"
+        },
+        "lag_signal_bound": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "effective_signal_bound": "2025-11-27",
+          "lag_calendar_days": 7,
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        }
+      },
+      {
+        "symbol": "WMT",
+        "cik": "0000104169",
+        "signal_available_date": "2025-12-04",
+        "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+        "baseline": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        },
+        "alternate_prior_run": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97"
+        },
+        "lag_signal_bound": {
+          "outcome_category": "still_join_key_mismatch",
+          "pick_reason": "state_change_built_but_join_key_mismatch",
+          "detail": {
+            "pick_reason": "state_change_built_but_join_key_mismatch"
+          },
+          "effective_signal_bound": "2025-12-11",
+          "lag_calendar_days": 7,
+          "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+        }
+      }
+    ],
+    "summary_counts": {
+      "baseline": {
+        "still_join_key_mismatch": 8
+      },
+      "alternate_prior_run": {
+        "still_join_key_mismatch": 8
+      },
+      "lag_signal_bound": {
+        "still_join_key_mismatch": 8
+      }
+    },
+    "leakage_audit": {
+      "passed": true,
+      "violations": [],
+      "rule": "Any picked row must have as_of_date <= signal_bound for that spec."
+    },
+    "scores_loaded": {
+      "baseline": 353,
+      "alternate": 313
+    }
+  },
+  "summary_counts_standard": {
+    "baseline": {
+      "still_join_key_mismatch": 8,
+      "reclassified_to_joined": 0,
+      "reclassified_to_other_exclusion": 0,
+      "invalid_due_to_leakage_or_non_pit": 0
+    },
+    "lag_signal_bound": {
+      "still_join_key_mismatch": 8,
+      "reclassified_to_joined": 0,
+      "reclassified_to_other_exclusion": 0,
+      "invalid_due_to_leakage_or_non_pit": 0
+    },
+    "alternate_prior_run": {
+      "still_join_key_mismatch": 8,
+      "reclassified_to_joined": 0,
+      "reclassified_to_other_exclusion": 0,
+      "invalid_due_to_leakage_or_non_pit": 0
+    }
+  },
+  "adversarial_review_updated": {
+    "review_id": "17b65b06-5001-401a-be26-25064897af17",
+    "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+    "reviewer_stance": "data_lineage_auditor",
+    "critique_category": "pit_integrity",
+    "challenge_text": "Alternate state_change run selection might smuggle lookahead if the run's as_of grid is not strictly ≤ signal_available_date under the same governance rules as production.",
+    "decision_impact": "require_extra_test",
+    "resolution": "deferred",
+    "resolution_notes": "Deferred until Phase 38 DB-bound PIT runner proves deterministic boundaries for each alternate spec; no promotion until documented.",
+    "created_utc": "2026-04-10T16:46:00.731179+00:00",
+    "phase38_resolution_status": "deferred_with_evidence_reinforces_baseline_mismatch",
+    "phase38_evidence_summary": "DB-bound replay preserves join_key_mismatch for fixture under baseline and lag; alternate did not yield joined outcomes for this fixture.",
+    "phase38_leakage_audit_passed": true,
+    "phase38_experiment_id": "41dea3b0-02fe-46d8-951d-e2778af01e9f",
+    "original_challenge_preserved": true
+  },
+  "promotion_gate_v1": {
+    "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+    "gate_status": "blocked",
+    "blocking_reasons": [
+      "hypothesis_under_test_not_eligible_for_product_promotion",
+      "adversarial_challenge_not_cleared"
+    ],
+    "required_followups": [
+      "Document governance-approved alternate PIT specs if lag/alternate joins matter.",
+      "Re-run gate after Phase 39 DB runner extensions if any."
+    ],
+    "reviewer_dependencies": [
+      "17b65b06-5001-401a-be26-25064897af17"
+    ],
+    "promotion_decision_notes": "No promotion in Phase 38. Gate records explicit blockers; joined recipe / product surfaces must not treat this hypothesis as cleared.",
+    "phase38_context": {
+      "experiment_id": "41dea3b0-02fe-46d8-951d-e2778af01e9f",
+      "adversarial_resolution_status": "deferred_with_evidence_reinforces_baseline_mismatch"
+    }
+  },
+  "casebook_update_summary": {
+    "case_id_updated": "case_pit_no_sc_join_key_mismatch_8",
+    "fields_added": [
+      "residual_join_bucket",
+      "phase38_pit_experiment_id",
+      "phase38_baseline_summary",
+      "phase38_lag_summary",
+      "phase38_alternate_summary",
+      "phase38_leakage_audit_passed",
+      "better_understood",
+      "phase38_narrative"
+    ]
+  },
+  "phase39": {
+    "phase39_recommendation": "broaden_hypothesis_families_and_harden_explanation_under_persistent_mismatch",
+    "rationale": "Fixture remains join_key_mismatch under executed specs; expand research hypotheses beyond this single seam and strengthen user-facing explanation of persistent PIT boundaries."
+  },
+  "persistent_writes": {
+    "adversarial_reviews_v1": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/adversarial_reviews_v1.json",
+    "casebook_v1": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/casebook_v1.json",
+    "promotion_gate_v1": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/promotion_gate_v1.json"
+  },
+  "explanation_surface": {
+    "format": "markdown",
+    "path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase38_explanation_surface.md"
+  }
+}

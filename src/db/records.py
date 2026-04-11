@@ -113,6 +113,31 @@ def upsert_filing_index(client: Client, row: dict[str, Any]) -> Dict[str, bool]:
     return {"inserted": True, "updated": False}
 
 
+def fetch_filing_index_rows_for_cik(
+    client: Client,
+    *,
+    cik: str,
+    limit: int = 200,
+) -> list[dict[str, Any]]:
+    """
+    Phase 41 falsifier substrate: recent filing_index rows for a CIK (filed_at desc).
+    `cik` should match table storage (typically zero-padded 10 digits).
+    """
+    ck = str(cik or "").strip()
+    if not ck:
+        return []
+    lim = max(1, min(int(limit), 500))
+    r = (
+        client.table("filing_index")
+        .select("*")
+        .eq("cik", ck)
+        .order("filed_at", desc=True)
+        .limit(lim)
+        .execute()
+    )
+    return [dict(x) for x in (r.data or [])]
+
+
 def ingest_run_create_started(
     client: Client,
     *,

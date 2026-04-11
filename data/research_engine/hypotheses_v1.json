@@ -1,0 +1,331 @@
+[
+  {
+    "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+    "title": "Residual no_state_change_join (join_key_mismatch) reflects score-run as-of vs signal-date ordering, not missing SC build",
+    "economic_thesis": "For a subset of joined recipe rows, state_change scores exist but the earliest as_of in the referenced run is after the signal_available_date; joins fail under current PIT keys while economic content may still be coherent under alternate as-of or lag conventions.",
+    "expected_mechanism": "Replaying join logic under alternate state_change run selection or explicit lag windows will reclassify some rows from join_key_mismatch to joined or to a documented exclusion bucket.",
+    "applicable_horizon": "1y",
+    "dependent_features": [
+      "state_change_scores.as_of",
+      "signal_available_date",
+      "pick_state_change_at_or_before_signal",
+      "joined_recipe_substrate_row"
+    ],
+    "dependent_metrics": [
+      "no_state_change_join_headline",
+      "residual_join_bucket_counts.state_change_built_but_join_key_mismatch"
+    ],
+    "required_substrate_scope": {
+      "universe": "sp500_current",
+      "residual_bucket": "state_change_built_but_join_key_mismatch",
+      "fixture_symbols": [
+        "ADSK",
+        "BBY",
+        "CRM",
+        "CRWD",
+        "DELL",
+        "DUK",
+        "NVDA",
+        "WMT"
+      ]
+    },
+    "falsifiers": [
+      "All eight rows remain join_key_mismatch under every deterministic alternate run spec in the PIT harness.",
+      "Alternate boundaries introduce lookahead or non-PIT leakage per audit rules."
+    ],
+    "status": "challenged",
+    "lifecycle_transitions": [
+      {
+        "from_status": "under_test",
+        "to_status": "challenged",
+        "reason": "Phase 39: Phase 38 PIT kept join_key_mismatch for 8 rows under baseline, alternate, lag; leakage passed; single-family thesis insufficient alone.",
+        "evidence_ref": "docs/operator_closeout/phase38_db_bound_pit_runner_bundle.json",
+        "transitioned_utc": "2026-04-10T20:47:35.594122+00:00"
+      }
+    ]
+  },
+  {
+    "hypothesis_id": "hyp_score_publication_cadence_run_grid_lag_v1",
+    "title": "State-change score publication lags create systematic join_key_mismatch vs signal_available_date",
+    "economic_thesis": "Issuer economics may be knowable on the signal calendar, but the score run as_of grid reflects a coarser publication or batch cadence; mismatch is timing of score availability, not thesis failure.",
+    "expected_mechanism": "Comparing signal dates to the earliest as_of in each run and to run completion timestamps will show systematic grid lag; PIT specs that shift only within the same grid will not unlock rows.",
+    "applicable_horizon": "1y",
+    "dependent_features": [
+      "state_change_runs.completed_at",
+      "state_change_scores.as_of",
+      "signal_available_date"
+    ],
+    "dependent_metrics": [
+      "residual_join_bucket_counts.state_change_built_but_join_key_mismatch",
+      "run_grid_min_as_of_vs_signal_delta_days"
+    ],
+    "required_substrate_scope": {
+      "universe": "sp500_current",
+      "residual_bucket": "state_change_built_but_join_key_mismatch",
+      "fixture_symbols": [
+        "ADSK",
+        "BBY",
+        "CRM",
+        "CRWD",
+        "DELL",
+        "DUK",
+        "NVDA",
+        "WMT"
+      ],
+      "fixture_class": "join_key_mismatch_8",
+      "needs_run_metadata": true
+    },
+    "falsifiers": [
+      "Run-grid lag is not systematic across the 8-row fixture (per-issuer noise only).",
+      "Unlocking joins requires substrate repair rather than cadence-aware PIT binding."
+    ],
+    "status": "conditionally_supported",
+    "lifecycle_transitions": [
+      {
+        "from_status": "draft",
+        "to_status": "conditionally_supported",
+        "reason": "Phase 40: family score_publication_cadence_v1 executed DB-bound spec(s); shared leakage audit passed; see bundle family row_results and summary_counts_by_spec.",
+        "evidence_ref": "docs/operator_closeout/phase40_family_spec_bindings_bundle.json",
+        "transitioned_utc": "2026-04-11T00:09:06.786545+00:00"
+      }
+    ]
+  },
+  {
+    "hypothesis_id": "hyp_signal_availability_filing_boundary_v1",
+    "title": "signal_available_date semantics omit filing or public-availability boundaries relevant to PIT",
+    "economic_thesis": "The pipeline signal_available_date may align to an internal recipe date while filers public availability differs; strict bisect_right against score as_of then correctly excludes under production rules.",
+    "expected_mechanism": "Cross-checking EDGAR filing timestamps vs signal_available_date will show whether the residual is a definitional boundary, not missing SC rows.",
+    "applicable_horizon": "1y",
+    "dependent_features": [
+      "signal_available_date",
+      "filing_publication_timeline",
+      "state_change_scores.as_of"
+    ],
+    "dependent_metrics": [
+      "signal_minus_filing_availability_days",
+      "residual_join_bucket_counts.state_change_built_but_join_key_mismatch"
+    ],
+    "required_substrate_scope": {
+      "universe": "sp500_current",
+      "residual_bucket": "state_change_built_but_join_key_mismatch",
+      "fixture_symbols": [
+        "ADSK",
+        "BBY",
+        "CRM",
+        "CRWD",
+        "DELL",
+        "DUK",
+        "NVDA",
+        "WMT"
+      ],
+      "fixture_class": "join_key_mismatch_8",
+      "needs_filing_timeline_sample": true
+    },
+    "falsifiers": [
+      "Signal dates are already conservative vs any defensible public-availability bound for all 8 rows.",
+      "Adjusting only filing semantics does not change join classification under audited PIT."
+    ],
+    "status": "conditionally_supported",
+    "lifecycle_transitions": [
+      {
+        "from_status": "draft",
+        "to_status": "conditionally_supported",
+        "reason": "Phase 40: family signal_filing_boundary_v1 executed DB-bound spec(s); shared leakage audit passed; see bundle family row_results and summary_counts_by_spec.",
+        "evidence_ref": "docs/operator_closeout/phase40_family_spec_bindings_bundle.json",
+        "transitioned_utc": "2026-04-11T00:09:06.786554+00:00"
+      }
+    ],
+    "substrate_audit_log": [
+      {
+        "phase": "phase41",
+        "evidence_ref": "docs/operator_closeout/phase41_falsifier_substrate_bundle.json",
+        "recorded_utc": "2026-04-11T02:45:10.019142+00:00",
+        "filing_substrate_summary": {
+          "row_count": 8,
+          "by_classification": {
+            "filing_public_ts_unavailable": 8
+          },
+          "rows_with_explicit_signal_proxy": 8
+        },
+        "sector_substrate_summary": {
+          "row_count": 8,
+          "by_classification": {
+            "sector_metadata_missing": 8
+          },
+          "distinct_sector_labels": []
+        },
+        "leakage_passed_signal_filing_boundary": true,
+        "leakage_passed_issuer_sector": true,
+        "family_id": "signal_filing_boundary_v1",
+        "falsifier_label_filing": "proxy_limited_filing_ts",
+        "falsifier_label_sector": "proxy_limited_sector_metadata"
+      },
+      {
+        "phase": "phase41",
+        "evidence_ref": "docs/operator_closeout/phase41_falsifier_substrate_bundle.json",
+        "recorded_utc": "2026-04-11T02:45:40.251168+00:00",
+        "filing_substrate_summary": {
+          "row_count": 8,
+          "by_classification": {
+            "filing_public_ts_unavailable": 8
+          },
+          "rows_with_explicit_signal_proxy": 8
+        },
+        "sector_substrate_summary": {
+          "row_count": 8,
+          "by_classification": {
+            "sector_metadata_missing": 8
+          },
+          "distinct_sector_labels": []
+        },
+        "leakage_passed_signal_filing_boundary": true,
+        "leakage_passed_issuer_sector": true,
+        "family_id": "signal_filing_boundary_v1",
+        "falsifier_label_filing": "proxy_limited_filing_ts",
+        "falsifier_label_sector": "proxy_limited_sector_metadata"
+      }
+    ]
+  },
+  {
+    "hypothesis_id": "hyp_issuer_sector_reporting_cadence_v1",
+    "title": "Issuer or sector reporting cadence interacts with quarterly score grids",
+    "economic_thesis": "Certain sectors cluster fiscal period ends and restatement windows; the eight symbols may share patterns where score as-of grids systematically trail economically relevant signal timing.",
+    "expected_mechanism": "Sector stratified analysis of signal vs min-as_of deltas across the fixture and broader universe will show clustering; absence of clustering falsifies sector-driven mechanism.",
+    "applicable_horizon": "3-5y",
+    "dependent_features": [
+      "gics_sector",
+      "fiscal_year_end_proxy",
+      "state_change_scores.as_of",
+      "signal_available_date"
+    ],
+    "dependent_metrics": [
+      "fixture_sector_distribution",
+      "delta_days_signal_to_min_as_of_by_sector"
+    ],
+    "required_substrate_scope": {
+      "universe": "sp500_current",
+      "residual_bucket": "state_change_built_but_join_key_mismatch",
+      "fixture_symbols": [
+        "ADSK",
+        "BBY",
+        "CRM",
+        "CRWD",
+        "DELL",
+        "DUK",
+        "NVDA",
+        "WMT"
+      ],
+      "fixture_class": "join_key_mismatch_8",
+      "stratification": "sector"
+    },
+    "falsifiers": [
+      "Fixture shows no sector clustering beyond chance for signal to min-as_of gaps.",
+      "Within-sector controls still show join_key_mismatch only from non-cadence causes."
+    ],
+    "status": "conditionally_supported",
+    "lifecycle_transitions": [
+      {
+        "from_status": "draft",
+        "to_status": "conditionally_supported",
+        "reason": "Phase 40: family issuer_sector_reporting_cadence_v1 executed DB-bound spec(s); shared leakage audit passed; see bundle family row_results and summary_counts_by_spec.",
+        "evidence_ref": "docs/operator_closeout/phase40_family_spec_bindings_bundle.json",
+        "transitioned_utc": "2026-04-11T00:09:06.786561+00:00"
+      }
+    ],
+    "substrate_audit_log": [
+      {
+        "phase": "phase41",
+        "evidence_ref": "docs/operator_closeout/phase41_falsifier_substrate_bundle.json",
+        "recorded_utc": "2026-04-11T02:45:10.019142+00:00",
+        "filing_substrate_summary": {
+          "row_count": 8,
+          "by_classification": {
+            "filing_public_ts_unavailable": 8
+          },
+          "rows_with_explicit_signal_proxy": 8
+        },
+        "sector_substrate_summary": {
+          "row_count": 8,
+          "by_classification": {
+            "sector_metadata_missing": 8
+          },
+          "distinct_sector_labels": []
+        },
+        "leakage_passed_signal_filing_boundary": true,
+        "leakage_passed_issuer_sector": true,
+        "family_id": "issuer_sector_reporting_cadence_v1",
+        "falsifier_label_filing": "proxy_limited_filing_ts",
+        "falsifier_label_sector": "proxy_limited_sector_metadata"
+      },
+      {
+        "phase": "phase41",
+        "evidence_ref": "docs/operator_closeout/phase41_falsifier_substrate_bundle.json",
+        "recorded_utc": "2026-04-11T02:45:40.251168+00:00",
+        "filing_substrate_summary": {
+          "row_count": 8,
+          "by_classification": {
+            "filing_public_ts_unavailable": 8
+          },
+          "rows_with_explicit_signal_proxy": 8
+        },
+        "sector_substrate_summary": {
+          "row_count": 8,
+          "by_classification": {
+            "sector_metadata_missing": 8
+          },
+          "distinct_sector_labels": []
+        },
+        "leakage_passed_signal_filing_boundary": true,
+        "leakage_passed_issuer_sector": true,
+        "family_id": "issuer_sector_reporting_cadence_v1",
+        "falsifier_label_filing": "proxy_limited_filing_ts",
+        "falsifier_label_sector": "proxy_limited_sector_metadata"
+      }
+    ]
+  },
+  {
+    "hypothesis_id": "hyp_governance_safe_alternate_join_policy_v1",
+    "title": "Governance-approved alternate join policies could reclassify some rows without leakage",
+    "economic_thesis": "Production uses one pick rule; research may define additional rules that remain PIT-safe and documented; some mismatches are policy choice, not data error.",
+    "expected_mechanism": "Under explicit governance, alternate spec keys map to testable PIT bindings in the family contract; leakage audit remains shared.",
+    "applicable_horizon": "1y",
+    "dependent_features": [
+      "pick_state_change_at_or_before_signal",
+      "governance_join_policy_registry"
+    ],
+    "dependent_metrics": [
+      "reclassified_to_joined_under_governed_alternate_spec",
+      "invalid_due_to_leakage_or_non_pit"
+    ],
+    "required_substrate_scope": {
+      "universe": "sp500_current",
+      "residual_bucket": "state_change_built_but_join_key_mismatch",
+      "fixture_symbols": [
+        "ADSK",
+        "BBY",
+        "CRM",
+        "CRWD",
+        "DELL",
+        "DUK",
+        "NVDA",
+        "WMT"
+      ],
+      "fixture_class": "join_key_mismatch_8",
+      "needs_governance_signoff": true
+    },
+    "falsifiers": [
+      "No governance-safe alternate policy yields joined outcomes for the fixture without leakage violations.",
+      "Any unlocking policy collapses to lookahead under the shared audit rule."
+    ],
+    "status": "conditionally_supported",
+    "lifecycle_transitions": [
+      {
+        "from_status": "draft",
+        "to_status": "conditionally_supported",
+        "reason": "Phase 40: family governance_join_policy_v1 executed DB-bound spec(s); shared leakage audit passed; see bundle family row_results and summary_counts_by_spec.",
+        "evidence_ref": "docs/operator_closeout/phase40_family_spec_bindings_bundle.json",
+        "transitioned_utc": "2026-04-11T00:09:06.786558+00:00"
+      }
+    ]
+  }
+]

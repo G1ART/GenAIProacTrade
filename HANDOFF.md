@@ -1,3 +1,35 @@
+# 연구 엔진 상위 레이어 — 프로젝트 요약 (Phase 40 이후)
+
+**Public-core frozen (MVP)**: 동일 — `freeze_public_core_and_shift_to_research_engine` (`phase36_1` 번들). 광역 기판 수리 **비목표**.
+
+**연구 엔진은 이제 패밀리별 PIT 실행을 지원한다**: `run-phase40-family-spec-bindings` 가 동일 **8행 `join_key_mismatch` 픽스처**에 대해 **5개 패밀리**를 DB 결합으로 돌린다. 행 단위 결과는 **`spec_results: { spec_key → outcome_cell }`** 동적 키이며, 네 가지 표준 outcome 버킷·**공통 누수 감사 규칙**은 Phase 38과 동일하다.
+
+**지속 mismatch는 단일 challenged 가설이 아니라 실행된 패밀리들로 분해된다** (baseline trio + cadence + filing-proxy + governance registry lag + fixture-only replay). 신규 가설 4건은 실행·누수 통과 시 **`conditionally_supported`** 로 갱신되고, 패밀리별 적대적 리뷰·**게이트 schema v3**(`conditionally_supported_but_not_promotable` 등)·**설명 v3**가 붙는다. **자동 승격 없음·제네릭 추천 UI 비목표.**
+
+**Phase 41·42 (구현·실측 완료)**: Phase 41 `run-phase41-falsifier-substrate` 가 **filing_index**·**market_metadata_latest.sector** 로 두 패밀리를 재실행 (`2026-04-11T02:45:40Z`, 게이트 **`deferred_due_to_proxy_limited_falsifier_substrate`**). Phase 42 `run-phase42-evidence-accumulation` 은 Phase 41 번들로 **증거 스코어카드·판별·게이트 phase42·설명 v5** (`2026-04-11T04:52:28Z`, 실측은 **`--bundle-substrate-only`**). `promotion_gate_v1.json` 의 **`phase`** 는 **phase42** 로 갱신; 카테고리는 프록시/결손 잔존으로 동일. **Phase 43 (코드)**: 동일 8행 코호트에 `run-phase43-targeted-substrate-backfill` 로 한정 수리 후 Phase 42 **Supabase-fresh** 재실행(`phase42_rerun_used_supabase_fresh`). Phase 42 권고 라벨: `substrate_backfill_or_narrow_claims_then_retest_v1`. 광역 기판 수리·자동 승격 **비목표**.
+
+**CLI (Phase 40, Supabase)**: `run-phase40-family-spec-bindings --universe …` → `phase40_family_spec_bindings_bundle.json`, `phase40_family_spec_bindings_review.md`, `phase40_explanation_surface_v3.md`. 증거·패치: **`docs/phase40_evidence.md`**, **`docs/phase40_patch_report.md`**.
+
+**CLI (Phase 41, Supabase)**: `run-phase41-falsifier-substrate --universe …` → `phase41_falsifier_substrate_bundle.json`, `phase41_falsifier_substrate_review.md`, `phase41_explanation_surface_v4.md`. 증거·패치: **`docs/phase41_evidence.md`**, **`docs/phase41_patch_report.md`**. (선택 `--phase40-bundle-in` 으로 before/after 비교.)
+
+**CLI (Phase 42, Phase 41 번들)**: `run-phase42-evidence-accumulation` — `--bundle-substrate-only` 로 pit `per_row` 재생 가능; 생략 시 Supabase 재조회. 산출: `phase42_evidence_accumulation_bundle.json`, `phase42_evidence_accumulation_review.md`, `phase42_explanation_surface_v5.md`. 증거·패치: **`docs/phase42_evidence.md`**, **`docs/phase42_patch_report.md`**.
+
+**Phase 39 실측 (참고)**: `2026-04-10T21:28:28Z` 번들 — `docs/phase39_evidence.md`.
+
+**Phase 40 실측 (참고)**: `2026-04-11T00:09:06Z` 번들 — `docs/phase40_evidence.md`.
+
+**Phase 41 실측 (참고)**: `2026-04-11T02:45:40Z` 번들 — `docs/phase41_evidence.md`.
+
+**Phase 42 실측 (참고)**: `2026-04-11T04:52:28Z` 번들 — `docs/phase42_evidence.md`.
+
+**CLI (Phase 43, 8행 코호트만)**: `run-phase43-targeted-substrate-backfill` — Phase 42 Supabase-fresh 번들의 `row_level_blockers` **8행**에 filing·메타 수화(상한) 후 Phase 41·Phase 42 **Supabase-fresh** 재실행 (`phase42_rerun_used_supabase_fresh: true`). 산출: `phase43_targeted_substrate_backfill_bundle.json`, `phase43_targeted_substrate_backfill_review.md`, `phase43_targeted_substrate_before_after_audit.md`, `phase43_explanation_surface_v6.md`. 증거·패치: **`docs/phase43_evidence.md`**, **`docs/phase43_patch_report.md`**. (광역 기판 재개 **아님**.)
+
+---
+
+_Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41dea3b0-02fe-46d8-951d-e2778af01e9f`, 8/8 mismatch, 게이트 blocked → Phase 39 권고 `broaden_hypothesis_families…` 반영·**실측 완료**. Phase 38 상세 **`docs/phase38_evidence.md`**, Phase 39 상세 **`docs/phase39_evidence.md`**, Phase 40 **`docs/phase40_evidence.md`**, Phase 41 **`docs/phase41_evidence.md`**, Phase 42 **`docs/phase42_evidence.md`**.
+
+---
+
 # HANDOFF — Phase 29 (Validation refresh + quarter snapshot backfill)
 
 ## Phase 29.1 성능 핫픽스 (2026-04-01)
@@ -87,7 +119,7 @@
 
 - **before/after** 분류·헤드라인 지표, raw 수리·GIS silver·NWSA issuer 결과, **어느 CIK가 팩터/검증까지 갔는지**(`downstream_substrate_retry.per_cik`).
 - 병목이 **raw → 스냅샷 → 팩터** 중 어디인지 한 줄.
-- **Phase 32**: 번들 `phase32.phase32_recommendation`.
+- **Phase 31 번들의 `phase32` 필드**: Phase 31 시점 권고. **Phase 32 완주 후** 다음 스프린트 힌트는 Phase 32 번들의 **`phase33`** 를 본다.
 
 ## 테스트
 
@@ -96,6 +128,488 @@
 ## 패치 보고
 
 `docs/phase31_patch_report.md`
+
+---
+
+# HANDOFF — Phase 32 (Forward unlock for Phase 31 touched + narrow snapshot cleanup)
+
+## 병목이 validation에서 forward로 옮겨 갔는지
+
+- **해석**: Phase 31 이후 검증 행이 늘면서 **`missing_excess_return_1q` 헤드라인**이 커질 수 있고, 동시에 **선행·excess(`forward_returns_daily_horizons`)** 백필로 심볼 단위 해소가 가능하다. 두 신호를 **섞어 읽지 말 것**: 번들의 `stage_transitions.forward_return_unlocked_now_count`·`silver_present_snapshot_materialization_repair`·제외 분포를 함께 본다.
+
+## Phase 32.1 실측 클로즈아웃 (2026-04-08, `sp500_current`)
+
+- **근거**: `docs/operator_closeout/phase32_forward_unlock_and_snapshot_cleanup_bundle.json`, 동명 **review.md** (생성 UTC `2026-04-08T20:59:45+00:00`), 입력 Phase 31 번들 `docs/operator_closeout/phase31_raw_facts_bridge_bundle.json`.
+
+| 지표 | Before | After | 비고 |
+|------|--------|-------|------|
+| `joined_recipe_substrate_row_count` | 243 | 243 | **변화 없음** — `no_state_change_join` 8건 등 잔여 제외 유지 |
+| `thin_input_share` | 1.0 | 1.0 | 동일 |
+| `missing_excess_return_1q` (패널 행 기준) | 91 | **101** | 헤드라인 **증가**: 스냅샷·검증이 열린 심볼이 늘며 excess 공백 **행**이 더 집계됨 |
+| `missing_validation_symbol_count` | 161 | **151** | −10 |
+| `missing_quarter_snapshot_for_cik` | 158 | **148** | −10 |
+| `factor_panel_missing_for_resolved_cik` | 158 | **148** | −10 |
+| `silver_present_snapshot_materialization_missing` | 10 | **0** | 스냅 재구성 + cascade **전부 클리어** |
+| `raw_present_no_silver_facts` | 1 | 1 | GIS 경로 1건 시도, 분류 카운트 동일 |
+
+**단계 전이 (번들 `stage_transitions`)**: Phase 31 터치 CIK 30 기준 — `forward_return_unlocked_now_count` **23**, forward 빌드 패널 30·성공 op 51·실패 9(다수 `insufficient_price_history`). 스냅샷 물질화 **10**·팩터·검증 cascade 각 10. deferred raw 재시도 **7** 복구 / **3** 지속 외부 실패(Supabase·Cloudflare 500류).
+
+**감사 요약**: 병목은 **검증-only에서 벗어나 forward·가격 창·상류 raw 외부 오류**가 동시에 보인다. `missing_excess_return_1q`만 보면 악화로 보이나, **검증·분기 스냅 상류는 개선**되었고 **23 심볼은 이번 런에서 forward excess 해소**(`repaired_to_forward_present`). Phase 33는 번들과 동일하게 **상한 forward·가격 커버리지 반복**이 자동 권고됨(`continue_bounded_forward_return_and_price_coverage`).
+
+## CLI (`p27` + `--phase31-bundle-in`)
+
+| 명령 | 역할 |
+|------|------|
+| `report-forward-return-gap-targets-after-phase31` | 터치 CIK ∩ `missing_excess_return_1q` 큐 — 행 단위 `diagnose_bucket` / `blockage_class` |
+| `export-forward-return-gap-targets-after-phase31` | JSON export `--out` |
+| `run-forward-return-backfill-for-phase31-touched` | `no_forward_row_next_quarter` 후보만 factor 패널 모아 `run_forward_returns_build_from_rows` (기본 CIK 상한 30) |
+| `report-silver-present-snapshot-materialization-targets` | `silver_present_snapshot_materialization_missing` |
+| `run-silver-present-snapshot-materialization-repair` | 스냅샷 재구성 + 팩터·검증 cascade |
+| `retry-raw-facts-deferred-from-phase31-bundle` | `deferred_external_source_gap_all` 중 `facts_extract_exception` 만 백오프 재시도 |
+| `run-phase32-forward-unlock-and-snapshot-cleanup` | 일괄 + 기본 `--bundle-out` / `--out-md` |
+| `write-phase32-forward-unlock-and-snapshot-cleanup-review` | 번들 → MD (+선택 JSON) |
+
+## 코드
+
+- `src/phase32/`. Phase 31 `raw_facts_repair` 반환에 **`deferred_external_source_gap_all`** (최대 120행) 추가.
+
+## 패치·증거
+
+- `docs/phase32_patch_report.md`, `docs/phase32_evidence.md`
+
+## 단계 이름 (번들 `stage_transitions`)
+
+- **forward_return_unlocked_now_count**, **quarter_snapshot_materialized_now_count**, **factor_materialized_now_count**, **validation_panel_refreshed_count**, **raw_facts_recovered_on_retry_count** — Phase 31의 validation-unlock은 **`phase31_reference.validation_unblocked_cik_count_in_phase31`** 로만 참조(이번 런과 혼동 금지).
+
+## 테스트
+
+`pytest src/tests/test_phase32_forward_unlock_and_snapshot_cleanup.py -q`
+
+---
+
+# HANDOFF — Phase 33 (Forward coverage truth + price alignment)
+
+## 병목
+
+- Phase 32 이후 **헤드라인**은 `joined_recipe_substrate_row_count`·`thin_input_share`가 그대로인 경우가 많고, `missing_excess_return_1q`는 **행·심볼 큐 정의**와 어긋나 읽히기 쉽다. Phase 33는 **forward_row / symbol_queue / joined** 를 번들에서 **분리 표기**하고, Phase 32 번들의 **`insufficient_price_history`** 표본에 대해 **가격 커버리지 분류·결정적 백필·forward 재시도**를 상한으로 수행한다. 메타·광역 filing-index 헤드라인·임계·15/16·프리미엄·프로덕션 스코어 비목표.
+
+## CLI
+
+| 명령 | 역할 |
+|------|------|
+| `report-forward-metric-truth-audit` | `--phase32-bundle-in` — 터치 집합 기준 진실 분리 |
+| `export-forward-metric-truth-audit` | JSON `--out` |
+| `report-price-coverage-gaps-for-forward` | Phase 32 NQ 실패 샘플 가격 갭 분류 |
+| `run-price-coverage-backfill-for-forward` | `missing_market_prices_daily_window` 만 프로바이더 일봉 수집 |
+| `run-forward-return-retry-after-price-repair` | 위 심볼 factor 패널 상한 forward 재빌드 |
+| `inspect-gis-deterministic-raw-silver-seam` | GIS 개념맵 샘플만 (대극모 silver 금지) |
+| `run-phase33-forward-coverage-truth` | 일괄 + `phase33_forward_coverage_truth_bundle.json` / `review.md` |
+| `write-phase33-forward-coverage-truth-review` | 번들 → MD |
+
+`report-price-coverage-gaps-for-forward` / `run-price-coverage-backfill-for-forward` 는 `--phase32-bundle-in` + `--price-lookahead-days` 만 사용 (`p27` 불필요).
+
+## 코드
+
+- `src/phase33/`, `market.price_ingest.run_market_prices_ingest_for_symbols` (심볼 상한 일봉).
+
+## 번들 `stage_semantics_truth`
+
+- `forward_row_unblocked_now_count`, `symbol_cleared_from_missing_excess_queue_count`, `joined_recipe_unlocked_now_count`, `price_coverage_repaired_now_count` — 서로 대리 지표로 쓰지 말 것.
+
+## Phase 33.1 실측 클로즈아웃 (2026-04-08, `sp500_current`)
+
+- **근거**: `docs/operator_closeout/phase33_forward_coverage_truth_bundle.json`, `docs/operator_closeout/phase33_forward_coverage_truth_review.md` (리뷰 생성 UTC `2026-04-08T22:37:25+00:00`).
+
+| 구분 | 결과 |
+|------|------|
+| **헤드라인** | `joined` 243·`thin_input` 1.0·`missing_excess_return_1q` 101 — **전후 동일** |
+| **행/심볼/joined 진실** | `forward_row_unblocked_now_count`(이번 런 upsert op)=**5**, `symbol_cleared_from_missing_excess_queue_count`=**0**, `joined_recipe_unlocked_now_count` Δ=**0**, 터치 30 심볼 패널 행 **excess null 30/30** (라이브) |
+| **가격** | NQ 실패 샘플 **7건** 모두 **`lookahead_window_not_matured`** → 일봉 백필 **미실시**(missing_window 아님) |
+| **forward 재시도** | 심볼 7·패널 7, **성공 op 5 / 실패 9** — 잔여 `insufficient_price_history` |
+| **GIS** | 샘플 13 concept 전부 unmapped → **`blocked_unmapped_concepts_remain_in_sample`** (대극모 캠페인 없음) |
+| **Phase 34** | 구현됨 — 아래 **HANDOFF — Phase 34** (`run-phase34-forward-validation-propagation` 등) |
+
+**병목 판단**: 검증 상류는 Phase 32에서 일부 풀린 뒤이나, **헤드라인 병목은 forward·가격 창 성숙·검증 excess 컬럼 동기화** 쪽으로 좁혀 진다. Phase 32 번들의 “23 심볼 해소”와 **라이브 패널 excess 전부 null**이 함께 나타나므로, **운영 리포트는 반드시 `stage_semantics_truth`·`metric_truth_audit_*`를 함께 본다.**
+
+## 패치·증거
+
+- `docs/phase33_patch_report.md`, `docs/phase33_evidence.md`
+
+## 테스트
+
+`pytest src/tests/test_phase33_forward_coverage_truth.py -q`
+
+---
+
+# HANDOFF — Phase 34 (Forward→validation propagation + maturity-aware retry)
+
+## 병목이 가격 수집인지 전파(패널 갱신)인지
+
+- Phase 33 실측에서 **forward upsert는 일부 진행**되었으나 **터치 심볼 검증 패널 `excess_return_1q`는 라이브에서 여전히 null**인 행이 다수였고, NQ 실패 샘플은 **`lookahead_window_not_matured`** 로 분류되어 **즉시 일봉 백필 대상이 아니었다**. Phase 34는 (1) **동일 심볼·시그널·accession 범위에서 forward 존재 vs validation excess null**을 감사·분류하고, (2) **forward excess는 이미 있는데 validation만 비어 있는 행**에 한해 `run_validation_panel_build_from_rows` 로 **좁은 패널 재빌드**, (3) Phase 32 NQ `insufficient_price_history` 중 **`would_compute_now`(성숙)** 만 forward 재시도, (4) 전파 감사 행 중 **`missing_market_prices_daily_window`** 만 **상한 일봉 수집**, (5) GIS는 Phase 33와 동일 **결정적 샘플만**(광역 silver/개념맵 비목표).
+
+## 정확한 델타(운영자가 번들로 채울 것)
+
+- **`closeout_summary` / `validation_refresh`**: `validation_excess_filled_now_count`, `symbol_cleared_from_missing_excess_queue_count`(refresh 전·후 metric truth), `joined_recipe_unlocked_now_count`(헤드라인 `joined_recipe_substrate_row_count` after−before).
+- **forward vs validation**: `propagation_gap_before` vs `propagation_gap_final` 의 `classification_counts`(특히 `forward_present_validation_not_refreshed` → 갱신 후 감소 여부).
+- **joined 기판이 드디어 움직였는지**: 번들 `before`/`after` 의 `joined_recipe_substrate_row_count` 및 위 joined 델타.
+
+## CLI (`p27` + `--phase32-bundle-in` 조합은 Phase 33과 동일)
+
+| 명령 | 역할 |
+|------|------|
+| `report-forward-validation-propagation-gaps` | 터치 심볼 패널 행 단위 전파 갭 분류 |
+| `export-forward-validation-propagation-gaps` | JSON `--out` |
+| `run-validation-refresh-after-forward-propagation` | `forward_present_validation_not_refreshed` 만 factor 패널 경로로 validation 재빌드 |
+| `report-matured-forward-retry-targets` | Phase 32 NQ 오류 → 성숙/비성숙/가격/레지스트리 버킷 |
+| `export-matured-forward-retry-targets` | JSON `--out` |
+| `run-matured-forward-retry` | `maturity_eligible` 만 forward 재빌드 |
+| `run-phase34-forward-validation-propagation` | 일괄 + `phase34_forward_validation_propagation_bundle.json` / `review.md` |
+| `write-phase34-forward-validation-propagation-review` | 번들 → MD (+ 선택 JSON) |
+
+## 코드
+
+- `src/phase34/` (`propagation_audit`, `validation_refresh`, `matured_forward_retry`, `price_backfill`, `orchestrator`, `review`, `phase35_recommend`), `market.validation_panel_run`, `market.forward_returns_run`, `market.price_ingest`.
+
+## Phase 34.1 실측 클로즈아웃 (2026-04-09, `sp500_current`)
+
+- **근거**: `docs/operator_closeout/phase34_forward_validation_propagation_bundle.json`, `docs/operator_closeout/phase34_forward_validation_propagation_review.md` (리뷰 생성 UTC `2026-04-09T00:36:33+00:00`). 상세 표·명령: `docs/phase34_evidence.md`, 패치 요약: `docs/phase34_patch_report.md`.
+
+| 항목 | 결과 |
+|------|------|
+| **병목이 전파였는지** | **예.** 초기 감사 23/30행이 `forward_present_validation_not_refreshed`(forward NQ excess 있음·validation excess null). refresh 후 전부 `synchronized`, `refresh_failed` 0. 가격 백필 `ingest_attempted: false`, NQ 7건 전부 `still_lookahead_window_not_matured`. |
+| **forward-present vs validation-filled** | `validation_excess_filled_now_count` **23**; 전파 분류 `forward_present_validation_not_refreshed` **23→0**, `synchronized` **0→23**. |
+| **joined 이동** | 헤드라인 `joined_recipe_substrate_row_count` **243→243** (`joined_recipe_unlocked_now_count` Δ **0**). |
+| **헤드라인 기타** | `missing_excess_return_1q` **101→78**; `no_state_change_join` **8→31** (excess 채운 뒤 recipe join 제외가 늘어난 것으로 해석). |
+| **터치 집합 truth** | 패널 행 excess null **30→7**, present **0→23**; `symbol_cleared_from_missing_excess_queue_count` **0→23** (잔여 큐 7심볼 = 미성숙 NQ). |
+| **성숙 forward / 가격** | `matured_forward_retry_success_count` **0**(eligible 0), `price_coverage_repaired_now_count` **0**. |
+| **GIS** | `blocked_unmapped_concepts_remain_in_sample` (샘플 13 concept unmapped). |
+| **Phase 35** | 구현·**실측 완료** — `joined` **243→266**, `no_state_change_join` **31→8**, 동기화 23행 refresh 후 전부 joined. **`docs/phase35_evidence.md`**, 아래 **HANDOFF — Phase 35**. |
+| **Phase 36 / 36.1** | **실측 완료** (2026-04-10 UTC) — 초차는 메타 수화만으로 플래그 23 잔존; **36.1 2패스**로 검증 재빌드 **23건**·**`joined_market_metadata_flagged` 23→0**. 잔여 SC **8** 전부 `join_key_mismatch`·PIT defer. Freeze: **`freeze_public_core_and_shift_to_research_engine`**, Phase 37: **`execute_research_engine_backlog_sprint`**. **`docs/phase36_evidence.md`**, **`phase36_1_*` 번들**. |
+| **Phase 37** | **Sprint 1 구현 완료** — 가설·스캐폴드·케이스북·적대적 리뷰·설명 MD·`phase37_*` 번들. 아래 **HANDOFF — Phase 37**. |
+| **Phase 38** | **실측 완료** (2026-04-10 UTC, `sp500_current`) — 8행 세 스펙 모두 `still_join_key_mismatch` 8/8, 누수 감사 통과, 게이트 `blocked`, Phase 39 `broaden_hypothesis_families…`. `phase38_*` 번들·`docs/phase38_evidence.md`. 아래 **HANDOFF — Phase 38**. |
+| **Phase 39** | **실측 완료** (번들 UTC `2026-04-10T21:28:28Z`) — 가설 5·게이트 `deferred_pending_more_hypothesis_coverage`·히스토리 2건·`docs/phase39_evidence.md`. 아래 **HANDOFF — Phase 39**. |
+| **Phase 40** | **실측 완료** (번들 UTC `2026-04-11T00:09:06Z`) — 패밀리별 PIT·동적 `spec_results`·게이트 v3·설명 v3·`phase40_*` 번들. **`docs/phase40_evidence.md`**. 아래 **HANDOFF — Phase 40**. |
+| **Phase 41** | **실측 완료** (번들 UTC `2026-04-11T02:45:40Z`) — 반증 기판·2패밀리 재실행·게이트 v4·설명 v4·`pytest …/test_phase41_substrate.py` **9 passed**. **`docs/phase41_evidence.md`**. 아래 **HANDOFF — Phase 41**. |
+
+## 테스트
+
+`pytest src/tests/test_phase34_forward_validation_propagation.py -q`
+
+---
+
+# HANDOFF — Phase 35 (Join displacement + state_change seam + maturity schedule)
+
+## 맥락
+
+- Phase 34로 **forward→validation 전파**는 해소되었으나 **`joined_recipe_substrate_row_count`는 정체**, **`no_state_change_join`은 증가**(Phase 34 실측 8→31)한 것으로 관측됨. Phase 35는 **Phase 34 `propagation_gap_final`의 `synchronized` 23행**이 `public_depth.diagnostics.compute_substrate_coverage`와 동일한 규칙으로 **joined recipe에 포함되는지**·아니면 **`pick_state_change_at_or_before_signal` 단계에서 떨어지는지**를 행 단위로 증명한다.
+- **성숙 7심볼**(MCK, MDT, MKC, MU, NDSN, NTAP, NWSA)은 번들·`report_matured_window_schedule_for_forward`에서 **격리 검증**; `would_compute_now`일 때만 좁은 forward 재시도.
+- **state_change 재실행**(C)은 **`state_change_not_built_for_row`**(해당 런에 CIK 점수 없음)에 한해 상한 `run_state_change` 1회; `join_key_mismatch`(시그널이 첫 `as_of`보다 이른 PIT 괴리)는 자동 대량 수리 대상에서 제외.
+- 가격·GIS·메타·광역 filing·15/16·스코어 비목표(Phase 34와 동일).
+
+## CLI (`p27` + `--phase34-bundle-in`)
+
+| 명령 | 역할 |
+|------|------|
+| `report-forward-validation-join-displacement` | 동기화 23행 → joined / no_state_change / 기타 |
+| `export-forward-validation-join-displacement` | JSON `--out` |
+| `report-state-change-join-gaps-after-phase34` | 조인 이음새 버킷 상세 |
+| `run-state-change-join-refresh-after-phase34` | 수리 가능 버킷만 상한 `run_state_change` |
+| `report-matured-window-schedule-for-forward` | 미성숙 행 스케줄·`would_compute_now` 여부 |
+| `export-matured-window-schedule-for-forward` | JSON `--out` |
+| `run-phase35-join-displacement-and-maturity` | 일괄 + `phase35_join_displacement_and_maturity_bundle.json` / `review.md` |
+| `write-phase35-join-displacement-and-maturity-review` | 번들 → MD (+ 선택 JSON) |
+
+`report-matured-window-schedule-for-forward` / `export-…` 는 `--phase34-bundle-in` + `--price-lookahead-days` 만 사용 (`p27` 불필요).
+
+## 코드
+
+- `src/phase35/` — `join_displacement`, `state_change_join_gaps`, `state_change_refresh`, `matured_window_schedule`, `orchestrator`, `review`, `phase36_recommend`, `phase34_bundle_io`.
+
+## Phase 35.1 실측 클로즈아웃
+
+| 항목 | 측정값 |
+|------|--------|
+| Review 생성 (UTC) | `2026-04-09T04:53:34.557864+00:00` |
+| joined_recipe_substrate_row_count | **243 → 266** |
+| joined_market_metadata_flagged_count | **0 → 23** |
+| no_state_change_join | **31 → 8** |
+| missing_excess_return_1q | 78 (유지) |
+| 동기화 23행 초기 변위 | 전부 `excluded_no_state_change_join`, 이음새 **`state_change_not_built_for_row`** (런 `39208f19…`, scores_loaded 313) |
+| state_change_join_refresh | 대상 23 CIK, 런 `223e2aa5…` (scores_written 353); **unlocked / cleared 23** |
+| 동기화 23행 최종 변위 | 전부 **`included_in_joined_recipe_substrate` / `joined_now`** |
+| 가설 (`hypothesis_phase34_excess_to_no_state_change_join`) | **초기 true** (23이 no_sc로 분류) → **최종 false** (수리 후 전부 joined) |
+| 미성숙 7심볼 | 격리 OK; `matured_eligible_now` 0, forward retry 스킵 |
+| 가격·GIS | 가격 백필 없음; GIS **차단 유지** |
+| Phase 36 권고 | `continue_join_audit_after_substrate_headline_moved` — 잔여 `no_state_change_join`(8)·메타 플래그 23. **후속(36.1)**: 2패스로 **`joined_market_metadata_flagged` 23→0**, 공개 코어 freeze. |
+
+상세 수치·재현: **`docs/phase35_evidence.md`**, 번들·review 경로는 위 Phase 35 절과 동일.
+
+## 테스트
+
+`pytest src/tests/test_phase35_join_displacement_and_maturity.py -q`
+
+---
+
+# HANDOFF — Phase 36 (Substrate freeze + metadata reconciliation + residual join)
+
+## 맥락
+
+- Phase 35 이후 **헤드라인 joined**는 움직였고, 좁은 정합 대상이었던 **메타 플래그 23**은 **Phase 36.1 2패스**로 **0**까지 내려갔다. **잔여 `no_state_change_join` 8**은 **`join_key_mismatch`만** 남아 **PIT defer**로 고정. Phase 36 계열은 **광역 filing/forward/GIS 확대 없이** 이음새를 분류·상한 수리하고, **공개 코어 기판 freeze**(`freeze_public_core_and_shift_to_research_engine`)와 **연구 엔진 handoff**를 문서화한다.
+
+## CLI (`p27` + `--phase35-bundle-in` + 선택 `--state-change-scores-limit`)
+
+| 명령 | 역할 |
+|------|------|
+| `report-joined-metadata-flag-reconciliation-targets` | Phase 35 `forward_validation_join_displacement_final` 신규 joined 행 → 메타 플래그 정합 버킷 |
+| `export-joined-metadata-flag-reconciliation-targets` | `--out` JSON/CSV |
+| `run-joined-metadata-reconciliation-repair` | **2패스**(수화 → `report_mid` → stale 재빌드 → `report_after`); 구 Phase 36 시퀀싱 갭 해소 |
+| `run-joined-metadata-reconciliation-repair-two-pass` | 위와 동일(명시적 별칭) |
+| `run-phase36-1-complete-narrow-integrity-round` | 2패스 메타 + 잔여 SC **감사만(PIT defer)** + freeze 재평가 + handoff → `phase36_1_*` 번들/리뷰 |
+| `write-phase36-1-complete-narrow-integrity-round-review` | Phase 36.1 번들 → MD |
+| `report-residual-state-change-join-gaps` | excess 있는 패널 중 `no_state_change_join` 잔여 행 버킷 |
+| `export-residual-state-change-join-gaps` | `--out` JSON/CSV |
+| `run-residual-state-change-join-repair` | `state_change_not_built_for_row` 만 상한 `run_state_change` |
+| `report-substrate-freeze-readiness` | 스냅샷 + 메타·잔여·GIS 입력 → `substrate_freeze_recommendation` |
+| `export-research-engine-handoff-brief` | 완료된 Phase 36 번들 `--bundle-in` → brief JSON |
+| `run-phase36-substrate-freeze-and-research-handoff` | 일괄 + 기본 번들/리뷰 경로 + 선택 `--handoff-brief-out` |
+| `write-phase36-substrate-freeze-and-research-handoff-review` | 번들 → MD (+ 선택 JSON) |
+
+## 코드
+
+- `src/phase36/` — `joined_metadata_reconciliation`(2패스 수리), `residual_state_change_join`, `residual_pit_deferral`, `substrate_freeze_readiness`, `research_handoff_brief`, `phase37_recommend`, `orchestrator`(Phase 36 + **36.1**), `review`, `phase35_bundle_io`.
+
+## Phase 36.1 실측 클로즈아웃 (권위, 2026-04-10 UTC)
+
+번들: **`docs/operator_closeout/phase36_1_complete_narrow_integrity_round_bundle.json`** · Review MD 생성 UTC: **`2026-04-10T06:50:18.520557+00:00`** · Handoff brief UTC: **`2026-04-10T06:50:18.515921+00:00`**
+
+1. **2패스 메타 정합 (좁은 무결성 라운드)**
+   - **타깃**: Phase 35 신규 joined **23** (`phase35_newly_joined_target_count`).
+   - **report_before / report_mid**: `reconciliation_bucket_counts` 모두 **`stale_metadata_flag_after_join` 23** (패널 `panel_json` 스테일 플래그).
+   - **수화**: 번들 `joined_metadata_reconciliation_two_pass.hydration` — **`skipped: true`** (이미 DB 메타는 갖춰진 상태에서 스테일 플래그만 남은 케이스).
+   - **검증 재빌드**: **`validation_rebuild_target_count_after_hydration` 23** → **`validation_rebuild_factor_panels_submitted` 23**, `status` **`completed`**, **`rows_upserted` 23**, **`failures` 0**.
+   - **report_after**: 플래그 해소 후 타깃 집합 `metadata_flagged_in_target_set_count` **0**; 버킷 **`other_join_metadata_seam` 23**(분류만 이동, 헤드라인 플래그는 0).
+   - **`metadata_flags_cleared_now_count`: 23** · **`metadata_flags_still_present_count`: 0** · 헤드라인 **`joined_market_metadata_flagged_count` 23 → 0** (`before` / `after` 스냅샷).
+
+2. **잔여·defer (고신호)**
+   - **`no_state_change_join` 8** — 전부 **`state_change_built_but_join_key_mismatch`**; **`residual_pit_deferral`**에 심볼·행 기록, **광역 SC 수리 없음**.
+   - **레지스트리·스냅샷 tail**: `missing_validation_symbol_count` **151**, `factor_panel_missing` / `missing_quarter_snapshot` **148** — 저ROI defer (freeze rationale에 포함).
+   - **GIS**: `blocked_unmapped_concepts_remain_in_sample` (샘플 unmapped **13**).
+   - **캘린더**: `maturity_deferred_symbol_count` **7**.
+
+3. **Freeze + Phase 37 (재평가 결과)**
+   - **`substrate_freeze_recommendation`**: **`freeze_public_core_and_shift_to_research_engine`**
+   - **`phase37_recommendation`**: **`execute_research_engine_backlog_sprint`**
+   - 번들 `rationale` 요지: 헤드라인 joined 안정·레지스트리 tail 저ROI defer·잔여 SC 8은 비수리 버킷만 PIT 실험실 defer → **상위 레이어(연구 엔진·설명)로 에너지 이동**.
+
+4. **참고: Phase 36 초차 (동일 일자, 이전 번들)**
+   - `docs/operator_closeout/phase36_substrate_freeze_and_research_handoff_bundle.json` (Review UTC `2026-04-10T04:33:00…`) — 당시 **`validation_rebuild` skipped**, 메타 플래그 **23 유지**, freeze 권고 **`one_more_narrow_integrity_round_then_freeze`**. 시퀀싱 갭은 **Phase 36.1 2패스**로 해소됨.
+
+**헌장**: 본 도구는 일반 AI 주식 추천기가 아니라, **공개 데이터 우선·PIT·연구 거버넌스**를 전제로 시장 해석력을 민주화하는 투자 인텔리전스 시스템이다.
+
+## 테스트
+
+`pytest src/tests/test_phase36_substrate_freeze.py -q`
+
+---
+
+# HANDOFF — Phase 37 (Research engine backlog sprint)
+
+## Sprint 1 완료 (구현 + 클로즈아웃)
+
+- **상태**: 공개 코어 **frozen** 가정 하에 상위 레이어 **스캐폴드**가 저장소에 존재한다 (가설 1건·PIT 스캐폴드 1건·케이스북 4건·적대적 리뷰 1건·설명 MD 프로토타입).
+- **헌장·필러 매핑**: `docs/research_engine_constitution.md`, `phase37.constitution.RESEARCH_ENGINE_ARTIFACTS`.
+- **코드**: `src/phase37/` — `hypothesis_registry`, `pit_experiment`, `adversarial_review`, `casebook`, `explanation_surface`, `orchestrator`, `review`, `phase38_recommend`, `persistence`.
+- **CLI**: `run-phase37-research-engine-backlog-sprint` (`--phase36-1-bundle-in`, `--research-data-dir`, `--explanation-out`, `--bundle-out`, `--out-md`) · `write-phase37-research-engine-backlog-sprint-review --bundle-in …`
+- **산출물**: `docs/operator_closeout/phase37_research_engine_backlog_sprint_bundle.json`, `..._review.md`, `phase37_explanation_prototype.md`, `data/research_engine/*.json`.
+- **증거·패치**: `docs/phase37_evidence.md`, `docs/phase37_patch_report.md` · Phase 39+: `docs/phase39_evidence.md`, `docs/phase39_patch_report.md` · Phase 40+: `docs/phase40_evidence.md`, `docs/phase40_patch_report.md` · Phase 41+: `docs/phase41_evidence.md`, `docs/phase41_patch_report.md` · Phase 42+: `docs/phase42_evidence.md`, `docs/phase42_patch_report.md`.
+- **Phase 38 (실측 완료)**: DB-bound PIT — `run-phase38-db-bound-pit-runner`, 번들 `phase38_db_bound_pit_runner_*`, 증거 `docs/phase38_evidence.md`. 실측 요약은 문서 상단·**HANDOFF — Phase 38** 참고.
+
+## 맥락 (36.1에서의 진입)
+
+- Phase 36.1 번들 권고 **`execute_research_engine_backlog_sprint`** 에 따라 상위 레이어로 전환.
+- 잔여 SC **8**건은 **`join_key_mismatch`** — 케이스북·PIT 픽스처로만; 광역 `run_state_change` **비목표**.
+- 기판 실측: **`docs/phase36_evidence.md`**, `docs/operator_closeout/phase36_1_complete_narrow_integrity_round_bundle.json`.
+
+## 테스트
+
+`pytest src/tests/test_phase37_research_engine.py -q`
+
+
+---
+
+# HANDOFF — Phase 38 (DB-bound PIT runner)
+
+## 요약
+
+- **목적**: Phase 37 권고대로 **DB 결합 PIT** 한 사이클 (가설 1건 유지, 깊이 우선).
+- **코드**: `src/phase38/` — `pit_join_logic`, `pit_runner`, `adversarial_update`, `promotion_gate_v1`, `phase39_recommend`, `explanation_phase38`, `orchestrator`, `review`.
+- **CLI**: `run-phase38-db-bound-pit-runner --universe …` · `write-phase38-db-bound-pit-runner-review --bundle-in …`
+- **산출물**: `docs/operator_closeout/phase38_db_bound_pit_runner_bundle.json`, `..._review.md`, `phase38_explanation_surface.md`
+- **영속 갱신**: `data/research_engine/adversarial_reviews_v1.json`, `casebook_v1.json`, **`promotion_gate_v1.json`**
+- **증거·패치**: `docs/phase38_evidence.md`, `docs/phase38_patch_report.md`
+- **Phase 39 (실측 완료)**: `run-phase39-hypothesis-family-expansion` — 증거 `docs/phase39_evidence.md` (Phase 38 번들의 권고 `broaden_hypothesis_families…` 반영됨)
+- **테스트 (DB 불요)**: `pytest src/tests/test_phase38_pit_join_logic.py -q`
+
+## Phase 38 실측 클로즈아웃 (2026-04-10 UTC, `sp500_current`)
+
+- **근거**: `docs/operator_closeout/phase38_db_bound_pit_runner_bundle.json` (`ok: true`, `generated_utc` `2026-04-10T18:26:47.398074+00:00`), `docs/operator_closeout/phase38_db_bound_pit_runner_review.md` (리뷰 생성 UTC `2026-04-10T18:26:47.398780+00:00`).
+- **실험 id**: `41dea3b0-02fe-46d8-951d-e2778af01e9f`.
+- **런**: baseline `223e2aa5-3879-4dee-b28f-3d579cbf4cbd`, alternate `39208f19-8d0e-4c35-9950-78963bb59a97`; `completed_runs_considered` **13**.
+- **점수 로드**: baseline **353**행, alternate **313**행 (`pit_execution.scores_loaded`).
+- **8행 픽스처**: baseline / alternate_prior_run / lag_signal_bound 각 **`still_join_key_mismatch` 8**; 표준 롤업에서 joined·other_exclusion·invalid **전부 0**.
+- **누수 감사**: `passed: true`, `violations: []`.
+- **적대적 리뷰**: `phase38_resolution_status` `deferred_with_evidence_reinforces_baseline_mismatch`, `phase38_leakage_audit_passed` true.
+- **프로모션 게이트 v1**: `gate_status` **`blocked`** (`hypothesis_under_test_not_eligible_for_product_promotion`, `adversarial_challenge_not_cleared`).
+- **Phase 39 권고**: `broaden_hypothesis_families_and_harden_explanation_under_persistent_mismatch` (번들 `phase39.rationale` 참고).
+
+**운영자 추가 필수 작업 없음.** (선택) `data/research_engine/*.json` 커밋 정책, 재현 고정용 `--baseline-run-id` / `--alternate-run-id`, Phase 39 스프린트 착수.
+
+## Phase 37과의 관계
+
+- Sprint 1 산출물(`phase37_*` 번들, `data/research_engine/*.json`)을 입력·갱신 대상으로 사용.
+- `adversarial_reviews_v1.json`·`casebook_v1.json` 은 Phase 38 오케스트레이터가 **덮어쓰기/병합**할 수 있음.
+
+
+---
+
+# HANDOFF — Phase 39 (Hypothesis family expansion + governance)
+
+## 요약
+
+- **목적**: Phase 38 증거(누수 통과·8행 지속 mismatch)에 맞춰 **가설 패밀리 확장**, **라이프사이클 감사**, **다중 stance 적대적 리뷰**, **PIT 패밀리 계약**, **라이프사이클 연동 게이트**, **설명 v2**.
+- **코드**: `src/phase39/` — `hypothesis_seeds`, `lifecycle`, `adversarial_batch`, `pit_family_contract`, `promotion_gate_phase39`, `explanation_v2`, `phase40_recommend`, `orchestrator`, `review`.
+- **CLI**: `run-phase39-hypothesis-family-expansion` (`--phase38-bundle-in`, `--research-data-dir`, `--explanation-out`, `--gate-history-filename`, `--bundle-out`, `--out-md`) · `write-phase39-hypothesis-family-expansion-review --bundle-in …`
+- **산출물**: `docs/operator_closeout/phase39_hypothesis_family_expansion_bundle.json`, `phase39_hypothesis_family_expansion_review.md`, `phase39_explanation_surface_v2.md`
+- **영속 갱신**: `hypotheses_v1.json` (가설 5+, `lifecycle_transitions`), `adversarial_reviews_v1.json` (append), `promotion_gate_v1.json` (schema v2), **`promotion_gate_history_v1.json`** (append-only 이력)
+- **테스트**: `pytest src/tests/test_phase39_hypothesis_family.py -q`
+- **Phase 40 (실측 완료)**: `run-phase40-family-spec-bindings` — `docs/phase40_evidence.md` (번들 `2026-04-11T00:09:06Z`)
+- **Phase 41 (실측 완료)**: `run-phase41-falsifier-substrate` — `docs/phase41_evidence.md` (번들 `2026-04-11T02:45:40Z`)
+- **Phase 42 (실측 완료)**: `run-phase42-evidence-accumulation` — `docs/phase42_evidence.md` (번들 `2026-04-11T04:52:28Z`, `--bundle-substrate-only`)
+- **증거·패치**: `docs/phase39_evidence.md`, `docs/phase39_patch_report.md`
+
+## 비목표
+
+광역 기판 수리, 자동 승격, 제네릭 종목 추천 UX, 프리미엄 데이터 확장을 헤드라인으로 두지 않음.
+
+## Phase 39 실측 클로즈아웃 (2026-04-10 UTC)
+
+- **근거 번들**: `docs/operator_closeout/phase39_hypothesis_family_expansion_bundle.json` — `generated_utc` **`2026-04-10T21:28:28.683360+00:00`**, `ok: true`
+- **리뷰 MD**: `docs/operator_closeout/phase39_hypothesis_family_expansion_review.md` (생성 UTC `2026-04-10T21:28:28.683688+00:00`)
+- **가설**: 총 **5** — `challenged` 1 (`hyp_pit_join_key_mismatch_as_of_boundary_v1`) · `draft` 4 (cadence / filing boundary / sector cadence / governance join policy)
+- **적대적 리뷰**: stance **4** (data_lineage_auditor + skeptical_fundamental + skeptical_quant + regime_horizon_reviewer)
+- **게이트**: `gate_status` **`deferred`**, `primary_block_category` **`deferred_pending_more_hypothesis_coverage`**
+- **게이트 이력**: `data/research_engine/promotion_gate_history_v1.json` — 엔트리 **2**건 (동일 일 CLI 2회; 재실행 시 계속 append)
+- **설명 v2**: `docs/operator_closeout/phase39_explanation_surface_v2.md`
+- **문서**: **`docs/phase39_evidence.md`**, **`docs/phase39_patch_report.md`**
+
+**운영자 추가 필수 작업 없음.**
+
+---
+
+# HANDOFF — Phase 40 (Family PIT spec bindings + shared leakage audit)
+
+## 요약
+
+- **목적**: Phase 39 패밀리를 **DB 결합 PIT**로 실행한다. 행 단위 **`spec_results` (spec_key → outcome_cell)**·네 가지 표준 outcome·**공통 누수 감사**·라이프사이클·패밀리 태그 적대적 리뷰·**프로모션 게이트 schema v3**·설명 v3. 자동 승격 없음.
+- **코드**: `src/phase40/` — `pit_engine`, `family_execution`, `orchestrator`, `lifecycle_phase40`, `adversarial_family`, `promotion_gate_phase40`, `explanation_v3`, `phase41_recommend`, `review`, `contract_manifest`.
+- **CLI**: `run-phase40-family-spec-bindings --universe sp500_current --bundle-out docs/operator_closeout/phase40_family_spec_bindings_bundle.json --out-md docs/operator_closeout/phase40_family_spec_bindings_review.md` · `write-phase40-family-spec-bindings-review --bundle-in … --out-md …`
+- **산출물**: `docs/operator_closeout/phase40_family_spec_bindings_bundle.json`, `phase40_family_spec_bindings_review.md`, `phase40_explanation_surface_v3.md`
+- **영속 갱신**: `data/research_engine/hypotheses_v1.json`, `adversarial_reviews_v1.json`, `promotion_gate_v1.json`, `promotion_gate_history_v1.json`
+- **증거·패치**: `docs/phase40_evidence.md`, `docs/phase40_patch_report.md` · Phase 41·42: **`docs/phase41_evidence.md`**, **`docs/phase41_patch_report.md`**, **`docs/phase42_evidence.md`**, **`docs/phase42_patch_report.md`**
+
+## Phase 40 실측 클로즈아웃 (2026-04-11 UTC)
+
+- **근거 번들**: `docs/operator_closeout/phase40_family_spec_bindings_bundle.json` — `generated_utc` **`2026-04-11T00:09:06.788705+00:00`**, `ok: true`
+- **리뷰 MD**: `docs/operator_closeout/phase40_family_spec_bindings_review.md` (`write-phase40-family-spec-bindings-review` 재실행 시 선행 `_Generated (UTC)` 줄만 갱신됨)
+- **실험 id** (`pit_execution`): `b0ed1cdd-19ee-448a-9748-a295784a9a94`
+- **런·점수**: baseline `223e2aa5-3879-4dee-b28f-3d579cbf4cbd`, alternate `39208f19-8d0e-4c35-9950-78963bb59a97`; `completed_runs_considered` **13**; `fixture_row_count` **8**; `scores_loaded` baseline **353** / alternate **313**
+- **패밀리·스펙**: **5** 패밀리, **7** 스펙 바인딩; 패밀리별 `joined_any_row` **전부 false**; 각 패밀리·각 spec 롤업 **`still_join_key_mismatch` 8** (그 외 버킷 0)
+- **누수**: `all_families_leakage_passed` **true**
+- **라이프사이클 (after)**: `challenged` **1** (`hyp_pit_join_key_mismatch_as_of_boundary_v1`) · `conditionally_supported` **4**
+- **적대적 리뷰**: `adversarial_reviews_after_count` **8**; `adversarial_review_count_by_family_tag` — 네 패밀리 태그 각 **1**
+- **프로모션 게이트 v3**: `gate_status` **`deferred`**, `primary_block_category` **`conditionally_supported_but_not_promotable`**
+- **Phase 41 권고**: `wire_filing_and_sector_substrate_for_hypothesis_falsification_and_explanation_v4` — **실측 완료** (`docs/phase41_evidence.md`)
+
+**운영자 추가 필수 작업 없음.**
+
+---
+
+# HANDOFF — Phase 41 (Falsifier substrate: filing_index + sector metadata)
+
+## 요약
+
+- **목적**: Phase 40 권고대로 **반증 기판**만 최소 연결 — `filing_index`(accepted_at / filed_at)·`market_metadata_latest.sector`. **2개 패밀리만** 재실행 (`signal_filing_boundary_v1`, `issuer_sector_reporting_cadence_v1`). 동일 누수 규칙.
+- **코드**: `src/phase41/` — `substrate_filing`, `substrate_sector`, `pit_rerun`, `lifecycle_phase41`, `adversarial_phase41`, `promotion_gate_phase41`, `explanation_v4`, `phase42_recommend`, `orchestrator`, `review`.
+- **CLI**: `run-phase41-falsifier-substrate --universe sp500_current --bundle-out docs/operator_closeout/phase41_falsifier_substrate_bundle.json --out-md docs/operator_closeout/phase41_falsifier_substrate_review.md` · 선택 `--phase40-bundle-in` (before/after) · `write-phase41-falsifier-substrate-review --bundle-in …`
+- **산출물**: `phase41_falsifier_substrate_bundle.json`, `phase41_falsifier_substrate_review.md`, `phase41_explanation_surface_v4.md`
+- **영속 갱신**: `hypotheses_v1.json` (`substrate_audit_log`), `adversarial_reviews_v1.json` (append), `promotion_gate_v1.json` (**schema v4**), `promotion_gate_history_v1.json`
+- **테스트**: `pytest src/tests/test_phase41_substrate.py -q`
+- **증거·패치**: **`docs/phase41_evidence.md`**, **`docs/phase41_patch_report.md`** · 후속 Phase 42: **`docs/phase42_evidence.md`**, **`docs/phase42_patch_report.md`**
+
+## Phase 41 실측 클로즈아웃 (2026-04-11 UTC)
+
+- **근거 번들**: `docs/operator_closeout/phase41_falsifier_substrate_bundle.json` — `generated_utc` **`2026-04-11T02:45:40.253079+00:00`**, `ok: true`
+- **리뷰 MD**: `docs/operator_closeout/phase41_falsifier_substrate_review.md`
+- **설명 v4**: `docs/operator_closeout/phase41_explanation_surface_v4.md`
+- **실험 id**: `f85f3524-73eb-4403-bf0e-c347c06d011f` · baseline 런 `223e2aa5-3879-4dee-b28f-3d579cbf4cbd` · `scores_loaded` **353**
+- **픽스처**: **8**행 · 재실행 패밀리 **2** · `all_families_leakage_passed` **true**
+- **Filing 기판**: 8행 전부 `filing_public_ts_unavailable`, 명시적 signal 프록시 **8** (`filing_substrate.summary`)
+- **Sector 기판**: 8행 `sector_metadata_missing`, 스트라텀 **unknown**만 (`sector_substrate.summary`, `sector_stratified_signal_pick_v1`)
+- **Outcome**: 양 패밀리 `still_join_key_mismatch` **8**/8
+- **Phase 40 대비**: filing 롤업 동일; sector 패밀리는 spec 키만 변경·수치 동일 (`family_rerun_before_after`)
+- **라이프사이클**: `challenged` 1 · `conditionally_supported` 4 (가설 `substrate_audit_log` append)
+- **게이트 v4**: `deferred` · `deferred_due_to_proxy_limited_falsifier_substrate`
+- **Phase 42 (코드 권고, Phase 41 번들)**: `accumulate_evidence_and_narrow_hypotheses_under_stronger_falsifiers_v1` — **실측 완료** (`docs/phase42_evidence.md`, 게이트 `phase: phase42`)
+- **테스트**: `pytest src/tests/test_phase41_substrate.py -q` → **9 passed**
+
+**운영자 추가 필수 작업 없음.** (선택) 메타 수화·filing_index 적재 후 Phase 41 재실행 시 기판 분류가 달라질 수 있음.
+
+---
+
+# HANDOFF — Phase 42 (Evidence accumulation + gate phase42)
+
+## 요약
+
+- **목적**: Phase 41 pit·기판을 입력으로 **행 단위 블로커·스코어카드·outcome 시그니처 판별·가설 축소 라벨·프로모션 게이트(`phase`: phase42)·설명 v5·Phase 43 권고**를 남긴다. 자동 승격 없음.
+- **코드**: `src/phase42/` — `blocker_taxonomy`, `evidence_accumulation`, `hypothesis_narrowing`, `promotion_gate_phase42`, `explanation_v5`, `phase43_recommend`, `orchestrator`, `review`.
+- **CLI**: `run-phase42-evidence-accumulation` (`--phase41-bundle-in`, `--bundle-substrate-only`, `--research-data-dir`, `--bundle-out`, `--out-md`, `--explanation-out`) · `write-phase42-evidence-accumulation-review --bundle-in …`
+- **산출물**: `phase42_evidence_accumulation_bundle.json`, `phase42_evidence_accumulation_review.md`, `phase42_explanation_surface_v5.md`
+- **영속 갱신**: `promotion_gate_v1.json` (**덮어씀**, `phase: phase42`), `promotion_gate_history_v1.json` (append)
+- **테스트**: `pytest src/tests/test_phase42_evidence_accumulation.py -q` → **8 passed**
+- **증거·패치**: **`docs/phase42_evidence.md`**, **`docs/phase42_patch_report.md`**
+
+## Phase 42 실측 클로즈아웃 (2026-04-11 UTC)
+
+- **근거 번들**: `docs/operator_closeout/phase42_evidence_accumulation_bundle.json` — `generated_utc` **`2026-04-11T04:52:28.074748+00:00`**, `ok: true`
+- **입력**: Phase 41 `phase41_falsifier_substrate_bundle.json` · 실행 플래그 **`--bundle-substrate-only`** (pit `per_row` 재생)
+- **스코어카드**: 코호트 **8**행 · filing `only_post_signal_filings_available` **8** · sector `no_market_metadata_row_for_symbol` **8**
+- **판별**: `any_family_outcome_discriminating` **true** — 리뷰어는 **spec 키가 시그니처에 포함**됨을 확인할 것 (`docs/phase42_evidence.md` 표)
+- **게이트**: `deferred` · `deferred_due_to_proxy_limited_falsifier_substrate` · `phase42_context.filing_proxy_row_count` **8**, `sector_missing_row_count` **8**
+- **stable_run_digest**: `1cc5113aeff11483`
+- **Phase 43**: `substrate_backfill_or_narrow_claims_then_retest_v1`
+
+**운영자 추가 필수 작업 없음.** (선택) Supabase 경로로 재실행하면 filing 블로커 원인 코드가 번들 재생과 달라질 수 있음.
+
+---
+
+# HANDOFF — Phase 43 (Bounded targeted substrate backfill + Supabase-fresh retest)
+
+## 요약
+
+- **목적**: Phase 42 **Supabase-fresh** 입력(`phase42_evidence_accumulation_bundle_supabase.json`)의 **정확히 8행** `row_level_blockers`에 대해 filing_index·`market_metadata_latest` 만 **상한** 보강한 뒤, 동일 두 패밀리로 Phase 41을 다시 돌리고 Phase 42를 **`use_supabase=True`** 로 재실행한다. **유니버스 확장·public-core 광역 수리 비목표.**
+- **코호트 (작업지시서 기준)**: `BBY, ADSK, CRM, CRWD, DELL, DUK, NVDA, WMT` — 관측 filing: ADSK `only_post_signal_filings_available`, 그 외 `no_10k_10q_rows_for_cik`; sector: 전 행 `no_market_metadata_row_for_symbol` (실 run 전후는 `phase43_targeted_substrate_before_after_audit.md`·번들로 확인).
+- **코드**: `src/phase43/` — `target_cohort`, `filing_audit`, `filing_backfill`, `sector_audit`, `sector_backfill`, `before_after_audit`, `orchestrator`, `review`, `explanation_v6`, `phase44_recommend`.
+- **CLI**: `run-phase43-targeted-substrate-backfill` (`--phase42-supabase-bundle-in`, `--universe`, `--phase41-bundle-in` 선택, `--filing-index-limit`, `--max-filing-cik-repairs`, `--before-after-audit-out`, `--explanation-out`, `--bundle-out`, `--out-md`) · `write-phase43-targeted-substrate-backfill-review --bundle-in …` (선택 `--before-after-audit-out`).
+- **산출물**: `phase43_targeted_substrate_backfill_bundle.json`, `phase43_targeted_substrate_backfill_review.md`, `phase43_targeted_substrate_before_after_audit.md`, `phase43_explanation_surface_v6.md`
+- **권위 경로**: 번들 필드 **`phase42_rerun_used_supabase_fresh: true`** — 클로즈아웃에 Phase 42 **`--bundle-substrate-only` 아님** (`phase43.AUTHORITATIVE_CLOSEOUT_USES_SUPABASE_FRESH_PHASE42`).
+- **테스트**: `pytest src/tests/test_phase43_targeted_substrate_backfill.py -q` → **13 passed**
+- **증거·패치**: **`docs/phase43_evidence.md`**, **`docs/phase43_patch_report.md`**
+
+## Phase 43 클로즈아웃 (패치 반영; 운영 실 run 후 번들로 채울 것)
+
+- **시도한 일**: 8행 전용 filing `run_sample_ingest`(CIK당 1회·상한)·8심볼 메타 수화 → before/after 감사 → Phase 41 pit → Phase 42 Supabase-fresh.
+- **게이트/스코어카드 전후**: 번들 `gate_before` / `gate_after`, `scorecard_before` / `scorecard_after`, `stable_run_digest_before` / `stable_run_digest_after`.
+- **다음 권고**: 번들 `phase44.phase44_recommendation` — 변화 없으면 **`narrow_claims_or_accept_proxy_limits_no_broad_substrate_v1`**, 있으면 **`continue_bounded_falsifier_retest_or_narrow_claims_v1`** (광역 기판 재개 금지).
 
 ---
 

@@ -1,0 +1,303 @@
+[
+  {
+    "decision_utc": "2026-04-10T20:47:35.594395+00:00",
+    "phase": "phase39",
+    "prior_gate_status": "blocked",
+    "prior_primary_block_category": null,
+    "new_gate": {
+      "schema_version": 2,
+      "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+      "gate_status": "deferred",
+      "primary_block_category": "deferred_pending_more_hypothesis_coverage",
+      "lifecycle_snapshot": {
+        "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+        "hyp_score_publication_cadence_run_grid_lag_v1": "draft",
+        "hyp_signal_availability_filing_boundary_v1": "draft",
+        "hyp_issuer_sector_reporting_cadence_v1": "draft",
+        "hyp_governance_safe_alternate_join_policy_v1": "draft"
+      },
+      "blocking_reasons": [
+        "awaiting_additional_hypothesis_family_pit_binding",
+        "primary_hypothesis_challenged_pending_coverage"
+      ],
+      "reviewer_dependencies": [
+        "17b65b06-5001-401a-be26-25064897af17"
+      ],
+      "required_followups": [
+        "Implement planned PIT spec keys per pit_family_contract.family_bindings.",
+        "Re-evaluate gate after at least one additional family executes under shared leakage audit."
+      ],
+      "promotion_decision_notes": "Phase 39: gate discriminates integrity vs insufficient evidence vs deferred pending hypothesis coverage. No auto-promotion.",
+      "phase39_context": {
+        "draft_hypothesis_family_count": 4,
+        "primary_hypothesis_status": "challenged",
+        "pit_leakage_passed": true,
+        "primary_phase38_adversarial_status": "deferred_with_evidence_reinforces_baseline_mismatch"
+      },
+      "prior_gate_digest": {
+        "had_phase38_context": true
+      }
+    }
+  },
+  {
+    "decision_utc": "2026-04-10T21:28:28.682838+00:00",
+    "phase": "phase39",
+    "prior_gate_status": "deferred",
+    "prior_primary_block_category": "deferred_pending_more_hypothesis_coverage",
+    "new_gate": {
+      "schema_version": 2,
+      "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+      "gate_status": "deferred",
+      "primary_block_category": "deferred_pending_more_hypothesis_coverage",
+      "lifecycle_snapshot": {
+        "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+        "hyp_score_publication_cadence_run_grid_lag_v1": "draft",
+        "hyp_signal_availability_filing_boundary_v1": "draft",
+        "hyp_issuer_sector_reporting_cadence_v1": "draft",
+        "hyp_governance_safe_alternate_join_policy_v1": "draft"
+      },
+      "blocking_reasons": [
+        "awaiting_additional_hypothesis_family_pit_binding",
+        "primary_hypothesis_challenged_pending_coverage"
+      ],
+      "reviewer_dependencies": [
+        "17b65b06-5001-401a-be26-25064897af17"
+      ],
+      "required_followups": [
+        "Implement planned PIT spec keys per pit_family_contract.family_bindings.",
+        "Re-evaluate gate after at least one additional family executes under shared leakage audit."
+      ],
+      "promotion_decision_notes": "Phase 39: gate discriminates integrity vs insufficient evidence vs deferred pending hypothesis coverage. No auto-promotion.",
+      "phase39_context": {
+        "draft_hypothesis_family_count": 4,
+        "primary_hypothesis_status": "challenged",
+        "pit_leakage_passed": true,
+        "primary_phase38_adversarial_status": "deferred_with_evidence_reinforces_baseline_mismatch"
+      },
+      "prior_gate_digest": {
+        "had_phase38_context": false
+      }
+    }
+  },
+  {
+    "decision_utc": "2026-04-11T00:09:06.787516+00:00",
+    "phase": "phase40",
+    "prior_gate_status": "deferred",
+    "prior_primary_block_category": "deferred_pending_more_hypothesis_coverage",
+    "new_gate": {
+      "schema_version": 3,
+      "phase": "phase40",
+      "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+      "gate_status": "deferred",
+      "primary_block_category": "conditionally_supported_but_not_promotable",
+      "lifecycle_snapshot": {
+        "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+        "hyp_score_publication_cadence_run_grid_lag_v1": "conditionally_supported",
+        "hyp_signal_availability_filing_boundary_v1": "conditionally_supported",
+        "hyp_issuer_sector_reporting_cadence_v1": "conditionally_supported",
+        "hyp_governance_safe_alternate_join_policy_v1": "conditionally_supported"
+      },
+      "blocking_reasons": [
+        "families_executed_under_shared_audit",
+        "evidence_accumulated_without_product_clearance",
+        "primary_hypothesis_remains_challenged"
+      ],
+      "reviewer_dependencies": [
+        "17b65b06-5001-401a-be26-25064897af17",
+        "2ebe74f8-5cef-403a-80de-c870956531c0",
+        "375bd61b-7f6a-44a4-af9a-15da3be06166",
+        "28897175-48a8-4de3-93d5-f906f67a5a4a"
+      ],
+      "required_followups": [
+        "Wire filing timestamps or sector metadata if filing/sector hypotheses should falsify.",
+        "Re-run gate after Phase 41 substrate or narrative tightening."
+      ],
+      "promotion_decision_notes": "Phase 40: family-specific PIT execution under shared leakage rule. No auto-promotion.",
+      "phase40_context": {
+        "families_executed_count": 5,
+        "implemented_family_spec_count": 7,
+        "all_families_leakage_passed": true,
+        "any_family_joined_row": false,
+        "conditionally_supported_hypothesis_count": 4
+      },
+      "prior_gate_digest": {
+        "had_schema_version": 2,
+        "prior_primary_block_category": "deferred_pending_more_hypothesis_coverage"
+      }
+    }
+  },
+  {
+    "decision_utc": "2026-04-11T00:36:57.583883+00:00",
+    "phase": "phase40",
+    "prior_gate_status": "deferred",
+    "prior_primary_block_category": "conditionally_supported_but_not_promotable",
+    "new_gate": {
+      "schema_version": 3,
+      "phase": "phase40",
+      "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+      "gate_status": "deferred",
+      "primary_block_category": "conditionally_supported_but_not_promotable",
+      "lifecycle_snapshot": {
+        "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+        "hyp_score_publication_cadence_run_grid_lag_v1": "conditionally_supported",
+        "hyp_signal_availability_filing_boundary_v1": "conditionally_supported",
+        "hyp_issuer_sector_reporting_cadence_v1": "conditionally_supported",
+        "hyp_governance_safe_alternate_join_policy_v1": "conditionally_supported"
+      },
+      "blocking_reasons": [
+        "families_executed_under_shared_audit",
+        "evidence_accumulated_without_product_clearance",
+        "primary_hypothesis_remains_challenged"
+      ],
+      "reviewer_dependencies": [
+        "17b65b06-5001-401a-be26-25064897af17",
+        "2ebe74f8-5cef-403a-80de-c870956531c0",
+        "375bd61b-7f6a-44a4-af9a-15da3be06166",
+        "28897175-48a8-4de3-93d5-f906f67a5a4a"
+      ],
+      "required_followups": [
+        "Wire filing timestamps or sector metadata if filing/sector hypotheses should falsify.",
+        "Re-run gate after Phase 41 substrate or narrative tightening."
+      ],
+      "promotion_decision_notes": "Phase 40: family-specific PIT execution under shared leakage rule. No auto-promotion.",
+      "phase40_context": {
+        "families_executed_count": 5,
+        "implemented_family_spec_count": 7,
+        "all_families_leakage_passed": true,
+        "any_family_joined_row": false,
+        "conditionally_supported_hypothesis_count": 4
+      },
+      "prior_gate_digest": {
+        "had_schema_version": 3,
+        "prior_primary_block_category": "conditionally_supported_but_not_promotable"
+      }
+    }
+  },
+  {
+    "decision_utc": "2026-04-11T02:45:10.019910+00:00",
+    "phase": "phase41",
+    "prior_gate_status": "deferred",
+    "prior_primary_block_category": "conditionally_supported_but_not_promotable",
+    "new_gate": {
+      "schema_version": 4,
+      "phase": "phase41",
+      "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+      "gate_status": "deferred",
+      "primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+      "lifecycle_snapshot": {
+        "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+        "hyp_score_publication_cadence_run_grid_lag_v1": "conditionally_supported",
+        "hyp_signal_availability_filing_boundary_v1": "conditionally_supported",
+        "hyp_issuer_sector_reporting_cadence_v1": "conditionally_supported",
+        "hyp_governance_safe_alternate_join_policy_v1": "conditionally_supported"
+      },
+      "blocking_reasons": [
+        "filing_timestamp_still_proxy_for_one_or_more_rows",
+        "sector_metadata_missing_for_one_or_more_rows",
+        "await_stronger_falsifier_substrate_or_narrower_claims"
+      ],
+      "reviewer_dependencies": [],
+      "required_followups": [
+        "Accumulate evidence under stronger falsifiers or narrow competing hypotheses.",
+        "Tighten explanation / governance if mismatch persists."
+      ],
+      "promotion_decision_notes": "Phase 41: filing_index + market_metadata substrate for two families; no auto-promotion.",
+      "phase41_context": {
+        "filing_proxy_row_count": 8,
+        "filing_row_count": 8,
+        "sector_missing_row_count": 8,
+        "sector_row_count": 8,
+        "all_families_leakage_passed": true
+      },
+      "prior_gate_digest": {
+        "had_schema_version": 3,
+        "prior_primary_block_category": "conditionally_supported_but_not_promotable"
+      }
+    }
+  },
+  {
+    "decision_utc": "2026-04-11T02:45:40.251566+00:00",
+    "phase": "phase41",
+    "prior_gate_status": "deferred",
+    "prior_primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+    "new_gate": {
+      "schema_version": 4,
+      "phase": "phase41",
+      "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+      "gate_status": "deferred",
+      "primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+      "lifecycle_snapshot": {
+        "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+        "hyp_score_publication_cadence_run_grid_lag_v1": "conditionally_supported",
+        "hyp_signal_availability_filing_boundary_v1": "conditionally_supported",
+        "hyp_issuer_sector_reporting_cadence_v1": "conditionally_supported",
+        "hyp_governance_safe_alternate_join_policy_v1": "conditionally_supported"
+      },
+      "blocking_reasons": [
+        "filing_timestamp_still_proxy_for_one_or_more_rows",
+        "sector_metadata_missing_for_one_or_more_rows",
+        "await_stronger_falsifier_substrate_or_narrower_claims"
+      ],
+      "reviewer_dependencies": [],
+      "required_followups": [
+        "Accumulate evidence under stronger falsifiers or narrow competing hypotheses.",
+        "Tighten explanation / governance if mismatch persists."
+      ],
+      "promotion_decision_notes": "Phase 41: filing_index + market_metadata substrate for two families; no auto-promotion.",
+      "phase41_context": {
+        "filing_proxy_row_count": 8,
+        "filing_row_count": 8,
+        "sector_missing_row_count": 8,
+        "sector_row_count": 8,
+        "all_families_leakage_passed": true
+      },
+      "prior_gate_digest": {
+        "had_schema_version": 4,
+        "prior_primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate"
+      }
+    }
+  },
+  {
+    "decision_utc": "2026-04-11T04:52:28.074135+00:00",
+    "phase": "phase42",
+    "prior_gate_status": "deferred",
+    "prior_primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+    "new_gate": {
+      "schema_version": 4,
+      "phase": "phase42",
+      "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+      "gate_status": "deferred",
+      "primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+      "lifecycle_snapshot": {
+        "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+        "hyp_score_publication_cadence_run_grid_lag_v1": "conditionally_supported",
+        "hyp_signal_availability_filing_boundary_v1": "conditionally_supported",
+        "hyp_issuer_sector_reporting_cadence_v1": "conditionally_supported",
+        "hyp_governance_safe_alternate_join_policy_v1": "conditionally_supported"
+      },
+      "blocking_reasons": [
+        "filing_proxy_or_blocker_rows_remain",
+        "sector_metadata_missing_rows_remain",
+        "await_stronger_falsifier_substrate"
+      ],
+      "reviewer_dependencies": [],
+      "required_followups": [
+        "Track scorecard deltas across runs using stable_run_digest.",
+        "Narrow claims where proxy_limited_retest_needed; add cohort B only with tight cap."
+      ],
+      "promotion_decision_notes": "Phase 42: evidence accumulation + blocker taxonomy + discrimination summary. No auto-promotion.",
+      "phase42_context": {
+        "all_families_leakage_passed_phase41": true,
+        "filing_proxy_row_count": 8,
+        "sector_missing_row_count": 8,
+        "any_family_outcome_discriminating": true,
+        "narrowing_headline": "at_least_one_family_outcome_discriminating"
+      },
+      "prior_gate_digest": {
+        "had_schema_version": 4,
+        "prior_primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+        "prior_phase": "phase41"
+      }
+    }
+  }
+]

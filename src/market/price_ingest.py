@@ -173,6 +173,105 @@ def run_market_prices_ingest(
         return {"status": "failed", "error": str(ex)}
 
 
+def run_market_prices_ingest_for_symbols(
+    settings: Any,
+    *,
+    symbols: list[str],
+    start_date: date,
+    end_date: date,
+    metadata_json: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """지정 심볼·구간만 일봉 수집(Phase 33 상한 가격 백필 등). 유니버스 멤버십과 무관."""
+    client = get_supabase_client(settings)
+    provider = get_market_provider()
+    sym_list = sorted({str(s).upper().strip() for s in symbols if s and str(s).strip()})
+    if not sym_list:
+        return {"status": "failed", "error": "symbols empty"}
+    meta: dict[str, Any] = {
+        "mode": "symbol_list",
+        "start_date": start_date.isoformat(),
+        "end_date": end_date.isoformat(),
+        "provider": provider.name,
+        "n_symbols": len(sym_list),
+    }
+    if metadata_json:
+        meta.update(metadata_json)
+    run_id = ingest_run_create_started(
+        client,
+        run_type=MARKET_PRICES_INGEST,
+        target_count=len(sym_list),
+        metadata_json=meta,
+    )
+    success = 0
+    failures = 0
+    errors: list[dict[str, Any]] = []
+    now_ing = datetime.now(timezone.utc).isoformat()
+    try:
+        bars = provider.fetch_daily_prices(sym_list, start_date, end_date)
+        by_sym: dict[str, list] = {}
+        for b in bars:
+            by_sym.setdefault(b.symbol.upper(), []).append(b)
+        cik_map = fetch_cik_map_for_tickers(client, sym_list)
+        raw_rows: list[dict[str, Any]] = []
+        silver_rows: list[dict[str, Any]] = []
+        for sym, blist in by_sym.items():
+            blist.sort(key=lambda x: x.trade_date)
+            cik = cik_map.get(sym.upper())
+            for b in blist:
+                raw_rows.append(
+                    {
+                        "symbol": sym,
+                        "trade_date": b.trade_date.isoformat(),
+                        "open": b.open,
+                        "high": b.high,
+                        "low": b.low,
+                        "close": b.close,
+                        "adjusted_close": b.adjusted_close,
+                        "volume": b.volume,
+                        "source_name": provider.name,
+                        "source_payload_json": dict(b.raw_payload),
+                        "ingested_at": now_ing,
+                    }
+                )
+            silver_rows.extend(
+                bars_to_silver_rows(blist, cik=cik, source_name=provider.name)
+            )
+            success += 1
+        upsert_raw_market_prices_batch(client, raw_rows)
+        upsert_silver_market_prices_batch(client, silver_rows)
+        for s in sym_list:
+            if s not in by_sym:
+                failures += 1
+                errors.append({"symbol": s, "error": "no_bars_from_provider"})
+        ingest_run_finalize(
+            client,
+            run_id=run_id,
+            status="completed",
+            success_count=success,
+            failure_count=failures,
+            error_json={"errors": errors} if errors else None,
+        )
+        return {
+            "status": "completed",
+            "symbols_requested": len(sym_list),
+            "symbols_with_data": success,
+            "missing": failures,
+            "raw_rows": len(raw_rows),
+            "silver_rows": len(silver_rows),
+        }
+    except Exception as ex:  # noqa: BLE001
+        logger.exception("market_prices_ingest_for_symbols")
+        ingest_run_finalize(
+            client,
+            run_id=run_id,
+            status="failed",
+            success_count=success,
+            failure_count=len(sym_list),
+            error_json={"error": str(ex)},
+        )
+        return {"status": "failed", "error": str(ex)}
+
+
 def run_market_metadata_refresh(settings: Any, *, universe_name: str) -> dict[str, Any]:
     """프로바이더가 메타를 주지 않으면 no-op + 감사 로그만 남김."""
     client = get_supabase_client(settings)

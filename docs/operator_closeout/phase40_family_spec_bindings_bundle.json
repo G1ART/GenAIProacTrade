@@ -1,0 +1,1322 @@
+{
+  "ok": true,
+  "phase": "phase40_family_spec_bindings",
+  "generated_utc": "2026-04-11T00:36:57.584807+00:00",
+  "universe_name": "sp500_current",
+  "phase38_bundle_ref": "docs/operator_closeout/phase38_db_bound_pit_runner_bundle.json",
+  "pit_execution": {
+    "ok": true,
+    "experiment_id": "ec35a18c-1f03-4580-a371-021619d71d96",
+    "generated_utc": "2026-04-11T00:36:57.582506+00:00",
+    "universe_name": "sp500_current",
+    "fixture_row_count": 8,
+    "state_change_scores_limit": 50000,
+    "lag_calendar_days": 7,
+    "runs_resolved": {
+      "baseline_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+      "alternate_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+      "completed_runs_considered": 13
+    },
+    "scores_loaded": {
+      "baseline": 353,
+      "alternate": 313
+    },
+    "families_executed": [
+      {
+        "family_id": "pit_as_of_boundary_v1",
+        "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+        "spec_keys_executed": [
+          "baseline_production_equivalent",
+          "alternate_prior_completed_run",
+          "lag_calendar_signal_bound"
+        ],
+        "row_results": [
+          {
+            "symbol": "BBY",
+            "cik": "0000764478",
+            "signal_available_date": "2025-12-08",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "baseline_production_equivalent": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+              },
+              "alternate_prior_completed_run": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+                "skipped": false
+              },
+              "lag_calendar_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-15",
+                "lag_calendar_days": 7
+              }
+            }
+          },
+          {
+            "symbol": "ADSK",
+            "cik": "0000769397",
+            "signal_available_date": "2025-11-27",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "baseline_production_equivalent": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+              },
+              "alternate_prior_completed_run": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+                "skipped": false
+              },
+              "lag_calendar_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "lag_calendar_days": 7
+              }
+            }
+          },
+          {
+            "symbol": "CRM",
+            "cik": "0001108524",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "baseline_production_equivalent": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+              },
+              "alternate_prior_completed_run": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+                "skipped": false
+              },
+              "lag_calendar_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-11",
+                "lag_calendar_days": 7
+              }
+            }
+          },
+          {
+            "symbol": "CRWD",
+            "cik": "0001535527",
+            "signal_available_date": "2025-12-03",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "baseline_production_equivalent": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+              },
+              "alternate_prior_completed_run": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+                "skipped": false
+              },
+              "lag_calendar_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-10",
+                "lag_calendar_days": 7
+              }
+            }
+          },
+          {
+            "symbol": "DELL",
+            "cik": "0001571996",
+            "signal_available_date": "2025-12-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "baseline_production_equivalent": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+              },
+              "alternate_prior_completed_run": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+                "skipped": false
+              },
+              "lag_calendar_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-17",
+                "lag_calendar_days": 7
+              }
+            }
+          },
+          {
+            "symbol": "DUK",
+            "cik": "0001326160",
+            "signal_available_date": "2025-11-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "baseline_production_equivalent": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+              },
+              "alternate_prior_completed_run": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+                "skipped": false
+              },
+              "lag_calendar_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-17",
+                "lag_calendar_days": 7
+              }
+            }
+          },
+          {
+            "symbol": "NVDA",
+            "cik": "0001045810",
+            "signal_available_date": "2025-11-20",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "baseline_production_equivalent": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+              },
+              "alternate_prior_completed_run": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+                "skipped": false
+              },
+              "lag_calendar_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-27",
+                "lag_calendar_days": 7
+              }
+            }
+          },
+          {
+            "symbol": "WMT",
+            "cik": "0000104169",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "baseline_production_equivalent": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd"
+              },
+              "alternate_prior_completed_run": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+                "skipped": false
+              },
+              "lag_calendar_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-11",
+                "lag_calendar_days": 7
+              }
+            }
+          }
+        ],
+        "summary_counts_by_spec": {
+          "baseline_production_equivalent": {
+            "still_join_key_mismatch": 8,
+            "reclassified_to_joined": 0,
+            "reclassified_to_other_exclusion": 0,
+            "invalid_due_to_leakage_or_non_pit": 0
+          },
+          "alternate_prior_completed_run": {
+            "still_join_key_mismatch": 8,
+            "reclassified_to_joined": 0,
+            "reclassified_to_other_exclusion": 0,
+            "invalid_due_to_leakage_or_non_pit": 0
+          },
+          "lag_calendar_signal_bound": {
+            "still_join_key_mismatch": 8,
+            "reclassified_to_joined": 0,
+            "reclassified_to_other_exclusion": 0,
+            "invalid_due_to_leakage_or_non_pit": 0
+          }
+        },
+        "joined_any_row": false,
+        "leakage_audit": {
+          "passed": true,
+          "violations": [],
+          "rule": "Any picked row must have as_of_date <= signal_bound for that spec."
+        }
+      },
+      {
+        "family_id": "score_publication_cadence_v1",
+        "hypothesis_id": "hyp_score_publication_cadence_run_grid_lag_v1",
+        "spec_keys_executed": [
+          "run_completion_anchored_signal_bound"
+        ],
+        "description": "Cap evaluation date by run completion so scores are not treated as available before the run finished.",
+        "row_results": [
+          {
+            "symbol": "BBY",
+            "cik": "0000764478",
+            "signal_available_date": "2025-12-08",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "run_completion_anchored_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-08",
+                "run_finished_at_date": "2026-04-09",
+                "bound_rule": "min(signal_available_date, state_change_run_finished_at_date)"
+              }
+            }
+          },
+          {
+            "symbol": "ADSK",
+            "cik": "0000769397",
+            "signal_available_date": "2025-11-27",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "run_completion_anchored_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-27",
+                "run_finished_at_date": "2026-04-09",
+                "bound_rule": "min(signal_available_date, state_change_run_finished_at_date)"
+              }
+            }
+          },
+          {
+            "symbol": "CRM",
+            "cik": "0001108524",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "run_completion_anchored_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "run_finished_at_date": "2026-04-09",
+                "bound_rule": "min(signal_available_date, state_change_run_finished_at_date)"
+              }
+            }
+          },
+          {
+            "symbol": "CRWD",
+            "cik": "0001535527",
+            "signal_available_date": "2025-12-03",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "run_completion_anchored_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-03",
+                "run_finished_at_date": "2026-04-09",
+                "bound_rule": "min(signal_available_date, state_change_run_finished_at_date)"
+              }
+            }
+          },
+          {
+            "symbol": "DELL",
+            "cik": "0001571996",
+            "signal_available_date": "2025-12-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "run_completion_anchored_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-10",
+                "run_finished_at_date": "2026-04-09",
+                "bound_rule": "min(signal_available_date, state_change_run_finished_at_date)"
+              }
+            }
+          },
+          {
+            "symbol": "DUK",
+            "cik": "0001326160",
+            "signal_available_date": "2025-11-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "run_completion_anchored_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-10",
+                "run_finished_at_date": "2026-04-09",
+                "bound_rule": "min(signal_available_date, state_change_run_finished_at_date)"
+              }
+            }
+          },
+          {
+            "symbol": "NVDA",
+            "cik": "0001045810",
+            "signal_available_date": "2025-11-20",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "run_completion_anchored_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-20",
+                "run_finished_at_date": "2026-04-09",
+                "bound_rule": "min(signal_available_date, state_change_run_finished_at_date)"
+              }
+            }
+          },
+          {
+            "symbol": "WMT",
+            "cik": "0000104169",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "run_completion_anchored_signal_bound": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "run_finished_at_date": "2026-04-09",
+                "bound_rule": "min(signal_available_date, state_change_run_finished_at_date)"
+              }
+            }
+          }
+        ],
+        "summary_counts_by_spec": {
+          "run_completion_anchored_signal_bound": {
+            "still_join_key_mismatch": 8,
+            "reclassified_to_joined": 0,
+            "reclassified_to_other_exclusion": 0,
+            "invalid_due_to_leakage_or_non_pit": 0
+          }
+        },
+        "joined_any_row": false,
+        "leakage_audit": {
+          "passed": true,
+          "violations": [],
+          "rule": "Any picked row must have as_of_date <= signal_bound for that spec."
+        }
+      },
+      {
+        "family_id": "signal_filing_boundary_v1",
+        "hypothesis_id": "hyp_signal_availability_filing_boundary_v1",
+        "spec_keys_executed": [
+          "filing_public_ts_strict_pick"
+        ],
+        "description": "Strict PIT pick at proxy filing-public bound (signal_available_date when filing ts absent).",
+        "row_results": [
+          {
+            "symbol": "BBY",
+            "cik": "0000764478",
+            "signal_available_date": "2025-12-08",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-08",
+                "filing_public_ts_proxy": "signal_available_date",
+                "note": "EDGAR filing timestamps not in substrate; strict pick uses recipe signal date as documented proxy."
+              }
+            }
+          },
+          {
+            "symbol": "ADSK",
+            "cik": "0000769397",
+            "signal_available_date": "2025-11-27",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-27",
+                "filing_public_ts_proxy": "signal_available_date",
+                "note": "EDGAR filing timestamps not in substrate; strict pick uses recipe signal date as documented proxy."
+              }
+            }
+          },
+          {
+            "symbol": "CRM",
+            "cik": "0001108524",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "filing_public_ts_proxy": "signal_available_date",
+                "note": "EDGAR filing timestamps not in substrate; strict pick uses recipe signal date as documented proxy."
+              }
+            }
+          },
+          {
+            "symbol": "CRWD",
+            "cik": "0001535527",
+            "signal_available_date": "2025-12-03",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-03",
+                "filing_public_ts_proxy": "signal_available_date",
+                "note": "EDGAR filing timestamps not in substrate; strict pick uses recipe signal date as documented proxy."
+              }
+            }
+          },
+          {
+            "symbol": "DELL",
+            "cik": "0001571996",
+            "signal_available_date": "2025-12-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-10",
+                "filing_public_ts_proxy": "signal_available_date",
+                "note": "EDGAR filing timestamps not in substrate; strict pick uses recipe signal date as documented proxy."
+              }
+            }
+          },
+          {
+            "symbol": "DUK",
+            "cik": "0001326160",
+            "signal_available_date": "2025-11-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-10",
+                "filing_public_ts_proxy": "signal_available_date",
+                "note": "EDGAR filing timestamps not in substrate; strict pick uses recipe signal date as documented proxy."
+              }
+            }
+          },
+          {
+            "symbol": "NVDA",
+            "cik": "0001045810",
+            "signal_available_date": "2025-11-20",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-20",
+                "filing_public_ts_proxy": "signal_available_date",
+                "note": "EDGAR filing timestamps not in substrate; strict pick uses recipe signal date as documented proxy."
+              }
+            }
+          },
+          {
+            "symbol": "WMT",
+            "cik": "0000104169",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "filing_public_ts_strict_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "filing_public_ts_proxy": "signal_available_date",
+                "note": "EDGAR filing timestamps not in substrate; strict pick uses recipe signal date as documented proxy."
+              }
+            }
+          }
+        ],
+        "summary_counts_by_spec": {
+          "filing_public_ts_strict_pick": {
+            "still_join_key_mismatch": 8,
+            "reclassified_to_joined": 0,
+            "reclassified_to_other_exclusion": 0,
+            "invalid_due_to_leakage_or_non_pit": 0
+          }
+        },
+        "joined_any_row": false,
+        "leakage_audit": {
+          "passed": true,
+          "violations": [],
+          "rule": "Any picked row must have as_of_date <= signal_bound for that spec."
+        }
+      },
+      {
+        "family_id": "governance_join_policy_v1",
+        "hypothesis_id": "hyp_governance_safe_alternate_join_policy_v1",
+        "spec_keys_executed": [
+          "governance_registry_bound_pick"
+        ],
+        "description": "Governance registry: extended calendar lag for join evaluation bound.",
+        "row_results": [
+          {
+            "symbol": "BBY",
+            "cik": "0000764478",
+            "signal_available_date": "2025-12-08",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "governance_registry_bound_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-22",
+                "governance_lag_calendar_days": 14,
+                "registry_policy": "governance_registry_bound_pick_v1",
+                "spec_meta": {
+                  "registry_path": "data/research_engine/governance_join_policy_registry_v1.json"
+                }
+              }
+            }
+          },
+          {
+            "symbol": "ADSK",
+            "cik": "0000769397",
+            "signal_available_date": "2025-11-27",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "governance_registry_bound_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-11",
+                "governance_lag_calendar_days": 14,
+                "registry_policy": "governance_registry_bound_pick_v1",
+                "spec_meta": {
+                  "registry_path": "data/research_engine/governance_join_policy_registry_v1.json"
+                }
+              }
+            }
+          },
+          {
+            "symbol": "CRM",
+            "cik": "0001108524",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "governance_registry_bound_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-18",
+                "governance_lag_calendar_days": 14,
+                "registry_policy": "governance_registry_bound_pick_v1",
+                "spec_meta": {
+                  "registry_path": "data/research_engine/governance_join_policy_registry_v1.json"
+                }
+              }
+            }
+          },
+          {
+            "symbol": "CRWD",
+            "cik": "0001535527",
+            "signal_available_date": "2025-12-03",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "governance_registry_bound_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-17",
+                "governance_lag_calendar_days": 14,
+                "registry_policy": "governance_registry_bound_pick_v1",
+                "spec_meta": {
+                  "registry_path": "data/research_engine/governance_join_policy_registry_v1.json"
+                }
+              }
+            }
+          },
+          {
+            "symbol": "DELL",
+            "cik": "0001571996",
+            "signal_available_date": "2025-12-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "governance_registry_bound_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-24",
+                "governance_lag_calendar_days": 14,
+                "registry_policy": "governance_registry_bound_pick_v1",
+                "spec_meta": {
+                  "registry_path": "data/research_engine/governance_join_policy_registry_v1.json"
+                }
+              }
+            }
+          },
+          {
+            "symbol": "DUK",
+            "cik": "0001326160",
+            "signal_available_date": "2025-11-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "governance_registry_bound_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-24",
+                "governance_lag_calendar_days": 14,
+                "registry_policy": "governance_registry_bound_pick_v1",
+                "spec_meta": {
+                  "registry_path": "data/research_engine/governance_join_policy_registry_v1.json"
+                }
+              }
+            }
+          },
+          {
+            "symbol": "NVDA",
+            "cik": "0001045810",
+            "signal_available_date": "2025-11-20",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "governance_registry_bound_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "governance_lag_calendar_days": 14,
+                "registry_policy": "governance_registry_bound_pick_v1",
+                "spec_meta": {
+                  "registry_path": "data/research_engine/governance_join_policy_registry_v1.json"
+                }
+              }
+            }
+          },
+          {
+            "symbol": "WMT",
+            "cik": "0000104169",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "governance_registry_bound_pick": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-18",
+                "governance_lag_calendar_days": 14,
+                "registry_policy": "governance_registry_bound_pick_v1",
+                "spec_meta": {
+                  "registry_path": "data/research_engine/governance_join_policy_registry_v1.json"
+                }
+              }
+            }
+          }
+        ],
+        "summary_counts_by_spec": {
+          "governance_registry_bound_pick": {
+            "still_join_key_mismatch": 8,
+            "reclassified_to_joined": 0,
+            "reclassified_to_other_exclusion": 0,
+            "invalid_due_to_leakage_or_non_pit": 0
+          }
+        },
+        "joined_any_row": false,
+        "leakage_audit": {
+          "passed": true,
+          "violations": [],
+          "rule": "Any picked row must have as_of_date <= signal_bound for that spec."
+        }
+      },
+      {
+        "family_id": "issuer_sector_reporting_cadence_v1",
+        "hypothesis_id": "hyp_issuer_sector_reporting_cadence_v1",
+        "spec_keys_executed": [
+          "stratified_fixture_only_replay"
+        ],
+        "description": "Replay production-equivalent pick on the 8-row fixture cohort only (stratified scope).",
+        "row_results": [
+          {
+            "symbol": "BBY",
+            "cik": "0000764478",
+            "signal_available_date": "2025-12-08",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "stratified_fixture_only_replay": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-08",
+                "stratum": "join_key_mismatch_fixture_only",
+                "replay": "production_equivalent_pick"
+              }
+            }
+          },
+          {
+            "symbol": "ADSK",
+            "cik": "0000769397",
+            "signal_available_date": "2025-11-27",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "stratified_fixture_only_replay": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-27",
+                "stratum": "join_key_mismatch_fixture_only",
+                "replay": "production_equivalent_pick"
+              }
+            }
+          },
+          {
+            "symbol": "CRM",
+            "cik": "0001108524",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "stratified_fixture_only_replay": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "stratum": "join_key_mismatch_fixture_only",
+                "replay": "production_equivalent_pick"
+              }
+            }
+          },
+          {
+            "symbol": "CRWD",
+            "cik": "0001535527",
+            "signal_available_date": "2025-12-03",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "stratified_fixture_only_replay": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-03",
+                "stratum": "join_key_mismatch_fixture_only",
+                "replay": "production_equivalent_pick"
+              }
+            }
+          },
+          {
+            "symbol": "DELL",
+            "cik": "0001571996",
+            "signal_available_date": "2025-12-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "stratified_fixture_only_replay": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-10",
+                "stratum": "join_key_mismatch_fixture_only",
+                "replay": "production_equivalent_pick"
+              }
+            }
+          },
+          {
+            "symbol": "DUK",
+            "cik": "0001326160",
+            "signal_available_date": "2025-11-10",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "stratified_fixture_only_replay": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-10",
+                "stratum": "join_key_mismatch_fixture_only",
+                "replay": "production_equivalent_pick"
+              }
+            }
+          },
+          {
+            "symbol": "NVDA",
+            "cik": "0001045810",
+            "signal_available_date": "2025-11-20",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "stratified_fixture_only_replay": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-11-20",
+                "stratum": "join_key_mismatch_fixture_only",
+                "replay": "production_equivalent_pick"
+              }
+            }
+          },
+          {
+            "symbol": "WMT",
+            "cik": "0000104169",
+            "signal_available_date": "2025-12-04",
+            "fixture_residual_join_bucket": "state_change_built_but_join_key_mismatch",
+            "spec_results": {
+              "stratified_fixture_only_replay": {
+                "outcome_category": "still_join_key_mismatch",
+                "pick_reason": "state_change_built_but_join_key_mismatch",
+                "detail": {
+                  "pick_reason": "state_change_built_but_join_key_mismatch"
+                },
+                "state_change_run_id": "223e2aa5-3879-4dee-b28f-3d579cbf4cbd",
+                "effective_signal_bound": "2025-12-04",
+                "stratum": "join_key_mismatch_fixture_only",
+                "replay": "production_equivalent_pick"
+              }
+            }
+          }
+        ],
+        "summary_counts_by_spec": {
+          "stratified_fixture_only_replay": {
+            "still_join_key_mismatch": 8,
+            "reclassified_to_joined": 0,
+            "reclassified_to_other_exclusion": 0,
+            "invalid_due_to_leakage_or_non_pit": 0
+          }
+        },
+        "joined_any_row": false,
+        "leakage_audit": {
+          "passed": true,
+          "violations": [],
+          "rule": "Any picked row must have as_of_date <= signal_bound for that spec."
+        }
+      }
+    ],
+    "families_executed_count": 5,
+    "implemented_family_spec_count": 7,
+    "all_families_leakage_passed": true,
+    "dynamic_schema": {
+      "row_shape": "spec_results: dict[spec_key, outcome_cell]",
+      "standard_outcome_buckets": [
+        "still_join_key_mismatch",
+        "reclassified_to_joined",
+        "reclassified_to_other_exclusion",
+        "invalid_due_to_leakage_or_non_pit"
+      ]
+    }
+  },
+  "pit_contract_manifest": {
+    "contract_version": 2,
+    "fixture_class": "join_key_mismatch_8",
+    "phase38_bundle_ref": "docs/operator_closeout/phase38_db_bound_pit_runner_bundle.json",
+    "dynamic_row_schema": {
+      "spec_results": "dict[str, outcome_cell]",
+      "standard_outcome_buckets": [
+        "still_join_key_mismatch",
+        "reclassified_to_joined",
+        "reclassified_to_other_exclusion",
+        "invalid_due_to_leakage_or_non_pit"
+      ]
+    },
+    "leakage_audit_rule": "Any picked row must have as_of_date <= signal_bound for that spec.",
+    "families": [
+      {
+        "family_id": "pit_as_of_boundary_v1",
+        "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+        "implemented_spec_keys": [
+          "baseline_production_equivalent",
+          "alternate_prior_completed_run",
+          "lag_calendar_signal_bound"
+        ]
+      },
+      {
+        "family_id": "score_publication_cadence_v1",
+        "hypothesis_id": "hyp_score_publication_cadence_run_grid_lag_v1",
+        "implemented_spec_keys": [
+          "run_completion_anchored_signal_bound"
+        ]
+      },
+      {
+        "family_id": "signal_filing_boundary_v1",
+        "hypothesis_id": "hyp_signal_availability_filing_boundary_v1",
+        "implemented_spec_keys": [
+          "filing_public_ts_strict_pick"
+        ]
+      },
+      {
+        "family_id": "governance_join_policy_v1",
+        "hypothesis_id": "hyp_governance_safe_alternate_join_policy_v1",
+        "implemented_spec_keys": [
+          "governance_registry_bound_pick"
+        ]
+      },
+      {
+        "family_id": "issuer_sector_reporting_cadence_v1",
+        "hypothesis_id": "hyp_issuer_sector_reporting_cadence_v1",
+        "implemented_spec_keys": [
+          "stratified_fixture_only_replay"
+        ]
+      }
+    ]
+  },
+  "implemented_family_spec_count": 7,
+  "families_executed_count": 5,
+  "family_level_summary": [
+    {
+      "family_id": "pit_as_of_boundary_v1",
+      "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+      "spec_keys": [
+        "baseline_production_equivalent",
+        "alternate_prior_completed_run",
+        "lag_calendar_signal_bound"
+      ],
+      "leakage_passed": true,
+      "joined_any_row": false,
+      "summary_counts_by_spec": {
+        "baseline_production_equivalent": {
+          "still_join_key_mismatch": 8,
+          "reclassified_to_joined": 0,
+          "reclassified_to_other_exclusion": 0,
+          "invalid_due_to_leakage_or_non_pit": 0
+        },
+        "alternate_prior_completed_run": {
+          "still_join_key_mismatch": 8,
+          "reclassified_to_joined": 0,
+          "reclassified_to_other_exclusion": 0,
+          "invalid_due_to_leakage_or_non_pit": 0
+        },
+        "lag_calendar_signal_bound": {
+          "still_join_key_mismatch": 8,
+          "reclassified_to_joined": 0,
+          "reclassified_to_other_exclusion": 0,
+          "invalid_due_to_leakage_or_non_pit": 0
+        }
+      }
+    },
+    {
+      "family_id": "score_publication_cadence_v1",
+      "hypothesis_id": "hyp_score_publication_cadence_run_grid_lag_v1",
+      "spec_keys": [
+        "run_completion_anchored_signal_bound"
+      ],
+      "leakage_passed": true,
+      "joined_any_row": false,
+      "summary_counts_by_spec": {
+        "run_completion_anchored_signal_bound": {
+          "still_join_key_mismatch": 8,
+          "reclassified_to_joined": 0,
+          "reclassified_to_other_exclusion": 0,
+          "invalid_due_to_leakage_or_non_pit": 0
+        }
+      }
+    },
+    {
+      "family_id": "signal_filing_boundary_v1",
+      "hypothesis_id": "hyp_signal_availability_filing_boundary_v1",
+      "spec_keys": [
+        "filing_public_ts_strict_pick"
+      ],
+      "leakage_passed": true,
+      "joined_any_row": false,
+      "summary_counts_by_spec": {
+        "filing_public_ts_strict_pick": {
+          "still_join_key_mismatch": 8,
+          "reclassified_to_joined": 0,
+          "reclassified_to_other_exclusion": 0,
+          "invalid_due_to_leakage_or_non_pit": 0
+        }
+      }
+    },
+    {
+      "family_id": "governance_join_policy_v1",
+      "hypothesis_id": "hyp_governance_safe_alternate_join_policy_v1",
+      "spec_keys": [
+        "governance_registry_bound_pick"
+      ],
+      "leakage_passed": true,
+      "joined_any_row": false,
+      "summary_counts_by_spec": {
+        "governance_registry_bound_pick": {
+          "still_join_key_mismatch": 8,
+          "reclassified_to_joined": 0,
+          "reclassified_to_other_exclusion": 0,
+          "invalid_due_to_leakage_or_non_pit": 0
+        }
+      }
+    },
+    {
+      "family_id": "issuer_sector_reporting_cadence_v1",
+      "hypothesis_id": "hyp_issuer_sector_reporting_cadence_v1",
+      "spec_keys": [
+        "stratified_fixture_only_replay"
+      ],
+      "leakage_passed": true,
+      "joined_any_row": false,
+      "summary_counts_by_spec": {
+        "stratified_fixture_only_replay": {
+          "still_join_key_mismatch": 8,
+          "reclassified_to_joined": 0,
+          "reclassified_to_other_exclusion": 0,
+          "invalid_due_to_leakage_or_non_pit": 0
+        }
+      }
+    }
+  ],
+  "leakage_audit_by_family": {
+    "pit_as_of_boundary_v1": true,
+    "score_publication_cadence_v1": true,
+    "signal_filing_boundary_v1": true,
+    "governance_join_policy_v1": true,
+    "issuer_sector_reporting_cadence_v1": true
+  },
+  "lifecycle_after": {
+    "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+    "hyp_score_publication_cadence_run_grid_lag_v1": "conditionally_supported",
+    "hyp_signal_availability_filing_boundary_v1": "conditionally_supported",
+    "hyp_issuer_sector_reporting_cadence_v1": "conditionally_supported",
+    "hyp_governance_safe_alternate_join_policy_v1": "conditionally_supported"
+  },
+  "lifecycle_status_distribution": {
+    "challenged": 1,
+    "conditionally_supported": 4
+  },
+  "adversarial_reviews_after_count": 8,
+  "adversarial_review_count_by_family_tag": {
+    "score_publication_cadence_v1": 1,
+    "signal_filing_boundary_v1": 1,
+    "governance_join_policy_v1": 1,
+    "issuer_sector_reporting_cadence_v1": 1
+  },
+  "promotion_gate_phase40": {
+    "schema_version": 3,
+    "phase": "phase40",
+    "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+    "gate_status": "deferred",
+    "primary_block_category": "conditionally_supported_but_not_promotable",
+    "lifecycle_snapshot": {
+      "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+      "hyp_score_publication_cadence_run_grid_lag_v1": "conditionally_supported",
+      "hyp_signal_availability_filing_boundary_v1": "conditionally_supported",
+      "hyp_issuer_sector_reporting_cadence_v1": "conditionally_supported",
+      "hyp_governance_safe_alternate_join_policy_v1": "conditionally_supported"
+    },
+    "blocking_reasons": [
+      "families_executed_under_shared_audit",
+      "evidence_accumulated_without_product_clearance",
+      "primary_hypothesis_remains_challenged"
+    ],
+    "reviewer_dependencies": [
+      "17b65b06-5001-401a-be26-25064897af17",
+      "2ebe74f8-5cef-403a-80de-c870956531c0",
+      "375bd61b-7f6a-44a4-af9a-15da3be06166",
+      "28897175-48a8-4de3-93d5-f906f67a5a4a"
+    ],
+    "required_followups": [
+      "Wire filing timestamps or sector metadata if filing/sector hypotheses should falsify.",
+      "Re-run gate after Phase 41 substrate or narrative tightening."
+    ],
+    "promotion_decision_notes": "Phase 40: family-specific PIT execution under shared leakage rule. No auto-promotion.",
+    "phase40_context": {
+      "families_executed_count": 5,
+      "implemented_family_spec_count": 7,
+      "all_families_leakage_passed": true,
+      "any_family_joined_row": false,
+      "conditionally_supported_hypothesis_count": 4
+    },
+    "prior_gate_digest": {
+      "had_schema_version": 3,
+      "prior_primary_block_category": "conditionally_supported_but_not_promotable"
+    }
+  },
+  "phase41": {
+    "phase41_recommendation": "wire_filing_and_sector_substrate_for_hypothesis_falsification_and_explanation_v4",
+    "rationale": "Phase 40 executed all bounded family specs; several hypotheses remain limited by proxies (filing ts, sector stratification). Next progress is substrate for falsifiers, not more generic PIT keys alone."
+  },
+  "promotion_gate_history_path": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/promotion_gate_history_v1.json",
+  "persistent_writes": {
+    "hypotheses_v1": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/hypotheses_v1.json",
+    "adversarial_reviews_v1": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/adversarial_reviews_v1.json",
+    "promotion_gate_v1": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/promotion_gate_v1.json",
+    "promotion_gate_history_v1": "/Users/hyunminkim/GenAIProacTrade/data/research_engine/promotion_gate_history_v1.json"
+  },
+  "explanation_v3": {
+    "format": "markdown",
+    "path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase40_explanation_surface_v3.md"
+  }
+}

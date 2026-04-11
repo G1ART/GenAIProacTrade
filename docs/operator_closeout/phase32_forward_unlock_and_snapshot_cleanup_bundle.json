@@ -1,0 +1,1914 @@
+{
+  "ok": true,
+  "universe_name": "sp500_current",
+  "phase31_bundle_path": "docs/operator_closeout/phase31_raw_facts_bridge_bundle.json",
+  "before": {
+    "joined_recipe_substrate_row_count": 243,
+    "joined_market_metadata_flagged_count": 0,
+    "thin_input_share": 1.0,
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 91,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 161
+    },
+    "missing_validation_symbol_count": 161,
+    "registry_gap_rollup": {
+      "registry_blocker_symbol_total": 161,
+      "registry_repair_automation_eligible_count": 3,
+      "registry_upstream_or_pipeline_deferred_count": 158,
+      "per_bucket": {
+        "factor_panel_missing_for_resolved_cik": 158,
+        "issuer_master_missing_for_resolved_cik": 0,
+        "missing_symbol_alias_mapping": 0,
+        "missing_symbol_in_market_symbol_registry": 0,
+        "symbol_normalization_mismatch": 3,
+        "symbol_to_cik_registry_miss": 0,
+        "validation_panel_build_omission_for_cik": 0
+      }
+    },
+    "factor_panel_missing_for_resolved_cik": 158,
+    "missing_quarter_snapshot_for_cik": 158,
+    "quarter_snapshot_classification_counts": {
+      "no_filing_index_for_cik": 147,
+      "raw_present_no_silver_facts": 1,
+      "silver_present_snapshot_materialization_missing": 10
+    },
+    "missing_excess_return_1q": 91
+  },
+  "after": {
+    "joined_recipe_substrate_row_count": 243,
+    "joined_market_metadata_flagged_count": 0,
+    "thin_input_share": 1.0,
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 101,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 151
+    },
+    "missing_validation_symbol_count": 151,
+    "registry_gap_rollup": {
+      "registry_blocker_symbol_total": 151,
+      "registry_repair_automation_eligible_count": 3,
+      "registry_upstream_or_pipeline_deferred_count": 148,
+      "per_bucket": {
+        "factor_panel_missing_for_resolved_cik": 148,
+        "issuer_master_missing_for_resolved_cik": 0,
+        "missing_symbol_alias_mapping": 0,
+        "missing_symbol_in_market_symbol_registry": 0,
+        "symbol_normalization_mismatch": 3,
+        "symbol_to_cik_registry_miss": 0,
+        "validation_panel_build_omission_for_cik": 0
+      }
+    },
+    "factor_panel_missing_for_resolved_cik": 148,
+    "missing_quarter_snapshot_for_cik": 148,
+    "quarter_snapshot_classification_counts": {
+      "no_filing_index_for_cik": 147,
+      "raw_present_no_silver_facts": 1
+    },
+    "missing_excess_return_1q": 101
+  },
+  "forward_gap_report_phase31_touched": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "phase31_touched_cik_count": 30,
+    "metrics": {
+      "universe_name": "sp500_current",
+      "as_of_date": "2026-04-05",
+      "n_issuer_universe": 503,
+      "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+      "panel_limit_used": 8000,
+      "state_change_scores_limit_used": 50000,
+      "thin_input_share": 1.0,
+      "degraded_share": 0.0,
+      "strong_share": 0.0,
+      "usable_with_gaps_share": 0.0,
+      "n_issuer_resolved_cik": 500,
+      "n_issuer_with_factor_panel": 342,
+      "n_issuer_with_state_change_cik": 312,
+      "validation_panel_row_count": 342,
+      "n_issuer_no_validation_panel_row": 161,
+      "n_issuer_with_validation_panel_symbol": 342,
+      "n_issuer_with_next_quarter_excess": 251,
+      "validation_join_row_count": 251,
+      "joined_recipe_substrate_row_count": 243,
+      "dominant_exclusion_reasons": [
+        {
+          "reason": "no_validation_panel_for_symbol",
+          "count": 161
+        },
+        {
+          "reason": "missing_excess_return_1q",
+          "count": 91
+        },
+        {
+          "reason": "no_state_change_join",
+          "count": 8
+        }
+      ]
+    },
+    "exclusion_distribution": {
+      "missing_excess_return_1q": 91,
+      "no_state_change_join": 8,
+      "no_validation_panel_for_symbol": 161
+    },
+    "missing_excess_return_1q_queue_size": 91,
+    "target_entries": [
+      {
+        "cik": "0000927653",
+        "cik_norm": "0000927653",
+        "symbol": "MCK",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0000927653-26-000017",
+        "signal_available_date": "2026-02-05",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001059556",
+        "cik_norm": "0001059556",
+        "symbol": "MCO",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001628280-25-046118",
+        "signal_available_date": "2025-10-24",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001613103",
+        "cik_norm": "0001613103",
+        "symbol": "MDT",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001628280-26-011107",
+        "signal_available_date": "2026-02-25",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001326801",
+        "cik_norm": "0001326801",
+        "symbol": "META",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001628280-25-047240",
+        "signal_available_date": "2025-10-30",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000789570",
+        "cik_norm": "0000789570",
+        "symbol": "MGM",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0000789570-25-000074",
+        "signal_available_date": "2025-10-30",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000063754",
+        "cik_norm": "0000063754",
+        "symbol": "MKC",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0000063754-26-000192",
+        "signal_available_date": "2026-04-01",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000916076",
+        "cik_norm": "0000916076",
+        "symbol": "MLM",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001193125-25-264566",
+        "signal_available_date": "2025-11-05",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000865752",
+        "cik_norm": "0000865752",
+        "symbol": "MNST",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001104659-25-107944",
+        "signal_available_date": "2025-11-07",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000764180",
+        "cik_norm": "0000764180",
+        "symbol": "MO",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0000764180-25-000130",
+        "signal_available_date": "2025-10-31",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001285785",
+        "cik_norm": "0001285785",
+        "symbol": "MOS",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001628280-25-049494",
+        "signal_available_date": "2025-11-06",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001280452",
+        "cik_norm": "0001280452",
+        "symbol": "MPWR",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001437749-25-033332",
+        "signal_available_date": "2025-11-06",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001682852",
+        "cik_norm": "0001682852",
+        "symbol": "MRNA",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001682852-25-000075",
+        "signal_available_date": "2025-11-07",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000062709",
+        "cik_norm": "0000062709",
+        "symbol": "MRSH",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0000062709-25-000125",
+        "signal_available_date": "2025-10-17",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001408198",
+        "cik_norm": "0001408198",
+        "symbol": "MSCI",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001408198-25-000196",
+        "signal_available_date": "2025-10-29",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000068505",
+        "cik_norm": "0000068505",
+        "symbol": "MSI",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0000068505-25-000052",
+        "signal_available_date": "2025-10-31",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001037646",
+        "cik_norm": "0001037646",
+        "symbol": "MTD",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001037646-25-000058",
+        "signal_available_date": "2025-11-10",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000723125",
+        "cik_norm": "0000723125",
+        "symbol": "MU",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0000723125-26-000006",
+        "signal_available_date": "2026-03-19",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001513761",
+        "cik_norm": "0001513761",
+        "symbol": "NCLH",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001104659-25-106057",
+        "signal_available_date": "2025-11-05",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000072331",
+        "cik_norm": "0000072331",
+        "symbol": "NDSN",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0000072331-26-000014",
+        "signal_available_date": "2026-02-20",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000753308",
+        "cik_norm": "0000753308",
+        "symbol": "NEE",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0000753308-25-000056",
+        "signal_available_date": "2025-10-29",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001065280",
+        "cik_norm": "0001065280",
+        "symbol": "NFLX",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001065280-25-000406",
+        "signal_available_date": "2025-10-23",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001111711",
+        "cik_norm": "0001111711",
+        "symbol": "NI",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001111711-25-000055",
+        "signal_available_date": "2025-10-30",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001133421",
+        "cik_norm": "0001133421",
+        "symbol": "NOC",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001133421-25-000053",
+        "signal_available_date": "2025-10-22",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001013871",
+        "cik_norm": "0001013871",
+        "symbol": "NRG",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001013871-25-000025",
+        "signal_available_date": "2025-11-07",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000702165",
+        "cik_norm": "0000702165",
+        "symbol": "NSC",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001628280-25-046128",
+        "signal_available_date": "2025-10-24",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001002047",
+        "cik_norm": "0001002047",
+        "symbol": "NTAP",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001193125-26-076622",
+        "signal_available_date": "2026-02-27",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000073309",
+        "cik_norm": "0000073309",
+        "symbol": "NUE",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001193125-25-276207",
+        "signal_available_date": "2025-11-13",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0000906163",
+        "cik_norm": "0000906163",
+        "symbol": "NVR",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0000906163-25-000121",
+        "signal_available_date": "2025-11-06",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001564708",
+        "cik_norm": "0001564708",
+        "symbol": "NWSA",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001564708-26-000029",
+        "signal_available_date": "2026-02-09",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      },
+      {
+        "cik": "0001413447",
+        "cik_norm": "0001413447",
+        "symbol": "NXPI",
+        "in_phase31_touched": true,
+        "in_missing_excess_return_1q_queue": true,
+        "accession_no": "0001413447-25-000120",
+        "signal_available_date": "2025-10-29",
+        "diagnose_bucket": "no_forward_row_next_quarter",
+        "blockage_class": "build_not_attempted_or_no_forward_row"
+      }
+    ],
+    "diagnose_bucket_counts": {
+      "no_forward_row_next_quarter": 30
+    },
+    "blockage_class_counts": {
+      "build_not_attempted_or_no_forward_row": 30
+    }
+  },
+  "forward_return_backfill_phase31_touched": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "forward_gap_report": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "phase31_touched_cik_count": 30,
+      "metrics": {
+        "universe_name": "sp500_current",
+        "as_of_date": "2026-04-05",
+        "n_issuer_universe": 503,
+        "state_change_run_id": "39208f19-8d0e-4c35-9950-78963bb59a97",
+        "panel_limit_used": 8000,
+        "state_change_scores_limit_used": 50000,
+        "thin_input_share": 1.0,
+        "degraded_share": 0.0,
+        "strong_share": 0.0,
+        "usable_with_gaps_share": 0.0,
+        "n_issuer_resolved_cik": 500,
+        "n_issuer_with_factor_panel": 342,
+        "n_issuer_with_state_change_cik": 312,
+        "validation_panel_row_count": 342,
+        "n_issuer_no_validation_panel_row": 161,
+        "n_issuer_with_validation_panel_symbol": 342,
+        "n_issuer_with_next_quarter_excess": 251,
+        "validation_join_row_count": 251,
+        "joined_recipe_substrate_row_count": 243,
+        "dominant_exclusion_reasons": [
+          {
+            "reason": "no_validation_panel_for_symbol",
+            "count": 161
+          },
+          {
+            "reason": "missing_excess_return_1q",
+            "count": 91
+          },
+          {
+            "reason": "no_state_change_join",
+            "count": 8
+          }
+        ]
+      },
+      "exclusion_distribution": {
+        "missing_excess_return_1q": 91,
+        "no_state_change_join": 8,
+        "no_validation_panel_for_symbol": 161
+      },
+      "missing_excess_return_1q_queue_size": 91,
+      "target_entries": [
+        {
+          "cik": "0000927653",
+          "cik_norm": "0000927653",
+          "symbol": "MCK",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0000927653-26-000017",
+          "signal_available_date": "2026-02-05",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001059556",
+          "cik_norm": "0001059556",
+          "symbol": "MCO",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001628280-25-046118",
+          "signal_available_date": "2025-10-24",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001613103",
+          "cik_norm": "0001613103",
+          "symbol": "MDT",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001628280-26-011107",
+          "signal_available_date": "2026-02-25",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001326801",
+          "cik_norm": "0001326801",
+          "symbol": "META",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001628280-25-047240",
+          "signal_available_date": "2025-10-30",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000789570",
+          "cik_norm": "0000789570",
+          "symbol": "MGM",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0000789570-25-000074",
+          "signal_available_date": "2025-10-30",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000063754",
+          "cik_norm": "0000063754",
+          "symbol": "MKC",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0000063754-26-000192",
+          "signal_available_date": "2026-04-01",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000916076",
+          "cik_norm": "0000916076",
+          "symbol": "MLM",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001193125-25-264566",
+          "signal_available_date": "2025-11-05",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000865752",
+          "cik_norm": "0000865752",
+          "symbol": "MNST",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001104659-25-107944",
+          "signal_available_date": "2025-11-07",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000764180",
+          "cik_norm": "0000764180",
+          "symbol": "MO",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0000764180-25-000130",
+          "signal_available_date": "2025-10-31",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001285785",
+          "cik_norm": "0001285785",
+          "symbol": "MOS",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001628280-25-049494",
+          "signal_available_date": "2025-11-06",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001280452",
+          "cik_norm": "0001280452",
+          "symbol": "MPWR",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001437749-25-033332",
+          "signal_available_date": "2025-11-06",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001682852",
+          "cik_norm": "0001682852",
+          "symbol": "MRNA",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001682852-25-000075",
+          "signal_available_date": "2025-11-07",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000062709",
+          "cik_norm": "0000062709",
+          "symbol": "MRSH",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0000062709-25-000125",
+          "signal_available_date": "2025-10-17",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001408198",
+          "cik_norm": "0001408198",
+          "symbol": "MSCI",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001408198-25-000196",
+          "signal_available_date": "2025-10-29",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000068505",
+          "cik_norm": "0000068505",
+          "symbol": "MSI",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0000068505-25-000052",
+          "signal_available_date": "2025-10-31",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001037646",
+          "cik_norm": "0001037646",
+          "symbol": "MTD",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001037646-25-000058",
+          "signal_available_date": "2025-11-10",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000723125",
+          "cik_norm": "0000723125",
+          "symbol": "MU",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0000723125-26-000006",
+          "signal_available_date": "2026-03-19",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001513761",
+          "cik_norm": "0001513761",
+          "symbol": "NCLH",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001104659-25-106057",
+          "signal_available_date": "2025-11-05",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000072331",
+          "cik_norm": "0000072331",
+          "symbol": "NDSN",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0000072331-26-000014",
+          "signal_available_date": "2026-02-20",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000753308",
+          "cik_norm": "0000753308",
+          "symbol": "NEE",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0000753308-25-000056",
+          "signal_available_date": "2025-10-29",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001065280",
+          "cik_norm": "0001065280",
+          "symbol": "NFLX",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001065280-25-000406",
+          "signal_available_date": "2025-10-23",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001111711",
+          "cik_norm": "0001111711",
+          "symbol": "NI",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001111711-25-000055",
+          "signal_available_date": "2025-10-30",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001133421",
+          "cik_norm": "0001133421",
+          "symbol": "NOC",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001133421-25-000053",
+          "signal_available_date": "2025-10-22",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001013871",
+          "cik_norm": "0001013871",
+          "symbol": "NRG",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001013871-25-000025",
+          "signal_available_date": "2025-11-07",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000702165",
+          "cik_norm": "0000702165",
+          "symbol": "NSC",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001628280-25-046128",
+          "signal_available_date": "2025-10-24",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001002047",
+          "cik_norm": "0001002047",
+          "symbol": "NTAP",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001193125-26-076622",
+          "signal_available_date": "2026-02-27",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000073309",
+          "cik_norm": "0000073309",
+          "symbol": "NUE",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001193125-25-276207",
+          "signal_available_date": "2025-11-13",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0000906163",
+          "cik_norm": "0000906163",
+          "symbol": "NVR",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0000906163-25-000121",
+          "signal_available_date": "2025-11-06",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001564708",
+          "cik_norm": "0001564708",
+          "symbol": "NWSA",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001564708-26-000029",
+          "signal_available_date": "2026-02-09",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        },
+        {
+          "cik": "0001413447",
+          "cik_norm": "0001413447",
+          "symbol": "NXPI",
+          "in_phase31_touched": true,
+          "in_missing_excess_return_1q_queue": true,
+          "accession_no": "0001413447-25-000120",
+          "signal_available_date": "2025-10-29",
+          "diagnose_bucket": "no_forward_row_next_quarter",
+          "blockage_class": "build_not_attempted_or_no_forward_row"
+        }
+      ],
+      "diagnose_bucket_counts": {
+        "no_forward_row_next_quarter": 30
+      },
+      "blockage_class_counts": {
+        "build_not_attempted_or_no_forward_row": 30
+      }
+    },
+    "panels_built": 30,
+    "cik_accession_pairs": 30,
+    "forward_build": {
+      "status": "completed",
+      "panels_seen": 30,
+      "success_operations": 51,
+      "failures": 9,
+      "error_sample": [
+        {
+          "symbol": "MKC",
+          "signal_date": "2026-04-01",
+          "horizon": "next_month",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "MKC",
+          "signal_date": "2026-04-01",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "NDSN",
+          "signal_date": "2026-02-20",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "MU",
+          "signal_date": "2026-03-19",
+          "horizon": "next_month",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "MU",
+          "signal_date": "2026-03-19",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "MCK",
+          "signal_date": "2026-02-05",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "NTAP",
+          "signal_date": "2026-02-27",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "NWSA",
+          "signal_date": "2026-02-09",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        },
+        {
+          "symbol": "MDT",
+          "signal_date": "2026-02-25",
+          "horizon": "next_quarter",
+          "error": "insufficient_price_history"
+        }
+      ],
+      "skipped": false
+    },
+    "per_symbol_before": {
+      "MCK": {
+        "accession_no": "0000927653-26-000017",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2026-02-05"
+      },
+      "MCO": {
+        "accession_no": "0001628280-25-046118",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-24"
+      },
+      "MDT": {
+        "accession_no": "0001628280-26-011107",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2026-02-25"
+      },
+      "META": {
+        "accession_no": "0001628280-25-047240",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-30"
+      },
+      "MGM": {
+        "accession_no": "0000789570-25-000074",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-30"
+      },
+      "MKC": {
+        "accession_no": "0000063754-26-000192",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2026-04-01"
+      },
+      "MLM": {
+        "accession_no": "0001193125-25-264566",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-11-05"
+      },
+      "MNST": {
+        "accession_no": "0001104659-25-107944",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-11-07"
+      },
+      "MO": {
+        "accession_no": "0000764180-25-000130",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-31"
+      },
+      "MOS": {
+        "accession_no": "0001628280-25-049494",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-11-06"
+      },
+      "MPWR": {
+        "accession_no": "0001437749-25-033332",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-11-06"
+      },
+      "MRNA": {
+        "accession_no": "0001682852-25-000075",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-11-07"
+      },
+      "MRSH": {
+        "accession_no": "0000062709-25-000125",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-17"
+      },
+      "MSCI": {
+        "accession_no": "0001408198-25-000196",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-29"
+      },
+      "MSI": {
+        "accession_no": "0000068505-25-000052",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-31"
+      },
+      "MTD": {
+        "accession_no": "0001037646-25-000058",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-11-10"
+      },
+      "MU": {
+        "accession_no": "0000723125-26-000006",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2026-03-19"
+      },
+      "NCLH": {
+        "accession_no": "0001104659-25-106057",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-11-05"
+      },
+      "NDSN": {
+        "accession_no": "0000072331-26-000014",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2026-02-20"
+      },
+      "NEE": {
+        "accession_no": "0000753308-25-000056",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-29"
+      },
+      "NFLX": {
+        "accession_no": "0001065280-25-000406",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-23"
+      },
+      "NI": {
+        "accession_no": "0001111711-25-000055",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-30"
+      },
+      "NOC": {
+        "accession_no": "0001133421-25-000053",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-22"
+      },
+      "NRG": {
+        "accession_no": "0001013871-25-000025",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-11-07"
+      },
+      "NSC": {
+        "accession_no": "0001628280-25-046128",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-24"
+      },
+      "NTAP": {
+        "accession_no": "0001193125-26-076622",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2026-02-27"
+      },
+      "NUE": {
+        "accession_no": "0001193125-25-276207",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-11-13"
+      },
+      "NVR": {
+        "accession_no": "0000906163-25-000121",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-11-06"
+      },
+      "NWSA": {
+        "accession_no": "0001564708-26-000029",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2026-02-09"
+      },
+      "NXPI": {
+        "accession_no": "0001413447-25-000120",
+        "has_forward_row": false,
+        "raw_forward_return": null,
+        "excess_forward_return": null,
+        "signal_date": "2025-10-29"
+      }
+    },
+    "per_symbol_after": {
+      "MCK": {
+        "excess_forward_return": null,
+        "forward_return_unblocked_now": false
+      },
+      "MCO": {
+        "excess_forward_return": 0.04982438243867837,
+        "forward_return_unblocked_now": true
+      },
+      "MDT": {
+        "excess_forward_return": null,
+        "forward_return_unblocked_now": false
+      },
+      "META": {
+        "excess_forward_return": 0.05137391613747466,
+        "forward_return_unblocked_now": true
+      },
+      "MGM": {
+        "excess_forward_return": 0.08049040063246893,
+        "forward_return_unblocked_now": true
+      },
+      "MKC": {
+        "excess_forward_return": null,
+        "forward_return_unblocked_now": false
+      },
+      "MLM": {
+        "excess_forward_return": 0.1214906325911127,
+        "forward_return_unblocked_now": true
+      },
+      "MNST": {
+        "excess_forward_return": 0.13952789893762962,
+        "forward_return_unblocked_now": true
+      },
+      "MO": {
+        "excess_forward_return": 0.14853031168806075,
+        "forward_return_unblocked_now": true
+      },
+      "MOS": {
+        "excess_forward_return": 0.18646158809596236,
+        "forward_return_unblocked_now": true
+      },
+      "MPWR": {
+        "excess_forward_return": 0.24991818687525136,
+        "forward_return_unblocked_now": true
+      },
+      "MRNA": {
+        "excess_forward_return": 0.6961168740933963,
+        "forward_return_unblocked_now": true
+      },
+      "MRSH": {
+        "excess_forward_return": -0.0538184939110099,
+        "forward_return_unblocked_now": true
+      },
+      "MSCI": {
+        "excess_forward_return": 0.06725659827967623,
+        "forward_return_unblocked_now": true
+      },
+      "MSI": {
+        "excess_forward_return": 0.0011692462240409096,
+        "forward_return_unblocked_now": true
+      },
+      "MTD": {
+        "excess_forward_return": -0.036475362889377916,
+        "forward_return_unblocked_now": true
+      },
+      "MU": {
+        "excess_forward_return": null,
+        "forward_return_unblocked_now": false
+      },
+      "NCLH": {
+        "excess_forward_return": 0.24197787720994457,
+        "forward_return_unblocked_now": true
+      },
+      "NDSN": {
+        "excess_forward_return": null,
+        "forward_return_unblocked_now": false
+      },
+      "NEE": {
+        "excess_forward_return": 0.0727647580020383,
+        "forward_return_unblocked_now": true
+      },
+      "NFLX": {
+        "excess_forward_return": -0.2372632592604753,
+        "forward_return_unblocked_now": true
+      },
+      "NI": {
+        "excess_forward_return": 0.042749816892537096,
+        "forward_return_unblocked_now": true
+      },
+      "NOC": {
+        "excess_forward_return": 0.12269274946904019,
+        "forward_return_unblocked_now": true
+      },
+      "NRG": {
+        "excess_forward_return": -0.09839280383768922,
+        "forward_return_unblocked_now": true
+      },
+      "NSC": {
+        "excess_forward_return": 0.025940972800142292,
+        "forward_return_unblocked_now": true
+      },
+      "NTAP": {
+        "excess_forward_return": null,
+        "forward_return_unblocked_now": false
+      },
+      "NUE": {
+        "excess_forward_return": 0.25256449000383085,
+        "forward_return_unblocked_now": true
+      },
+      "NVR": {
+        "excess_forward_return": 0.0857983454947866,
+        "forward_return_unblocked_now": true
+      },
+      "NWSA": {
+        "excess_forward_return": null,
+        "forward_return_unblocked_now": false
+      },
+      "NXPI": {
+        "excess_forward_return": 0.09976336318438417,
+        "forward_return_unblocked_now": true
+      }
+    },
+    "repaired_to_forward_present": 23,
+    "deferred_market_data_gap": 9,
+    "blocked_registry_or_time_window_issue": 0,
+    "build_success_operations": 51,
+    "build_failures": 9,
+    "error_sample_bucket_note": "deferred/blocked_counts_from_error_sample_when_present"
+  },
+  "silver_present_snapshot_materialization_repair": {
+    "ok": true,
+    "repair": "silver_present_snapshot_materialization_missing",
+    "actions": [
+      {
+        "cik": "0001103982",
+        "symbol": "MDLZ",
+        "classification_before": "silver_present_snapshot_materialization_missing",
+        "classification_after": "unexpected_snapshots_present",
+        "snapshot_repairs": [
+          {
+            "accession_no": "0001628280-25-046773",
+            "result": {
+              "ok": true,
+              "cik": "0001103982",
+              "accession_no": "0001628280-25-046773",
+              "snapshot": {
+                "inserted": true,
+                "updated": false
+              }
+            }
+          }
+        ],
+        "downstream_cascade": {
+          "ok": true,
+          "cik_count": 1,
+          "per_cik": [
+            {
+              "cik": "0001103982",
+              "snapshot_repairs": [],
+              "factor_panel": {
+                "run_type": "sec_factor_panel_build",
+                "run_id": "affafb70-4562-4375-9b96-1fc8093e6b82",
+                "cik": "0001103982",
+                "ticker": "MDLZ",
+                "status": "completed",
+                "target_count": 1,
+                "success_count": 1,
+                "failure_count": 0,
+                "skipped_existing": 0,
+                "errors": []
+              },
+              "validation_panel": {
+                "status": "completed",
+                "rows_upserted": 1,
+                "failures": 0,
+                "error_sample": []
+              }
+            }
+          ]
+        },
+        "snapshot_materialized_now": true
+      },
+      {
+        "cik": "0001099219",
+        "symbol": "MET",
+        "classification_before": "silver_present_snapshot_materialization_missing",
+        "classification_after": "unexpected_snapshots_present",
+        "snapshot_repairs": [
+          {
+            "accession_no": "0001099219-25-000230",
+            "result": {
+              "ok": true,
+              "cik": "0001099219",
+              "accession_no": "0001099219-25-000230",
+              "snapshot": {
+                "inserted": true,
+                "updated": false
+              }
+            }
+          }
+        ],
+        "downstream_cascade": {
+          "ok": true,
+          "cik_count": 1,
+          "per_cik": [
+            {
+              "cik": "0001099219",
+              "snapshot_repairs": [],
+              "factor_panel": {
+                "run_type": "sec_factor_panel_build",
+                "run_id": "e5d1b297-9720-45ef-9927-b7a2f34a6039",
+                "cik": "0001099219",
+                "ticker": "MET",
+                "status": "completed",
+                "target_count": 1,
+                "success_count": 1,
+                "failure_count": 0,
+                "skipped_existing": 0,
+                "errors": []
+              },
+              "validation_panel": {
+                "status": "completed",
+                "rows_upserted": 1,
+                "failures": 0,
+                "error_sample": []
+              }
+            }
+          ]
+        },
+        "snapshot_materialized_now": true
+      },
+      {
+        "cik": "0000066740",
+        "symbol": "MMM",
+        "classification_before": "silver_present_snapshot_materialization_missing",
+        "classification_after": "unexpected_snapshots_present",
+        "snapshot_repairs": [
+          {
+            "accession_no": "0000066740-25-000089",
+            "result": {
+              "ok": true,
+              "cik": "0000066740",
+              "accession_no": "0000066740-25-000089",
+              "snapshot": {
+                "inserted": true,
+                "updated": false
+              }
+            }
+          }
+        ],
+        "downstream_cascade": {
+          "ok": true,
+          "cik_count": 1,
+          "per_cik": [
+            {
+              "cik": "0000066740",
+              "snapshot_repairs": [],
+              "factor_panel": {
+                "run_type": "sec_factor_panel_build",
+                "run_id": "9094e63e-14d6-4877-a5cd-279bebc5ebf8",
+                "cik": "0000066740",
+                "ticker": "MMM",
+                "status": "completed",
+                "target_count": 1,
+                "success_count": 1,
+                "failure_count": 0,
+                "skipped_existing": 0,
+                "errors": []
+              },
+              "validation_panel": {
+                "status": "completed",
+                "rows_upserted": 1,
+                "failures": 0,
+                "error_sample": []
+              }
+            }
+          ]
+        },
+        "snapshot_materialized_now": true
+      },
+      {
+        "cik": "0001510295",
+        "symbol": "MPC",
+        "classification_before": "silver_present_snapshot_materialization_missing",
+        "classification_after": "unexpected_snapshots_present",
+        "snapshot_repairs": [
+          {
+            "accession_no": "0001510295-25-000064",
+            "result": {
+              "ok": true,
+              "cik": "0001510295",
+              "accession_no": "0001510295-25-000064",
+              "snapshot": {
+                "inserted": true,
+                "updated": false
+              }
+            }
+          }
+        ],
+        "downstream_cascade": {
+          "ok": true,
+          "cik_count": 1,
+          "per_cik": [
+            {
+              "cik": "0001510295",
+              "snapshot_repairs": [],
+              "factor_panel": {
+                "run_type": "sec_factor_panel_build",
+                "run_id": "35103a97-069d-444a-a354-b57d38510a99",
+                "cik": "0001510295",
+                "ticker": "MPC",
+                "status": "completed",
+                "target_count": 1,
+                "success_count": 1,
+                "failure_count": 0,
+                "skipped_existing": 0,
+                "errors": []
+              },
+              "validation_panel": {
+                "status": "completed",
+                "rows_upserted": 1,
+                "failures": 0,
+                "error_sample": []
+              }
+            }
+          ]
+        },
+        "snapshot_materialized_now": true
+      },
+      {
+        "cik": "0000895421",
+        "symbol": "MS",
+        "classification_before": "silver_present_snapshot_materialization_missing",
+        "classification_after": "unexpected_snapshots_present",
+        "snapshot_repairs": [
+          {
+            "accession_no": "0000895421-25-000539",
+            "result": {
+              "ok": true,
+              "cik": "0000895421",
+              "accession_no": "0000895421-25-000539",
+              "snapshot": {
+                "inserted": true,
+                "updated": false
+              }
+            }
+          }
+        ],
+        "downstream_cascade": {
+          "ok": true,
+          "cik_count": 1,
+          "per_cik": [
+            {
+              "cik": "0000895421",
+              "snapshot_repairs": [],
+              "factor_panel": {
+                "run_type": "sec_factor_panel_build",
+                "run_id": "35b05c8c-796b-4f7b-a997-078fa28e8578",
+                "cik": "0000895421",
+                "ticker": "MS",
+                "status": "completed",
+                "target_count": 1,
+                "success_count": 1,
+                "failure_count": 0,
+                "skipped_existing": 0,
+                "errors": []
+              },
+              "validation_panel": {
+                "status": "completed",
+                "rows_upserted": 1,
+                "failures": 0,
+                "error_sample": []
+              }
+            }
+          ]
+        },
+        "snapshot_materialized_now": true
+      },
+      {
+        "cik": "0000036270",
+        "symbol": "MTB",
+        "classification_before": "silver_present_snapshot_materialization_missing",
+        "classification_after": "unexpected_snapshots_present",
+        "snapshot_repairs": [
+          {
+            "accession_no": "0000036270-25-000024",
+            "result": {
+              "ok": true,
+              "cik": "0000036270",
+              "accession_no": "0000036270-25-000024",
+              "snapshot": {
+                "inserted": true,
+                "updated": false
+              }
+            }
+          }
+        ],
+        "downstream_cascade": {
+          "ok": true,
+          "cik_count": 1,
+          "per_cik": [
+            {
+              "cik": "0000036270",
+              "snapshot_repairs": [],
+              "factor_panel": {
+                "run_type": "sec_factor_panel_build",
+                "run_id": "fe8cd46a-7b94-4907-aa5b-c14b92712c14",
+                "cik": "0000036270",
+                "ticker": "MTB",
+                "status": "completed",
+                "target_count": 1,
+                "success_count": 1,
+                "failure_count": 0,
+                "skipped_existing": 0,
+                "errors": []
+              },
+              "validation_panel": {
+                "status": "completed",
+                "rows_upserted": 1,
+                "failures": 0,
+                "error_sample": []
+              }
+            }
+          ]
+        },
+        "snapshot_materialized_now": true
+      },
+      {
+        "cik": "0001120193",
+        "symbol": "NDAQ",
+        "classification_before": "silver_present_snapshot_materialization_missing",
+        "classification_after": "unexpected_snapshots_present",
+        "snapshot_repairs": [
+          {
+            "accession_no": "0001628280-25-046006",
+            "result": {
+              "ok": true,
+              "cik": "0001120193",
+              "accession_no": "0001628280-25-046006",
+              "snapshot": {
+                "inserted": true,
+                "updated": false
+              }
+            }
+          }
+        ],
+        "downstream_cascade": {
+          "ok": true,
+          "cik_count": 1,
+          "per_cik": [
+            {
+              "cik": "0001120193",
+              "snapshot_repairs": [],
+              "factor_panel": {
+                "run_type": "sec_factor_panel_build",
+                "run_id": "640e1923-ea1f-4701-a7e5-cb4954d23c8d",
+                "cik": "0001120193",
+                "ticker": "NDAQ",
+                "status": "completed",
+                "target_count": 1,
+                "success_count": 1,
+                "failure_count": 0,
+                "skipped_existing": 0,
+                "errors": []
+              },
+              "validation_panel": {
+                "status": "completed",
+                "rows_upserted": 1,
+                "failures": 0,
+                "error_sample": []
+              }
+            }
+          ]
+        },
+        "snapshot_materialized_now": true
+      },
+      {
+        "cik": "0001164727",
+        "symbol": "NEM",
+        "classification_before": "silver_present_snapshot_materialization_missing",
+        "classification_after": "unexpected_snapshots_present",
+        "snapshot_repairs": [
+          {
+            "accession_no": "0001164727-25-000046",
+            "result": {
+              "ok": true,
+              "cik": "0001164727",
+              "accession_no": "0001164727-25-000046",
+              "snapshot": {
+                "inserted": true,
+                "updated": false
+              }
+            }
+          }
+        ],
+        "downstream_cascade": {
+          "ok": true,
+          "cik_count": 1,
+          "per_cik": [
+            {
+              "cik": "0001164727",
+              "snapshot_repairs": [],
+              "factor_panel": {
+                "run_type": "sec_factor_panel_build",
+                "run_id": "f1343a6e-c8d9-4c34-aeee-970a563cd359",
+                "cik": "0001164727",
+                "ticker": "NEM",
+                "status": "completed",
+                "target_count": 1,
+                "success_count": 1,
+                "failure_count": 0,
+                "skipped_existing": 0,
+                "errors": []
+              },
+              "validation_panel": {
+                "status": "completed",
+                "rows_upserted": 1,
+                "failures": 0,
+                "error_sample": []
+              }
+            }
+          ]
+        },
+        "snapshot_materialized_now": true
+      },
+      {
+        "cik": "0001373715",
+        "symbol": "NOW",
+        "classification_before": "silver_present_snapshot_materialization_missing",
+        "classification_after": "unexpected_snapshots_present",
+        "snapshot_repairs": [
+          {
+            "accession_no": "0001373715-25-000309",
+            "result": {
+              "ok": true,
+              "cik": "0001373715",
+              "accession_no": "0001373715-25-000309",
+              "snapshot": {
+                "inserted": true,
+                "updated": false
+              }
+            }
+          }
+        ],
+        "downstream_cascade": {
+          "ok": true,
+          "cik_count": 1,
+          "per_cik": [
+            {
+              "cik": "0001373715",
+              "snapshot_repairs": [],
+              "factor_panel": {
+                "run_type": "sec_factor_panel_build",
+                "run_id": "32557099-bc80-4db2-9418-f07d79bcdcfe",
+                "cik": "0001373715",
+                "ticker": "NOW",
+                "status": "completed",
+                "target_count": 1,
+                "success_count": 1,
+                "failure_count": 0,
+                "skipped_existing": 0,
+                "errors": []
+              },
+              "validation_panel": {
+                "status": "completed",
+                "rows_upserted": 1,
+                "failures": 0,
+                "error_sample": []
+              }
+            }
+          ]
+        },
+        "snapshot_materialized_now": true
+      },
+      {
+        "cik": "0000073124",
+        "symbol": "NTRS",
+        "classification_before": "silver_present_snapshot_materialization_missing",
+        "classification_after": "unexpected_snapshots_present",
+        "snapshot_repairs": [
+          {
+            "accession_no": "0000073124-25-000247",
+            "result": {
+              "ok": true,
+              "cik": "0000073124",
+              "accession_no": "0000073124-25-000247",
+              "snapshot": {
+                "inserted": true,
+                "updated": false
+              }
+            }
+          }
+        ],
+        "downstream_cascade": {
+          "ok": true,
+          "cik_count": 1,
+          "per_cik": [
+            {
+              "cik": "0000073124",
+              "snapshot_repairs": [],
+              "factor_panel": {
+                "run_type": "sec_factor_panel_build",
+                "run_id": "3d51e7a1-51a4-428a-9b9a-d0f00ce891f6",
+                "cik": "0000073124",
+                "ticker": "NTRS",
+                "status": "completed",
+                "target_count": 1,
+                "success_count": 1,
+                "failure_count": 0,
+                "skipped_existing": 0,
+                "errors": []
+              },
+              "validation_panel": {
+                "status": "completed",
+                "rows_upserted": 1,
+                "failures": 0,
+                "error_sample": []
+              }
+            }
+          ]
+        },
+        "snapshot_materialized_now": true
+      }
+    ],
+    "snapshot_materialized_now_count": 10,
+    "targets_considered": 10
+  },
+  "gis_raw_present_no_silver_repair": {
+    "ok": true,
+    "universe_name": "sp500_current",
+    "repair": "gis_like_silver_seam",
+    "actions": [
+      {
+        "cik": "0000040704",
+        "symbol": "GIS",
+        "classification_before": "raw_present_no_silver_facts",
+        "materialize_silver": {
+          "cik": "0000040704",
+          "accession_count": 1,
+          "silver_inserted": 0,
+          "silver_skipped_existing": 0,
+          "raw_rows_unmapped_to_silver": 14
+        },
+        "quarter_snapshot_rebuild": {},
+        "classification_after": "raw_present_no_silver_facts",
+        "downstream_cascade": {
+          "ok": true,
+          "cik_count": 1,
+          "per_cik": [
+            {
+              "cik": "0000040704",
+              "snapshot_repairs": [],
+              "factor_panel": {
+                "run_type": "sec_factor_panel_build",
+                "run_id": "7b3ec369-a306-43a8-be0a-4fba74f0afd6",
+                "cik": "0000040704",
+                "ticker": "GIS",
+                "status": "completed",
+                "target_count": 0,
+                "success_count": 0,
+                "failure_count": 0,
+                "skipped_existing": 0,
+                "errors": []
+              },
+              "validation_panel": {
+                "skipped": true,
+                "reason": "no_factor_panels"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "preflight": {
+      "ok": true,
+      "universe_name": "sp500_current",
+      "targets": [
+        {
+          "symbol": "GIS",
+          "cik": "0000040704",
+          "norm_cik": "0000040704",
+          "class": "raw_present_no_silver_facts"
+        }
+      ],
+      "target_count": 1
+    }
+  },
+  "raw_facts_deferred_retry": {
+    "ok": true,
+    "repair": "raw_facts_deferred_retry",
+    "rows_attempted": 10,
+    "outcome_summary": {
+      "recovered_on_retry": 7,
+      "persistent_external_failure": 3,
+      "persistent_schema_or_mapping_issue": 0
+    },
+    "per_row": [
+      {
+        "cik": "0001103982",
+        "ticker": "MDLZ",
+        "outcome": "recovered_on_retry",
+        "classification_after": "unexpected_snapshots_present",
+        "last_error": null,
+        "extract_ok_last": true
+      },
+      {
+        "cik": "0001099219",
+        "ticker": "MET",
+        "outcome": "persistent_external_failure",
+        "classification_after": "unexpected_snapshots_present",
+        "last_error": "{'message': 'JSON could not be generated', 'code': 500, 'hint': 'Refer to full message for details', 'details': \"b'<html>\\\\r\\\\n<head><title>500 Internal Server Error</title></head>\\\\r\\\\n<body>\\\\r\\\\n<center><h1>500 Internal Server Error</h1></center>\\\\r\\\\n<hr><center>cloudflare</center>\\\\r\\\\n</body>\\\\r\\\\n</html>\\\\r\\\\n'\"}",
+        "extract_ok_last": null
+      },
+      {
+        "cik": "0000066740",
+        "ticker": "MMM",
+        "outcome": "persistent_external_failure",
+        "classification_after": "unexpected_snapshots_present",
+        "last_error": "{'message': 'JSON could not be generated', 'code': 500, 'hint': 'Refer to full message for details', 'details': \"b'<html>\\\\r\\\\n<head><title>500 Internal Server Error</title></head>\\\\r\\\\n<body>\\\\r\\\\n<center><h1>500 Internal Server Error</h1></center>\\\\r\\\\n<hr><center>cloudflare</center>\\\\r\\\\n</body>\\\\r\\\\n</html>\\\\r\\\\n'\"}",
+        "extract_ok_last": null
+      },
+      {
+        "cik": "0001510295",
+        "ticker": "MPC",
+        "outcome": "persistent_external_failure",
+        "classification_after": "unexpected_snapshots_present",
+        "last_error": "{'message': 'JSON could not be generated', 'code': 500, 'hint': 'Refer to full message for details', 'details': \"b'<html>\\\\r\\\\n<head><title>500 Internal Server Error</title></head>\\\\r\\\\n<body>\\\\r\\\\n<center><h1>500 Internal Server Error</h1></center>\\\\r\\\\n<hr><center>cloudflare</center>\\\\r\\\\n</body>\\\\r\\\\n</html>\\\\r\\\\n'\"}",
+        "extract_ok_last": null
+      },
+      {
+        "cik": "0000895421",
+        "ticker": "MS",
+        "outcome": "recovered_on_retry",
+        "classification_after": "unexpected_snapshots_present",
+        "last_error": null,
+        "extract_ok_last": true
+      },
+      {
+        "cik": "0000036270",
+        "ticker": "MTB",
+        "outcome": "recovered_on_retry",
+        "classification_after": "unexpected_snapshots_present",
+        "last_error": null,
+        "extract_ok_last": true
+      },
+      {
+        "cik": "0001120193",
+        "ticker": "NDAQ",
+        "outcome": "recovered_on_retry",
+        "classification_after": "unexpected_snapshots_present",
+        "last_error": null,
+        "extract_ok_last": true
+      },
+      {
+        "cik": "0001164727",
+        "ticker": "NEM",
+        "outcome": "recovered_on_retry",
+        "classification_after": "unexpected_snapshots_present",
+        "last_error": null,
+        "extract_ok_last": true
+      },
+      {
+        "cik": "0001373715",
+        "ticker": "NOW",
+        "outcome": "recovered_on_retry",
+        "classification_after": "unexpected_snapshots_present",
+        "last_error": null,
+        "extract_ok_last": true
+      },
+      {
+        "cik": "0000073124",
+        "ticker": "NTRS",
+        "outcome": "recovered_on_retry",
+        "classification_after": "unexpected_snapshots_present",
+        "last_error": null,
+        "extract_ok_last": true
+      }
+    ]
+  },
+  "stage_transitions": {
+    "phase31_reference": {
+      "bundle_path": "docs/operator_closeout/phase31_raw_facts_bridge_bundle.json",
+      "validation_unblocked_cik_count_in_phase31": 30
+    },
+    "forward_return_unlocked_now_count": 23,
+    "quarter_snapshot_materialized_now_count": 10,
+    "downstream_cascade_cik_runs_after_snapshot_repair": 10,
+    "factor_materialized_now_count": 10,
+    "validation_panel_refreshed_count": 10,
+    "gis_seam_actions_count": 1,
+    "raw_facts_recovered_on_retry_count": 7
+  },
+  "phase33": {
+    "phase33_recommendation": "continue_bounded_forward_return_and_price_coverage",
+    "rationale": "forward/조인 기판이 움직였거나 excess 갭이 줄었음 — 동일 상한으로 forward·가격 창 백필 반복."
+  }
+}
