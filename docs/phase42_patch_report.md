@@ -61,6 +61,8 @@ pytest src/tests/test_phase42_evidence_accumulation.py -q
 
 **Supabase fresh** (동일 일 별도 실행): `phase42_evidence_accumulation_bundle_supabase.json` + **`phase42_supabase_reviewer_audit.md`** — `docs/phase42_evidence.md` §「Supabase fresh」표 참고.
 
+**Phase 43** (같은 날 후속): `run-phase43-targeted-substrate-backfill` 실측 번들 `phase43_targeted_substrate_backfill_bundle.json` (`2026-04-11T19:03:56Z`) — Phase 42를 **다시** Supabase-fresh로 돌려 sector 스코어카드 버킷이 **no_row → blank-field**로 이동, digest 변경. 게이트 카테고리는 동일. 상세 **`docs/phase43_evidence.md`**, **`docs/phase43_patch_report.md`**.
+
 ## Related
 
-`docs/phase41_patch_report.md`, `docs/research_engine_constitution.md`
+`docs/phase41_patch_report.md`, **`docs/phase43_patch_report.md`**, `docs/research_engine_constitution.md`

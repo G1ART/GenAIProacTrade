@@ -1,0 +1,410 @@
+{
+  "ok": true,
+  "phase": "phase44_claim_narrowing_truthfulness",
+  "generated_utc": "2026-04-12T06:44:44.839337+00:00",
+  "input_phase43_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase43_targeted_substrate_backfill_bundle.json",
+  "input_phase42_supabase_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase42_evidence_accumulation_bundle_supabase.json",
+  "provenance_audit": [
+    {
+      "symbol": "BBY",
+      "cik": "0000764478",
+      "signal_available_date": "2025-12-08",
+      "input_bundle_before": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "sector_blocker": "no_market_metadata_row_for_symbol"
+      },
+      "runtime_snapshot_before_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 10,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      },
+      "runtime_snapshot_after_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 10,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      }
+    },
+    {
+      "symbol": "ADSK",
+      "cik": "0000769397",
+      "signal_available_date": "2025-11-27",
+      "input_bundle_before": {
+        "filing_blocker": "only_post_signal_filings_available",
+        "sector_blocker": "no_market_metadata_row_for_symbol"
+      },
+      "runtime_snapshot_before_repair": {
+        "filing_blocker": "only_post_signal_filings_available",
+        "filing_index_row_count": 10,
+        "n_10k_10q": 1,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      },
+      "runtime_snapshot_after_repair": {
+        "filing_blocker": "only_post_signal_filings_available",
+        "filing_index_row_count": 10,
+        "n_10k_10q": 1,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      }
+    },
+    {
+      "symbol": "CRM",
+      "cik": "0001108524",
+      "signal_available_date": "2025-12-04",
+      "input_bundle_before": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "sector_blocker": "no_market_metadata_row_for_symbol"
+      },
+      "runtime_snapshot_before_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 10,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      },
+      "runtime_snapshot_after_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 10,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      }
+    },
+    {
+      "symbol": "CRWD",
+      "cik": "0001535527",
+      "signal_available_date": "2025-12-03",
+      "input_bundle_before": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "sector_blocker": "no_market_metadata_row_for_symbol"
+      },
+      "runtime_snapshot_before_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 11,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      },
+      "runtime_snapshot_after_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 11,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      }
+    },
+    {
+      "symbol": "DELL",
+      "cik": "0001571996",
+      "signal_available_date": "2025-12-10",
+      "input_bundle_before": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "sector_blocker": "no_market_metadata_row_for_symbol"
+      },
+      "runtime_snapshot_before_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 11,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      },
+      "runtime_snapshot_after_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 11,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      }
+    },
+    {
+      "symbol": "DUK",
+      "cik": "0001326160",
+      "signal_available_date": "2025-11-10",
+      "input_bundle_before": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "sector_blocker": "no_market_metadata_row_for_symbol"
+      },
+      "runtime_snapshot_before_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 11,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      },
+      "runtime_snapshot_after_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 11,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      }
+    },
+    {
+      "symbol": "NVDA",
+      "cik": "0001045810",
+      "signal_available_date": "2025-11-20",
+      "input_bundle_before": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "sector_blocker": "no_market_metadata_row_for_symbol"
+      },
+      "runtime_snapshot_before_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 6,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      },
+      "runtime_snapshot_after_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 6,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      }
+    },
+    {
+      "symbol": "WMT",
+      "cik": "0000104169",
+      "signal_available_date": "2025-12-04",
+      "input_bundle_before": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "sector_blocker": "no_market_metadata_row_for_symbol"
+      },
+      "runtime_snapshot_before_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 13,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      },
+      "runtime_snapshot_after_repair": {
+        "filing_blocker": "no_10k_10q_rows_for_cik",
+        "filing_index_row_count": 13,
+        "n_10k_10q": 0,
+        "any_pre_signal_candidate": false,
+        "sector_blocker": "sector_field_blank_on_metadata_row",
+        "raw_row_count": 1,
+        "sector_present": false,
+        "industry_present": false
+      }
+    }
+  ],
+  "scorecard_phase42_supabase_before": {
+    "cohort_label": "phase41_fixture_row_results",
+    "cohort_row_count": 8,
+    "filing_blocker_distribution": {
+      "no_10k_10q_rows_for_cik": 7,
+      "only_post_signal_filings_available": 1
+    },
+    "sector_blocker_distribution": {
+      "no_market_metadata_row_for_symbol": 8
+    },
+    "phase41_families": [
+      "signal_filing_boundary_v1",
+      "issuer_sector_reporting_cadence_v1"
+    ],
+    "outcome_discriminating_family_count": 2,
+    "identical_rollup_groups": []
+  },
+  "scorecard_phase43_after": {
+    "cohort_label": "phase41_fixture_row_results",
+    "cohort_row_count": 8,
+    "filing_blocker_distribution": {
+      "no_10k_10q_rows_for_cik": 7,
+      "only_post_signal_filings_available": 1
+    },
+    "sector_blocker_distribution": {
+      "sector_field_blank_on_metadata_row": 8
+    },
+    "phase41_families": [
+      "signal_filing_boundary_v1",
+      "issuer_sector_reporting_cadence_v1"
+    ],
+    "outcome_discriminating_family_count": 2,
+    "identical_rollup_groups": []
+  },
+  "gate_before": {
+    "schema_version": 4,
+    "phase": "phase42",
+    "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+    "gate_status": "deferred",
+    "primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+    "lifecycle_snapshot": {
+      "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+      "hyp_score_publication_cadence_run_grid_lag_v1": "conditionally_supported",
+      "hyp_signal_availability_filing_boundary_v1": "conditionally_supported",
+      "hyp_issuer_sector_reporting_cadence_v1": "conditionally_supported",
+      "hyp_governance_safe_alternate_join_policy_v1": "conditionally_supported"
+    },
+    "blocking_reasons": [
+      "filing_proxy_or_blocker_rows_remain",
+      "sector_metadata_missing_rows_remain",
+      "await_stronger_falsifier_substrate"
+    ],
+    "reviewer_dependencies": [],
+    "required_followups": [
+      "Track scorecard deltas across runs using stable_run_digest.",
+      "Narrow claims where proxy_limited_retest_needed; add cohort B only with tight cap."
+    ],
+    "promotion_decision_notes": "Phase 42: evidence accumulation + blocker taxonomy + discrimination summary. No auto-promotion.",
+    "phase42_context": {
+      "all_families_leakage_passed_phase41": true,
+      "filing_proxy_row_count": 8,
+      "sector_missing_row_count": 8,
+      "any_family_outcome_discriminating": true,
+      "narrowing_headline": "at_least_one_family_outcome_discriminating"
+    },
+    "prior_gate_digest": {
+      "had_schema_version": 4,
+      "prior_primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+      "prior_phase": "phase42"
+    }
+  },
+  "gate_after": {
+    "schema_version": 4,
+    "phase": "phase42",
+    "hypothesis_id": "hyp_pit_join_key_mismatch_as_of_boundary_v1",
+    "gate_status": "deferred",
+    "primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+    "lifecycle_snapshot": {
+      "hyp_pit_join_key_mismatch_as_of_boundary_v1": "challenged",
+      "hyp_score_publication_cadence_run_grid_lag_v1": "conditionally_supported",
+      "hyp_signal_availability_filing_boundary_v1": "conditionally_supported",
+      "hyp_issuer_sector_reporting_cadence_v1": "conditionally_supported",
+      "hyp_governance_safe_alternate_join_policy_v1": "conditionally_supported"
+    },
+    "blocking_reasons": [
+      "filing_proxy_or_blocker_rows_remain",
+      "sector_metadata_missing_rows_remain",
+      "await_stronger_falsifier_substrate"
+    ],
+    "reviewer_dependencies": [],
+    "required_followups": [
+      "Track scorecard deltas across runs using stable_run_digest.",
+      "Narrow claims where proxy_limited_retest_needed; add cohort B only with tight cap."
+    ],
+    "promotion_decision_notes": "Phase 42: evidence accumulation + blocker taxonomy + discrimination summary. No auto-promotion.",
+    "phase42_context": {
+      "all_families_leakage_passed_phase41": true,
+      "filing_proxy_row_count": 8,
+      "sector_missing_row_count": 8,
+      "any_family_outcome_discriminating": true,
+      "narrowing_headline": "at_least_one_family_outcome_discriminating"
+    },
+    "prior_gate_digest": {
+      "had_schema_version": 4,
+      "prior_primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+      "prior_phase": "phase42"
+    }
+  },
+  "claim_narrowing": {
+    "family_claim_limits": {
+      "signal_filing_boundary_v1": {
+        "claim_status": "narrowed",
+        "supported_scope": "Cohort-level statement that pre-signal filing-public strict pick remains proxy- or blocker-limited for the Phase 43 8-row fixture; bounded ingest did not increase exact_public_ts_available or filed-date-only usability in scorecard aggregates.",
+        "unsupported_scope": "Claims that filing-public falsifier quality materially improved for this cohort without exact_public_ts_available or accepted_at_missing_but_filed_date_only gains.",
+        "reason": "Filing distributions before/after: {'no_10k_10q_rows_for_cik': 7, 'only_post_signal_filings_available': 1} → {'no_10k_10q_rows_for_cik': 7, 'only_post_signal_filings_available': 1}. No aggregate filing falsifier upgrade; retry only with a newly named ingestion path."
+      },
+      "issuer_sector_reporting_cadence_v1": {
+        "claim_status": "narrowed",
+        "supported_scope": "Sector diagnosis refined: metadata row exists but sector field remains blank for all 8 rows; sector-informed stratification is still unavailable.",
+        "unsupported_scope": "Sector-based falsification or sector_available-backed claims for this cohort without a new provider/path that populates sector.",
+        "reason": "Sector distributions before/after: {'no_market_metadata_row_for_symbol': 8} → {'sector_field_blank_on_metadata_row': 8}. no_market_metadata_row → sector_field_blank is taxonomy precision only unless sector_available increases."
+      }
+    },
+    "cohort_claim_limits": {
+      "claim_status": "narrowed",
+      "supported_scope": "Proxy-limited falsifier substrate remains for this bounded cohort; broad public-core reopening is not justified by Phase 43 evidence.",
+      "unsupported_scope": "Broad filing_index campaigns, broad metadata campaigns, or auto-promotion from Phase 43 alone.",
+      "reason": "Phase 44 assessment: see per-family limits and retry_eligibility."
+    },
+    "bounded_retry_eligibility": "not_eligible_without_named_new_path"
+  },
+  "retry_eligibility": {
+    "filing_retry_eligible": false,
+    "sector_retry_eligible": false,
+    "eligibility_reason": "No named alternative filing ingestion path declared; cannot authorize another bounded filing pass. No named alternative sector fill path declared; cannot authorize another bounded sector pass. Phase 44 truthfulness: no material falsifier usability / gate / discrimination improvement.",
+    "required_new_source_or_path": {
+      "filing": "operator_must_name_concrete_alternative_to_phase43_filing_repair",
+      "sector": "operator_must_name_concrete_provider_path_that_emits_nonempty_sector"
+    },
+    "phase43_paths_already_used": {
+      "filing": "bounded_run_sample_ingest_per_cik",
+      "sector": "yahoo_chart"
+    },
+    "material_falsifier_improvement_required": true,
+    "material_falsifier_improvement_observed": false
+  },
+  "phase44_truthfulness_assessment": {
+    "material_falsifier_improvement": false,
+    "optimistic_sector_relabel_only": true,
+    "filing_distribution_changed": false,
+    "sector_distribution_changed": true,
+    "falsifier_usability_improved": false,
+    "gate_materially_improved": false,
+    "discrimination_rollups_improved": false,
+    "digest_only_cosmetic_sector_relabel": true,
+    "notes": [
+      "Sector scorecard moved no_market_metadata_row_for_symbol → sector_field_blank_on_metadata_row without sector_available increase; treated as diagnostic relabel, not falsifier upgrade.",
+      "No increase in exact_public_ts_available, sector_available, or filed-date-only path."
+    ]
+  },
+  "phase45": {
+    "phase45_recommendation": "narrow_claims_document_proxy_limits_operator_closeout_v1",
+    "rationale": "No material falsifier upgrade under Phase 44 rules; do not reopen broad substrate. Narrow claims, document proxy limits, and close out unless new evidence appears."
+  },
+  "provenance_audit_md_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase44_provenance_audit.md",
+  "explanation_v7": {
+    "format": "markdown",
+    "path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase44_explanation_surface_v7.md"
+  }
+}

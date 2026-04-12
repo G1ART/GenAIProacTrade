@@ -56,6 +56,19 @@
 
 번들 재생(`--bundle-substrate-only`)만 쓰면 `signal_available_date`·filing 원인이 거칠어지므로, **원인 코드 검증은 본 Supabase 번들 + 감사 MD**를 권위로 본다.
 
+### Phase 43 후속 (bounded backfill + Phase 42 Supabase-fresh 재실행, 2026-04-11)
+
+동일 8행 코호트에 대해 **`run-phase43-targeted-substrate-backfill`** 를 완주한 뒤 Phase 42를 다시 돌린 결과는 **`docs/operator_closeout/phase43_targeted_substrate_backfill_bundle.json`** (`generated_utc` **`2026-04-11T19:03:56.022392+00:00`**, `ok: true`)에 있다.
+
+| 항목 | Phase 42 Supabase (입력) → Phase 43 직후 Phase 42 |
+|------|-----------------------------------------------------|
+| **filing 스코어카드** | `no_10k_10q_rows_for_cik` 7 + `only_post_signal_filings_available` 1 → **동일** |
+| **sector 스코어카드** | `no_market_metadata_row_for_symbol` 8 → **`sector_field_blank_on_metadata_row` 8** |
+| **stable_run_digest** | `edfd0b7d36ecb2de` → **`285b046cc5bcb307`** |
+| **게이트 primary_block_category** | `deferred_due_to_proxy_limited_falsifier_substrate` → **동일** |
+
+한정 수리만으로 filing 블로커는 코호트에서 바뀌지 않았고, sector는 **행 부재 → 필드 공백**으로 **분류만 정밀화**되었다. 전체 서술·표·운영 해석은 **`docs/phase43_evidence.md`**, **`HANDOFF.md` Phase 43 절**을 본다.
+
 ## 산출·영속
 
 - `docs/operator_closeout/phase42_evidence_accumulation_bundle.json`
@@ -66,4 +79,4 @@
 
 ## Related
 
-`docs/phase42_patch_report.md`, `docs/phase41_evidence.md`, **`docs/operator_closeout/phase42_supabase_reviewer_audit.md`**, `HANDOFF.md`
+`docs/phase42_patch_report.md`, `docs/phase41_evidence.md`, **`docs/operator_closeout/phase42_supabase_reviewer_audit.md`**, **`docs/phase43_evidence.md`**, `HANDOFF.md`

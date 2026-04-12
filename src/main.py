@@ -6832,6 +6832,101 @@ def _cmd_write_phase43_targeted_substrate_backfill_review(
     return 0
 
 
+def _cmd_run_phase44_claim_narrowing_truthfulness(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase44.orchestrator import run_phase44_claim_narrowing_truthfulness
+    from phase44.review import (
+        render_phase44_explanation_surface_v7_md,
+        write_phase44_claim_narrowing_truthfulness_bundle_json,
+        write_phase44_claim_narrowing_truthfulness_review_md,
+        write_phase44_provenance_audit_md,
+    )
+
+    p43 = (
+        str(getattr(args, "phase43_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase43_targeted_substrate_backfill_bundle.json"
+    )
+    p42 = (
+        str(getattr(args, "phase42_supabase_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase42_evidence_accumulation_bundle_supabase.json"
+    )
+    out = run_phase44_claim_narrowing_truthfulness(
+        phase43_bundle_in=p43,
+        phase42_supabase_bundle_in=p42,
+        declared_new_filing_source=str(getattr(args, "declared_new_filing_source", "") or "").strip()
+        or None,
+        declared_new_sector_source=str(getattr(args, "declared_new_sector_source", "") or "").strip()
+        or None,
+    )
+
+    audit_p = (
+        str(getattr(args, "audit_out", "") or "").strip()
+        or "docs/operator_closeout/phase44_provenance_audit.md"
+    )
+    out["provenance_audit_md_path"] = write_phase44_provenance_audit_md(
+        audit_p, rows=out.get("provenance_audit") or []
+    )
+
+    expl = (
+        str(getattr(args, "explanation_out", "") or "").strip()
+        or "docs/operator_closeout/phase44_explanation_surface_v7.md"
+    )
+    expl_path = Path(expl)
+    expl_path.parent.mkdir(parents=True, exist_ok=True)
+    expl_path.write_text(render_phase44_explanation_surface_v7_md(bundle=out), encoding="utf-8")
+    out["explanation_v7"] = {"format": "markdown", "path": str(expl_path.resolve())}
+
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase44_claim_narrowing_truthfulness_bundle_json(bo, bundle=out)
+        print("phase44_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase44_claim_narrowing_truthfulness_review_md(md, bundle=out)
+        print("phase44_review_written", flush=True)
+
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase44_claim_narrowing_truthfulness_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase44.review import (
+        write_phase44_claim_narrowing_truthfulness_bundle_json,
+        write_phase44_claim_narrowing_truthfulness_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase44_claim_narrowing_truthfulness_review_md(str(args.out_md), bundle=bundle)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase44_claim_narrowing_truthfulness_bundle_json(bo, bundle=bundle)
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
 def _cmd_write_phase33_forward_coverage_truth_review(
     args: argparse.Namespace,
 ) -> int:
@@ -10419,6 +10514,58 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p43w.add_argument("--bundle-out", default="")
     p43w.set_defaults(func=_cmd_write_phase43_targeted_substrate_backfill_review)
+
+    p44run = sub.add_parser(
+        "run-phase44-claim-narrowing-truthfulness",
+        help="Phase 44: provenance audit, truthfulness, claim narrowing, Phase 45 fork (no DB)",
+    )
+    p44run.add_argument(
+        "--phase43-bundle-in",
+        default="docs/operator_closeout/phase43_targeted_substrate_backfill_bundle.json",
+    )
+    p44run.add_argument(
+        "--phase42-supabase-bundle-in",
+        default="docs/operator_closeout/phase42_evidence_accumulation_bundle_supabase.json",
+    )
+    p44run.add_argument(
+        "--declared-new-filing-source",
+        default="",
+        help="Optional; required to mark filing retry eligible together with material improvement",
+    )
+    p44run.add_argument(
+        "--declared-new-sector-source",
+        default="",
+        help="Optional; required to mark sector retry eligible together with material improvement",
+    )
+    p44run.add_argument(
+        "--audit-out",
+        default="docs/operator_closeout/phase44_provenance_audit.md",
+    )
+    p44run.add_argument(
+        "--explanation-out",
+        default="docs/operator_closeout/phase44_explanation_surface_v7.md",
+    )
+    p44run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase44_claim_narrowing_truthfulness_bundle.json",
+    )
+    p44run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase44_claim_narrowing_truthfulness_review.md",
+    )
+    p44run.set_defaults(func=_cmd_run_phase44_claim_narrowing_truthfulness)
+
+    p44w = sub.add_parser(
+        "write-phase44-claim-narrowing-truthfulness-review",
+        help="Phase 44: bundle to review MD (+ optional JSON copy)",
+    )
+    p44w.add_argument("--bundle-in", required=True)
+    p44w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase44_claim_narrowing_truthfulness_review.md",
+    )
+    p44w.add_argument("--bundle-out", default="")
+    p44w.set_defaults(func=_cmd_write_phase44_claim_narrowing_truthfulness_review)
 
     p24c = sub.add_parser(
         "advance-public-first-cycle",
