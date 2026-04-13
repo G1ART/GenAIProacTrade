@@ -26,7 +26,7 @@
 
 ## 후속 (Phase 50 밖)
 
-- **Phase 51**: `external_trigger_ingest_hooks_and_runtime_health_surface_v1` — 외부 인제스트·런타임 헬스 표면 등 (`phase50_registry_controls_and_operator_timing_bundle.json` 내 `phase51`).
+- **Phase 51**: **종료** — 외부 트리거 인제스트·런타임 헬스·cockpit 표면. 클로즈 **`docs/operator_closeout/phase51_closeout.md`**, 증거 **`docs/phase51_evidence.md`**, 패치 **`docs/phase51_patch_report.md`**.
 
 ## 참고
 

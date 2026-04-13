@@ -74,6 +74,13 @@ def write_phase51_external_trigger_ingest_review_md(path: str, *, bundle: dict[s
         "- `data/research_runtime/external_trigger_audit_log_v1.json`",
         "- `data/research_runtime/runtime_health_summary_v1.json` (refreshed via CLI / health builder)",
         "",
+        "## Related (closeout & evidence)",
+        "",
+        "- **`docs/operator_closeout/phase51_closeout.md`**",
+        "- **`docs/phase51_evidence.md`**",
+        "- **`docs/phase51_patch_report.md`**",
+        "- **`HANDOFF.md`** — Phase 51 절",
+        "",
     ]
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -104,6 +111,11 @@ def write_phase51_runtime_health_surface_review_md(path: str, *, bundle: dict[st
         "## API",
         "",
         "- `GET /api/runtime/health` — human-first card + `advanced` machine block",
+        "",
+        "## Related",
+        "",
+        "- **`docs/phase51_evidence.md`**, **`docs/phase51_patch_report.md`**, **`docs/operator_closeout/phase51_closeout.md`**",
+        "- **`docs/operator_closeout/phase51_external_trigger_ingest_review.md`**",
         "",
     ]
     p = Path(path)

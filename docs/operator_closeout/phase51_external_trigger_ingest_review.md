@@ -63,3 +63,10 @@
 - `data/research_runtime/external_trigger_ingest_v1.json`
 - `data/research_runtime/external_trigger_audit_log_v1.json`
 - `data/research_runtime/runtime_health_summary_v1.json` (refreshed via CLI / health builder)
+
+## Related (closeout & evidence)
+
+- **`docs/operator_closeout/phase51_closeout.md`** — 클로즈 요약·수락 기준
+- **`docs/phase51_evidence.md`** — 실측 체크리스트·표
+- **`docs/phase51_patch_report.md`** — 코드·CLI·테스트
+- **`HANDOFF.md`** — Phase 51 절

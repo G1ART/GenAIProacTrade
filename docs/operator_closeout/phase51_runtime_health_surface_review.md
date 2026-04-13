@@ -20,3 +20,8 @@
 ## API
 
 - `GET /api/runtime/health` — human-first card + `advanced` machine block
+
+## Related
+
+- **`docs/phase51_evidence.md`**, **`docs/phase51_patch_report.md`**, **`docs/operator_closeout/phase51_closeout.md`**
+- 번들·인제스트 리뷰: **`docs/operator_closeout/phase51_external_trigger_ingest_review.md`**

@@ -33,7 +33,7 @@
 | 스모크 `smoke_metrics_ok` | `true` |
 | Phase 49 입력 (제어 평면 번들) | `docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_bundle.json` |
 | Phase 46 입력 (스모크) | `docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json` |
-| Phase 51 권고 | `external_trigger_ingest_hooks_and_runtime_health_surface_v1` |
+| Phase 51 | **종료** — `docs/phase51_evidence.md`, `docs/operator_closeout/phase51_closeout.md` (번들 `generated_utc` 재실행 시 갱신) |
 
 ## 시드·거버넌스 (스모크)
 

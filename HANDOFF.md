@@ -42,7 +42,7 @@
 
 **CLI (Phase 50, 제어 평면·스모크)**: `run-phase50-registry-controls-and-operator-timing` — Phase 49 번들 + 제어 평면·감사 요약 번들. `run-phase50-positive-path-smoke` — 운영자 시드 `manual_watchlist` + 격리 레지스트리로 **비영(non-empty)** 권위 스모크. 산출: `phase50_registry_controls_and_operator_timing_*`, `phase50_positive_path_smoke_*`. 지속: `data/research_runtime/runtime_control_plane_v1.json`, `cycle_lease_v1.json`, `runtime_audit_log_v1.json`. 테스트: `pytest src/tests/test_phase50_registry_controls_and_operator_timing.py -q`. 증거·패치·클로즈: **`docs/phase50_evidence.md`**, **`docs/phase50_patch_report.md`**, **`docs/operator_closeout/phase50_closeout.md`**.
 
-**CLI (Phase 51, 외부 트리거 인제스트·런타임 헬스)**: `run-phase51-external-positive-path-smoke` — **파일 드롭** 외부 이벤트 → `external_trigger_ingest_v1` 정규화·중복 제거 → Phase 48 **`supplemental_triggers`** 로 사이클 소비(`manual_triggers_v1` 시드 없음). `submit-external-trigger-json --json-file …` 단건 적재, `refresh-runtime-health-summary` 로 `runtime_health_summary_v1.json` 재생성. 산출: `phase51_external_trigger_ingest_bundle.json`, `phase51_external_trigger_ingest_review.md`, `phase51_runtime_health_surface_review.md`. Cockpit: `GET /api/runtime/health`, `POST /api/runtime/external-ingest`(본문 **≤32768** 바이트), Brief에 **Research runtime** 카드. 테스트: `pytest src/tests/test_phase51_external_trigger_ingest_and_runtime_health.py -q`.
+**CLI (Phase 51, 외부 트리거 인제스트·런타임 헬스)**: `run-phase51-external-positive-path-smoke` — **파일 드롭** 외부 이벤트 → 정규화·중복 제거 → Phase 48 **`supplemental_triggers`** 로 사이클 소비(`manual_triggers_v1` 시드 없음). `submit-external-trigger-json`, `refresh-runtime-health-summary`. 산출: `phase51_external_trigger_ingest_bundle.json`, `phase51_external_trigger_ingest_review.md`, `phase51_runtime_health_surface_review.md`. Cockpit: `GET /api/runtime/health`, `POST /api/runtime/external-ingest`(본문 **≤32768** 바이트). 테스트: `pytest src/tests/test_phase51_external_trigger_ingest_and_runtime_health.py -q`. 증거·패치·클로즈: **`docs/phase51_evidence.md`**, **`docs/phase51_patch_report.md`**, **`docs/operator_closeout/phase51_closeout.md`**.
 
 **Phase 46 실측 (참고)**: 저장소 기록 번들 `generated_utc` `2026-04-12T20:40:43Z` — `docs/phase46_evidence.md`.
 
@@ -54,11 +54,11 @@
 
 **Phase 50 실측 (참고)**: 제어 평면 번들 `generated_utc` `2026-04-13T05:50:40Z`, 스모크 번들 `2026-04-13T05:50:46Z`, `smoke_metrics_ok: true` — `docs/operator_closeout/phase50_positive_path_smoke_review.md`, `phase50_registry_controls_and_operator_timing_review.md`, **`docs/phase50_evidence.md`**, **`docs/phase50_patch_report.md`**, **`docs/operator_closeout/phase50_closeout.md`**.
 
-**Phase 51 실측 (참고)**: `run-phase51-external-positive-path-smoke` 권위 번들·리뷰 — `docs/operator_closeout/phase51_external_trigger_ingest_bundle.json`, `phase51_external_trigger_ingest_review.md`, `phase51_runtime_health_surface_review.md`; 외부 스모크 격리 산출물 `data/research_runtime/phase51_external_*_v1.json`.
+**Phase 51 실측 (참고)**: 번들 `generated_utc` **`2026-04-13T06:38:15.299044+00:00`**, `ok: true`, `smoke_metrics_ok: true` — 외부 1건 승인·사이클 `f36b11ba-f3e9-4d6e-902c-f24fcbe396c1`, `manual_watchlist`→`debate.execute`, 헬스 `healthy`. 산출: `docs/operator_closeout/phase51_external_trigger_ingest_bundle.json`, `phase51_external_trigger_ingest_review.md`, `phase51_runtime_health_surface_review.md`, **`docs/phase51_evidence.md`**, **`docs/phase51_patch_report.md`**, **`docs/operator_closeout/phase51_closeout.md`**; 격리 `data/research_runtime/phase51_external_*_v1.json`.
 
 ---
 
-_Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41dea3b0-02fe-46d8-951d-e2778af01e9f`, 8/8 mismatch, 게이트 blocked → Phase 39 권고 `broaden_hypothesis_families…` 반영·**실측 완료**. Phase 38 상세 **`docs/phase38_evidence.md`**, Phase 39 상세 **`docs/phase39_evidence.md`**, Phase 40 **`docs/phase40_evidence.md`**, Phase 41 **`docs/phase41_evidence.md`**, Phase 42 **`docs/phase42_evidence.md`**, Phase 43 **`docs/phase43_evidence.md`**, Phase 44 **`docs/phase44_evidence.md`**, Phase 45 **`docs/phase45_evidence.md`**, Phase 46 **`docs/phase46_evidence.md`**, Phase 47 **`docs/phase47_evidence.md`**, Phase 48 **`docs/phase48_evidence.md`**, Phase 49 **`docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`**, Phase 50 **`docs/phase50_evidence.md`**, **`docs/phase50_patch_report.md`**, **`docs/operator_closeout/phase50_closeout.md`**.
+_Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41dea3b0-02fe-46d8-951d-e2778af01e9f`, 8/8 mismatch, 게이트 blocked → Phase 39 권고 `broaden_hypothesis_families…` 반영·**실측 완료**. Phase 38 상세 **`docs/phase38_evidence.md`**, Phase 39 상세 **`docs/phase39_evidence.md`**, Phase 40 **`docs/phase40_evidence.md`**, Phase 41 **`docs/phase41_evidence.md`**, Phase 42 **`docs/phase42_evidence.md`**, Phase 43 **`docs/phase43_evidence.md`**, Phase 44 **`docs/phase44_evidence.md`**, Phase 45 **`docs/phase45_evidence.md`**, Phase 46 **`docs/phase46_evidence.md`**, Phase 47 **`docs/phase47_evidence.md`**, Phase 48 **`docs/phase48_evidence.md`**, Phase 49 **`docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`**, Phase 50 **`docs/phase50_evidence.md`**, **`docs/phase50_patch_report.md`**, **`docs/operator_closeout/phase50_closeout.md`**, Phase 51 **`docs/phase51_evidence.md`**, **`docs/phase51_patch_report.md`**, **`docs/operator_closeout/phase51_closeout.md`**.
 
 ---
 
@@ -881,6 +881,11 @@ _Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41de
 ## 테스트
 
 `pytest src/tests/test_phase51_external_trigger_ingest_and_runtime_health.py -q` (Phase 50·49 회귀는 워크오더대로 유지).
+
+## 운영 실측 (저장소 권위 번들, 2026-04-13)
+
+- `phase51_external_trigger_ingest_bundle.json` — `generated_utc` **`2026-04-13T06:38:15.299044+00:00`**, `ok: true`, `smoke_metrics_ok: true`; 외부 이벤트 1건 승인·소비, 사이클 ID `f36b11ba-f3e9-4d6e-902c-f24fcbe396c1`, 트리거 `manual_watchlist`·잡 `debate.execute`, `runtime_health_summary.health_status` **`healthy`** (재실행 시 갱신).
+- 클로즈·체크리스트: **`docs/operator_closeout/phase51_closeout.md`**, **`docs/phase51_evidence.md`**, **`docs/phase51_patch_report.md`**.
 
 ---
 
