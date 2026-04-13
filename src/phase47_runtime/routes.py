@@ -1,0 +1,223 @@
+"""JSON API handlers for the cockpit runtime (testable without HTTP)."""
+
+from __future__ import annotations
+
+import json
+from typing import Any
+
+from phase46.alert_ledger import list_alerts, update_alert_status
+from phase46.decision_trace_ledger import DECISION_TYPES, append_decision, list_decisions
+
+from phase47_runtime.governed_conversation import process_governed_prompt
+from phase47_runtime.notification_hooks import emit_notification, list_notifications
+from phase47_runtime.runtime_state import CockpitRuntimeState
+from phase47_runtime.ui_copy import build_section_payload, build_user_first_brief, navigation_contract
+
+
+def _counts(state: CockpitRuntimeState) -> dict[str, int]:
+    alerts = list_alerts(state.alert_ledger_path)
+    decs = list_decisions(state.decision_ledger_path)
+    open_alerts = sum(1 for a in alerts if str(a.get("status") or "") == "open")
+    return {"open_alert_count": open_alerts, "total_alerts": len(alerts), "decision_count": len(decs)}
+
+
+def api_meta(state: CockpitRuntimeState) -> dict[str, Any]:
+    m = state.meta()
+    m.update(_counts(state))
+    return m
+
+
+def api_overview(state: CockpitRuntimeState) -> dict[str, Any]:
+    b = state.bundle
+    rm = b.get("founder_read_model") or {}
+    pitch = b.get("representative_pitch") or {}
+    cs = b.get("cockpit_state") or {}
+    agg = cs.get("cohort_aggregate") or {}
+    c = _counts(state)
+    return {
+        "asset_id": rm.get("asset_id"),
+        "founder_primary_status": agg.get("founder_primary_status"),
+        "current_stance": rm.get("current_stance"),
+        "closeout_status": rm.get("closeout_status"),
+        "reopen_requires_named_source": rm.get("reopen_requires_named_source"),
+        "pitch_summary": (pitch.get("top_level_pitch") or "")[:800],
+        "decision_card": agg.get("decision_card"),
+        "counts": c,
+        "user_first": {
+            "brief": build_user_first_brief(b),
+            "navigation": navigation_contract(),
+        },
+    }
+
+
+_USER_FIRST_SECTIONS = frozenset(
+    {"brief", "why_now", "what_could_change", "evidence", "history", "ask_ai", "advanced"}
+)
+
+
+def api_user_first_section(state: CockpitRuntimeState, section: str) -> dict[str, Any]:
+    s = section.strip().lower()
+    if s not in _USER_FIRST_SECTIONS:
+        return {"ok": False, "error": "unknown_section", "allowed": sorted(_USER_FIRST_SECTIONS)}
+    payload = build_section_payload(state.bundle, s)
+    return {"ok": True, **payload}
+
+
+def api_drilldown(state: CockpitRuntimeState, layer: str) -> dict[str, Any]:
+    dd = state.bundle.get("drilldown_examples") or {}
+    if layer not in dd:
+        return {"ok": False, "error": "unknown_layer", "layer": layer}
+    return {"ok": True, "layer": layer, "content": dd[layer]}
+
+
+def api_alerts(
+    state: CockpitRuntimeState,
+    *,
+    status_filter: str | None = None,
+    asset_id: str | None = None,
+) -> dict[str, Any]:
+    rows = list_alerts(state.alert_ledger_path)
+    if status_filter:
+        rows = [a for a in rows if str(a.get("status") or "") == status_filter]
+    if asset_id:
+        rows = [a for a in rows if str(a.get("asset_id") or "") == asset_id]
+    return {"ok": True, "alerts": rows}
+
+
+def api_alert_action(state: CockpitRuntimeState, body: dict[str, Any]) -> dict[str, Any]:
+    action = str(body.get("action") or "").strip().lower()
+    mapping = {
+        "acknowledge": "acknowledged",
+        "resolve": "resolved",
+        "supersede": "superseded",
+        "dismiss": "dismissed",
+    }
+    if action not in mapping:
+        return {"ok": False, "error": "invalid_action", "allowed": list(mapping)}
+    alert_id = body.get("alert_id")
+    index = body.get("index")
+    if alert_id is None and index is None:
+        return {"ok": False, "error": "need_alert_id_or_index"}
+    try:
+        idx = int(index) if index is not None else None
+    except (TypeError, ValueError):
+        idx = None
+    try:
+        entry = update_alert_status(
+            state.alert_ledger_path,
+            new_status=mapping[action],
+            alert_id=str(alert_id) if alert_id is not None else None,
+            index=idx,
+            operator_note=body.get("operator_note"),
+        )
+    except (KeyError, IndexError, ValueError) as e:
+        return {"ok": False, "error": str(e)}
+    emit_notification(
+        "alert_status_changed",
+        {"alert_id": entry.get("alert_id"), "status": entry.get("status"), "action": action},
+    )
+    return {"ok": True, "alert": entry}
+
+
+def api_decisions(
+    state: CockpitRuntimeState,
+    *,
+    asset_id: str | None = None,
+    decision_type: str | None = None,
+) -> dict[str, Any]:
+    rows = list_decisions(state.decision_ledger_path)
+    if asset_id:
+        rows = [d for d in rows if str(d.get("asset_id") or "") == asset_id]
+    if decision_type:
+        rows = [d for d in rows if str(d.get("decision_type") or "") == decision_type]
+    return {"ok": True, "decisions": rows}
+
+
+def api_decision_append(state: CockpitRuntimeState, body: dict[str, Any]) -> dict[str, Any]:
+    dt = str(body.get("decision_type") or "").strip()
+    if dt not in DECISION_TYPES:
+        return {"ok": False, "error": "invalid_decision_type", "allowed": sorted(DECISION_TYPES)}
+    asset_id = str(body.get("asset_id") or "").strip()
+    if not asset_id:
+        return {"ok": False, "error": "asset_id_required"}
+    note = str(body.get("founder_note") or "")[:4000]
+    try:
+        entry = append_decision(
+            state.decision_ledger_path,
+            asset_id=asset_id,
+            decision_type=dt,
+            founder_note=note,
+            linked_message_summary=str(body.get("linked_message_summary") or "")[:2000],
+            linked_authoritative_artifact=str(body.get("linked_authoritative_artifact") or "")[:2000],
+            linked_research_provenance=str(body.get("linked_research_provenance") or "")[:2000],
+            outcome_placeholder=body.get("outcome_placeholder"),
+        )
+    except ValueError as e:
+        return {"ok": False, "error": str(e)}
+    emit_notification("decision_recorded", {"decision_type": dt, "asset_id": asset_id})
+    return {"ok": True, "decision": entry}
+
+
+def api_conversation(state: CockpitRuntimeState, body: dict[str, Any]) -> dict[str, Any]:
+    text = str(body.get("text") or "")
+    try:
+        out = process_governed_prompt(state.bundle, text)
+    except ValueError as e:
+        return {"ok": False, "error": "governance_violation", "detail": str(e)}
+    return {"ok": True, "response": out}
+
+
+def api_reload(state: CockpitRuntimeState) -> dict[str, Any]:
+    state.reload_bundle()
+    emit_notification("bundle_reloaded", {"path": str(state.phase46_bundle_path)})
+    return {"ok": True, "meta": api_meta(state)}
+
+
+def dispatch_json(
+    state: CockpitRuntimeState,
+    *,
+    method: str,
+    path: str,
+    body: bytes | None,
+    query: dict[str, str] | None = None,
+) -> tuple[int, dict[str, Any]]:
+    q = query or {}
+    p = path.split("?", 1)[0].rstrip("/") or "/"
+    raw: dict[str, Any] = {}
+    if body:
+        try:
+            raw = json.loads(body.decode("utf-8"))
+        except json.JSONDecodeError:
+            return 400, {"ok": False, "error": "invalid_json"}
+
+    if method == "GET" and p == "/api/meta":
+        return 200, {"ok": True, **api_meta(state)}
+    if method == "GET" and p == "/api/overview":
+        return 200, {"ok": True, **api_overview(state)}
+    if method == "GET" and p.startswith("/api/user-first/section/"):
+        sec = p.split("/api/user-first/section/", 1)[-1]
+        r = api_user_first_section(state, sec)
+        return (200 if r.get("ok") else 404), r
+    if method == "GET" and p.startswith("/api/drilldown/"):
+        layer = p.split("/api/drilldown/", 1)[-1]
+        r = api_drilldown(state, layer)
+        return (200 if r.get("ok") else 404), r
+    if method == "GET" and p == "/api/alerts":
+        return 200, api_alerts(state, status_filter=q.get("status"), asset_id=q.get("asset_id"))
+    if method == "GET" and p == "/api/decisions":
+        return 200, api_decisions(state, asset_id=q.get("asset_id"), decision_type=q.get("decision_type"))
+    if method == "GET" and p == "/api/notifications":
+        return 200, {"ok": True, "events": list_notifications()}
+    if method == "POST" and p == "/api/reload":
+        return 200, api_reload(state)
+    if method == "POST" and p == "/api/alerts/action":
+        r = api_alert_action(state, raw)
+        return (200 if r.get("ok") else 400), r
+    if method == "POST" and p == "/api/decisions":
+        r = api_decision_append(state, raw)
+        return (200 if r.get("ok") else 400), r
+    if method == "POST" and p == "/api/conversation":
+        r = api_conversation(state, raw)
+        return (200 if r.get("ok") else 422), r
+
+    return 404, {"ok": False, "error": "not_found", "path": p}

@@ -1,0 +1,608 @@
+{
+  "ok": true,
+  "phase": "phase46_founder_decision_cockpit",
+  "generated_utc": "2026-04-12T20:40:43.768261+00:00",
+  "input_phase45_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase45_canonical_closeout_bundle.json",
+  "input_phase44_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase44_claim_narrowing_truthfulness_bundle.json",
+  "founder_read_model": {
+    "asset_id": "research_engine_fixture_cohort_8_row_v1",
+    "cohort_row_count": 8,
+    "cohort_symbols": [
+      "BBY",
+      "ADSK",
+      "CRM",
+      "CRWD",
+      "DELL",
+      "DUK",
+      "NVDA",
+      "WMT"
+    ],
+    "current_stance": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+    "decision_status": "watching_for_new_evidence",
+    "headline_message": "Cohort closed under phase44_claim_narrowing_truthfulness: narrow claims document proxy limits operator closeout v1. Hold documented proxy limits until new named evidence or source registration.",
+    "what_changed": [
+      "Scorecard bucket moved no_market_metadata_row_for_symbol → sector_field_blank_on_metadata_row (diagnostic precision; not sector_available increase).",
+      "Phase 42 digest changed across Phase 43 bracket (execution artifact; not standalone falsifier proof)."
+    ],
+    "what_did_not_change": [
+      "Filing blocker distribution unchanged at aggregate level for cohort.",
+      "No increase in sector_available; sector-informed falsification still unavailable.",
+      "gate_status and primary_block_category unchanged vs Phase 43 bracket.",
+      "Family outcome rollup signatures did not materially change."
+    ],
+    "current_uncertainties": [
+      "Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.",
+      "Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent."
+    ],
+    "next_watchpoints": [
+      "Any newly named filing or sector source/path distinct from Phase 43 bounded paths (see reopen protocol).",
+      "Scorecard movement in exact_public_ts_available or sector_available if a bounded retest is authorized later.",
+      "hold_closeout_until_named_new_source_or_new_evidence_v1"
+    ],
+    "authoritative_phase": "phase44_claim_narrowing_truthfulness",
+    "authoritative_recommendation": "narrow_claims_document_proxy_limits_operator_closeout_v1",
+    "gate_summary": {
+      "gate_status": "deferred",
+      "primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate"
+    },
+    "closeout_status": "closed_pending_new_evidence",
+    "reopen_requires_named_source": true,
+    "trace_links": {
+      "phase45_canonical_closeout_bundle": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase45_canonical_closeout_bundle.json",
+      "phase44_claim_narrowing_truthfulness_bundle": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase44_claim_narrowing_truthfulness_bundle.json",
+      "phase44_provenance_audit": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase44_provenance_audit.md",
+      "phase44_explanation_v7": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase44_explanation_surface_v7.md"
+    }
+  },
+  "cockpit_state": {
+    "cohort_aggregate": {
+      "founder_primary_status": "watching_for_new_evidence",
+      "research_substrate_tag": "deferred_proxy_limited",
+      "claim_narrowing_tag": "claim_narrowed_closed",
+      "decision_card": {
+        "title": "Current stance",
+        "body": "Cohort closed under phase44_claim_narrowing_truthfulness: narrow claims document proxy limits operator closeout v1. Hold documented proxy limits until new named evidence or source registration.",
+        "stance_code": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+        "authoritative_phase": "phase44_claim_narrowing_truthfulness"
+      },
+      "message_card": {
+        "title": "Operator-facing summary",
+        "body": "Cohort closed under phase44_claim_narrowing_truthfulness: narrow claims document proxy limits operator closeout v1. Hold documented proxy limits until new named evidence or source registration.\n\nUncertainties: Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent."
+      },
+      "information_card": {
+        "title": "Key facts",
+        "bullets": [
+          "Cohort: 8 fixture rows (BBY, ADSK, CRM, CRWD, DELL…).",
+          "Material falsifier improvement (Phase 44): False.",
+          "Authoritative recommendation: narrow_claims_document_proxy_limits_operator_closeout_v1."
+        ]
+      },
+      "research_provenance_card": {
+        "title": "Research provenance",
+        "bullets": [
+          "Authoritative interpretation: Phase 44 truthfulness bundle (Phase 45 precedence record).",
+          "Phase 43 nested optimistic retry strings are historical only; do not use for current guidance.",
+          "Gate (drill-down): deferred / deferred_due_to_proxy_limited_falsifier_substrate"
+        ]
+      },
+      "closeout_reopen_card": {
+        "title": "Closeout & reopen",
+        "closeout": "closed_pending_new_evidence",
+        "phase46_next": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+        "reopen_note": "A single bounded retest may be authorized only after registering a named source/path materially different from Phase 43 filing repair and Yahoo chart sector hydration."
+      }
+    },
+    "row_cards": [
+      {
+        "asset_id": "fixture_row:BBY",
+        "symbol": "BBY",
+        "founder_primary_status": "watching_for_new_evidence",
+        "decision_card": {
+          "title": "BBY — fixture row",
+          "body": "Same cohort-level governance and closeout apply; row-level drill-down in research layer."
+        },
+        "message_card": {
+          "title": "Message",
+          "body": "Cohort closed under phase44_claim_narrowing_truthfulness: narrow claims document proxy limits operator closeout v1. Hold documented proxy limits until new named evidence or source registration.\n\nUncertainties: Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent."
+        },
+        "information_card": {
+          "title": "Facts",
+          "bullets": [
+            "Member of 8-row join-mismatch fixture."
+          ]
+        },
+        "research_provenance_card": {
+          "title": "Research provenance",
+          "bullets": [
+            "Authoritative interpretation: Phase 44 truthfulness bundle (Phase 45 precedence record).",
+            "Phase 43 nested optimistic retry strings are historical only; do not use for current guidance.",
+            "Gate (drill-down): deferred / deferred_due_to_proxy_limited_falsifier_substrate"
+          ]
+        },
+        "closeout_reopen_card": {
+          "title": "Closeout & reopen",
+          "closeout": "closed_pending_new_evidence",
+          "phase46_next": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+          "reopen_note": "A single bounded retest may be authorized only after registering a named source/path materially different from Phase 43 filing repair and Yahoo chart sector hydration."
+        }
+      },
+      {
+        "asset_id": "fixture_row:ADSK",
+        "symbol": "ADSK",
+        "founder_primary_status": "watching_for_new_evidence",
+        "decision_card": {
+          "title": "ADSK — fixture row",
+          "body": "Same cohort-level governance and closeout apply; row-level drill-down in research layer."
+        },
+        "message_card": {
+          "title": "Message",
+          "body": "Cohort closed under phase44_claim_narrowing_truthfulness: narrow claims document proxy limits operator closeout v1. Hold documented proxy limits until new named evidence or source registration.\n\nUncertainties: Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent."
+        },
+        "information_card": {
+          "title": "Facts",
+          "bullets": [
+            "Member of 8-row join-mismatch fixture."
+          ]
+        },
+        "research_provenance_card": {
+          "title": "Research provenance",
+          "bullets": [
+            "Authoritative interpretation: Phase 44 truthfulness bundle (Phase 45 precedence record).",
+            "Phase 43 nested optimistic retry strings are historical only; do not use for current guidance.",
+            "Gate (drill-down): deferred / deferred_due_to_proxy_limited_falsifier_substrate"
+          ]
+        },
+        "closeout_reopen_card": {
+          "title": "Closeout & reopen",
+          "closeout": "closed_pending_new_evidence",
+          "phase46_next": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+          "reopen_note": "A single bounded retest may be authorized only after registering a named source/path materially different from Phase 43 filing repair and Yahoo chart sector hydration."
+        }
+      },
+      {
+        "asset_id": "fixture_row:CRM",
+        "symbol": "CRM",
+        "founder_primary_status": "watching_for_new_evidence",
+        "decision_card": {
+          "title": "CRM — fixture row",
+          "body": "Same cohort-level governance and closeout apply; row-level drill-down in research layer."
+        },
+        "message_card": {
+          "title": "Message",
+          "body": "Cohort closed under phase44_claim_narrowing_truthfulness: narrow claims document proxy limits operator closeout v1. Hold documented proxy limits until new named evidence or source registration.\n\nUncertainties: Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent."
+        },
+        "information_card": {
+          "title": "Facts",
+          "bullets": [
+            "Member of 8-row join-mismatch fixture."
+          ]
+        },
+        "research_provenance_card": {
+          "title": "Research provenance",
+          "bullets": [
+            "Authoritative interpretation: Phase 44 truthfulness bundle (Phase 45 precedence record).",
+            "Phase 43 nested optimistic retry strings are historical only; do not use for current guidance.",
+            "Gate (drill-down): deferred / deferred_due_to_proxy_limited_falsifier_substrate"
+          ]
+        },
+        "closeout_reopen_card": {
+          "title": "Closeout & reopen",
+          "closeout": "closed_pending_new_evidence",
+          "phase46_next": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+          "reopen_note": "A single bounded retest may be authorized only after registering a named source/path materially different from Phase 43 filing repair and Yahoo chart sector hydration."
+        }
+      },
+      {
+        "asset_id": "fixture_row:CRWD",
+        "symbol": "CRWD",
+        "founder_primary_status": "watching_for_new_evidence",
+        "decision_card": {
+          "title": "CRWD — fixture row",
+          "body": "Same cohort-level governance and closeout apply; row-level drill-down in research layer."
+        },
+        "message_card": {
+          "title": "Message",
+          "body": "Cohort closed under phase44_claim_narrowing_truthfulness: narrow claims document proxy limits operator closeout v1. Hold documented proxy limits until new named evidence or source registration.\n\nUncertainties: Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent."
+        },
+        "information_card": {
+          "title": "Facts",
+          "bullets": [
+            "Member of 8-row join-mismatch fixture."
+          ]
+        },
+        "research_provenance_card": {
+          "title": "Research provenance",
+          "bullets": [
+            "Authoritative interpretation: Phase 44 truthfulness bundle (Phase 45 precedence record).",
+            "Phase 43 nested optimistic retry strings are historical only; do not use for current guidance.",
+            "Gate (drill-down): deferred / deferred_due_to_proxy_limited_falsifier_substrate"
+          ]
+        },
+        "closeout_reopen_card": {
+          "title": "Closeout & reopen",
+          "closeout": "closed_pending_new_evidence",
+          "phase46_next": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+          "reopen_note": "A single bounded retest may be authorized only after registering a named source/path materially different from Phase 43 filing repair and Yahoo chart sector hydration."
+        }
+      },
+      {
+        "asset_id": "fixture_row:DELL",
+        "symbol": "DELL",
+        "founder_primary_status": "watching_for_new_evidence",
+        "decision_card": {
+          "title": "DELL — fixture row",
+          "body": "Same cohort-level governance and closeout apply; row-level drill-down in research layer."
+        },
+        "message_card": {
+          "title": "Message",
+          "body": "Cohort closed under phase44_claim_narrowing_truthfulness: narrow claims document proxy limits operator closeout v1. Hold documented proxy limits until new named evidence or source registration.\n\nUncertainties: Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent."
+        },
+        "information_card": {
+          "title": "Facts",
+          "bullets": [
+            "Member of 8-row join-mismatch fixture."
+          ]
+        },
+        "research_provenance_card": {
+          "title": "Research provenance",
+          "bullets": [
+            "Authoritative interpretation: Phase 44 truthfulness bundle (Phase 45 precedence record).",
+            "Phase 43 nested optimistic retry strings are historical only; do not use for current guidance.",
+            "Gate (drill-down): deferred / deferred_due_to_proxy_limited_falsifier_substrate"
+          ]
+        },
+        "closeout_reopen_card": {
+          "title": "Closeout & reopen",
+          "closeout": "closed_pending_new_evidence",
+          "phase46_next": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+          "reopen_note": "A single bounded retest may be authorized only after registering a named source/path materially different from Phase 43 filing repair and Yahoo chart sector hydration."
+        }
+      },
+      {
+        "asset_id": "fixture_row:DUK",
+        "symbol": "DUK",
+        "founder_primary_status": "watching_for_new_evidence",
+        "decision_card": {
+          "title": "DUK — fixture row",
+          "body": "Same cohort-level governance and closeout apply; row-level drill-down in research layer."
+        },
+        "message_card": {
+          "title": "Message",
+          "body": "Cohort closed under phase44_claim_narrowing_truthfulness: narrow claims document proxy limits operator closeout v1. Hold documented proxy limits until new named evidence or source registration.\n\nUncertainties: Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent."
+        },
+        "information_card": {
+          "title": "Facts",
+          "bullets": [
+            "Member of 8-row join-mismatch fixture."
+          ]
+        },
+        "research_provenance_card": {
+          "title": "Research provenance",
+          "bullets": [
+            "Authoritative interpretation: Phase 44 truthfulness bundle (Phase 45 precedence record).",
+            "Phase 43 nested optimistic retry strings are historical only; do not use for current guidance.",
+            "Gate (drill-down): deferred / deferred_due_to_proxy_limited_falsifier_substrate"
+          ]
+        },
+        "closeout_reopen_card": {
+          "title": "Closeout & reopen",
+          "closeout": "closed_pending_new_evidence",
+          "phase46_next": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+          "reopen_note": "A single bounded retest may be authorized only after registering a named source/path materially different from Phase 43 filing repair and Yahoo chart sector hydration."
+        }
+      },
+      {
+        "asset_id": "fixture_row:NVDA",
+        "symbol": "NVDA",
+        "founder_primary_status": "watching_for_new_evidence",
+        "decision_card": {
+          "title": "NVDA — fixture row",
+          "body": "Same cohort-level governance and closeout apply; row-level drill-down in research layer."
+        },
+        "message_card": {
+          "title": "Message",
+          "body": "Cohort closed under phase44_claim_narrowing_truthfulness: narrow claims document proxy limits operator closeout v1. Hold documented proxy limits until new named evidence or source registration.\n\nUncertainties: Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent."
+        },
+        "information_card": {
+          "title": "Facts",
+          "bullets": [
+            "Member of 8-row join-mismatch fixture."
+          ]
+        },
+        "research_provenance_card": {
+          "title": "Research provenance",
+          "bullets": [
+            "Authoritative interpretation: Phase 44 truthfulness bundle (Phase 45 precedence record).",
+            "Phase 43 nested optimistic retry strings are historical only; do not use for current guidance.",
+            "Gate (drill-down): deferred / deferred_due_to_proxy_limited_falsifier_substrate"
+          ]
+        },
+        "closeout_reopen_card": {
+          "title": "Closeout & reopen",
+          "closeout": "closed_pending_new_evidence",
+          "phase46_next": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+          "reopen_note": "A single bounded retest may be authorized only after registering a named source/path materially different from Phase 43 filing repair and Yahoo chart sector hydration."
+        }
+      },
+      {
+        "asset_id": "fixture_row:WMT",
+        "symbol": "WMT",
+        "founder_primary_status": "watching_for_new_evidence",
+        "decision_card": {
+          "title": "WMT — fixture row",
+          "body": "Same cohort-level governance and closeout apply; row-level drill-down in research layer."
+        },
+        "message_card": {
+          "title": "Message",
+          "body": "Cohort closed under phase44_claim_narrowing_truthfulness: narrow claims document proxy limits operator closeout v1. Hold documented proxy limits until new named evidence or source registration.\n\nUncertainties: Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent."
+        },
+        "information_card": {
+          "title": "Facts",
+          "bullets": [
+            "Member of 8-row join-mismatch fixture."
+          ]
+        },
+        "research_provenance_card": {
+          "title": "Research provenance",
+          "bullets": [
+            "Authoritative interpretation: Phase 44 truthfulness bundle (Phase 45 precedence record).",
+            "Phase 43 nested optimistic retry strings are historical only; do not use for current guidance.",
+            "Gate (drill-down): deferred / deferred_due_to_proxy_limited_falsifier_substrate"
+          ]
+        },
+        "closeout_reopen_card": {
+          "title": "Closeout & reopen",
+          "closeout": "closed_pending_new_evidence",
+          "phase46_next": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+          "reopen_note": "A single bounded retest may be authorized only after registering a named source/path materially different from Phase 43 filing repair and Yahoo chart sector hydration."
+        }
+      }
+    ],
+    "status_vocabulary": [
+      "tracking",
+      "watching_for_new_evidence",
+      "bounded_reopen_available_if_registered",
+      "claim_narrowed_closed",
+      "decision_ready",
+      "deferred_proxy_limited"
+    ]
+  },
+  "representative_pitch": {
+    "top_level_pitch": "Chief-of-staff read: the research engine holds a **closed, claim-narrowed** posture on the 8-row fixture cohort. Falsifier substrate remains proxy-limited; we are **not** reopening broad public-core work. Next step is to **hold** until a **named new source or path** (or other dispositive evidence) is registered under governance — not to infer urgency from older bundle recommendation strings.",
+    "why_this_matters": "This matters because promotion and external claims must track **Phase 44 authoritative truthfulness** and **Phase 45 canonical closeout**. Misreading legacy optimistic wording in Phase 43 bundles would overstate how much the last bounded pass improved falsifiers.",
+    "what_changed": [
+      "Scorecard bucket moved no_market_metadata_row_for_symbol → sector_field_blank_on_metadata_row (diagnostic precision; not sector_available increase).",
+      "Phase 42 digest changed across Phase 43 bracket (execution artifact; not standalone falsifier proof)."
+    ],
+    "what_remains_unproven": "Still unproven for this cohort: clean pre-signal filing-public picks at strict PIT, and sector-informed stratification — aggregate scorecards did not gain exact_public_ts_available or sector_available in the Phase 43 bracket.",
+    "what_to_watch_next": "Any newly named filing or sector source/path distinct from Phase 43 bounded paths (see reopen protocol).; Scorecard movement in exact_public_ts_available or sector_available if a bounded retest is authorized later.; hold_closeout_until_named_new_source_or_new_evidence_v1",
+    "authoritative_rationale_excerpt": "No material falsifier upgrade under Phase 44 rules; do not reopen broad substrate. Narrow claims, document proxy limits, and close out unless new evidence appears.",
+    "phase46_default": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+    "layer_summaries": {
+      "decision": "Stance: watching_for_new_evidence | Authoritative phase: phase44_claim_narrowing_truthfulness | Recommendation key: narrow_claims_document_proxy_limits_operator_closeout_v1",
+      "message": "Chief-of-staff read: the research engine holds a **closed, claim-narrowed** posture on the 8-row fixture cohort. Falsifier substrate remains proxy-limited; we are **not** reopening broad public-core work. Next step is to **hold** until a **named new source or path** (or other dispositive evidence) is registered under governance — not to infer urgency from older bundle recommendation strings.",
+      "information": "- Cohort: 8 fixture rows (BBY, ADSK, CRM, CRWD, DELL…).\n- Material falsifier improvement (Phase 44): False.\n- Authoritative recommendation: narrow_claims_document_proxy_limits_operator_closeout_v1.",
+      "research": "- Authoritative interpretation: Phase 44 truthfulness bundle (Phase 45 precedence record).\n- Phase 43 nested optimistic retry strings are historical only; do not use for current guidance.\n- Gate (drill-down): deferred / deferred_due_to_proxy_limited_falsifier_substrate",
+      "provenance": "Trace: Phase 45 canonical bundle records which Phase 43 fields were superseded; Phase 44 bundle holds provenance-separated audits. Drill-down `provenance` for paths.",
+      "closeout": "closed_pending_new_evidence"
+    }
+  },
+  "drilldown_examples": {
+    "decision": {
+      "layer": "decision",
+      "summary": "Stance: watching_for_new_evidence | Authoritative phase: phase44_claim_narrowing_truthfulness | Recommendation key: narrow_claims_document_proxy_limits_operator_closeout_v1",
+      "structured": {
+        "authoritative_recommendation": "narrow_claims_document_proxy_limits_operator_closeout_v1",
+        "current_stance": "hold_closeout_until_named_new_source_or_new_evidence_v1"
+      },
+      "governed": true
+    },
+    "message": {
+      "layer": "message",
+      "summary": "Chief-of-staff read: the research engine holds a **closed, claim-narrowed** posture on the 8-row fixture cohort. Falsifier substrate remains proxy-limited; we are **not** reopening broad public-core work. Next step is to **hold** until a **named new source or path** (or other dispositive evidence) is registered under governance — not to infer urgency from older bundle recommendation strings.",
+      "structured": {
+        "why_this_matters": "This matters because promotion and external claims must track **Phase 44 authoritative truthfulness** and **Phase 45 canonical closeout**. Misreading legacy optimistic wording in Phase 43 bundles would overstate how much the last bounded pass improved falsifiers."
+      },
+      "governed": true
+    },
+    "information": {
+      "layer": "information",
+      "summary": "- Cohort: 8 fixture rows (BBY, ADSK, CRM, CRWD, DELL…).\n- Material falsifier improvement (Phase 44): False.\n- Authoritative recommendation: narrow_claims_document_proxy_limits_operator_closeout_v1.",
+      "structured": {
+        "what_changed": [
+          "Scorecard bucket moved no_market_metadata_row_for_symbol → sector_field_blank_on_metadata_row (diagnostic precision; not sector_available increase).",
+          "Phase 42 digest changed across Phase 43 bracket (execution artifact; not standalone falsifier proof)."
+        ],
+        "what_did_not_change": [
+          "Filing blocker distribution unchanged at aggregate level for cohort.",
+          "No increase in sector_available; sector-informed falsification still unavailable.",
+          "gate_status and primary_block_category unchanged vs Phase 43 bracket.",
+          "Family outcome rollup signatures did not materially change."
+        ]
+      },
+      "governed": true
+    },
+    "research": {
+      "layer": "research",
+      "summary": "- Authoritative interpretation: Phase 44 truthfulness bundle (Phase 45 precedence record).\n- Phase 43 nested optimistic retry strings are historical only; do not use for current guidance.\n- Gate (drill-down): deferred / deferred_due_to_proxy_limited_falsifier_substrate",
+      "structured": {
+        "material_falsifier_improvement": false,
+        "claim_narrowing": {
+          "family_claim_limits": {
+            "signal_filing_boundary_v1": {
+              "claim_status": "narrowed",
+              "supported_scope": "Cohort-level statement that pre-signal filing-public strict pick remains proxy- or blocker-limited for the Phase 43 8-row fixture; bounded ingest did not increase exact_public_ts_available or filed-date-only usability in scorecard aggregates.",
+              "unsupported_scope": "Claims that filing-public falsifier quality materially improved for this cohort without exact_public_ts_available or accepted_at_missing_but_filed_date_only gains.",
+              "reason": "Filing distributions before/after: {'no_10k_10q_rows_for_cik': 7, 'only_post_signal_filings_available': 1} → {'no_10k_10q_rows_for_cik': 7, 'only_post_signal_filings_available': 1}. No aggregate filing falsifier upgrade; retry only with a newly named ingestion path."
+            },
+            "issuer_sector_reporting_cadence_v1": {
+              "claim_status": "narrowed",
+              "supported_scope": "Sector diagnosis refined: metadata row exists but sector field remains blank for all 8 rows; sector-informed stratification is still unavailable.",
+              "unsupported_scope": "Sector-based falsification or sector_available-backed claims for this cohort without a new provider/path that populates sector.",
+              "reason": "Sector distributions before/after: {'no_market_metadata_row_for_symbol': 8} → {'sector_field_blank_on_metadata_row': 8}. no_market_metadata_row → sector_field_blank is taxonomy precision only unless sector_available increases."
+            }
+          },
+          "cohort_claim_limits": {
+            "claim_status": "narrowed",
+            "supported_scope": "Proxy-limited falsifier substrate remains for this bounded cohort; broad public-core reopening is not justified by Phase 43 evidence.",
+            "unsupported_scope": "Broad filing_index campaigns, broad metadata campaigns, or auto-promotion from Phase 43 alone.",
+            "reason": "Phase 44 assessment: see per-family limits and retry_eligibility."
+          },
+          "bounded_retry_eligibility": "not_eligible_without_named_new_path"
+        }
+      },
+      "governed": true
+    },
+    "provenance": {
+      "layer": "provenance",
+      "summary": "Trace: Phase 45 canonical bundle records which Phase 43 fields were superseded; Phase 44 bundle holds provenance-separated audits. Drill-down `provenance` for paths.",
+      "structured": {
+        "trace_links": {
+          "phase45_canonical_closeout_bundle": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase45_canonical_closeout_bundle.json",
+          "phase44_claim_narrowing_truthfulness_bundle": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase44_claim_narrowing_truthfulness_bundle.json",
+          "phase44_provenance_audit": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase44_provenance_audit.md",
+          "phase44_explanation_v7": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase44_explanation_surface_v7.md"
+        },
+        "authoritative_phase": "phase44_claim_narrowing_truthfulness",
+        "superseded_count": 2
+      },
+      "governed": true
+    },
+    "closeout": {
+      "layer": "closeout",
+      "summary": "closed_pending_new_evidence",
+      "structured": {
+        "future_reopen_protocol": {
+          "future_reopen_allowed_with_named_source": true,
+          "accepted_reopen_axes": [
+            "bounded_filing_ingest_alternate_named_path",
+            "bounded_sector_fill_alternate_named_provider"
+          ],
+          "forbidden_reopen_axes": [
+            "broad_public_core_filing_index_campaign",
+            "broad_metadata_or_universe_wide_sprint",
+            "implicit_reopen_from_stale_bundle_recommendation_string",
+            "auto_promotion",
+            "new_hypothesis_family_without_separate_approval"
+          ],
+          "required_operator_declaration_fields": [
+            "named_filing_source_or_ingestion_path_if_filing_axis",
+            "named_sector_provider_or_path_if_sector_axis",
+            "material_difference_rationale_vs_phase43_paths",
+            "cohort_scope_explicit_cap_default_8_row_fixture",
+            "one_shot_bounded_retest_acknowledgement"
+          ],
+          "max_scope_on_reopen": "single_bounded_cohort_retest_one_shot; preserve 8-row fixture cap unless documented separate approval expands scope",
+          "reopen_decision_rule": "Prospective: one bounded retest may be authorized when operator registers a concrete named source/path that is not a duplicate label of Phase 43 paths already used, and documents why it is materially different. Retrospective: Phase 44 `material_falsifier_improvement_observed` remains the success criterion after a pass. These layers are distinct: declaring a new path does not imply prior improvement.",
+          "distinction": {
+            "observed_material_improvement": "After a bounded pass, Phase 44-style scorecard/gate/discrimination checks determine whether falsifier usability actually improved.",
+            "reopen_eligibility_on_new_named_source": "Before the next pass, operator may register a new named path to satisfy governance for a single capped retest without requiring improvement to have been observed yet."
+          },
+          "phase43_paths_already_used_reference": {
+            "filing": "bounded_run_sample_ingest_per_cik",
+            "sector": "yahoo_chart"
+          }
+        },
+        "current_closeout_status": {
+          "current_closeout_status": "closed_pending_new_evidence",
+          "authoritative_interpretation": "phase44_claim_narrowing_truthfulness",
+          "summary": "Cohort closed under Phase 44 verdict; no further bounded work until named new source/path or other new evidence is registered per reopen protocol."
+        }
+      },
+      "governed": true
+    }
+  },
+  "alert_ledger_schema": {
+    "schema_version": 1,
+    "description": "Product-surface alert ledger — file-backed v1",
+    "entry_fields": {
+      "alert_timestamp": "ISO-8601 UTC",
+      "asset_id": "str — cohort or row id",
+      "alert_class": "str — taxonomy e.g. closeout_hold, reopen_eligible, gate_deferred",
+      "message_summary": "str — human-readable one-liner",
+      "triggering_source_artifact": "str — path or bundle phase key",
+      "requires_attention": "bool",
+      "status": "open | acknowledged | resolved | superseded"
+    }
+  },
+  "decision_trace_ledger_schema": {
+    "schema_version": 1,
+    "description": "Founder/operator decision trace — why, not only what the engine said",
+    "entry_fields": {
+      "timestamp": "ISO-8601 UTC",
+      "asset_id": "str",
+      "decision_type": "one of ['buy', 'defer', 'dismiss_alert', 'hold', 'reopen_request', 'sell', 'watch']",
+      "founder_note": "str",
+      "linked_message_summary": "str",
+      "linked_authoritative_artifact": "str — path or id",
+      "linked_research_provenance": "str",
+      "outcome_placeholder": "optional str for future outcome linkage"
+    }
+  },
+  "alert_ledger_snapshot": {
+    "schema_version": 1,
+    "alerts": []
+  },
+  "decision_trace_ledger_snapshot": {
+    "schema_version": 1,
+    "decisions": []
+  },
+  "alert_ledger_path": "/Users/hyunminkim/GenAIProacTrade/data/product_surface/alert_ledger_v1.json",
+  "decision_trace_ledger_path": "/Users/hyunminkim/GenAIProacTrade/data/product_surface/decision_trace_ledger_v1.json",
+  "ui_surface_contract": {
+    "version": 1,
+    "asset_list_cards": {
+      "description": "Scrollable list of tracked cohort rows or aggregate cohort card",
+      "item_fields": [
+        "asset_id",
+        "symbol",
+        "founder_primary_status",
+        "headline_snippet",
+        "requires_attention_badge"
+      ]
+    },
+    "asset_detail_cards": {
+      "description": "Tabs or accordion: decision, message, information, research, closeout",
+      "sections": [
+        "decision_card",
+        "message_card",
+        "information_card",
+        "research_provenance_card",
+        "closeout_reopen_card"
+      ]
+    },
+    "representative_agent_pitch": {
+      "description": "Read-only pitch panel from bundle.representative_pitch",
+      "fields": [
+        "top_level_pitch",
+        "why_this_matters",
+        "what_changed",
+        "what_remains_unproven",
+        "what_to_watch_next"
+      ]
+    },
+    "drilldown_panels": {
+      "description": "Each panel keyed by layer name; content from drilldown.render_drilldown",
+      "layers": [
+        "decision",
+        "message",
+        "information",
+        "research",
+        "provenance",
+        "closeout"
+      ]
+    },
+    "alert_feed": {
+      "description": "Chronological alert_ledger entries; filter by asset_id, status",
+      "source_file": "data/product_surface/alert_ledger_v1.json"
+    },
+    "decision_ledger_feed": {
+      "description": "Chronological decision_trace entries with linked artifacts",
+      "source_file": "data/product_surface/decision_trace_ledger_v1.json"
+    }
+  },
+  "phase47": {
+    "phase47_recommendation": "wire_alert_and_decision_ledgers_to_ui_and_notification_hooks_v1",
+    "rationale": "Consume the Phase 46 UI surface contract in a thin web or ops dashboard: alert feed, decision trace, drill-down panels, and optional notifications — still governed by bundles, no new substrate work."
+  }
+}

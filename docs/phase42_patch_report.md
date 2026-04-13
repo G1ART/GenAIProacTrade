@@ -63,6 +63,14 @@ pytest src/tests/test_phase42_evidence_accumulation.py -q
 
 **Phase 43** (같은 날 후속): `run-phase43-targeted-substrate-backfill` 실측 번들 `phase43_targeted_substrate_backfill_bundle.json` (`2026-04-11T19:03:56Z`) — Phase 42를 **다시** Supabase-fresh로 돌려 sector 스코어카드 버킷이 **no_row → blank-field**로 이동, digest 변경. 게이트 카테고리는 동일. 상세 **`docs/phase43_evidence.md`**, **`docs/phase43_patch_report.md`**.
 
+**Phase 44·45** (번들만, 기판 작업 없음): truthfulness·provenance·canonical closeout·재진입 프로토콜 — **`docs/phase44_patch_report.md`**, **`docs/phase44_evidence.md`**, **`docs/phase45_patch_report.md`**, **`docs/phase45_evidence.md`**.
+
+**Phase 46** (제품 표면, 번들만): founder cockpit·대표 피치·레저·UI 계약 — **`docs/phase46_patch_report.md`**, **`docs/phase46_evidence.md`**.
+
+**Phase 47** (브라우저 런타임): stdlib HTTP·거버넌스 대화·레저 쓰기 — **`docs/phase47_patch_report.md`**, **`docs/phase47_evidence.md`**.
+
+**Phase 48** (선행 연구 단일 사이클): 잡 레지스트리·트리거·경계 토론·프리미엄 후보 — **클로즈** **`docs/operator_closeout/phase48_closeout.md`** — **`docs/phase48_patch_report.md`**, **`docs/phase48_evidence.md`**. 다중 사이클: **`docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`**.
+
 ## Related
 
-`docs/phase41_patch_report.md`, **`docs/phase43_patch_report.md`**, `docs/research_engine_constitution.md`
+`docs/phase41_patch_report.md`, **`docs/phase43_patch_report.md`**, **`docs/phase44_patch_report.md`**, **`docs/phase45_patch_report.md`**, **`docs/phase46_patch_report.md`**, **`docs/phase47_patch_report.md`**, **`docs/phase48_patch_report.md`**, `docs/research_engine_constitution.md`

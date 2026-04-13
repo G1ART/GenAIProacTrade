@@ -1,0 +1,62 @@
+{
+  "ok": true,
+  "phase": "phase47_founder_cockpit_runtime",
+  "generated_utc": "2026-04-13T00:24:13.690156+00:00",
+  "input_phase46_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json",
+  "runtime_entrypoint": "PYTHONPATH=src python3 src/phase47_runtime/app.py",
+  "runtime_views": [
+    "home_overview",
+    "cohort_detail_drilldown",
+    "alerts_panel",
+    "decision_log",
+    "governed_conversation"
+  ],
+  "governed_conversation_contract": {
+    "version": 1,
+    "description": "Founder prompts are matched to governed bundle slices only; no LLM.",
+    "intents_supported": [
+      "decision_summary",
+      "information_layer",
+      "research_layer",
+      "why_closed",
+      "provenance",
+      "what_changed",
+      "what_unproven",
+      "message_layer",
+      "closeout_layer"
+    ],
+    "fallback": "outside_governed_cockpit_scope"
+  },
+  "alert_actions_supported": [
+    "acknowledge",
+    "resolve",
+    "supersede",
+    "dismiss"
+  ],
+  "decision_actions_supported": [
+    "buy",
+    "defer",
+    "dismiss_alert",
+    "hold",
+    "reopen_request",
+    "sell",
+    "watch"
+  ],
+  "reload_model": {
+    "kind": "explicit_http_post_reload",
+    "path": "/api/reload",
+    "staleness": "GET /api/meta exposes bundle_stale vs phase46 bundle mtime"
+  },
+  "deploy_target": {
+    "primary": "internal_https_reverse_proxy",
+    "notes_path": "docs/operator_closeout/phase47_runtime_deploy_notes.md",
+    "example_hosts": [
+      "127.0.0.1 (dev)",
+      "corp VPN static host behind nginx"
+    ]
+  },
+  "phase48": {
+    "phase48_recommendation": "external_notification_connectors_and_runtime_audit_log_v1",
+    "rationale": "Wire Slack/email/webhook adapters to notification_hooks; persist operator actions in an append-only audit JSON alongside ledgers; optional session auth for internal URL."
+  }
+}

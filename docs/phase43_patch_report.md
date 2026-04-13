@@ -43,7 +43,7 @@ python3 src/main.py write-phase43-targeted-substrate-backfill-review \
 - **스코어카드**: filing 7+1 유지; sector 버킷 **no_row 8 → blank 8**.
 - **게이트**: `deferred` / `deferred_due_to_proxy_limited_falsifier_substrate` **유지**.
 - **digest**: `edfd0b7d36ecb2de` → `285b046cc5bcb307`.
-- **Phase 44**: `continue_bounded_falsifier_retest_or_narrow_claims_v1`.
+- **번들 내 `phase44` (레거시)**: `continue_bounded_falsifier_retest_or_narrow_claims_v1` — **현재 코호트 운영 가이드가 아님**. 권위 해석·클로즈아웃은 **`docs/phase44_evidence.md`**, **`docs/phase45_evidence.md`** 및 Phase 45 canonical 번들.
 
 상세 표·해석: **`docs/phase43_evidence.md`**.
 
@@ -53,4 +53,4 @@ python3 src/main.py write-phase43-targeted-substrate-backfill-review \
 
 ## Related
 
-`docs/phase42_patch_report.md`, `docs/phase42_evidence.md`, `HANDOFF.md` (Phase 43 절)
+`docs/phase42_patch_report.md`, `docs/phase42_evidence.md`, **`docs/phase44_patch_report.md`**, **`docs/phase44_evidence.md`**, **`docs/phase45_patch_report.md`**, **`docs/phase45_evidence.md`**, `HANDOFF.md` (Phase 43 절)

@@ -4,7 +4,7 @@
 
 - `phase43_bundle_written` / `phase43_review_written` (stdout 태그, `run-phase43-targeted-substrate-backfill` 성공 시)
 - `docs/operator_closeout/phase43_targeted_substrate_backfill_bundle.json` 유효 JSON, `"ok": true` — **실측 완료** (`2026-04-11T19:03:56Z`)
-- 단위 테스트: `pytest src/tests/test_phase43_targeted_substrate_backfill.py -q` → **13 passed** (코호트 8행 잠금·분류·before/after MD·Phase 44 분기·Phase 42 `use_supabase=True` 와이어링; DB 없음)
+- 단위 테스트: `pytest src/tests/test_phase43_targeted_substrate_backfill.py -q` → **13 passed** (코호트 8행 잠금·분류·before/after MD·레거시 Phase 44 분기 문자열·Phase 42 `use_supabase=True` 와이어링; DB 없음). 후속 체인: `pytest src/tests/test_phase44_claim_narrowing_truthfulness.py`, `pytest src/tests/test_phase45_operator_closeout_and_reopen_protocol.py`.
 
 ## 설계 앵커
 
@@ -70,23 +70,35 @@
 
 **리뷰어 주의**: `phase42_context.sector_missing_row_count` 등 게이트 집계는 **스코어카드의 세분 sector 코드**와 항상 1:1로 맞지 않을 수 있다. 이번 런에서는 **스코어카드·`before_after_row_audit`** 를 sector 진단의 1차 근거로 본다.
 
-### Phase 44
+### Phase 43 번들 내 `phase44` (오케스트레이터 산출, 레거시)
 
-| 필드 | 값 |
-|------|-----|
+| 필드 | 값 (번들에 기록될 수 있음) |
+|------|----------------------------|
 | `phase44_recommendation` | `continue_bounded_falsifier_retest_or_narrow_claims_v1` |
-| 요지 | 스코어카드/행 단위에 **변화**가 있어(특히 sector 버킷·digest) **추가 bounded 재시도 또는 주장 축소** 분기 |
+| **현재 권위** | **아님** — 낙관적 델타 휴리스틱. 운영·클로즈아웃은 **Phase 44·45** 번들을 본다 (`authoritative_resolution` 참고). |
+
+### Phase 44 (별도 번들 — truthfulness & claim narrowing)
+
+- **번들**: `docs/operator_closeout/phase44_claim_narrowing_truthfulness_bundle.json`
+- **증거·패치**: **`docs/phase44_evidence.md`**, **`docs/phase44_patch_report.md`**
+- **요지**: provenance 분리; blank-field-only는 material 아님; claim narrowing; retry는 신규 명명 경로 필요.
+
+### Phase 45 (canonical closeout + reopen protocol)
+
+- **번들**: `docs/operator_closeout/phase45_canonical_closeout_bundle.json`
+- **증거·패치**: **`docs/phase45_evidence.md`**, **`docs/phase45_patch_report.md`**
+- **요지**: Phase 44 supersede Phase 43 레거시 권고; 단일 클로즈아웃 패키지; 재진입 조건 명시; Phase 46 기본 hold.
 
 ### Phase 42 번들 내 `phase43` (코드 권고, 재실행 산출)
 
-- `substrate_backfill_or_narrow_claims_then_retest_v1` — 문자열 권고는 유지. **운영 의사결정**은 위 **Phase 44**와 **본 문서 표**를 함께 본다.
+- `substrate_backfill_or_narrow_claims_then_retest_v1` — 문자열은 **번들 기록용**. **현재 코호트 운영 종결**은 Phase 45 `superseded_recommendations`에 포함될 수 있음.
 
 ## 해석 (운영)
 
 1. **Bounded backfill만으로 filing falsifier 품질은 이 코호트에서 개선되지 않음** — ingest가 인덱스 터치에 그쳤고, 10-K/10-Q 관점·시그널 대비 여전히 동일 블로커 코드.
 2. **Sector는 “없음”에서 “있으나 비어 있음”으로 관측이 정밀해짐** — 여전히 **usable sector 라벨 없음**; 게이트 카테고리는 동일 유지.
-3. **다음**: 광역 기판 금지 전제에서 **추가 bounded 실험**(다른 ingest 깊이·데이터 소스는 별도 설계) vs **주장 축소·한계 문서화** — Phase 44 권고와 정합.
+3. **다음 (권위 체인)**: **Phase 44** truthfulness·**Phase 45** canonical closeout·`HANDOFF.md` Phase 44–45 절. 번들에 남은 `phase44.continue_bounded…` 문구에 **묵시적 재개하지 말 것**.
 
 ## Related
 
-`docs/phase43_patch_report.md`, `docs/phase42_evidence.md` (§ Supabase fresh), `docs/operator_closeout/phase42_supabase_reviewer_audit.md`, `HANDOFF.md` — Phase 43 절
+`docs/phase43_patch_report.md`, `docs/phase42_evidence.md` (§ Supabase fresh), `docs/operator_closeout/phase42_supabase_reviewer_audit.md`, **`docs/phase44_evidence.md`**, **`docs/phase45_evidence.md`**, `HANDOFF.md` — Phase 43 절

@@ -6927,6 +6927,300 @@ def _cmd_write_phase44_claim_narrowing_truthfulness_review(
     return 0
 
 
+def _cmd_run_phase45_operator_closeout_and_reopen_protocol(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase45.orchestrator import run_phase45_operator_closeout_and_reopen_protocol
+    from phase45.review import (
+        write_phase45_canonical_closeout_bundle_json,
+        write_phase45_canonical_closeout_review_md,
+    )
+
+    p44 = (
+        str(getattr(args, "phase44_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase44_claim_narrowing_truthfulness_bundle.json"
+    )
+    p43 = (
+        str(getattr(args, "phase43_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase43_targeted_substrate_backfill_bundle.json"
+    )
+    out = run_phase45_operator_closeout_and_reopen_protocol(
+        phase44_bundle_in=p44,
+        phase43_bundle_in=p43,
+        operator_registered_new_named_source=bool(
+            getattr(args, "operator_registered_new_named_source", False)
+        ),
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase45_canonical_closeout_bundle_json(bo, bundle=out)
+        print("phase45_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase45_canonical_closeout_review_md(md, bundle=out)
+        print("phase45_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase45_operator_closeout_and_reopen_protocol_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase45.review import (
+        write_phase45_canonical_closeout_bundle_json,
+        write_phase45_canonical_closeout_review_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase45_canonical_closeout_review_md(str(args.out_md), bundle=bundle)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase45_canonical_closeout_bundle_json(bo, bundle=bundle)
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_run_phase46_founder_decision_cockpit(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase46.orchestrator import run_phase46_founder_decision_cockpit
+    from phase46.review import (
+        write_phase46_founder_decision_cockpit_bundle_json,
+        write_phase46_founder_decision_cockpit_review_md,
+        write_phase46_founder_pitch_surface_md,
+    )
+
+    p45 = (
+        str(getattr(args, "phase45_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase45_canonical_closeout_bundle.json"
+    )
+    p44 = (
+        str(getattr(args, "phase44_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase44_claim_narrowing_truthfulness_bundle.json"
+    )
+    out = run_phase46_founder_decision_cockpit(
+        phase45_bundle_in=p45,
+        phase44_bundle_in=p44,
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase46_founder_decision_cockpit_bundle_json(bo, bundle=out)
+        print("phase46_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase46_founder_decision_cockpit_review_md(md, bundle=out)
+        print("phase46_review_written", flush=True)
+    pitch = str(getattr(args, "pitch_out", "") or "").strip()
+    if pitch:
+        write_phase46_founder_pitch_surface_md(pitch, bundle=out)
+        print("phase46_pitch_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_write_phase46_founder_decision_cockpit_review(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+    from pathlib import Path
+
+    from phase46.review import (
+        write_phase46_founder_decision_cockpit_bundle_json,
+        write_phase46_founder_decision_cockpit_review_md,
+        write_phase46_founder_pitch_surface_md,
+    )
+
+    bi = str(getattr(args, "bundle_in", "") or "").strip()
+    if not bi:
+        print(
+            json_lib.dumps({"ok": False, "error": "--bundle-in required"}, indent=2),
+            file=sys.stderr,
+        )
+        return 1
+    bundle = json_lib.loads(Path(bi).read_text(encoding="utf-8"))
+    md_path = write_phase46_founder_decision_cockpit_review_md(str(args.out_md), bundle=bundle)
+    pitch_path = str(getattr(args, "pitch_out", "") or "").strip()
+    if pitch_path:
+        write_phase46_founder_pitch_surface_md(pitch_path, bundle=bundle)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    json_path = ""
+    if bo:
+        json_path = write_phase46_founder_decision_cockpit_bundle_json(bo, bundle=bundle)
+    print(
+        json_lib.dumps(
+            {"ok": True, "wrote_md": md_path, "wrote_pitch": bool(pitch_path), "wrote_bundle": json_path or None},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_run_phase47_founder_cockpit_runtime(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase47_runtime.orchestrator import run_phase47_founder_cockpit_runtime
+    from phase47_runtime.review import (
+        write_phase47_founder_cockpit_runtime_bundle_json,
+        write_phase47_founder_cockpit_runtime_review_md,
+    )
+
+    p46 = (
+        str(getattr(args, "phase46_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json"
+    )
+    out = run_phase47_founder_cockpit_runtime(phase46_bundle_in=p46)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase47_founder_cockpit_runtime_bundle_json(bo, bundle=out)
+        print("phase47_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase47_founder_cockpit_runtime_review_md(md, bundle=out)
+        print("phase47_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase47b_user_first_ux(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from pathlib import Path
+
+    from phase47_runtime.phase47b_orchestrator import run_phase47b_user_first_ux
+    from phase47_runtime.phase47b_review import (
+        write_phase47b_user_first_ux_bundle_json,
+        write_phase47b_user_first_ux_review_md,
+    )
+
+    design = (
+        str(getattr(args, "design_source", "") or "").strip()
+        or "docs/DESIGN.md"
+    )
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path(rr).resolve() if rr else None
+    out = run_phase47b_user_first_ux(design_source_path=design, repo_root=root)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase47b_user_first_ux_bundle_json(bo, bundle=out)
+        print("phase47b_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase47b_user_first_ux_review_md(md, bundle=out)
+        print("phase47b_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase48_proactive_research_runtime(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase48_runtime.orchestrator import run_phase48_proactive_research_runtime
+    from phase48_runtime.review import (
+        write_phase48_proactive_research_runtime_bundle_json,
+        write_phase48_proactive_research_runtime_review_md,
+    )
+
+    p46 = (
+        str(getattr(args, "phase46_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json"
+    )
+    skip_alerts = bool(getattr(args, "skip_alerts", False))
+    from pathlib import Path as Path_lib
+
+    reg = str(getattr(args, "registry_path", "") or "").strip()
+    disc = str(getattr(args, "discovery_path", "") or "").strip()
+    dec = str(getattr(args, "decision_ledger_path", "") or "").strip()
+    out = run_phase48_proactive_research_runtime(
+        phase46_bundle_in=p46,
+        skip_alerts=skip_alerts,
+        registry_path=Path_lib(reg) if reg else None,
+        discovery_path=Path_lib(disc) if disc else None,
+        decision_ledger_path=Path_lib(dec) if dec else None,
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase48_proactive_research_runtime_bundle_json(bo, bundle=out)
+        print("phase48_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase48_proactive_research_runtime_review_md(md, bundle=out)
+        print("phase48_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase49_daemon_scheduler_multi_cycle_triggers_and_metrics_v1(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from pathlib import Path as Path_lib
+
+    from phase49_runtime.orchestrator import run_phase49_daemon_scheduler_multi_cycle
+    from phase49_runtime.review import (
+        write_phase49_daemon_scheduler_bundle_json,
+        write_phase49_daemon_scheduler_review_md,
+    )
+
+    p46 = (
+        str(getattr(args, "phase46_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json"
+    )
+    skip_alerts = bool(getattr(args, "skip_alerts", False))
+    cycles = int(getattr(args, "cycles", 2) or 2)
+    sleep_seconds = float(getattr(args, "sleep_seconds", 0.0) or 0.0)
+    reg = str(getattr(args, "registry_path", "") or "").strip()
+    disc = str(getattr(args, "discovery_path", "") or "").strip()
+    dec = str(getattr(args, "decision_ledger_path", "") or "").strip()
+    out = run_phase49_daemon_scheduler_multi_cycle(
+        phase46_bundle_in=p46,
+        cycles=cycles,
+        sleep_seconds=sleep_seconds,
+        skip_alerts=skip_alerts,
+        registry_path=Path_lib(reg) if reg else None,
+        discovery_path=Path_lib(disc) if disc else None,
+        decision_ledger_path=Path_lib(dec) if dec else None,
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase49_daemon_scheduler_bundle_json(bo, bundle=out)
+        print("phase49_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase49_daemon_scheduler_review_md(md, bundle=out)
+        print("phase49_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
 def _cmd_write_phase33_forward_coverage_truth_review(
     args: argparse.Namespace,
 ) -> int:
@@ -10566,6 +10860,220 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p44w.add_argument("--bundle-out", default="")
     p44w.set_defaults(func=_cmd_write_phase44_claim_narrowing_truthfulness_review)
+
+    p45run = sub.add_parser(
+        "run-phase45-operator-closeout-and-reopen-protocol",
+        help="Phase 45: authoritative precedence, canonical closeout, reopen protocol (no DB)",
+    )
+    p45run.add_argument(
+        "--phase44-bundle-in",
+        default="docs/operator_closeout/phase44_claim_narrowing_truthfulness_bundle.json",
+    )
+    p45run.add_argument(
+        "--phase43-bundle-in",
+        default="docs/operator_closeout/phase43_targeted_substrate_backfill_bundle.json",
+    )
+    p45run.add_argument(
+        "--operator-registered-new-named-source",
+        action="store_true",
+        help="If set, Phase 46 surfaces register_new_source_then_authorize_one_bounded_reopen_v1",
+    )
+    p45run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase45_canonical_closeout_bundle.json",
+    )
+    p45run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase45_canonical_closeout_review.md",
+    )
+    p45run.set_defaults(func=_cmd_run_phase45_operator_closeout_and_reopen_protocol)
+
+    p45w = sub.add_parser(
+        "write-phase45-operator-closeout-and-reopen-protocol-review",
+        help="Phase 45: bundle to review MD (+ optional JSON copy)",
+    )
+    p45w.add_argument("--bundle-in", required=True)
+    p45w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase45_canonical_closeout_review.md",
+    )
+    p45w.add_argument("--bundle-out", default="")
+    p45w.set_defaults(func=_cmd_write_phase45_operator_closeout_and_reopen_protocol_review)
+
+    p46run = sub.add_parser(
+        "run-phase46-founder-decision-cockpit",
+        help="Phase 46: founder read model, cockpit, governed pitch, drill-down, UI contract (no DB)",
+    )
+    p46run.add_argument(
+        "--phase45-bundle-in",
+        default="docs/operator_closeout/phase45_canonical_closeout_bundle.json",
+    )
+    p46run.add_argument(
+        "--phase44-bundle-in",
+        default="docs/operator_closeout/phase44_claim_narrowing_truthfulness_bundle.json",
+    )
+    p46run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json",
+    )
+    p46run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase46_founder_decision_cockpit_review.md",
+    )
+    p46run.add_argument(
+        "--pitch-out",
+        default="docs/operator_closeout/phase46_founder_pitch_surface.md",
+    )
+    p46run.set_defaults(func=_cmd_run_phase46_founder_decision_cockpit)
+
+    p46w = sub.add_parser(
+        "write-phase46-founder-decision-cockpit-review",
+        help="Phase 46: bundle to review MD + pitch MD (+ optional JSON copy)",
+    )
+    p46w.add_argument("--bundle-in", required=True)
+    p46w.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase46_founder_decision_cockpit_review.md",
+    )
+    p46w.add_argument(
+        "--pitch-out",
+        default="docs/operator_closeout/phase46_founder_pitch_surface.md",
+    )
+    p46w.add_argument("--bundle-out", default="")
+    p46w.set_defaults(func=_cmd_write_phase46_founder_decision_cockpit_review)
+
+    p47run = sub.add_parser(
+        "run-phase47-founder-cockpit-runtime",
+        help="Phase 47: runtime metadata bundle + review (start server: python3 src/phase47_runtime/app.py)",
+    )
+    p47run.add_argument(
+        "--phase46-bundle-in",
+        default="docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json",
+    )
+    p47run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase47_founder_cockpit_runtime_bundle.json",
+    )
+    p47run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase47_founder_cockpit_runtime_review.md",
+    )
+    p47run.set_defaults(func=_cmd_run_phase47_founder_cockpit_runtime)
+
+    p47b = sub.add_parser(
+        "run-phase47b-user-first-ux",
+        help="Phase 47b: user-first IA bundle + review (DESIGN.md-aligned surface contract)",
+    )
+    p47b.add_argument(
+        "--design-source",
+        default="docs/DESIGN.md",
+        help="Path to DESIGN.md constitution",
+    )
+    p47b.add_argument(
+        "--repo-root",
+        default="",
+        help="Repository root for resolving design path (default: cwd)",
+    )
+    p47b.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase47b_user_first_ux_bundle.json",
+    )
+    p47b.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase47b_user_first_ux_review.md",
+    )
+    p47b.set_defaults(func=_cmd_run_phase47b_user_first_ux)
+
+    p48run = sub.add_parser(
+        "run-phase48-proactive-research-runtime",
+        help="Phase 48: single-cycle proactive research (jobs, triggers, bounded debate, discovery)",
+    )
+    p48run.add_argument(
+        "--phase46-bundle-in",
+        default="docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json",
+    )
+    p48run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase48_proactive_research_runtime_bundle.json",
+    )
+    p48run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase48_proactive_research_runtime_review.md",
+    )
+    p48run.add_argument(
+        "--skip-alerts",
+        action="store_true",
+        help="Do not append to alert_ledger_v1.json",
+    )
+    p48run.add_argument(
+        "--registry-path",
+        default="",
+        help="Override research_job_registry_v1.json path (default: data/research_runtime/...)",
+    )
+    p48run.add_argument(
+        "--discovery-path",
+        default="",
+        help="Override discovery_candidates_v1.json path",
+    )
+    p48run.add_argument(
+        "--decision-ledger-path",
+        default="",
+        help="Override decision_trace_ledger_v1.json path",
+    )
+    p48run.set_defaults(func=_cmd_run_phase48_proactive_research_runtime)
+
+    p49run = sub.add_parser(
+        "run-phase49-daemon-scheduler-multi-cycle-triggers-and-metrics-v1",
+        help="Phase 49: run Phase 48 N times; aggregate triggers/jobs/debate metrics",
+    )
+    p49run.add_argument(
+        "--phase46-bundle-in",
+        default="docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json",
+    )
+    p49run.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_bundle.json",
+    )
+    p49run.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md",
+    )
+    p49run.add_argument(
+        "--cycles",
+        type=int,
+        default=2,
+        help="Number of sequential Phase 48 cycles (default 2)",
+    )
+    p49run.add_argument(
+        "--sleep-seconds",
+        type=float,
+        default=0.0,
+        dest="sleep_seconds",
+        help="Sleep between cycles (default 0)",
+    )
+    p49run.add_argument(
+        "--skip-alerts",
+        action="store_true",
+        help="Do not append to alert_ledger_v1.json",
+    )
+    p49run.add_argument(
+        "--registry-path",
+        default="",
+        help="Override research_job_registry_v1.json path",
+    )
+    p49run.add_argument(
+        "--discovery-path",
+        default="",
+        help="Override discovery_candidates_v1.json path",
+    )
+    p49run.add_argument(
+        "--decision-ledger-path",
+        default="",
+        help="Override decision_trace_ledger_v1.json path",
+    )
+    p49run.set_defaults(
+        func=_cmd_run_phase49_daemon_scheduler_multi_cycle_triggers_and_metrics_v1
+    )
 
     p24c = sub.add_parser(
         "advance-public-first-cycle",

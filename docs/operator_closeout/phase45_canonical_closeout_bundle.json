@@ -1,0 +1,221 @@
+{
+  "ok": true,
+  "phase": "phase45_operator_closeout_and_reopen_protocol",
+  "generated_utc": "2026-04-12T19:18:33.685667+00:00",
+  "input_phase44_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase44_claim_narrowing_truthfulness_bundle.json",
+  "input_phase43_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase43_targeted_substrate_backfill_bundle.json",
+  "authoritative_resolution": {
+    "authoritative_phase": "phase44_claim_narrowing_truthfulness",
+    "authoritative_recommendation": "narrow_claims_document_proxy_limits_operator_closeout_v1",
+    "authoritative_rationale": "No material falsifier upgrade under Phase 44 rules; do not reopen broad substrate. Narrow claims, document proxy limits, and close out unless new evidence appears.",
+    "superseded_recommendations": [
+      {
+        "source_artifact": "phase43_targeted_substrate_backfill_bundle",
+        "field_path": "phase44.phase44_recommendation",
+        "prior_value": "continue_bounded_falsifier_retest_or_narrow_claims_v1",
+        "prior_rationale": "Bounded backfill or retest changed at least one row-level blocker, scorecard bucket, or gate field. Next: optional second bounded pass, or narrow claims if proxy limits persist.",
+        "superseded_by_field": "phase44_claim_narrowing_truthfulness.phase45.phase45_recommendation"
+      },
+      {
+        "source_artifact": "phase43_bundle.phase42_rerun_after_backfill.phase43",
+        "field_path": "phase43_recommendation",
+        "prior_value": "substrate_backfill_or_narrow_claims_then_retest_v1",
+        "prior_rationale": "Proxy filing bounds or missing sector rows remain; strengthen rows (backfill) or narrow claims before expecting cleaner discrimination.",
+        "superseded_by_field": "phase44_claim_narrowing_truthfulness (operator closeout layer)"
+      }
+    ],
+    "reason_for_precedence": "Phase 44 separates provenance, rejects blank-field-only sector relabel as material falsifier improvement, narrows claims, and gates retry on named new paths. Phase 43 nested `phase44` used optimistic delta heuristics and must not surface as current operator guidance for this cohort."
+  },
+  "canonical_closeout": {
+    "cohort": {
+      "row_count": 8,
+      "rows": [
+        {
+          "symbol": "BBY",
+          "cik": "0000764478",
+          "signal_available_date": "2025-12-08"
+        },
+        {
+          "symbol": "ADSK",
+          "cik": "0000769397",
+          "signal_available_date": "2025-11-27"
+        },
+        {
+          "symbol": "CRM",
+          "cik": "0001108524",
+          "signal_available_date": "2025-12-04"
+        },
+        {
+          "symbol": "CRWD",
+          "cik": "0001535527",
+          "signal_available_date": "2025-12-03"
+        },
+        {
+          "symbol": "DELL",
+          "cik": "0001571996",
+          "signal_available_date": "2025-12-10"
+        },
+        {
+          "symbol": "DUK",
+          "cik": "0001326160",
+          "signal_available_date": "2025-11-10"
+        },
+        {
+          "symbol": "NVDA",
+          "cik": "0001045810",
+          "signal_available_date": "2025-11-20"
+        },
+        {
+          "symbol": "WMT",
+          "cik": "0000104169",
+          "signal_available_date": "2025-12-04"
+        }
+      ]
+    },
+    "what_was_attempted": {
+      "phase43_bounded_filing_path": "bounded_run_sample_ingest_per_cik",
+      "phase43_bounded_filing_note": "bounded_run_sample_ingest_per_cik cohort cap (see Phase 43 bundle)",
+      "phase43_bounded_sector_path": "yahoo_chart",
+      "phase43_sector_note": "bounded metadata hydration attempt (see Phase 43 bundle)"
+    },
+    "what_changed": [
+      {
+        "axis": "sector_diagnosis",
+        "detail": "Scorecard bucket moved no_market_metadata_row_for_symbol → sector_field_blank_on_metadata_row (diagnostic precision; not sector_available increase).",
+        "evidence": {
+          "sector_scorecard_before": {
+            "no_market_metadata_row_for_symbol": 8
+          },
+          "sector_scorecard_after": {
+            "sector_field_blank_on_metadata_row": 8
+          }
+        }
+      },
+      {
+        "axis": "stable_run_digest",
+        "detail": "Phase 42 digest changed across Phase 43 bracket (execution artifact; not standalone falsifier proof).",
+        "evidence": {
+          "digest_before": "edfd0b7d36ecb2de",
+          "digest_after": "285b046cc5bcb307"
+        }
+      }
+    ],
+    "what_did_not_change": [
+      {
+        "axis": "filing_scorecard",
+        "detail": "Filing blocker distribution unchanged at aggregate level for cohort.",
+        "evidence": {
+          "filing_distribution_changed": false,
+          "filing_before": {
+            "no_10k_10q_rows_for_cik": 7,
+            "only_post_signal_filings_available": 1
+          },
+          "filing_after": {
+            "no_10k_10q_rows_for_cik": 7,
+            "only_post_signal_filings_available": 1
+          }
+        }
+      },
+      {
+        "axis": "sector_available",
+        "detail": "No increase in sector_available; sector-informed falsification still unavailable.",
+        "evidence": {
+          "falsifier_usability_improved": false
+        }
+      },
+      {
+        "axis": "promotion_gate",
+        "detail": "gate_status and primary_block_category unchanged vs Phase 43 bracket.",
+        "evidence": {
+          "gate_status": "deferred",
+          "primary_block_category": "deferred_due_to_proxy_limited_falsifier_substrate",
+          "gate_materially_improved": false
+        }
+      },
+      {
+        "axis": "discrimination_rollups",
+        "detail": "Family outcome rollup signatures did not materially change.",
+        "evidence": {
+          "discrimination_rollups_improved": false
+        }
+      }
+    ],
+    "authoritative_narrowed_claims": {
+      "family_claim_limits": {
+        "signal_filing_boundary_v1": {
+          "claim_status": "narrowed",
+          "supported_scope": "Cohort-level statement that pre-signal filing-public strict pick remains proxy- or blocker-limited for the Phase 43 8-row fixture; bounded ingest did not increase exact_public_ts_available or filed-date-only usability in scorecard aggregates.",
+          "unsupported_scope": "Claims that filing-public falsifier quality materially improved for this cohort without exact_public_ts_available or accepted_at_missing_but_filed_date_only gains.",
+          "reason": "Filing distributions before/after: {'no_10k_10q_rows_for_cik': 7, 'only_post_signal_filings_available': 1} → {'no_10k_10q_rows_for_cik': 7, 'only_post_signal_filings_available': 1}. No aggregate filing falsifier upgrade; retry only with a newly named ingestion path."
+        },
+        "issuer_sector_reporting_cadence_v1": {
+          "claim_status": "narrowed",
+          "supported_scope": "Sector diagnosis refined: metadata row exists but sector field remains blank for all 8 rows; sector-informed stratification is still unavailable.",
+          "unsupported_scope": "Sector-based falsification or sector_available-backed claims for this cohort without a new provider/path that populates sector.",
+          "reason": "Sector distributions before/after: {'no_market_metadata_row_for_symbol': 8} → {'sector_field_blank_on_metadata_row': 8}. no_market_metadata_row → sector_field_blank is taxonomy precision only unless sector_available increases."
+        }
+      },
+      "cohort_claim_limits": {
+        "claim_status": "narrowed",
+        "supported_scope": "Proxy-limited falsifier substrate remains for this bounded cohort; broad public-core reopening is not justified by Phase 43 evidence.",
+        "unsupported_scope": "Broad filing_index campaigns, broad metadata campaigns, or auto-promotion from Phase 43 alone.",
+        "reason": "Phase 44 assessment: see per-family limits and retry_eligibility."
+      },
+      "bounded_retry_eligibility": "not_eligible_without_named_new_path"
+    },
+    "explicit_unsupported_interpretations": [
+      "Claims that filing-public falsifier quality materially improved for this cohort without exact_public_ts_available or accepted_at_missing_but_filed_date_only gains.",
+      "Sector-based falsification or sector_available-backed claims for this cohort without a new provider/path that populates sector.",
+      "Broad filing_index campaigns, broad metadata campaigns, or auto-promotion from Phase 43 alone."
+    ],
+    "final_closeout_verdict": "narrow_claims_document_proxy_limits_operator_closeout_v1",
+    "final_closeout_verdict_rationale": "No material falsifier upgrade under Phase 44 rules; do not reopen broad substrate. Narrow claims, document proxy limits, and close out unless new evidence appears.",
+    "reopening_conditions": {
+      "summary": "Prospective: one bounded retest may be authorized when operator registers a concrete named source/path that is not a duplicate label of Phase 43 paths already used, and documents why it is materially different. Retrospective: Phase 44 `material_falsifier_improvement_observed` remains the success criterion after a pass. These layers are distinct: declaring a new path does not imply prior improvement.",
+      "requires_named_new_source": true,
+      "forbids_broad_public_core_reopen": true
+    },
+    "phase43_legacy_guidance_status": "non_authoritative_for_current_cohort",
+    "phase44_authoritative_guidance_status": "authoritative_for_current_cohort"
+  },
+  "future_reopen_protocol": {
+    "future_reopen_allowed_with_named_source": true,
+    "accepted_reopen_axes": [
+      "bounded_filing_ingest_alternate_named_path",
+      "bounded_sector_fill_alternate_named_provider"
+    ],
+    "forbidden_reopen_axes": [
+      "broad_public_core_filing_index_campaign",
+      "broad_metadata_or_universe_wide_sprint",
+      "implicit_reopen_from_stale_bundle_recommendation_string",
+      "auto_promotion",
+      "new_hypothesis_family_without_separate_approval"
+    ],
+    "required_operator_declaration_fields": [
+      "named_filing_source_or_ingestion_path_if_filing_axis",
+      "named_sector_provider_or_path_if_sector_axis",
+      "material_difference_rationale_vs_phase43_paths",
+      "cohort_scope_explicit_cap_default_8_row_fixture",
+      "one_shot_bounded_retest_acknowledgement"
+    ],
+    "max_scope_on_reopen": "single_bounded_cohort_retest_one_shot; preserve 8-row fixture cap unless documented separate approval expands scope",
+    "reopen_decision_rule": "Prospective: one bounded retest may be authorized when operator registers a concrete named source/path that is not a duplicate label of Phase 43 paths already used, and documents why it is materially different. Retrospective: Phase 44 `material_falsifier_improvement_observed` remains the success criterion after a pass. These layers are distinct: declaring a new path does not imply prior improvement.",
+    "distinction": {
+      "observed_material_improvement": "After a bounded pass, Phase 44-style scorecard/gate/discrimination checks determine whether falsifier usability actually improved.",
+      "reopen_eligibility_on_new_named_source": "Before the next pass, operator may register a new named path to satisfy governance for a single capped retest without requiring improvement to have been observed yet."
+    },
+    "phase43_paths_already_used_reference": {
+      "filing": "bounded_run_sample_ingest_per_cik",
+      "sector": "yahoo_chart"
+    }
+  },
+  "current_closeout_status": {
+    "current_closeout_status": "closed_pending_new_evidence",
+    "authoritative_interpretation": "phase44_claim_narrowing_truthfulness",
+    "summary": "Cohort closed under Phase 44 verdict; no further bounded work until named new source/path or other new evidence is registered per reopen protocol."
+  },
+  "phase46": {
+    "phase46_recommendation": "hold_closeout_until_named_new_source_or_new_evidence_v1",
+    "rationale": "Default stance after Phase 45 canonical closeout: remain closed until a new named source/path or other dispositive new evidence is recorded; do not infer reopening from legacy optimistic bundle strings."
+  }
+}

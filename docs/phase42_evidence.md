@@ -69,6 +69,14 @@
 
 한정 수리만으로 filing 블로커는 코호트에서 바뀌지 않았고, sector는 **행 부재 → 필드 공백**으로 **분류만 정밀화**되었다. 전체 서술·표·운영 해석은 **`docs/phase43_evidence.md`**, **`HANDOFF.md` Phase 43 절**을 본다.
 
+### Phase 44·45 (8행 코호트 클로즈아웃 체인)
+
+- **Phase 44**: `run-phase44-claim-narrowing-truthfulness` — provenance·truthfulness·claim narrowing. 증거 **`docs/phase44_evidence.md`**, 패치 **`docs/phase44_patch_report.md`**.
+- **Phase 45**: `run-phase45-operator-closeout-and-reopen-protocol` — Phase 44 권위 확정, Phase 43 레거시 권고 supersede, canonical closeout·reopen 규칙·Phase 46 권고 필드. 증거 **`docs/phase45_evidence.md`**, 패치 **`docs/phase45_patch_report.md`**.
+- **Phase 46**: `run-phase46-founder-decision-cockpit` — 파운더 cockpit·피치·레저·UI 계약. 증거 **`docs/phase46_evidence.md`**, 패치 **`docs/phase46_patch_report.md`**.
+- **Phase 47**: `run-phase47-founder-cockpit-runtime` + `src/phase47_runtime/app.py` — 브라우저 런타임·거버넌스 대화·레저 쓰기. 증거 **`docs/phase47_evidence.md`**, 패치 **`docs/phase47_patch_report.md`**.
+- **Phase 48**: `run-phase48-proactive-research-runtime` — 트리거·잡 레지스트리·경계 토론·디스커버리 후보(추천 아님). **운영 클로즈 완료** — **`docs/operator_closeout/phase48_closeout.md`**. 증거 **`docs/phase48_evidence.md`**, 패치 **`docs/phase48_patch_report.md`**. 후속 다중 사이클: **`docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`**.
+
 ## 산출·영속
 
 - `docs/operator_closeout/phase42_evidence_accumulation_bundle.json`
@@ -79,4 +87,4 @@
 
 ## Related
 
-`docs/phase42_patch_report.md`, `docs/phase41_evidence.md`, **`docs/operator_closeout/phase42_supabase_reviewer_audit.md`**, **`docs/phase43_evidence.md`**, `HANDOFF.md`
+`docs/phase42_patch_report.md`, `docs/phase41_evidence.md`, **`docs/operator_closeout/phase42_supabase_reviewer_audit.md`**, **`docs/phase43_evidence.md`**, **`docs/phase44_evidence.md`**, **`docs/phase45_evidence.md`**, **`docs/phase46_evidence.md`**, **`docs/phase47_evidence.md`**, **`docs/phase48_evidence.md`**, **`docs/operator_closeout/phase48_closeout.md`**, `HANDOFF.md`

@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "phase": "phase48_proactive_research_runtime",
+  "generated_utc": "2026-04-13T00:50:42.691404+00:00",
+  "input_phase46_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json",
+  "trigger_results": [],
+  "jobs_created": [],
+  "jobs_executed": [],
+  "bounded_debate_outputs": [],
+  "premium_escalation_candidates": [],
+  "discovery_candidates": [],
+  "budget_policy": {
+    "version": 1,
+    "max_jobs_per_run": 5,
+    "max_debate_turns": 3,
+    "max_participating_roles": 5,
+    "max_candidate_publishes_per_cycle": 3,
+    "max_alerts_per_cycle": 2,
+    "allowed_trigger_types": [
+      "changed_artifact_bundle",
+      "operator_research_signal",
+      "closeout_reopen_candidate",
+      "named_source_signal",
+      "manual_watchlist"
+    ],
+    "stop_conditions": [
+      "no_triggers_after_dedupe",
+      "max_jobs_enqueued",
+      "registry_write_ok"
+    ],
+    "notes": "No infinite loop: single orchestrator invocation = one bounded cycle."
+  },
+  "cockpit_surface_outputs": [],
+  "manual_triggers_cleared": [],
+  "phase49": {
+    "phase49_recommendation": "daemon_scheduler_multi_cycle_triggers_and_metrics_v1",
+    "rationale": "Run phase48 cycle under systemd/cron with metrics (jobs/hour, alert rate); expand triggers (ingest hooks, external feeds) still under budget caps; optional Phase 47 notification wiring for research-runtime events."
+  }
+}
