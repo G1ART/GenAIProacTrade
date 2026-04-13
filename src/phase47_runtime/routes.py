@@ -11,7 +11,15 @@ from phase46.decision_trace_ledger import DECISION_TYPES, append_decision, list_
 from phase47_runtime.governed_conversation import process_governed_prompt
 from phase47_runtime.notification_hooks import emit_notification, list_notifications
 from phase47_runtime.runtime_state import CockpitRuntimeState
+from phase47_runtime.traceability_replay import (
+    TRACEABILITY_VIEWS,
+    api_replay_timeline_payload,
+    build_counterfactual_scaffold,
+    micro_brief_for_event,
+)
 from phase47_runtime.ui_copy import build_section_payload, build_user_first_brief, navigation_contract
+from phase51_runtime.cockpit_health_surface import build_cockpit_runtime_health_payload
+from phase51_runtime.external_ingest_adapters import process_external_payload
 
 
 def _counts(state: CockpitRuntimeState) -> dict[str, int]:
@@ -34,6 +42,7 @@ def api_overview(state: CockpitRuntimeState) -> dict[str, Any]:
     cs = b.get("cockpit_state") or {}
     agg = cs.get("cohort_aggregate") or {}
     c = _counts(state)
+    runtime_health = build_cockpit_runtime_health_payload(repo_root=state.repo_root)
     return {
         "asset_id": rm.get("asset_id"),
         "founder_primary_status": agg.get("founder_primary_status"),
@@ -43,6 +52,7 @@ def api_overview(state: CockpitRuntimeState) -> dict[str, Any]:
         "pitch_summary": (pitch.get("top_level_pitch") or "")[:800],
         "decision_card": agg.get("decision_card"),
         "counts": c,
+        "runtime_health": runtime_health,
         "user_first": {
             "brief": build_user_first_brief(b),
             "navigation": navigation_contract(),
@@ -173,6 +183,59 @@ def api_reload(state: CockpitRuntimeState) -> dict[str, Any]:
     return {"ok": True, "meta": api_meta(state)}
 
 
+def api_replay_timeline(state: CockpitRuntimeState) -> dict[str, Any]:
+    return api_replay_timeline_payload(
+        state.bundle,
+        state.alert_ledger_path,
+        state.decision_ledger_path,
+    )
+
+
+def api_replay_micro_brief(state: CockpitRuntimeState, event_id: str) -> dict[str, Any]:
+    eid = str(event_id or "").strip()
+    if not eid:
+        return {"ok": False, "error": "event_id_required"}
+    tl = api_replay_timeline(state)
+    if not tl.get("ok"):
+        return tl
+    events = tl.get("events") or []
+    mb = micro_brief_for_event(events, eid)
+    if mb is None:
+        return {"ok": False, "error": "unknown_event_id", "event_id": eid}
+    return {"ok": True, "micro_brief": mb}
+
+
+def api_runtime_health(state: CockpitRuntimeState) -> dict[str, Any]:
+    return build_cockpit_runtime_health_payload(repo_root=state.repo_root)
+
+
+def api_external_ingest(state: CockpitRuntimeState, body: dict[str, Any]) -> dict[str, Any]:
+    out = process_external_payload(body, repo_root=state.repo_root)
+    entry = (out.get("registry_entry") or {}) if isinstance(out, dict) else {}
+    emit_notification(
+        "external_trigger_ingested",
+        {
+            "event_id": entry.get("event_id"),
+            "status": entry.get("status"),
+            "normalized_trigger_type": entry.get("normalized_trigger_type"),
+        },
+    )
+    return out
+
+
+def api_replay_contract(state: CockpitRuntimeState) -> dict[str, Any]:
+    _ = state
+    return {
+        "ok": True,
+        "traceability_views": TRACEABILITY_VIEWS,
+        "primary_navigation": navigation_contract()["primary_navigation"],
+        "replay_surface": {
+            "modes": ["replay_timeline", "counterfactual_lab"],
+            "counterfactual_scaffold": build_counterfactual_scaffold(),
+        },
+    }
+
+
 def dispatch_json(
     state: CockpitRuntimeState,
     *,
@@ -184,6 +247,9 @@ def dispatch_json(
     q = query or {}
     p = path.split("?", 1)[0].rstrip("/") or "/"
     raw: dict[str, Any] = {}
+    _MAX_EXT_INGEST = 32768
+    if method == "POST" and p == "/api/runtime/external-ingest" and body and len(body) > _MAX_EXT_INGEST:
+        return 413, {"ok": False, "error": "body_too_large", "max_bytes": _MAX_EXT_INGEST}
     if body:
         try:
             raw = json.loads(body.decode("utf-8"))
@@ -208,6 +274,18 @@ def dispatch_json(
         return 200, api_decisions(state, asset_id=q.get("asset_id"), decision_type=q.get("decision_type"))
     if method == "GET" and p == "/api/notifications":
         return 200, {"ok": True, "events": list_notifications()}
+    if method == "GET" and p == "/api/replay/timeline":
+        r = api_replay_timeline(state)
+        return (200 if r.get("ok") else 422), r
+    if method == "GET" and p == "/api/replay/micro-brief":
+        r = api_replay_micro_brief(state, q.get("event_id", ""))
+        return (200 if r.get("ok") else 404), r
+    if method == "GET" and p == "/api/replay/contract":
+        return 200, api_replay_contract(state)
+    if method == "GET" and p == "/api/runtime/health":
+        return 200, api_runtime_health(state)
+    if method == "POST" and p == "/api/runtime/external-ingest":
+        return 200, api_external_ingest(state, raw)
     if method == "POST" and p == "/api/reload":
         return 200, api_reload(state)
     if method == "POST" and p == "/api/alerts/action":

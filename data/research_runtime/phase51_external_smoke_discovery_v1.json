@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "candidates": [
+    {
+      "candidate_id": "dc_1_20260413063040",
+      "created_at": "2026-04-13T06:30:40.610326+00:00",
+      "asset_scope": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1"
+      },
+      "why_it_surfaced": "Bounded debate outcome `unknown` under proactive cycle.",
+      "triggers_fired": [
+        "manual_watchlist"
+      ],
+      "what_is_still_uncertain": "Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent.",
+      "additional_evidence_needed": "Named dispositive path or premium ROI-reviewed dataset (candidate only).",
+      "debate_converged_or_unresolved": false,
+      "linked_job_id": "d8937ca3-f4f6-46f7-82d7-e7e91e9dbe2f",
+      "not_a_recommendation": true
+    }
+  ]
+}

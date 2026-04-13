@@ -7137,6 +7137,43 @@ def _cmd_run_phase47b_user_first_ux(
     return 0
 
 
+def _cmd_run_phase47c_traceability_replay(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from pathlib import Path
+
+    from phase47_runtime.phase47c_orchestrator import run_phase47c_traceability_replay
+    from phase47_runtime.phase47c_review import (
+        write_phase47c_traceability_replay_bundle_json,
+        write_phase47c_traceability_replay_review_md,
+    )
+
+    raw_paths = getattr(args, "design_source", None)
+    if raw_paths is None:
+        paths = [
+            "docs/DESIGN_V3_MINIMAL_AND_STRONG.md",
+            "docs/DESIGN_V2_TRACEABILITY_AND_REPLAY.md",
+            "docs/DESIGN.md",
+        ]
+    else:
+        paths = [str(x).strip() for x in raw_paths if str(x).strip()]
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path(rr).resolve() if rr else None
+    out = run_phase47c_traceability_replay(design_source_paths=paths, repo_root=root)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase47c_traceability_replay_bundle_json(bo, bundle=out)
+        print("phase47c_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase47c_traceability_replay_review_md(md, bundle=out)
+        print("phase47c_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
 def _cmd_run_phase48_proactive_research_runtime(
     args: argparse.Namespace,
 ) -> int:
@@ -7288,6 +7325,92 @@ def _cmd_run_phase50_positive_path_smoke(
         write_phase50_positive_path_smoke_review_md(md, bundle=out)
         print("phase50_smoke_review_written", flush=True)
     print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase51_external_positive_path_smoke(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from pathlib import Path as Path_lib
+
+    from phase51_runtime.orchestrator import run_phase51_external_positive_path_smoke
+    from phase51_runtime.review import (
+        write_phase51_external_trigger_ingest_bundle_json,
+        write_phase51_external_trigger_ingest_review_md,
+        write_phase51_runtime_health_surface_review_md,
+    )
+    from phase51_runtime.runtime_health import refresh_and_persist_runtime_health
+
+    p46 = (
+        str(getattr(args, "phase46_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json"
+    )
+    p50 = (
+        str(getattr(args, "phase50_control_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase50_registry_controls_and_operator_timing_bundle.json"
+    )
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path_lib(rr).resolve() if rr else None
+    persist = bool(getattr(args, "persist_runtime_health", False))
+    out = run_phase51_external_positive_path_smoke(
+        phase46_bundle_in=p46,
+        phase50_control_bundle_in=p50,
+        repo_root=root,
+        persist_health_summary=persist,
+    )
+    if persist:
+        refresh_and_persist_runtime_health(root or Path_lib(__file__).resolve().parents[2])
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase51_external_trigger_ingest_bundle_json(bo, bundle=out)
+        print("phase51_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase51_external_trigger_ingest_review_md(md, bundle=out)
+        print("phase51_review_written", flush=True)
+    md2 = str(getattr(args, "out_md_health", "") or "").strip()
+    if md2:
+        write_phase51_runtime_health_surface_review_md(md2, bundle=out)
+        print("phase51_health_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_submit_external_trigger_json(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from pathlib import Path as Path_lib
+
+    from phase51_runtime.external_ingest_adapters import process_external_payload
+    from phase51_runtime.runtime_health import refresh_and_persist_runtime_health
+
+    jp = Path_lib(str(getattr(args, "json_file", "") or "").strip())
+    if not jp.is_file():
+        print(json_lib.dumps({"ok": False, "error": "json_file_missing", "path": str(jp)}), file=sys.stderr)
+        return 1
+    body = json_lib.loads(jp.read_text(encoding="utf-8"))
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path_lib(rr).resolve() if rr else Path_lib(__file__).resolve().parents[2]
+    out = process_external_payload(body, repo_root=root)
+    if bool(getattr(args, "persist_runtime_health", False)):
+        refresh_and_persist_runtime_health(root)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_refresh_runtime_health_summary(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from pathlib import Path as Path_lib
+
+    from phase51_runtime.runtime_health import refresh_and_persist_runtime_health
+
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path_lib(rr).resolve() if rr else Path_lib(__file__).resolve().parents[2]
+    s = refresh_and_persist_runtime_health(root)
+    print(json_lib.dumps({"ok": True, "summary": s}, indent=2, ensure_ascii=False, default=str))
     return 0
 
 
@@ -11054,6 +11177,31 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p47b.set_defaults(func=_cmd_run_phase47b_user_first_ux)
 
+    p47c = sub.add_parser(
+        "run-phase47c-traceability-replay",
+        help="Phase 47c: traceability / replay grammar bundle + review (DESIGN_V3-aligned)",
+    )
+    p47c.add_argument(
+        "--design-source",
+        action="append",
+        dest="design_source",
+        help="Design doc path (repeatable; default: V3 + V2 + DESIGN.md)",
+    )
+    p47c.add_argument(
+        "--repo-root",
+        default="",
+        help="Repository root for resolving design paths (default: cwd)",
+    )
+    p47c.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase47c_traceability_replay_bundle.json",
+    )
+    p47c.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase47c_traceability_replay_review.md",
+    )
+    p47c.set_defaults(func=_cmd_run_phase47c_traceability_replay)
+
     p48run = sub.add_parser(
         "run-phase48-proactive-research-runtime",
         help="Phase 48: single-cycle proactive research (jobs, triggers, bounded debate, discovery)",
@@ -11193,6 +11341,58 @@ def build_parser() -> argparse.ArgumentParser:
     p50smoke.add_argument("--discovery-path", default="")
     p50smoke.add_argument("--decision-ledger-path", default="")
     p50smoke.set_defaults(func=_cmd_run_phase50_positive_path_smoke)
+
+    p51smoke = sub.add_parser(
+        "run-phase51-external-positive-path-smoke",
+        help="Phase 51: governed external file-drop ingest + supplemental trigger + bounded cycle (authoritative smoke)",
+    )
+    p51smoke.add_argument(
+        "--phase46-bundle-in",
+        default="docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json",
+    )
+    p51smoke.add_argument(
+        "--phase50-control-bundle-in",
+        default="docs/operator_closeout/phase50_registry_controls_and_operator_timing_bundle.json",
+    )
+    p51smoke.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase51_external_trigger_ingest_bundle.json",
+    )
+    p51smoke.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase51_external_trigger_ingest_review.md",
+    )
+    p51smoke.add_argument(
+        "--out-md-health",
+        default="docs/operator_closeout/phase51_runtime_health_surface_review.md",
+    )
+    p51smoke.add_argument("--repo-root", default="")
+    p51smoke.add_argument(
+        "--persist-runtime-health",
+        action="store_true",
+        help="Write data/research_runtime/runtime_health_summary_v1.json",
+    )
+    p51smoke.set_defaults(func=_cmd_run_phase51_external_positive_path_smoke)
+
+    p51ing = sub.add_parser(
+        "submit-external-trigger-json",
+        help="Phase 51: ingest one external event from a JSON file (governed registry + audit)",
+    )
+    p51ing.add_argument("--json-file", required=True)
+    p51ing.add_argument("--repo-root", default="")
+    p51ing.add_argument(
+        "--persist-runtime-health",
+        action="store_true",
+        help="Refresh runtime_health_summary_v1.json after ingest",
+    )
+    p51ing.set_defaults(func=_cmd_submit_external_trigger_json)
+
+    p51h = sub.add_parser(
+        "refresh-runtime-health-summary",
+        help="Phase 51: rebuild runtime_health_summary_v1.json from local artifacts",
+    )
+    p51h.add_argument("--repo-root", default="")
+    p51h.set_defaults(func=_cmd_refresh_runtime_health_summary)
 
     p24c = sub.add_parser(
         "advance-public-first-cycle",

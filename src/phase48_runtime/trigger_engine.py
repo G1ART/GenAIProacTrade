@@ -36,6 +36,7 @@ def evaluate_triggers(
     registry_metadata: dict[str, Any],
     policy: dict[str, Any] | None = None,
     manual_triggers_path: Path | None = None,
+    supplemental_triggers: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     policy = policy or default_budget_policy()
     out: list[dict[str, Any]] = []
@@ -128,6 +129,12 @@ def evaluate_triggers(
                     "manual_file": str(mpath) if mpath else None,
                 }
             )
+
+    if supplemental_triggers:
+        for t in supplemental_triggers:
+            tt = str(t.get("trigger_type") or "")
+            if tt and trigger_allowed(policy, tt):
+                out.append(dict(t))
 
     seen: set[str] = set()
     deduped: list[dict[str, Any]] = []

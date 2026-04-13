@@ -1,0 +1,14 @@
+[
+  {
+    "source_type": "file_drop",
+    "source_id": "phase51_external_positive_path",
+    "raw_event_type": "watchlist_submit",
+    "asset_scope": {
+      "asset_id": "research_engine_fixture_cohort_8_row_v1"
+    },
+    "payload": {
+      "note": "Governed external ingest (not operator manual_triggers_v1 seed).",
+      "suggested_job_type": "debate.execute"
+    }
+  }
+]

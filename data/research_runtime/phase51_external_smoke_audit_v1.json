@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "timestamp": "2026-04-13T06:30:40.609164+00:00",
+      "kind": "external_ingest",
+      "raw_event_excerpt": {
+        "source_type": "file_drop",
+        "source_id": "phase51_external_positive_path",
+        "raw_event_type": "watchlist_submit"
+      },
+      "event_id": "3fb0d5fc-814d-4ac9-a087-019a061f1ed4",
+      "registry_status": "accepted",
+      "accepted_or_rejected_reason": "accepted_governed",
+      "normalized_trigger_type": "manual_watchlist",
+      "normalization_ok": true,
+      "normalization_reason": null,
+      "deduped_away": false,
+      "consumed_by_cycle_id": null
+    },
+    {
+      "timestamp": "2026-04-13T06:30:40.610732+00:00",
+      "kind": "external_consumed",
+      "event_id": "3fb0d5fc-814d-4ac9-a087-019a061f1ed4",
+      "linked_cycle_id": "d4b2678f-21d9-4026-94b5-8987e881018a"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "enabled": true,
+  "maintenance_mode": false,
+  "max_concurrent_cycles": 1,
+  "default_cycle_profile": "manual_debug",
+  "allowed_trigger_types": [
+    "changed_artifact_bundle",
+    "operator_research_signal",
+    "closeout_reopen_candidate",
+    "named_source_signal",
+    "manual_watchlist"
+  ],
+  "disabled_trigger_types": [],
+  "max_cycles_per_window": 120,
+  "window_seconds": 3600,
+  "last_operator_override_at": null,
+  "operator_note": "",
+  "positive_path_smoke_enabled": false
+}

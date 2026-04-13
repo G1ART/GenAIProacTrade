@@ -48,6 +48,7 @@ def run_phase48_proactive_research_runtime(
     skip_alerts: bool = False,
     budget_policy: dict[str, Any] | None = None,
     manual_triggers_path: Path | None = None,
+    supplemental_triggers: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     root = repo_root or Path(__file__).resolve().parents[2]
     p46_path = Path(phase46_bundle_in)
@@ -87,6 +88,7 @@ def run_phase48_proactive_research_runtime(
         registry_metadata=meta,
         policy=policy,
         manual_triggers_path=manual_triggers_path,
+        supplemental_triggers=supplemental_triggers,
     )
 
     jobs_created: list[dict[str, Any]] = []

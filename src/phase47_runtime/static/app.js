@@ -28,8 +28,128 @@
   }
 
   document.querySelectorAll("#nav button.nav-main[data-panel]").forEach((btn) => {
-    btn.addEventListener("click", () => showPanel(btn.dataset.panel));
+    btn.addEventListener("click", () => {
+      showPanel(btn.dataset.panel);
+      if (btn.dataset.panel === "replay") loadReplay();
+    });
   });
+
+  document.querySelectorAll("#replay-subtabs button[data-replay-sub]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const sub = btn.dataset.replaySub;
+      document.querySelectorAll("#replay-subtabs button").forEach((b) => b.classList.toggle("on", b === btn));
+      $("replay-sub-timeline").style.display = sub === "timeline" ? "block" : "none";
+      $("replay-sub-counterfactual").style.display = sub === "counterfactual" ? "block" : "none";
+      if (sub === "counterfactual") loadCounterfactual();
+    });
+  });
+
+  const replayCache = { events: [], series: [] };
+
+  function renderReplayChart(series) {
+    const svg = $("replay-svg");
+    const ns = "http://www.w3.org/2000/svg";
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    function addPath(ser, dash) {
+      const pts = ser && ser.points;
+      if (!pts || !pts.length) return;
+      const d = pts
+        .map((p, i) => `${i === 0 ? "M" : "L"} ${(p.x_norm * 100).toFixed(2)} ${(36 - p.y * 30).toFixed(2)}`)
+        .join(" ");
+      const path = document.createElementNS(ns, "path");
+      path.setAttribute("d", d);
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", (ser.style && ser.style.color) || "#5b8cff");
+      path.setAttribute("stroke-width", "0.35");
+      path.setAttribute("vector-effect", "non-scaling-stroke");
+      if (dash) path.setAttribute("stroke-dasharray", "2 1.5");
+      path.setAttribute("opacity", String((ser.style && ser.style.opacity) || 0.5));
+      svg.appendChild(path);
+    }
+    const ref = series.find((s) => s.series_id === "illustrative_reference");
+    const stance = series.find((s) => s.series_id === "stance_posture_index");
+    addPath(ref, true);
+    addPath(stance, false);
+    const evs = replayCache.events || [];
+    const n = evs.length;
+    evs.forEach((ev, i) => {
+      const xn = n <= 1 ? 50 : (i / (n - 1)) * 100;
+      const circle = document.createElementNS(ns, "circle");
+      circle.setAttribute("cx", xn.toFixed(2));
+      circle.setAttribute("cy", "18");
+      circle.setAttribute("r", "0.85");
+      circle.setAttribute("fill", "#c9a227");
+      circle.setAttribute("opacity", "0.9");
+      svg.appendChild(circle);
+    });
+  }
+
+  async function selectReplayEvent(eventId, liEl) {
+    document.querySelectorAll("ul.replay-events li").forEach((x) => x.classList.remove("selected"));
+    if (liEl) liEl.classList.add("selected");
+    const { json } = await api("/api/replay/micro-brief?event_id=" + encodeURIComponent(eventId));
+    const aside = $("replay-micro-brief");
+    if (!json.ok) {
+      aside.innerHTML = `<h3>Micro-brief</h3><p class="empty">${escapeHtml(JSON.stringify(json))}</p>`;
+      return;
+    }
+    const m = json.micro_brief || {};
+    const st = m.style_token || {};
+    aside.innerHTML =
+      `<h3>Micro-brief</h3>` +
+      `<div class="brief-block"><div class="brief-label">${escapeHtml(m.event_type || "")}</div>` +
+      `<div class="brief-value">${escapeHtml(m.title || "")}</div></div>` +
+      `<div class="brief-block"><div class="brief-label">Known then</div><div class="brief-value">${escapeHtml(m.known_then || "")}</div></div>` +
+      `<div class="brief-block"><div class="brief-label">Message</div><div class="brief-value">${escapeHtml(m.message_summary || "")}</div></div>` +
+      `<div class="brief-block"><div class="brief-label">Evidence</div><div class="brief-value">${escapeHtml(m.evidence_summary || "")}</div></div>` +
+      `<div class="brief-block"><div class="brief-label">Decision quality</div><div class="brief-value">${escapeHtml(m.decision_quality_note || "")}</div></div>` +
+      `<div class="brief-block"><div class="brief-label">Outcome quality</div><div class="brief-value">${escapeHtml(m.outcome_quality_note || "")}</div></div>` +
+      (st.marker
+        ? `<p class="meta" style="margin-top:0.5rem">Marker: ${escapeHtml(st.marker)} · ${escapeHtml(st.color || "")}</p>`
+        : "");
+  }
+
+  async function loadCounterfactual() {
+    const { json } = await api("/api/replay/contract");
+    const host = $("cf-branches");
+    host.innerHTML = "";
+    const branches =
+      (json.replay_surface &&
+        json.replay_surface.counterfactual_scaffold &&
+        json.replay_surface.counterfactual_scaffold.branches) ||
+      [];
+    branches.forEach((b) => {
+      const div = document.createElement("div");
+      div.className = "cf-branch" + (b.state === "stub" ? " stub" : "");
+      div.textContent = (b.label || b.id) + (b.state === "stub" ? " — stub" : "");
+      host.appendChild(div);
+    });
+  }
+
+  async function loadReplay() {
+    const { json } = await api("/api/replay/timeline");
+    if (!json.ok) {
+      $("replay-event-list").innerHTML = `<li class='empty'>${escapeHtml(json.error || "error")}</li>`;
+      return;
+    }
+    replayCache.events = json.events || [];
+    replayCache.series = json.series || [];
+    const pf = json.portfolio_traceability || {};
+    $("replay-portfolio-stub").textContent = pf.note || "";
+    renderReplayChart(json.series || []);
+    const ul = $("replay-event-list");
+    ul.innerHTML = "";
+    (json.events || []).forEach((ev) => {
+      const li = document.createElement("li");
+      li.dataset.eventId = ev.event_id;
+      li.innerHTML =
+        `<span class="ev-type">${escapeHtml(ev.event_type)}</span><br/>${escapeHtml(ev.title || "")}<br/><span class="mono" style="font-size:0.72rem">${escapeHtml(
+          (ev.timestamp_utc || "").slice(0, 19)
+        )}</span>`;
+      li.addEventListener("click", () => selectReplayEvent(ev.event_id, li));
+      ul.appendChild(li);
+    });
+  }
 
   function badgeClass(kind) {
     if (kind === "closed_research_fixture") return "fixture";
@@ -37,7 +157,7 @@
     return "default";
   }
 
-  function renderBrief(uf) {
+  function renderBrief(uf, runtimeHealth) {
     const b = uf && uf.brief;
     const host = $("brief-body");
     if (!b) {
@@ -48,6 +168,19 @@
     const sym = (b.symbols_preview || []).length
       ? `<div class="brief-block"><div class="brief-label">Cohort symbols</div><div class="brief-value">${escapeHtml(b.symbols_preview.join(", "))}</div></div>`
       : "";
+    let rhBlock = "";
+    const rh = runtimeHealth;
+    if (rh && rh.ok) {
+      const lines = (rh.plain_lines || []).map((l) => `<li>${escapeHtml(l)}</li>`).join("");
+      rhBlock =
+        `<div class="brief-block" style="margin-top:1rem;border-top:1px solid #2a3544;padding-top:0.85rem">` +
+        `<div class="brief-label">Research runtime (Phase 51)</div>` +
+        `<div class="brief-value"><strong>${escapeHtml(rh.headline || "")}</strong><br/>${escapeHtml(rh.subtext || "")}</div>` +
+        `<ul style="margin:0.5rem 0 0 1rem;font-size:0.88rem;color:var(--muted)">${lines}</ul>` +
+        `<details style="margin-top:0.5rem"><summary>Advanced (machine summary)</summary><pre class="mono" style="max-height:10rem;overflow:auto">${escapeHtml(
+          JSON.stringify(rh.advanced || {}, null, 2)
+        )}</pre></details></div>`;
+    }
     host.innerHTML =
       badge +
       sym +
@@ -55,7 +188,8 @@
       `<div class="brief-block"><div class="brief-label">Current stance (plain)</div><div class="brief-value">${escapeHtml(b.stance_plain || "")}</div></div>` +
       `<div class="brief-block"><div class="brief-label">What the system is saying</div><div class="brief-value">${escapeHtml(b.one_line_explanation || "")}</div></div>` +
       `<div class="brief-block"><div class="brief-label">Evidence state</div><div class="brief-value">${escapeHtml(b.evidence_state_plain || "—")}</div></div>` +
-      `<div class="action-line">What to do now: ${escapeHtml(b.action_framing || "")}</div>`;
+      `<div class="action-line">What to do now: ${escapeHtml(b.action_framing || "")}</div>` +
+      rhBlock;
   }
 
   function escapeHtml(s) {
@@ -177,7 +311,7 @@
       $("brief-body").textContent = JSON.stringify(json, null, 2);
       return;
     }
-    renderBrief(json.user_first);
+    renderBrief(json.user_first, json.runtime_health);
   }
 
   async function loadAlerts() {
@@ -307,6 +441,7 @@
     await api("/api/reload", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
     await refreshMeta();
     await refreshBriefFromOverview();
+    if ($("panel-replay").classList.contains("visible")) await loadReplay();
     alert("Bundle reloaded.");
   });
 
