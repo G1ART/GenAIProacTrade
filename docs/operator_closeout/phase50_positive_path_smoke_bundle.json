@@ -1,0 +1,229 @@
+{
+  "ok": true,
+  "phase": "phase50_positive_path_smoke",
+  "generated_utc": "2026-04-13T05:45:02.633174+00:00",
+  "input_phase46_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json",
+  "seeded_trigger_source": "manual_watchlist",
+  "seeded_job_type": "debate.execute",
+  "smoke_metrics_ok": true,
+  "trigger_results": [
+    {
+      "trigger_type": "manual_watchlist",
+      "dedupe_key": "manual:0:research_engine_fixture_cohort_8_row_v1:phase50 positive path smoke (operator-se",
+      "priority": 15,
+      "payload": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1",
+        "note": "phase50 positive path smoke (operator-seeded, governed job type)",
+        "suggested_job_type": "debate.execute"
+      },
+      "suggested_job_type": "debate.execute",
+      "manual_file": "/Users/hyunminkim/GenAIProacTrade/data/research_runtime/phase50_positive_path_smoke_manual_v1.json"
+    }
+  ],
+  "jobs_created": [
+    {
+      "job_id": "0d26ef7d-25a9-4cee-88aa-79f31dfe2476",
+      "job_type": "debate.execute",
+      "asset_scope": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1"
+      },
+      "trigger_source": "manual_watchlist",
+      "created_at": "2026-04-13T05:45:02.632130+00:00",
+      "status": "pending",
+      "priority": 15,
+      "budget_class": "bounded_debate",
+      "attempt_count": 0,
+      "result_summary": "",
+      "output_artifacts": [],
+      "dedupe_key": "manual:0:research_engine_fixture_cohort_8_row_v1:phase50 positive path smoke (operator-se",
+      "trigger_payload": {
+        "trigger": {
+          "trigger_type": "manual_watchlist",
+          "dedupe_key": "manual:0:research_engine_fixture_cohort_8_row_v1:phase50 positive path smoke (operator-se",
+          "priority": 15,
+          "payload": {
+            "asset_id": "research_engine_fixture_cohort_8_row_v1",
+            "note": "phase50 positive path smoke (operator-seeded, governed job type)",
+            "suggested_job_type": "debate.execute"
+          },
+          "suggested_job_type": "debate.execute",
+          "manual_file": "/Users/hyunminkim/GenAIProacTrade/data/research_runtime/phase50_positive_path_smoke_manual_v1.json"
+        }
+      }
+    }
+  ],
+  "jobs_executed": [
+    {
+      "job_id": "0d26ef7d-25a9-4cee-88aa-79f31dfe2476",
+      "job_type": "debate.execute",
+      "result_summary": "Bounded debate outcome=unknown; turns=3."
+    }
+  ],
+  "bounded_debate_outputs": [
+    {
+      "question": "Governed check: manual_watchlist",
+      "max_turns_config": 3,
+      "max_roles_config": 5,
+      "turns_used": 3,
+      "roles_used": [
+        "signal_finder",
+        "skeptical_reviewer",
+        "management_decision_analyst",
+        "premium_data_advocate",
+        "operator_summarizer"
+      ],
+      "transcript": [
+        {
+          "role": "signal_finder",
+          "turn": 0,
+          "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+        },
+        {
+          "role": "skeptical_reviewer",
+          "turn": 0,
+          "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+        },
+        {
+          "role": "management_decision_analyst",
+          "turn": 0,
+          "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+        },
+        {
+          "role": "premium_data_advocate",
+          "turn": 0,
+          "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+        },
+        {
+          "role": "operator_summarizer",
+          "turn": 0,
+          "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+        },
+        {
+          "role": "signal_finder",
+          "turn": 1,
+          "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+        },
+        {
+          "role": "skeptical_reviewer",
+          "turn": 1,
+          "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+        },
+        {
+          "role": "management_decision_analyst",
+          "turn": 1,
+          "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+        },
+        {
+          "role": "premium_data_advocate",
+          "turn": 1,
+          "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+        },
+        {
+          "role": "operator_summarizer",
+          "turn": 1,
+          "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+        },
+        {
+          "role": "signal_finder",
+          "turn": 2,
+          "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+        },
+        {
+          "role": "skeptical_reviewer",
+          "turn": 2,
+          "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+        },
+        {
+          "role": "management_decision_analyst",
+          "turn": 2,
+          "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+        },
+        {
+          "role": "premium_data_advocate",
+          "turn": 2,
+          "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+        },
+        {
+          "role": "operator_summarizer",
+          "turn": 2,
+          "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+        }
+      ],
+      "outcome": "unknown",
+      "stopped_reason": "policy_max_turns_reached",
+      "governed": true
+    }
+  ],
+  "premium_escalation_candidates": [
+    {
+      "premium_candidate": true,
+      "justification": "Public bundle still shows deferred/proxy-limited substrate; uncertainties affect claim posture. Premium is proposed only as an ROI-gated candidate.",
+      "candidate_data_type": "vendor_or_internal_dataset_capable_of_sector_or_strict_pit_enrichment",
+      "affected_assets": [],
+      "expected_reduction_in_uncertainty": "Could narrow proxy-limited falsifier gap if it yields sector_available or strict filing-public picks under governance — **expected reduction qualitative, not guaranteed**.",
+      "not_forced_into_surface_without_review": true
+    }
+  ],
+  "discovery_candidates": [
+    {
+      "candidate_id": "dc_1_20260413054502",
+      "created_at": "2026-04-13T05:45:02.632599+00:00",
+      "asset_scope": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1"
+      },
+      "why_it_surfaced": "Bounded debate outcome `unknown` under proactive cycle.",
+      "triggers_fired": [
+        "manual_watchlist"
+      ],
+      "what_is_still_uncertain": "Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent.",
+      "additional_evidence_needed": "Named dispositive path or premium ROI-reviewed dataset (candidate only).",
+      "debate_converged_or_unresolved": false,
+      "linked_job_id": "0d26ef7d-25a9-4cee-88aa-79f31dfe2476",
+      "not_a_recommendation": true
+    }
+  ],
+  "cockpit_surface_outputs": [
+    {
+      "kind": "premium_escalation_candidate",
+      "payload": {
+        "premium_candidate": true,
+        "justification": "Public bundle still shows deferred/proxy-limited substrate; uncertainties affect claim posture. Premium is proposed only as an ROI-gated candidate.",
+        "candidate_data_type": "vendor_or_internal_dataset_capable_of_sector_or_strict_pit_enrichment",
+        "affected_assets": [],
+        "expected_reduction_in_uncertainty": "Could narrow proxy-limited falsifier gap if it yields sector_available or strict filing-public picks under governance — **expected reduction qualitative, not guaranteed**.",
+        "not_forced_into_surface_without_review": true
+      }
+    },
+    {
+      "kind": "cockpit_message",
+      "severity": "info",
+      "text": "Public bundle still shows deferred/proxy-limited substrate; uncertainties affect claim posture. Premium is proposed only as an ROI-gated candidate."
+    },
+    {
+      "kind": "discovery_candidate",
+      "payload": {
+        "candidate_id": "dc_1_20260413054502",
+        "created_at": "2026-04-13T05:45:02.632599+00:00",
+        "asset_scope": {
+          "asset_id": "research_engine_fixture_cohort_8_row_v1"
+        },
+        "why_it_surfaced": "Bounded debate outcome `unknown` under proactive cycle.",
+        "triggers_fired": [
+          "manual_watchlist"
+        ],
+        "what_is_still_uncertain": "Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent.",
+        "additional_evidence_needed": "Named dispositive path or premium ROI-reviewed dataset (candidate only).",
+        "debate_converged_or_unresolved": false,
+        "linked_job_id": "0d26ef7d-25a9-4cee-88aa-79f31dfe2476",
+        "not_a_recommendation": true
+      }
+    }
+  ],
+  "phase48_generated_utc": "2026-04-13T05:45:02.632902+00:00",
+  "isolated_registry_path": "/Users/hyunminkim/GenAIProacTrade/data/research_runtime/phase50_positive_path_smoke_registry_v1.json",
+  "isolated_discovery_path": "/Users/hyunminkim/GenAIProacTrade/data/research_runtime/phase50_positive_path_smoke_discovery_v1.json",
+  "phase51": {
+    "phase51_recommendation": "external_trigger_ingest_hooks_and_runtime_health_surface_v1",
+    "notes": "External ingest hooks, source registration events, richer triggers, cockpit runtime health."
+  }
+}

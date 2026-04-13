@@ -40,6 +40,8 @@
 
 **CLI (Phase 49, Phase 48 N회·집계·메트릭)**: `run-phase49-daemon-scheduler-multi-cycle-triggers-and-metrics-v1` — 동일 입력·상태 파일로 Phase 48 단일 사이클을 `--cycles` 회 반복하고 집계한다. 산출: `phase49_daemon_scheduler_multi_cycle_bundle.json`, `phase49_daemon_scheduler_multi_cycle_review.md`. 선택 `--sleep-seconds`, `--skip-alerts`, `--registry-path`, `--discovery-path`, `--decision-ledger-path`. 테스트: `pytest src/tests/test_phase49_daemon_scheduler_multi_cycle.py -q`.
 
+**CLI (Phase 50, 제어 평면·스모크)**: `run-phase50-registry-controls-and-operator-timing` — Phase 49 번들 + 제어 평면·감사 요약 번들. `run-phase50-positive-path-smoke` — 운영자 시드 `manual_watchlist` + 격리 레지스트리로 **비영(non-empty)** 권위 스모크. 산출: `phase50_registry_controls_and_operator_timing_*`, `phase50_positive_path_smoke_*`. 지속: `data/research_runtime/runtime_control_plane_v1.json`, `cycle_lease_v1.json`, `runtime_audit_log_v1.json`. 테스트: `pytest src/tests/test_phase50_registry_controls_and_operator_timing.py -q`.
+
 **Phase 46 실측 (참고)**: 저장소 기록 번들 `generated_utc` `2026-04-12T20:40:43Z` — `docs/phase46_evidence.md`.
 
 **Phase 47 실측 (참고)**: 메타 번들 `generated_utc` `2026-04-12T22:02:36Z` — `docs/phase47_evidence.md`.
@@ -48,9 +50,11 @@
 
 **Phase 49 실측 (참고, Phase 48 클로즈 검증)**: 집계 번들 `generated_utc` `2026-04-13T01:10:08Z` — `docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`.
 
+**Phase 50 실측 (참고)**: 제어 평면·positive-path 스모크 — `docs/operator_closeout/phase50_positive_path_smoke_review.md`, `phase50_registry_controls_and_operator_timing_review.md`.
+
 ---
 
-_Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41dea3b0-02fe-46d8-951d-e2778af01e9f`, 8/8 mismatch, 게이트 blocked → Phase 39 권고 `broaden_hypothesis_families…` 반영·**실측 완료**. Phase 38 상세 **`docs/phase38_evidence.md`**, Phase 39 상세 **`docs/phase39_evidence.md`**, Phase 40 **`docs/phase40_evidence.md`**, Phase 41 **`docs/phase41_evidence.md`**, Phase 42 **`docs/phase42_evidence.md`**, Phase 43 **`docs/phase43_evidence.md`**, Phase 44 **`docs/phase44_evidence.md`**, Phase 45 **`docs/phase45_evidence.md`**, Phase 46 **`docs/phase46_evidence.md`**, Phase 47 **`docs/phase47_evidence.md`**, Phase 48 **`docs/phase48_evidence.md`**, Phase 49 **`docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`**.
+_Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41dea3b0-02fe-46d8-951d-e2778af01e9f`, 8/8 mismatch, 게이트 blocked → Phase 39 권고 `broaden_hypothesis_families…` 반영·**실측 완료**. Phase 38 상세 **`docs/phase38_evidence.md`**, Phase 39 상세 **`docs/phase39_evidence.md`**, Phase 40 **`docs/phase40_evidence.md`**, Phase 41 **`docs/phase41_evidence.md`**, Phase 42 **`docs/phase42_evidence.md`**, Phase 43 **`docs/phase43_evidence.md`**, Phase 44 **`docs/phase44_evidence.md`**, Phase 45 **`docs/phase45_evidence.md`**, Phase 46 **`docs/phase46_evidence.md`**, Phase 47 **`docs/phase47_evidence.md`**, Phase 48 **`docs/phase48_evidence.md`**, Phase 49 **`docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`**, Phase 50 **`docs/operator_closeout/phase50_positive_path_smoke_review.md`**.
 
 ---
 
@@ -804,9 +808,30 @@ _Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41de
 - **산출**: `docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_bundle.json`, `phase49_daemon_scheduler_multi_cycle_review.md`.
 - **테스트**: `pytest src/tests/test_phase49_daemon_scheduler_multi_cycle.py -q`
 
-## Phase 50 (권고)
+## Phase 50 (구현됨)
 
-- 번들 `phase49_daemon_scheduler_multi_cycle_review.md` 의 **Phase 50** 토큰을 따른다(예: `fork_registry_controls_and_operator_timing_v1`).
+- **제어 평면·스모크**: 아래 **HANDOFF — Phase 50** 참고. 번들 `phase50_registry_controls_and_operator_timing_*`, `phase50_positive_path_smoke_*`.
+
+---
+
+# HANDOFF — Phase 50 (Runtime control plane & positive-path smoke)
+
+## 요약
+
+- **목적**: 선행 런타임(Phase 48/49)에 **운영 제어 평면**(케이던스·트리거 on/off·윈도 캡)·**사이클 리스**(중복 실행 방지)·**append-only 감사 로그**를 두고, **권위 있는 비영(non-empty) 스모크** 번들로 루프가 실제 산출을 낸다는 것을 증명한다. **기판·DB 캠페인·무제한 데몬 없음.**
+- **제어 레지스트리**: `data/research_runtime/runtime_control_plane_v1.json` — `enabled`, `maintenance_mode`, `max_concurrent_cycles`, `default_cycle_profile`, `allowed_trigger_types` / `disabled_trigger_types`, `max_cycles_per_window`, `window_seconds`, `last_operator_override_at`, `operator_note`, `positive_path_smoke_enabled`.
+- **리스**: `data/research_runtime/cycle_lease_v1.json` — 단일 활성 사이클; 만료 시 재획득 가능; 획득 실패 시 사이클 스킵 + 감사.
+- **타이밍 프로파일**: `manual_debug`, `low_cost_polling`, `alert_sensitive` — `should_run_cycle_now` 가 실행 여부·이유를 반환.
+- **감사 로그**: `data/research_runtime/runtime_audit_log_v1.json` — 타임스탬프, `cycle_id`, 리스 여부, 적용 제어, 트리거/잡 수, 스킵 여부 등.
+- **트리거 병합**: `trigger_controls.effective_budget_policy` 가 제어 평면과 예산 정책을 결합. 수동 트리거 항목에 **`suggested_job_type`** 이 있으면 Phase 48이 허용된 잡 타입으로 실행(스모크는 `debate.execute`).
+- **Positive-path smoke**: `manual_watchlist` 시드 + **격리** 레지스트리/디스커버리(`phase50_positive_path_smoke_*_v1.json`); Phase 46 `generated_utc` 와 레지스트리 메타를 맞춰 **번들 변경 트리거만** 뜨지 않게 함. 산출: `phase50_positive_path_smoke_bundle.json` — `n_triggers≥1`, 잡 생성/실행≥1, 토론·프리미엄·디스커버리·cockpit 중 최소 하나 비어 있지 않음.
+- **코드**: `src/phase50_runtime/` — `control_plane`, `cycle_lease`, `timing_policy`, `runtime_audit_log`, `trigger_controls`, `orchestrator`, `review`, `phase51_recommend`.
+- **CLI**: `run-phase50-registry-controls-and-operator-timing` (Phase 49 번들 입력), `run-phase50-positive-path-smoke` (Phase 46 입력; `--strict-timing` 시 타이밍 차단 존중, `--no-skip-alerts` 시 알림 append 가능).
+- **테스트**: `pytest src/tests/test_phase50_registry_controls_and_operator_timing.py -q`
+
+## Phase 51 (권고)
+
+- **`external_trigger_ingest_hooks_and_runtime_health_surface_v1`** — 외부 인제스트 훅, 소스 등록 이벤트, 풍부한 트리거, cockpit 런타임 헬스 표면.
 
 ---
 

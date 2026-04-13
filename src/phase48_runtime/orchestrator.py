@@ -46,6 +46,8 @@ def run_phase48_proactive_research_runtime(
     discovery_path: Path | None = None,
     decision_ledger_path: Path | None = None,
     skip_alerts: bool = False,
+    budget_policy: dict[str, Any] | None = None,
+    manual_triggers_path: Path | None = None,
 ) -> dict[str, Any]:
     root = repo_root or Path(__file__).resolve().parents[2]
     p46_path = Path(phase46_bundle_in)
@@ -67,7 +69,7 @@ def run_phase48_proactive_research_runtime(
         else:
             dec_path = default_decision_path_fallback(root)
 
-    policy = default_budget_policy()
+    policy = budget_policy if budget_policy is not None else default_budget_policy()
     max_jobs = int(policy.get("max_jobs_per_run") or 5)
     max_debate_turns = int(policy.get("max_debate_turns") or 3)
     max_roles = int(policy.get("max_participating_roles") or 5)
@@ -84,6 +86,7 @@ def run_phase48_proactive_research_runtime(
         decision_ledger_path=dec_path,
         registry_metadata=meta,
         policy=policy,
+        manual_triggers_path=manual_triggers_path,
     )
 
     jobs_created: list[dict[str, Any]] = []

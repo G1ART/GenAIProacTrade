@@ -7221,6 +7221,76 @@ def _cmd_run_phase49_daemon_scheduler_multi_cycle_triggers_and_metrics_v1(
     return 0
 
 
+def _cmd_run_phase50_registry_controls_and_operator_timing(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from phase50_runtime.orchestrator import run_phase50_registry_controls_and_operator_timing
+    from phase50_runtime.review import (
+        write_phase50_registry_controls_bundle_json,
+        write_phase50_registry_controls_review_md,
+    )
+
+    p49 = (
+        str(getattr(args, "phase49_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_bundle.json"
+    )
+    out = run_phase50_registry_controls_and_operator_timing(phase49_bundle_in=p49)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase50_registry_controls_bundle_json(bo, bundle=out)
+        print("phase50_registry_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase50_registry_controls_review_md(md, bundle=out)
+        print("phase50_registry_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase50_positive_path_smoke(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from pathlib import Path as Path_lib
+
+    from phase50_runtime.orchestrator import run_phase50_positive_path_smoke
+    from phase50_runtime.review import (
+        write_phase50_positive_path_smoke_bundle_json,
+        write_phase50_positive_path_smoke_review_md,
+    )
+
+    p46 = (
+        str(getattr(args, "phase46_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json"
+    )
+    skip_alerts = not bool(getattr(args, "no_skip_alerts", False))
+    strict_timing = bool(getattr(args, "strict_timing", False))
+    reg = str(getattr(args, "registry_path", "") or "").strip()
+    disc = str(getattr(args, "discovery_path", "") or "").strip()
+    dec = str(getattr(args, "decision_ledger_path", "") or "").strip()
+    out = run_phase50_positive_path_smoke(
+        phase46_bundle_in=p46,
+        skip_alerts=skip_alerts,
+        bypass_timing_for_smoke=not strict_timing,
+        registry_path=Path_lib(reg) if reg else None,
+        discovery_path=Path_lib(disc) if disc else None,
+        decision_ledger_path=Path_lib(dec) if dec else None,
+    )
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase50_positive_path_smoke_bundle_json(bo, bundle=out)
+        print("phase50_smoke_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase50_positive_path_smoke_review_md(md, bundle=out)
+        print("phase50_smoke_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
 def _cmd_write_phase33_forward_coverage_truth_review(
     args: argparse.Namespace,
 ) -> int:
@@ -11074,6 +11144,55 @@ def build_parser() -> argparse.ArgumentParser:
     p49run.set_defaults(
         func=_cmd_run_phase49_daemon_scheduler_multi_cycle_triggers_and_metrics_v1
     )
+
+    p50reg = sub.add_parser(
+        "run-phase50-registry-controls-and-operator-timing",
+        help="Phase 50: control plane + timing + audit summary bundle (reads Phase 49 bundle)",
+    )
+    p50reg.add_argument(
+        "--phase49-bundle-in",
+        default="docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_bundle.json",
+    )
+    p50reg.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase50_registry_controls_and_operator_timing_bundle.json",
+    )
+    p50reg.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase50_registry_controls_and_operator_timing_review.md",
+    )
+    p50reg.set_defaults(func=_cmd_run_phase50_registry_controls_and_operator_timing)
+
+    p50smoke = sub.add_parser(
+        "run-phase50-positive-path-smoke",
+        help="Phase 50: operator-seeded governed smoke (non-empty cycle outputs)",
+    )
+    p50smoke.add_argument(
+        "--phase46-bundle-in",
+        default="docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json",
+    )
+    p50smoke.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase50_positive_path_smoke_bundle.json",
+    )
+    p50smoke.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase50_positive_path_smoke_review.md",
+    )
+    p50smoke.add_argument(
+        "--no-skip-alerts",
+        action="store_true",
+        help="Append alerts when debate yields reopen_candidate (default: skip)",
+    )
+    p50smoke.add_argument(
+        "--strict-timing",
+        action="store_true",
+        help="Respect timing policy (smoke may skip if blocked)",
+    )
+    p50smoke.add_argument("--registry-path", default="")
+    p50smoke.add_argument("--discovery-path", default="")
+    p50smoke.add_argument("--decision-ledger-path", default="")
+    p50smoke.set_defaults(func=_cmd_run_phase50_positive_path_smoke)
 
     p24c = sub.add_parser(
         "advance-public-first-cycle",

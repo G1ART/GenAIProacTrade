@@ -1,0 +1,120 @@
+{
+  "ok": true,
+  "phase": "phase50_registry_controls_and_operator_timing_v1",
+  "generated_utc": "2026-04-13T05:45:52.889072+00:00",
+  "input_phase49_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_bundle.json",
+  "control_plane_state": {
+    "schema_version": 1,
+    "enabled": true,
+    "maintenance_mode": false,
+    "max_concurrent_cycles": 1,
+    "default_cycle_profile": "low_cost_polling",
+    "allowed_trigger_types": [
+      "changed_artifact_bundle",
+      "operator_research_signal",
+      "closeout_reopen_candidate",
+      "named_source_signal",
+      "manual_watchlist"
+    ],
+    "disabled_trigger_types": [],
+    "max_cycles_per_window": 120,
+    "window_seconds": 3600,
+    "last_operator_override_at": null,
+    "operator_note": "",
+    "positive_path_smoke_enabled": false
+  },
+  "control_plane_path": "/Users/hyunminkim/GenAIProacTrade/data/research_runtime/runtime_control_plane_v1.json",
+  "timing_profiles": {
+    "manual_debug": {
+      "description": "Operator-invoked; minimal cadence gating.",
+      "min_interval_seconds": 0,
+      "respect_window_cap": false
+    },
+    "low_cost_polling": {
+      "description": "Periodic polling with conservative minimum spacing.",
+      "min_interval_seconds": 60,
+      "respect_window_cap": true
+    },
+    "alert_sensitive": {
+      "description": "Shorter interval when alert-driven paths are enabled.",
+      "min_interval_seconds": 15,
+      "respect_window_cap": true
+    }
+  },
+  "lease_behavior": {
+    "ttl_seconds_default": 900,
+    "semantics": "At most one active non-stale lease; acquire fails if another holder holds it.",
+    "stale_rule": "expires_at in the past allows a new acquire",
+    "safe_failure": "Skip cycle with audit entry; do not run Phase 48"
+  },
+  "trigger_controls": {
+    "allowed_trigger_types_effective": [
+      "changed_artifact_bundle",
+      "closeout_reopen_candidate",
+      "manual_watchlist",
+      "named_source_signal",
+      "operator_research_signal"
+    ],
+    "disabled_trigger_types_config": [],
+    "allowed_trigger_types_config": [
+      "changed_artifact_bundle",
+      "operator_research_signal",
+      "closeout_reopen_candidate",
+      "named_source_signal",
+      "manual_watchlist"
+    ]
+  },
+  "runtime_audit_summary": {
+    "total_entries": 2,
+    "tail_count": 2,
+    "skipped_in_tail": 0,
+    "last_entry": {
+      "timestamp": "2026-04-13T05:45:02.633076+00:00",
+      "cycle_id": "177b9ff8-ebbe-42cb-ad72-f3ed6f2d79fd",
+      "why_cycle_started": "positive_path_smoke_governed",
+      "lease_acquired": true,
+      "controls_applied": {
+        "timing": {
+          "run": true,
+          "reason": "smoke_bypass_timing",
+          "detail": "positive_path_smoke",
+          "profile": "manual_debug"
+        },
+        "trigger_controls": {
+          "allowed_trigger_types_effective": [
+            "changed_artifact_bundle",
+            "closeout_reopen_candidate",
+            "manual_watchlist",
+            "named_source_signal",
+            "operator_research_signal"
+          ],
+          "disabled_trigger_types_config": [],
+          "allowed_trigger_types_config": [
+            "changed_artifact_bundle",
+            "operator_research_signal",
+            "closeout_reopen_candidate",
+            "named_source_signal",
+            "manual_watchlist"
+          ]
+        },
+        "budget_policy_allowed": [
+          "changed_artifact_bundle",
+          "closeout_reopen_candidate",
+          "manual_watchlist",
+          "named_source_signal",
+          "operator_research_signal"
+        ]
+      },
+      "triggers_evaluated_count": 1,
+      "jobs_created_count": 1,
+      "jobs_executed_count": 1,
+      "why_cycle_stopped": "phase48_completed",
+      "cycle_skipped": false,
+      "operator_override": null
+    }
+  },
+  "phase51": {
+    "phase51_recommendation": "external_trigger_ingest_hooks_and_runtime_health_surface_v1",
+    "notes": "External ingest hooks, source registration events, richer triggers, cockpit runtime health."
+  }
+}

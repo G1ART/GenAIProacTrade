@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from phase48_runtime.budget_policy import default_budget_policy, trigger_allowed
+from phase48_runtime.job_registry import JOB_TYPES
 
 
 def _parse_ts(s: str | None) -> str | None:
@@ -15,8 +16,10 @@ def _parse_ts(s: str | None) -> str | None:
     return str(s).strip() or None
 
 
-def load_manual_triggers(repo_root: Path) -> tuple[list[dict[str, Any]], Path | None]:
-    p = repo_root / "data" / "research_runtime" / "manual_triggers_v1.json"
+def load_manual_triggers(
+    repo_root: Path, override_path: Path | None = None
+) -> tuple[list[dict[str, Any]], Path | None]:
+    p = override_path if override_path is not None else repo_root / "data" / "research_runtime" / "manual_triggers_v1.json"
     if not p.is_file():
         return [], None
     raw = json.loads(p.read_text(encoding="utf-8"))
@@ -32,6 +35,7 @@ def evaluate_triggers(
     decision_ledger_path: Path,
     registry_metadata: dict[str, Any],
     policy: dict[str, Any] | None = None,
+    manual_triggers_path: Path | None = None,
 ) -> list[dict[str, Any]]:
     policy = policy or default_budget_policy()
     out: list[dict[str, Any]] = []
@@ -109,16 +113,18 @@ def evaluate_triggers(
                 }
             )
 
-    manual, mpath = load_manual_triggers(repo_root)
+    manual, mpath = load_manual_triggers(repo_root, override_path=manual_triggers_path)
     for i, m in enumerate(manual):
         if trigger_allowed(policy, "manual_watchlist"):
+            jt_raw = str(m.get("suggested_job_type") or "").strip()
+            jt = jt_raw if jt_raw in JOB_TYPES else "evidence.refresh"
             out.append(
                 {
                     "trigger_type": "manual_watchlist",
                     "dedupe_key": f"manual:{i}:{m.get('asset_id', asset_id)}:{m.get('note', '')[:40]}",
                     "priority": 15,
                     "payload": dict(m),
-                    "suggested_job_type": "evidence.refresh",
+                    "suggested_job_type": jt,
                     "manual_file": str(mpath) if mpath else None,
                 }
             )
