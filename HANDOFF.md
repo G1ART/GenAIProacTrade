@@ -749,18 +749,19 @@ _Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41de
 
 - **목적**: Phase 46 산출물을 **실제 브라우저 런타임**으로 제공한다. **stdlib HTTP + 얇은 HTML/JS**; DB 불필요. **기판·수리·연구 패밀리 확장 없음.**
 - **입력**: `phase46_founder_decision_cockpit_bundle.json` (+ 번들이 가리키는 레저 JSON). 다른 머신에서는 번들 내 절대경로가 깨질 수 있으므로 **`PHASE47_PHASE46_BUNDLE`** 및 레저를 로컬 경로로 맞추거나 Phase 46을 재실행한다.
-- **화면 (Phase 47c 이후)**: 상단 내비 **Brief · This object · Alerts · History · Replay · Ask AI** — **Replay**는 Advanced 아래가 아니라 **1차 내비**; 서브모드 **Replay**(시간축) / **Counterfactual Lab**(가상 분기 스캐폴드, 축 비표시). 내부 레이어 명은 **기본 탭에서 제거**, `This object` 안에 DESIGN.md 순서(**Brief · Why now · What could change · Evidence · History · Ask AI · Advanced**)로 매핑. Alerts/History(결정 로그)는 **빈 상태 안내** 포함. Ask AI는 **퀵 프롬프트 + `body_markdown` 가독 표시** (원시 JSON 비주력).
-- **API**: `GET /api/overview` 에 `user_first` (번역된 brief·내비 계약) 및 **`runtime_health`** (Phase 51); `GET /api/user-first/section/{brief|why_now|…}` — 섹션별 사람 읽을 본문. **Replay**: `GET /api/replay/timeline`, `GET /api/replay/micro-brief?event_id=…`, `GET /api/replay/contract`. **런타임**: `GET /api/runtime/health`, `POST /api/runtime/external-ingest` (본문 상한 32KB). 번역·객체 종류·액션 프레이밍: **`ui_copy.py`**; 타임라인: **`traceability_replay.py`**; 외부 적재·헬스: **`phase51_runtime`**.
+- **화면 (Phase 47d 이후)**: **홈 피드 우선** — 상단 내비 **Home · Watchlist · Research · Replay · Journal · Ask AI · Advanced**. 기본 랜딩은 **Home** 에서 **Today / Watchlist / Research in progress / Alerts(미리보기) / Decision journal(미리보기) / Ask AI brief / Portfolio 스텁** 카드 그리드(요약만, 기본 블록에 원시 JSON 없음). **Research** 패널에 예전 `This object` 탭(**Brief · Why now · … · Advanced**) — 클로즈드 리서치 픽스처·아카이브 맥락은 여기서 다루고 **Home 히어로로 올리지 않음**. **Journal** 은 결정 카드 + 기록 폼(원시 JSON 배열 비주력). **전체 알림 필터·ack/resolve 등**은 **Advanced** 로 이동; Home 은 짧은 미리보기 + Advanced 링크. **Ask AI** 상단에 **copilot brief(한 줄)** + 워크오더 계약 숏컷(“What matters now?” 등, “Open Replay for this item” 은 Replay 패널로 이동). Replay 서브모드는 기존과 동일(**Replay** / **Counterfactual Lab**).
+- **API**: `GET /api/home/feed` — Home 블록용 조합 페이로드. `GET /api/overview` 의 `user_first.navigation.primary_navigation` 은 Phase 47d 셸과 동일. 나머지: `GET /api/user-first/section/…`, **Replay** `GET /api/replay/*`, **런타임** `GET /api/runtime/health`, `POST /api/runtime/external-ingest` (32KB 상한). 구현: **`home_feed.py`**, **`ui_copy.py`**, **`traceability_replay.py`**, **`phase51_runtime`**.
 - **거버넌스 대화 지원 의도**: `decision_summary`, `information_layer`, `research_layer`, `why_closed`, `provenance`, `what_changed`, `what_unproven`, `message_layer`, `closeout_layer` (**`what could change` 문구도 closeout_layer**); 범위 밖은 `outside_governed_cockpit_scope`.
 - **레저 쓰기**: `alert_ledger_v1.json`(상태 갱신), `decision_trace_ledger_v1.json`(hold/watch/defer/reopen_request/buy/sell/dismiss_alert).
 - **알림**: `notification_hooks` 인메모리 이벤트 + UI 폴링(`/api/notifications`). Phase 47 메타 번들의 `phase48` 권고 문자열(`external_notification_connectors…`)은 **구현 전 스텁**; 외부 커넥터·감사 로그는 **별도 스프린트**(Phase 49는 **선행 연구 다중 사이클·메트릭**에 해당)에서 검토.
 - **리프레시**: `POST /api/reload`, UI **Reload bundle**; `GET /api/meta` 의 `bundle_stale`.
-- **코드**: `src/phase47_runtime/` — `app`, `routes`, `runtime_state`, `governed_conversation`, `notification_hooks`, `orchestrator`, `review`, `phase48_recommend`, **`ui_copy`**, **`phase47b_orchestrator`**, **`phase47b_review`**, **`traceability_replay`**, **`phase47c_orchestrator`**, **`phase47c_review`**, `static/`.
+- **코드**: `src/phase47_runtime/` — `app`, `routes`, `runtime_state`, `governed_conversation`, `notification_hooks`, `orchestrator`, `review`, `phase48_recommend`, **`ui_copy`**, **`home_feed`**, **`phase47b_orchestrator`**, **`phase47b_review`**, **`traceability_replay`**, **`phase47c_orchestrator`**, **`phase47c_review`**, **`phase47d_orchestrator`**, **`phase47d_review`**, `static/`.
 - **CLI**: `run-phase47-founder-cockpit-runtime` — 메타 번들·리뷰 MD. **서버**: `python3 src/phase47_runtime/app.py`.
 - **CLI (Phase 47b, IA 계약 번들)**: `run-phase47b-user-first-ux` — `docs/DESIGN.md` 경로·`phase47b_user_first_ux_bundle.json` / `phase47b_user_first_ux_review.md`. 테스트: `pytest src/tests/test_phase47b_user_first_ux.py -q`.
 - **CLI (Phase 47c, 추적성·리플레이 계약)**: `run-phase47c-traceability-replay` — 기본 `--design-source` 누락 시 `docs/DESIGN_V3_MINIMAL_AND_STRONG.md` 등 3종; 산출 `phase47c_traceability_replay_bundle.json` / `phase47c_traceability_replay_review.md`. 플롯 문법 메모: **`docs/operator_closeout/phase47c_plot_grammar_notes.md`**. 테스트: `pytest src/tests/test_phase47c_traceability_replay.py -q`.
+- **CLI (Phase 47d, 홈 피드·셸 메타 번들)**: `run-phase47d-thick-slice-home-feed` — 기본 `--design-source` `docs/DESIGN_V3_MINIMAL_AND_STRONG.md`; 산출 **`docs/operator_closeout/phase47d_thick_slice_home_feed_bundle.json`**, **`phase47d_thick_slice_home_feed_review.md`**. 권장 보조 문서: **`docs/operator_closeout/phase47d_shell_map_before_after.md`**. 테스트: `pytest src/tests/test_phase47d_thick_slice_home_feed.py -q`.
 - **배포**: **`docs/operator_closeout/phase47_runtime_deploy_notes.md`** (내부 HTTPS 리버스 프록시 + VPN 권장).
-- **테스트**: `pytest src/tests/test_phase47_founder_cockpit_runtime.py src/tests/test_phase47c_traceability_replay.py -q`
+- **테스트**: `pytest src/tests/test_phase47_founder_cockpit_runtime.py src/tests/test_phase47b_user_first_ux.py src/tests/test_phase47c_traceability_replay.py src/tests/test_phase47d_thick_slice_home_feed.py -q`
 - **증거·패치**: **`docs/phase47_evidence.md`**, **`docs/phase47_patch_report.md`**
 
 ## Phase 47b (user-first IA — DESIGN.md 정렬)
@@ -771,7 +772,12 @@ _Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41de
 
 - **Replay vs Counterfactual Lab**: 타임라인 카피는 **당시 알려진 사실** 범위; 가설·미래 암시 구문은 삭제/치환. 가상 분기는 **별도 모드**·`counterfactual_scaffold`(축 미표시). **결정 품질**(당시 과정)과 **결과 품질**(사후) 문구 분리.
 - **포트폴리오**: API `portfolio_traceability` **스텝** — 포지션 단위 계보는 후속.
-- **Phase 47d 권고 (번들 `phase47d`)**: `counterfactual_numeric_engine_and_live_price_attribution_v1`.
+
+## Phase 47d (thick-slice Home feed & copilot shell)
+
+- **번들 `phase47e` 권고 (구현 후 다음 슬라이스)**: `live_watchlist_multi_asset_and_portfolio_attribution_v1` — 다중 자산·심볼 훅(여전히 거버넌스), 포트폴리오 카드 데이터; **기판 수리 비목표**.
+- **Ask AI brief 블록**: 짧은 “now” 한 줄 + 계약된 숏컷(What matters now?, What changed?, …, Open Replay for this item); 거대한 채팅창을 중앙 히어로로 두지 않음.
+- **클로즈드 픽스처 위치**: Home **Today** 에서 아카이브 맥락을 설명하고 **Watchlist / Research / Alerts** 로 안내; 상세 카드·드릴다운은 **Research** 탭 및 **Advanced**.
 
 ## Phase 46 번들 내 레거시 Phase 47 권고 문자열
 

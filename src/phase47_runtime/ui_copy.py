@@ -36,19 +36,6 @@ STATUS_TRANSLATIONS: dict[str, str] = {
     "claim_narrowed_closed": "Claims are narrowed; case treated as closed under current evidence",
 }
 
-PRIMARY_NAVIGATION: list[dict[str, str]] = [
-    {"id": "brief", "label": "Brief", "user_question": "What is this? What should I do?"},
-    {"id": "object", "label": "This object", "user_question": "Drill into one cohort or symbol"},
-    {"id": "alerts", "label": "Alerts", "user_question": "What needs attention?"},
-    {"id": "history", "label": "History", "user_question": "Decisions and trail"},
-    {
-        "id": "replay",
-        "label": "Replay",
-        "user_question": "What happened on a time axis — knowable then, not hypothetical",
-    },
-    {"id": "ask_ai", "label": "Ask AI", "user_question": "Bounded decision copilot"},
-]
-
 OBJECT_DETAIL_SECTIONS: list[dict[str, str]] = [
     {"id": "brief", "label": "Brief", "maps_internal": "decision + message (summary)"},
     {"id": "why_now", "label": "Why now", "maps_internal": "message + headline / what_changed"},
@@ -220,10 +207,10 @@ def build_section_payload(bundle: dict[str, Any], section: str) -> dict[str, Any
         return out
 
     if section == "history":
-        out["intro"] = "Alerts and recorded decisions live in their own panels (History navigation)."
+        out["intro"] = "Alerts and recorded decisions live under top-level Advanced and Journal (Phase 47d shell)."
         out["links"] = [
-            {"panel": "alerts", "label": "Open Alerts panel"},
-            {"panel": "history", "label": "Open decision log"},
+            {"panel": "advanced", "label": "Open Alerts (Advanced)"},
+            {"panel": "journal", "label": "Open Journal"},
         ]
         return out
 
@@ -255,8 +242,10 @@ def governed_prompt_shortcuts() -> list[dict[str, str]]:
 
 
 def navigation_contract() -> dict[str, Any]:
+    from phase47_runtime.home_feed import SHELL_NAVIGATION_47D
+
     return {
-        "primary_navigation": PRIMARY_NAVIGATION,
+        "primary_navigation": SHELL_NAVIGATION_47D,
         "object_detail_sections": OBJECT_DETAIL_SECTIONS,
         "internal_layers": ["decision", "message", "information", "research", "provenance", "closeout"],
     }

@@ -6,11 +6,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from phase47_runtime.home_feed import SHELL_NAVIGATION_47D
 from phase47_runtime.ui_copy import (
     ACTION_FRAMING_EXAMPLES,
     ADVANCED_BOUNDARY_RULES,
     OBJECT_HIERARCHY,
-    PRIMARY_NAVIGATION,
     STATUS_TRANSLATIONS,
     navigation_contract,
 )
@@ -33,7 +33,7 @@ def run_phase47b_user_first_ux(
         "phase": "phase47b_user_first_ux",
         "generated_utc": gen,
         "design_source_path": str(design),
-        "primary_navigation": PRIMARY_NAVIGATION,
+        "primary_navigation": SHELL_NAVIGATION_47D,
         "object_hierarchy": OBJECT_HIERARCHY,
         "object_detail_sections": nav["object_detail_sections"],
         "internal_layers_retired_from_top_nav": nav["internal_layers"],

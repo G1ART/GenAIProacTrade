@@ -12,10 +12,24 @@
     { id: "advanced", label: "Advanced" },
   ];
 
+  /** @type {Record<string, unknown> | null} */
+  let lastFeed = null;
+
   async function api(path, opts) {
     const r = await fetch(path, opts);
     const j = await r.json().catch(() => ({}));
     return { ok: r.ok, status: r.status, json: j };
+  }
+
+  function escapeHtml(s) {
+    if (!s) return "";
+    const d = document.createElement("div");
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function fmtBody(s) {
+    return escapeHtml(s || "").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   }
 
   function showPanel(name) {
@@ -25,13 +39,14 @@
     document.querySelectorAll("#nav button.nav-main[data-panel]").forEach((b) => {
       b.classList.toggle("active", b.dataset.panel === name);
     });
+    if (name === "replay") loadReplay();
+    if (name === "advanced") loadAlerts();
+    if (name === "watchlist") loadWatchlistPanel();
+    if (name === "ask_ai") syncAskAiFromFeed();
   }
 
   document.querySelectorAll("#nav button.nav-main[data-panel]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      showPanel(btn.dataset.panel);
-      if (btn.dataset.panel === "replay") loadReplay();
-    });
+    btn.addEventListener("click", () => showPanel(btn.dataset.panel));
   });
 
   document.querySelectorAll("#replay-subtabs button[data-replay-sub]").forEach((btn) => {
@@ -151,52 +166,195 @@
     });
   }
 
-  function badgeClass(kind) {
-    if (kind === "closed_research_fixture") return "fixture";
-    if (kind === "watchlist_item") return "watch";
-    return "default";
+  function wireHomeJumpButtons(root) {
+    root.querySelectorAll("button[data-jump]").forEach((btn) => {
+      btn.addEventListener("click", () => showPanel(btn.getAttribute("data-jump")));
+    });
   }
 
-  function renderBrief(uf, runtimeHealth) {
-    const b = uf && uf.brief;
-    const host = $("brief-body");
-    if (!b) {
-      host.innerHTML = "<p class='empty'>Brief unavailable — reload bundle.</p>";
+  async function loadHomeFeed() {
+    const { json } = await api("/api/home/feed");
+    lastFeed = json && json.ok ? json : lastFeed;
+    const root = $("home-feed-root");
+    if (!json.ok) {
+      root.innerHTML = `<p class="empty">${escapeHtml(JSON.stringify(json))}</p>`;
       return;
     }
-    const badge = `<span class="badge ${badgeClass(b.object_kind)}">${escapeHtml(b.object_kind_label || b.object_kind)}</span>`;
-    const sym = (b.symbols_preview || []).length
-      ? `<div class="brief-block"><div class="brief-label">Cohort symbols</div><div class="brief-value">${escapeHtml(b.symbols_preview.join(", "))}</div></div>`
-      : "";
-    let rhBlock = "";
-    const rh = runtimeHealth;
-    if (rh && rh.ok) {
-      const lines = (rh.plain_lines || []).map((l) => `<li>${escapeHtml(l)}</li>`).join("");
-      rhBlock =
-        `<div class="brief-block" style="margin-top:1rem;border-top:1px solid #2a3544;padding-top:0.85rem">` +
-        `<div class="brief-label">Research runtime (Phase 51)</div>` +
-        `<div class="brief-value"><strong>${escapeHtml(rh.headline || "")}</strong><br/>${escapeHtml(rh.subtext || "")}</div>` +
-        `<ul style="margin:0.5rem 0 0 1rem;font-size:0.88rem;color:var(--muted)">${lines}</ul>` +
-        `<details style="margin-top:0.5rem"><summary>Advanced (machine summary)</summary><pre class="mono" style="max-height:10rem;overflow:auto">${escapeHtml(
-          JSON.stringify(rh.advanced || {}, null, 2)
-        )}</pre></details></div>`;
-    }
-    host.innerHTML =
-      badge +
-      sym +
-      `<div class="brief-block"><div class="brief-label">What is this?</div><div class="brief-value">${escapeHtml(b.object_kind_hint || "")}</div></div>` +
-      `<div class="brief-block"><div class="brief-label">Current stance (plain)</div><div class="brief-value">${escapeHtml(b.stance_plain || "")}</div></div>` +
-      `<div class="brief-block"><div class="brief-label">What the system is saying</div><div class="brief-value">${escapeHtml(b.one_line_explanation || "")}</div></div>` +
-      `<div class="brief-block"><div class="brief-label">Evidence state</div><div class="brief-value">${escapeHtml(b.evidence_state_plain || "—")}</div></div>` +
-      `<div class="action-line">What to do now: ${escapeHtml(b.action_framing || "")}</div>` +
-      rhBlock;
+
+    const t = json.today || {};
+    const act = t.action_needed;
+    const actHtml = act
+      ? `<div class="action-flag">Review or action may be warranted on the surface above.</div>`
+      : `<div class="action-flag passive">No urgent cockpit action implied from this loadout — scan blocks below.</div>`;
+
+    const parts = [];
+    parts.push(
+      `<div class="feed-card"><h3>Today</h3><div class="sub" style="font-weight:600;color:var(--text)">${escapeHtml(t.title || "")}</div>` +
+        `<div class="body" style="margin-top:0.5rem">${fmtBody(t.body || "")}</div>${actHtml}</div>`
+    );
+
+    const wb = json.watchlist_block || {};
+    const witems = wb.items || [];
+    let whtml = "";
+    witems.forEach((it) => {
+      whtml +=
+        `<li><strong>${escapeHtml(it.label || "")}</strong> — ${escapeHtml(it.detail || "")}` +
+        `<div class="sub">${escapeHtml(it.why_watching || "")}</div></li>`;
+    });
+    const wch = (wb.what_changed_bullets || []).map((x) => `<li>${escapeHtml(x)}</li>`).join("");
+    const wempty = wb.empty_state;
+    parts.push(
+      `<div class="feed-card"><h3>Watchlist</h3>` +
+        (wempty
+          ? `<p class="sub"><strong>${escapeHtml(wempty.title)}</strong> — ${escapeHtml(wempty.why)} <em>${escapeHtml(wempty.fills_when)}</em></p>`
+          : "") +
+        (whtml ? `<ul class="feed-list">${whtml}</ul>` : "") +
+        (wch ? `<div class="brief-label" style="margin-top:0.5rem">What changed</div><ul class="feed-list">${wch}</ul>` : "") +
+        `</div>`
+    );
+
+    const rip = json.research_in_progress || {};
+    const threads = rip.threads || [];
+    let rhtml = "";
+    threads.forEach((th) => {
+      rhtml +=
+        `<li><strong>${escapeHtml(th.headline || "")}</strong> <span class="mono">${escapeHtml(th.when || "")}</span>` +
+        `<div class="sub">${escapeHtml(th.sub || "")}</div><div class="sub">${escapeHtml(th.checkpoint || "")}</div></li>`;
+    });
+    const rempty = rip.empty_state;
+    parts.push(
+      `<div class="feed-card"><h3>Research in progress</h3>` +
+        (rempty
+          ? `<p class="sub"><strong>${escapeHtml(rempty.title)}</strong> — ${escapeHtml(rempty.why)} <em>${escapeHtml(rempty.fills_when)}</em></p>`
+          : "") +
+        (rhtml ? `<ul class="feed-list">${rhtml}</ul>` : `<p class="sub">No recent thread rows in the job registry.</p>`) +
+        `</div>`
+    );
+
+    const ap = json.alerts_preview || [];
+    let ahtml = "";
+    ap.forEach((a) => {
+      const attn = a.needs_attention ? " · needs attention" : "";
+      ahtml +=
+        `<li><strong>${escapeHtml(a.status)}</strong> · ${escapeHtml(a.class || "")} · ${escapeHtml(a.asset_id || "")}${escapeHtml(attn)}` +
+        `<br/><span class="sub">${escapeHtml(a.summary || "")}</span></li>`;
+    });
+    const ae = json.alerts_empty || {};
+    parts.push(
+      `<div class="feed-card"><h3>Alerts</h3>` +
+        (ahtml
+          ? `<ul class="feed-list">${ahtml}</ul>`
+          : `<p class="sub"><strong>${escapeHtml(ae.title || "No alerts")}</strong> — ${escapeHtml(ae.why || "")} <em>${escapeHtml(ae.fills_when || "")}</em></p>`) +
+        `<button type="button" class="btn" data-jump="advanced">Manage alerts in Advanced</button></div>`
+    );
+
+    const jp = json.decision_journal_preview || [];
+    let jhtml = "";
+    jp.forEach((d) => {
+      jhtml +=
+        `<li><span class="mono">${escapeHtml(d.timestamp)}</span> · <strong>${escapeHtml(d.asset_id)}</strong> · ${escapeHtml(
+          d.action_framing_plain || d.decision_type
+        )}<div class="sub">${escapeHtml(d.why_short || "")}</div><div class="sub">${escapeHtml(d.replay_hint || "")}</div></li>`;
+    });
+    const je = json.decision_journal_empty;
+    parts.push(
+      `<div class="feed-card"><h3>Decision journal</h3>` +
+        (jhtml
+          ? `<ul class="feed-list">${jhtml}</ul>`
+          : je
+            ? `<p class="sub"><strong>${escapeHtml(je.title)}</strong> — ${escapeHtml(je.why)} <em>${escapeHtml(je.fills_when)}</em></p>`
+            : "") +
+        `<button type="button" class="btn" data-jump="journal">Open full Journal</button></div>`
+    );
+
+    const ab = json.ask_ai_brief || {};
+    const sc = ab.shortcuts || [];
+    let sclist = "";
+    sc.forEach((s) => {
+      sclist += `<li>${escapeHtml(s.label)}</li>`;
+    });
+    parts.push(
+      `<div class="feed-card"><h3>Ask AI brief</h3><p class="body">${escapeHtml(ab.daily_line || "")}</p>` +
+        `<ul class="feed-list" style="font-size:0.82rem">${sclist}</ul>` +
+        `<button type="button" class="btn" data-jump="ask_ai">Open Ask AI</button></div>`
+    );
+
+    const ps = json.portfolio_snapshot || {};
+    parts.push(
+      `<div class="feed-card"><h3>Portfolio snapshot</h3><p class="sub">${escapeHtml(ps.copy || "")}</p>` +
+        `<span class="badge default">${escapeHtml(ps.state || "stub")}</span></div>`
+    );
+
+    root.innerHTML = parts.join("");
+    wireHomeJumpButtons(root);
+    syncAskAiFromFeed();
   }
 
-  function escapeHtml(s) {
-    if (!s) return "";
-    const d = document.createElement("div");
-    d.textContent = s;
-    return d.innerHTML;
+  async function loadWatchlistPanel() {
+    const { json } = await api("/api/home/feed");
+    if (json.ok) lastFeed = json;
+    const root = $("watchlist-root");
+    if (!json.ok) {
+      root.innerHTML = `<p class="empty">${escapeHtml(JSON.stringify(json))}</p>`;
+      return;
+    }
+    const wb = json.watchlist_block || {};
+    const witems = wb.items || [];
+    let whtml = "";
+    witems.forEach((it) => {
+      whtml +=
+        `<div class="feed-card"><h3>${escapeHtml(it.label || "")}</h3><p class="body">${escapeHtml(it.detail || "")}</p>` +
+        `<p class="sub">${escapeHtml(it.why_watching || "")}</p></div>`;
+    });
+    const wch = (wb.what_changed_bullets || []).map((x) => `<li>${escapeHtml(x)}</li>`).join("");
+    const wempty = wb.empty_state;
+    const blocks = [];
+    if (wempty) {
+      blocks.push(
+        `<div class="feed-card"><h3>${escapeHtml(wempty.title)}</h3><p class="sub">${escapeHtml(wempty.why)}</p><p class="sub"><em>${escapeHtml(wempty.fills_when)}</em></p></div>`
+      );
+    }
+    blocks.push(whtml);
+    if (wch) blocks.push(`<div class="feed-card"><h3>What changed</h3><ul class="feed-list">${wch}</ul></div>`);
+    const joined = blocks.filter(Boolean).join("");
+    root.innerHTML = joined || `<p class="empty">No watchlist rows yet.</p>`;
+  }
+
+  function syncAskAiFromFeed() {
+    const ab = lastFeed && lastFeed.ask_ai_brief;
+    $("ask-brief-line").textContent = (ab && ab.daily_line) || "Load Home once to refresh the copilot brief.";
+    buildAskShortcuts();
+  }
+
+  function buildAskShortcuts() {
+    const host = $("ask-shortcuts");
+    host.innerHTML = "";
+    const sc =
+      (lastFeed && lastFeed.ask_ai_brief && lastFeed.ask_ai_brief.shortcuts) ||
+      [
+        { label: "What matters now?", prompt_text: "decision summary" },
+        { label: "What changed?", prompt_text: "what changed" },
+        { label: "Show my active research", prompt_text: "research layer" },
+        { label: "What should I review next?", prompt_text: "what remains unproven" },
+        { label: "Show my last decisions", prompt_text: "decision summary" },
+        { label: "Open Replay for this item", prompt_text: "what changed", opens_panel: "replay" },
+      ];
+    sc.forEach((s) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn";
+      b.textContent = s.label;
+      b.addEventListener("click", () => {
+        if (s.opens_panel === "replay") {
+          showPanel("replay");
+          loadReplay();
+          return;
+        }
+        $("conv-in").value = s.prompt_text;
+        submitConv();
+      });
+      host.appendChild(b);
+    });
   }
 
   function renderSectionPayload(j) {
@@ -219,8 +377,8 @@
     if (j.watchpoints_plain && j.watchpoints_plain.length) {
       parts.push("<div class='brief-label'>What could change</div><ul>" + j.watchpoints_plain.map((x) => "<li>" + escapeHtml(x) + "</li>").join("") + "</ul>");
     }
-    if (j.reopen_note) parts.push(`<div class='brief-block'><div class='brief-label'>Reopen</div><div class='brief-value'>${escapeHtml(j.reopen_note)}</div></div>`);
-    if (j.closeout_plain) parts.push(`<div class='brief-block'><div class='brief-label'>Closeout</div><div class='brief-value'>${escapeHtml(j.closeout_plain)}</div></div>`);
+    if (j.reopen_note) parts.push(`<div class="brief-block"><div class="brief-label">Reopen</div><div class="brief-value">${escapeHtml(j.reopen_note)}</div></div>`);
+    if (j.closeout_plain) parts.push(`<div class="brief-block"><div class="brief-label">Closeout</div><div class="brief-value">${escapeHtml(j.closeout_plain)}</div></div>`);
     if (j.key_facts && j.key_facts.length) {
       parts.push("<div class='brief-label'>Key facts</div><ul>" + j.key_facts.map((x) => "<li>" + escapeHtml(x) + "</li>").join("") + "</ul>");
     }
@@ -305,15 +463,6 @@
       `Alerts: ${m.open_alert_count ?? "—"} open / ${m.total_alerts ?? "—"} total · Decisions: ${m.decision_count ?? "—"}`;
   }
 
-  async function refreshBriefFromOverview() {
-    const { json } = await api("/api/overview");
-    if (!json.ok && json.error) {
-      $("brief-body").textContent = JSON.stringify(json, null, 2);
-      return;
-    }
-    renderBrief(json.user_first, json.runtime_health);
-  }
-
   async function loadAlerts() {
     const st = $("flt-alert-status").value;
     const aid = $("flt-alert-asset").value.trim();
@@ -348,6 +497,7 @@
           alert(r.json.ok ? "OK" : JSON.stringify(r.json));
           refreshMeta();
           loadAlerts();
+          loadHomeFeed();
         });
         li.appendChild(btn);
       });
@@ -355,35 +505,23 @@
     });
   }
 
-  async function loadDecisions() {
+  async function loadJournalDecisions() {
     const { json } = await api("/api/decisions");
     const rows = json.decisions || [];
     $("decisions-empty").style.display = rows.length ? "none" : "block";
-    $("dec-list").textContent = rows.length ? JSON.stringify(rows, null, 2) : "";
-  }
-
-  function buildAskShortcuts() {
-    const shortcuts = [
-      { label: "Explain this briefly", text: "decision summary" },
-      { label: "Show key evidence", text: "information layer" },
-      { label: "Why is this closed?", text: "why is this closed" },
-      { label: "What changed?", text: "what changed" },
-      { label: "What remains unproven?", text: "what remains unproven" },
-      { label: "Show research layer", text: "research layer" },
-      { label: "Show provenance", text: "show provenance" },
-    ];
-    const host = $("ask-shortcuts");
+    const host = $("journal-cards");
     host.innerHTML = "";
-    shortcuts.forEach((s) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "btn";
-      b.textContent = s.label;
-      b.addEventListener("click", () => {
-        $("conv-in").value = s.text;
-        submitConv();
-      });
-      host.appendChild(b);
+    const recent = rows.slice(-24);
+    recent.reverse().forEach((d) => {
+      const div = document.createElement("div");
+      div.className = "feed-card";
+      div.innerHTML =
+        `<div class="mono" style="font-size:0.75rem">${escapeHtml(String(d.timestamp || "").slice(0, 19))}</div>` +
+        `<h3 style="margin:0.35rem 0 0.25rem;font-size:0.95rem">${escapeHtml(String(d.asset_id || "—"))}</h3>` +
+        `<div class="sub">${escapeHtml(String(d.decision_type || ""))}</div>` +
+        `<div class="body" style="margin-top:0.5rem">${escapeHtml(String(d.founder_note || "").slice(0, 800))}</div>` +
+        `<div class="sub" style="margin-top:0.5rem">Use <strong>Replay</strong> for the timeline around this timestamp.</div>`;
+      host.appendChild(div);
     });
   }
 
@@ -432,7 +570,8 @@
     });
     alert(r.json.ok ? "Recorded." : JSON.stringify(r.json));
     refreshMeta();
-    loadDecisions();
+    loadJournalDecisions();
+    loadHomeFeed();
   });
 
   $("btn-conv").addEventListener("click", submitConv);
@@ -440,8 +579,10 @@
   $("btn-reload").addEventListener("click", async () => {
     await api("/api/reload", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
     await refreshMeta();
-    await refreshBriefFromOverview();
+    await loadHomeFeed();
+    await loadJournalDecisions();
     if ($("panel-replay").classList.contains("visible")) await loadReplay();
+    if ($("panel-advanced").classList.contains("visible")) await loadAlerts();
     alert("Bundle reloaded.");
   });
 
@@ -455,9 +596,8 @@
   buildObjectTabs();
   buildAskShortcuts();
   refreshMeta();
-  refreshBriefFromOverview();
-  loadAlerts();
-  loadDecisions();
+  loadHomeFeed();
+  loadJournalDecisions();
   pollNotif();
   setInterval(pollNotif, 8000);
 })();

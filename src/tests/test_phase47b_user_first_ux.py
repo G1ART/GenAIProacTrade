@@ -87,6 +87,10 @@ def test_navigation_contract_shape() -> None:
     nav = navigation_contract()
     assert "primary_navigation" in nav
     assert "object_detail_sections" in nav
+    pids = [x["id"] for x in nav["primary_navigation"]]
+    assert "home" in pids
+    assert "journal" in pids
+    assert "advanced" in pids
     ids = [x["id"] for x in nav["object_detail_sections"]]
     assert ids[:3] == ["brief", "why_now", "what_could_change"]
     assert "advanced" in ids

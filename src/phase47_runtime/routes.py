@@ -17,6 +17,7 @@ from phase47_runtime.traceability_replay import (
     build_counterfactual_scaffold,
     micro_brief_for_event,
 )
+from phase47_runtime.home_feed import build_home_feed_payload
 from phase47_runtime.ui_copy import build_section_payload, build_user_first_brief, navigation_contract
 from phase51_runtime.cockpit_health_surface import build_cockpit_runtime_health_payload
 from phase51_runtime.external_ingest_adapters import process_external_payload
@@ -33,6 +34,10 @@ def api_meta(state: CockpitRuntimeState) -> dict[str, Any]:
     m = state.meta()
     m.update(_counts(state))
     return m
+
+
+def api_home_feed(state: CockpitRuntimeState) -> dict[str, Any]:
+    return build_home_feed_payload(state)
 
 
 def api_overview(state: CockpitRuntimeState) -> dict[str, Any]:
@@ -260,6 +265,8 @@ def dispatch_json(
         return 200, {"ok": True, **api_meta(state)}
     if method == "GET" and p == "/api/overview":
         return 200, {"ok": True, **api_overview(state)}
+    if method == "GET" and p == "/api/home/feed":
+        return 200, api_home_feed(state)
     if method == "GET" and p.startswith("/api/user-first/section/"):
         sec = p.split("/api/user-first/section/", 1)[-1]
         r = api_user_first_section(state, sec)

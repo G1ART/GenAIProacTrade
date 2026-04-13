@@ -7174,6 +7174,38 @@ def _cmd_run_phase47c_traceability_replay(
     return 0
 
 
+def _cmd_run_phase47d_thick_slice_home_feed(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from pathlib import Path
+
+    from phase47_runtime.phase47d_orchestrator import run_phase47d_thick_slice_home_feed
+    from phase47_runtime.phase47d_review import (
+        write_phase47d_thick_slice_home_feed_bundle_json,
+        write_phase47d_thick_slice_home_feed_review_md,
+    )
+
+    design = (
+        str(getattr(args, "design_source", "") or "").strip()
+        or "docs/DESIGN_V3_MINIMAL_AND_STRONG.md"
+    )
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path(rr).resolve() if rr else None
+    out = run_phase47d_thick_slice_home_feed(design_source_path=design, repo_root=root)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase47d_thick_slice_home_feed_bundle_json(bo, bundle=out)
+        print("phase47d_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase47d_thick_slice_home_feed_review_md(md, bundle=out)
+        print("phase47d_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
 def _cmd_run_phase48_proactive_research_runtime(
     args: argparse.Namespace,
 ) -> int:
@@ -11201,6 +11233,30 @@ def build_parser() -> argparse.ArgumentParser:
         default="docs/operator_closeout/phase47c_traceability_replay_review.md",
     )
     p47c.set_defaults(func=_cmd_run_phase47c_traceability_replay)
+
+    p47d = sub.add_parser(
+        "run-phase47d-thick-slice-home-feed",
+        help="Phase 47d: Home feed shell + copilot brief metadata bundle + review (DESIGN_V3-aligned)",
+    )
+    p47d.add_argument(
+        "--design-source",
+        default="docs/DESIGN_V3_MINIMAL_AND_STRONG.md",
+        help="Path to DESIGN_V3 (or other) constitution",
+    )
+    p47d.add_argument(
+        "--repo-root",
+        default="",
+        help="Repository root for resolving design path (default: cwd)",
+    )
+    p47d.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase47d_thick_slice_home_feed_bundle.json",
+    )
+    p47d.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase47d_thick_slice_home_feed_review.md",
+    )
+    p47d.set_defaults(func=_cmd_run_phase47d_thick_slice_home_feed)
 
     p48run = sub.add_parser(
         "run-phase48-proactive-research-runtime",

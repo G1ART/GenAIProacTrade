@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Decision cockpit — Phase 47c</title>
+  <title>Decision cockpit — Phase 47d</title>
   <style>
     :root {
       --bg: #0f1419;
@@ -19,17 +19,31 @@
     body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.5; font-size: 15px; }
     header { padding: 1rem 1.25rem; border-bottom: 1px solid #2a3544; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; justify-content: space-between; }
     h1 { font-size: 1.15rem; font-weight: 600; margin: 0 0 0.25rem 0; }
-    .subtitle { font-size: 0.85rem; color: var(--muted); max-width: 36rem; margin: 0; }
+    .subtitle { font-size: 0.85rem; color: var(--muted); max-width: 38rem; margin: 0; }
     .meta { font-size: 0.8rem; color: var(--muted); max-width: 42rem; margin-top: 0.35rem; }
     .stale { color: var(--warn); font-weight: 600; }
     nav { display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
-    nav button.nav-main { background: var(--card); color: var(--text); border: 1px solid #2a3544; padding: 0.4rem 0.7rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    nav button.nav-main { background: var(--card); color: var(--text); border: 1px solid #2a3544; padding: 0.4rem 0.65rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
     nav button.nav-main.active { border-color: var(--accent); color: var(--accent); }
     nav button.reload { background: #243044; color: var(--accent); border: 1px solid var(--accent); }
-    main { padding: 1rem 1.25rem 3rem; max-width: 920px; margin: 0 auto; }
+    main { padding: 1rem 1.25rem 3rem; max-width: 960px; margin: 0 auto; }
     .panel { display: none; background: var(--card); border: 1px solid #2a3544; border-radius: 10px; padding: 1.1rem 1.2rem; margin-bottom: 1rem; }
     .panel.visible { display: block; }
     h2 { font-size: 0.95rem; margin: 0 0 0.65rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .feed-stack { display: flex; flex-direction: column; gap: 1rem; }
+    .feed-card {
+      background: #0f1419;
+      border: 1px solid #2a3544;
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+    }
+    .feed-card h3 { margin: 0 0 0.5rem; font-size: 0.88rem; font-weight: 600; color: var(--text); letter-spacing: 0.02em; }
+    .feed-card .body { font-size: 0.92rem; color: var(--text); white-space: pre-wrap; }
+    .feed-card .sub { font-size: 0.82rem; color: var(--muted); margin-top: 0.45rem; }
+    .feed-card .action-flag { font-size: 0.78rem; font-weight: 600; color: var(--ok); margin-top: 0.5rem; }
+    .feed-card .action-flag.passive { color: var(--muted); font-weight: 500; }
+    .feed-list { margin: 0.35rem 0 0; padding-left: 1.1rem; color: var(--text); font-size: 0.88rem; }
+    .feed-list li { margin: 0.35rem 0; }
     .badge { display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.55rem; border-radius: 4px; margin-bottom: 0.75rem; }
     .badge.fixture { background: rgba(124, 111, 158, 0.25); color: #c4b8e0; border: 1px solid #5c4f7a; }
     .badge.watch { background: rgba(201, 162, 39, 0.2); color: var(--warn); border: 1px solid #8a7020; }
@@ -38,7 +52,6 @@
     .brief-block:last-child { border-bottom: none; }
     .brief-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.25rem; }
     .brief-value { font-size: 0.95rem; }
-    .action-line { font-size: 1rem; font-weight: 600; color: var(--ok); margin-top: 0.5rem; }
     .six-q { font-size: 0.8rem; color: var(--muted); margin-top: 1rem; padding: 0.75rem; background: #0f1419; border-radius: 6px; border: 1px dashed #2a3544; }
     .six-q ul { margin: 0.35rem 0 0 1rem; padding: 0; }
     pre, .mono { font-family: ui-monospace, monospace; font-size: 0.78rem; white-space: pre-wrap; word-break: break-word; }
@@ -56,6 +69,8 @@
     #object-section-body .intro { color: var(--muted); margin-bottom: 0.75rem; }
     .shortcut-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.5rem 0 0.75rem; }
     .shortcut-row button { font-size: 0.78rem; }
+    .ask-brief-strip { background: #0f1419; border: 1px solid #2a3544; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.45; }
+    .ask-brief-strip .brief-label { margin-bottom: 0.35rem; }
     #conv-out { min-height: 5rem; }
     #conv-out .md { white-space: pre-wrap; font-size: 0.88rem; line-height: 1.45; }
     .intent-tag { font-size: 0.72rem; color: var(--accent); margin-bottom: 0.35rem; }
@@ -81,62 +96,59 @@
   <header>
     <div>
       <h1>Research-governed decision cockpit</h1>
-      <p class="subtitle">Evidence → information → message → decision. Default view is plain language, not internal research labels.</p>
+      <p class="subtitle">Home-first operating surface: what matters now, what you track, what research is moving, and what you decided — not an internal layer browser.</p>
       <div id="hdr-meta" class="meta">Loading…</div>
     </div>
     <nav id="nav">
-      <button type="button" data-panel="brief" class="nav-main active">Brief</button>
-      <button type="button" data-panel="object" class="nav-main">This object</button>
-      <button type="button" data-panel="alerts" class="nav-main">Alerts</button>
-      <button type="button" data-panel="history" class="nav-main">History</button>
+      <button type="button" data-panel="home" class="nav-main active">Home</button>
+      <button type="button" data-panel="watchlist" class="nav-main">Watchlist</button>
+      <button type="button" data-panel="research" class="nav-main">Research</button>
       <button type="button" data-panel="replay" class="nav-main">Replay</button>
+      <button type="button" data-panel="journal" class="nav-main">Journal</button>
       <button type="button" data-panel="ask_ai" class="nav-main">Ask AI</button>
+      <button type="button" data-panel="advanced" class="nav-main">Advanced</button>
       <button type="button" class="nav-main reload" id="btn-reload">Reload bundle</button>
     </nav>
   </header>
   <main>
-    <section id="panel-brief" class="panel visible">
-      <h2>Brief — one-screen answer</h2>
-      <div id="brief-body"></div>
+    <section id="panel-home" class="panel visible">
+      <h2>Home — daily surface</h2>
+      <p class="meta" style="margin:0 0 1rem">Blocks are governed summaries only; raw machine JSON stays under Advanced.</p>
+      <div id="home-feed-root" class="feed-stack"><p class="empty">Loading feed…</p></div>
       <div class="six-q">
-        <strong>This screen should answer:</strong>
+        <strong>This surface should answer:</strong>
         <ul>
-          <li>What is this?</li>
-          <li>Why am I seeing it now?</li>
-          <li>What is the system saying?</li>
-          <li>What do I need to do, if anything?</li>
-          <li>What is still uncertain?</li>
-          <li>What would change the stance?</li>
+          <li>What matters right now?</li>
+          <li>What changed?</li>
+          <li>What am I tracking?</li>
+          <li>What research is in motion?</li>
+          <li>What did I decide?</li>
+          <li>What should the copilot help me review next?</li>
         </ul>
       </div>
     </section>
 
-    <section id="panel-object" class="panel">
-      <h2>This object — detail</h2>
-      <p class="meta" style="margin:0 0 0.75rem">Sections follow DESIGN.md — internal layers (decision / message / research / …) are mapped here, not as top labels.</p>
+    <section id="panel-watchlist" class="panel">
+      <h2>Watchlist</h2>
+      <p class="meta" style="margin:0 0 0.75rem">Cohorts and names you are tracking — stance and evidence limits in plain language.</p>
+      <div id="watchlist-root" class="feed-stack"><p class="empty">Open this tab to load.</p></div>
+    </section>
+
+    <section id="panel-research" class="panel">
+      <h2>Research</h2>
+      <p class="meta" style="margin:0 0 0.75rem">Cohort detail, evidence, and archive context — closed fixtures live here, not as the Home hero.</p>
       <div class="tabs" id="object-tabs"></div>
       <div id="object-section-body"></div>
     </section>
 
-    <section id="panel-alerts" class="panel">
-      <h2>Alerts</h2>
-      <div class="empty" id="alerts-empty" style="display:none">
-        <strong>No alerts match this filter.</strong> Alerts appear when the research runtime or cockpit records a change, conflict, reopen condition, or operator signal. If you expect items here, check bundle reload or filters.
-      </div>
-      <div class="row">
-        <label>Status <select id="flt-alert-status"><option value="">All</option><option value="open">Open</option><option value="acknowledged">Acknowledged</option><option value="resolved">Resolved</option><option value="superseded">Superseded</option><option value="dismissed">Dismissed</option></select></label>
-        <label>Asset <input type="text" id="flt-alert-asset" placeholder="optional" /></label>
-        <button type="button" class="btn" id="btn-alerts-refresh">Refresh</button>
-      </div>
-      <ul class="alerts" id="alert-list"></ul>
-    </section>
-
-    <section id="panel-history" class="panel">
-      <h2>History — decision log</h2>
-      <p class="meta">Records what you decided and why — linked to messages and evidence. Not a trade picker.</p>
+    <section id="panel-journal" class="panel">
+      <h2>Journal — decision log</h2>
+      <p class="meta">What you decided and why — readable cards, not raw logs.</p>
       <div class="empty" id="decisions-empty" style="display:none">
-        <strong>No decisions recorded yet.</strong> Use the form below when you want to log hold, watch, defer, reopen request, or dismiss alert. Entries will show here with timestamps.
+        <strong>No decisions recorded yet.</strong> Log a decision below when you hold, watch, defer, reopen, or dismiss. Entries appear as cards with replay context.
       </div>
+      <div id="journal-cards" class="feed-stack"></div>
+      <h2 style="margin-top:1.25rem">Record a decision</h2>
       <div class="row">
         <label>Type
           <select id="rec-dt">
@@ -153,8 +165,6 @@
       </div>
       <label>Founder note</label><textarea id="rec-note" placeholder="Why you chose this (governed, short)"></textarea>
       <button type="button" class="btn btn-primary" id="btn-record-decision">Log my decision</button>
-      <h2 style="margin-top:1.25rem">Recent entries</h2>
-      <div id="dec-list" class="mono"></div>
     </section>
 
     <section id="panel-replay" class="panel">
@@ -185,16 +195,35 @@
     </section>
 
     <section id="panel-ask_ai" class="panel">
-      <h2>Ask AI — bounded decision copilot</h2>
-      <p class="meta">Grounded in the Phase 46 bundle only — not generic chat. Quick prompts:</p>
+      <h2>Ask AI — decision copilot</h2>
+      <p class="meta">Bounded prompts grounded in the bundle — not a generic chat center.</p>
+      <div class="ask-brief-strip" id="ask-brief-strip">
+        <div class="brief-label">Copilot brief (now)</div>
+        <div id="ask-brief-line" class="brief-value">Loading…</div>
+      </div>
+      <div class="brief-label" style="margin-bottom:0.35rem">Shortcuts</div>
       <div class="shortcut-row" id="ask-shortcuts"></div>
       <textarea id="conv-in" placeholder="Or type a governed prompt (e.g. decision summary, information layer)…"></textarea>
       <button type="button" class="btn btn-primary" id="btn-conv">Submit</button>
       <div id="conv-out"></div>
     </section>
 
+    <section id="panel-advanced" class="panel">
+      <h2>Advanced — alerts &amp; machine detail</h2>
+      <p class="meta">Full alert workflow and filters. Default Home shows a short preview only.</p>
+      <div class="empty" id="alerts-empty" style="display:none">
+        <strong>No alerts match this filter.</strong> Alerts appear when the runtime records a change, conflict, reopen condition, or operator signal.
+      </div>
+      <div class="row">
+        <label>Status <select id="flt-alert-status"><option value="">All</option><option value="open">Open</option><option value="acknowledged">Acknowledged</option><option value="resolved">Resolved</option><option value="superseded">Superseded</option><option value="dismissed">Dismissed</option></select></label>
+        <label>Asset <input type="text" id="flt-alert-asset" placeholder="optional" /></label>
+        <button type="button" class="btn" id="btn-alerts-refresh">Refresh</button>
+      </div>
+      <ul class="alerts" id="alert-list"></ul>
+    </section>
+
     <footer>
-      Phase 47c — replay API <code>/api/replay/*</code>; user-first IA per <code>docs/DESIGN.md</code>. Notifications: <span id="notif-hint" class="mono"></span>
+      Phase 47d — <code>GET /api/home/feed</code> · shell per <code>docs/DESIGN.md</code> / DESIGN_V3. Notifications: <span id="notif-hint" class="mono"></span>
     </footer>
   </main>
   <script src="/static/app.js"></script>
