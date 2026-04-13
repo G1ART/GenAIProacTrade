@@ -1,7 +1,7 @@
 # Phase 50 — Positive path smoke (operator-seeded)
 
 - **Phase**: `phase50_positive_path_smoke`
-- **Generated**: `2026-04-13T05:45:02.633174+00:00`
+- **Generated**: `2026-04-13T05:50:46.368148+00:00`
 - **OK (metrics)**: `True` / bundle `ok`: `True`
 - **Seeded source**: `manual_watchlist` → job `debate.execute`
 
@@ -23,3 +23,11 @@
 ## Phase 51
 
 - **`external_trigger_ingest_hooks_and_runtime_health_surface_v1`**
+
+## Related (정적 문서)
+
+- 증거·체크리스트: `docs/phase50_evidence.md`
+- 패치 보고: `docs/phase50_patch_report.md`
+- 클로즈: `docs/operator_closeout/phase50_closeout.md`
+- 제어 평면 번들 리뷰: `docs/operator_closeout/phase50_registry_controls_and_operator_timing_review.md`
+- `HANDOFF.md` — Phase 50 절

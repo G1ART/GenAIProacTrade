@@ -53,6 +53,8 @@ Each pillar defines `work_unit_types` in the constitution payload (e.g. `hypothe
 - `docs/phase48_evidence.md` — proactive single-cycle runtime·job registry·bounded debate (`phase48_proactive_research_runtime_bundle.json`, `generated_utc` `2026-04-13T00:50:42Z`, `ok: true`; **클로즈** `docs/operator_closeout/phase48_closeout.md`)
 - `docs/phase48_patch_report.md`
 - `docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md` — Phase 49 multi-cycle scheduler·metrics (`phase49_daemon_scheduler_multi_cycle_bundle.json`, `generated_utc` `2026-04-13T01:10:08Z`, `ok: true`)
+- `docs/phase50_evidence.md` — control plane·lease·audit·timing·positive-path smoke (`phase50_positive_path_smoke_bundle.json`, `smoke_metrics_ok: true`; **클로즈** `docs/operator_closeout/phase50_closeout.md`)
+- `docs/phase50_patch_report.md`
 
 ## Commands
 
@@ -212,4 +214,21 @@ python3 src/main.py run-phase49-daemon-scheduler-multi-cycle-triggers-and-metric
   --phase46-bundle-in docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json \
   --bundle-out docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_bundle.json \
   --out-md docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md
+```
+
+### Phase 50 (control plane & positive-path smoke)
+
+지속: `data/research_runtime/runtime_control_plane_v1.json`, `cycle_lease_v1.json`, `runtime_audit_log_v1.json`. 클로즈: `docs/operator_closeout/phase50_closeout.md`.
+
+```bash
+export PYTHONPATH=src
+python3 src/main.py run-phase50-registry-controls-and-operator-timing \
+  --phase49-bundle-in docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_bundle.json \
+  --bundle-out docs/operator_closeout/phase50_registry_controls_and_operator_timing_bundle.json \
+  --out-md docs/operator_closeout/phase50_registry_controls_and_operator_timing_review.md
+
+python3 src/main.py run-phase50-positive-path-smoke \
+  --phase46-bundle-in docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json \
+  --bundle-out docs/operator_closeout/phase50_positive_path_smoke_bundle.json \
+  --out-md docs/operator_closeout/phase50_positive_path_smoke_review.md
 ```

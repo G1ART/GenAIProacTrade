@@ -88,6 +88,126 @@
       "why_cycle_stopped": "phase48_completed",
       "cycle_skipped": false,
       "operator_override": null
+    },
+    {
+      "timestamp": "2026-04-13T05:50:46.368054+00:00",
+      "cycle_id": "21dbbe14-8810-46ca-9c16-9680ddbfb772",
+      "why_cycle_started": "positive_path_smoke_governed",
+      "lease_acquired": true,
+      "controls_applied": {
+        "timing": {
+          "run": true,
+          "reason": "smoke_bypass_timing",
+          "detail": "positive_path_smoke",
+          "profile": "manual_debug"
+        },
+        "trigger_controls": {
+          "allowed_trigger_types_effective": [
+            "changed_artifact_bundle",
+            "closeout_reopen_candidate",
+            "manual_watchlist",
+            "named_source_signal",
+            "operator_research_signal"
+          ],
+          "disabled_trigger_types_config": [],
+          "allowed_trigger_types_config": [
+            "changed_artifact_bundle",
+            "operator_research_signal",
+            "closeout_reopen_candidate",
+            "named_source_signal",
+            "manual_watchlist"
+          ]
+        },
+        "budget_policy_allowed": [
+          "changed_artifact_bundle",
+          "closeout_reopen_candidate",
+          "manual_watchlist",
+          "named_source_signal",
+          "operator_research_signal"
+        ]
+      },
+      "triggers_evaluated_count": 1,
+      "jobs_created_count": 1,
+      "jobs_executed_count": 1,
+      "why_cycle_stopped": "phase48_completed",
+      "cycle_skipped": false,
+      "operator_override": null
+    },
+    {
+      "timestamp": "2026-04-13T06:30:40.610800+00:00",
+      "cycle_id": "d4b2678f-21d9-4026-94b5-8987e881018a",
+      "why_cycle_started": "phase51_external_positive_path",
+      "lease_acquired": true,
+      "controls_applied": {
+        "timing": {
+          "run": true,
+          "reason": "phase51_smoke_bypass_timing",
+          "detail": "external_positive_path",
+          "profile": "manual_debug"
+        },
+        "trigger_controls": {
+          "allowed_trigger_types_effective": [
+            "changed_artifact_bundle",
+            "closeout_reopen_candidate",
+            "manual_watchlist",
+            "named_source_signal",
+            "operator_research_signal"
+          ],
+          "disabled_trigger_types_config": [],
+          "allowed_trigger_types_config": [
+            "changed_artifact_bundle",
+            "operator_research_signal",
+            "closeout_reopen_candidate",
+            "named_source_signal",
+            "manual_watchlist"
+          ]
+        },
+        "external_supplemental_count": 1
+      },
+      "triggers_evaluated_count": 1,
+      "jobs_created_count": 1,
+      "jobs_executed_count": 1,
+      "why_cycle_stopped": "phase48_completed",
+      "cycle_skipped": false,
+      "operator_override": null
+    },
+    {
+      "timestamp": "2026-04-13T06:38:15.298172+00:00",
+      "cycle_id": "f36b11ba-f3e9-4d6e-902c-f24fcbe396c1",
+      "why_cycle_started": "phase51_external_positive_path",
+      "lease_acquired": true,
+      "controls_applied": {
+        "timing": {
+          "run": true,
+          "reason": "phase51_smoke_bypass_timing",
+          "detail": "external_positive_path",
+          "profile": "manual_debug"
+        },
+        "trigger_controls": {
+          "allowed_trigger_types_effective": [
+            "changed_artifact_bundle",
+            "closeout_reopen_candidate",
+            "manual_watchlist",
+            "named_source_signal",
+            "operator_research_signal"
+          ],
+          "disabled_trigger_types_config": [],
+          "allowed_trigger_types_config": [
+            "changed_artifact_bundle",
+            "operator_research_signal",
+            "closeout_reopen_candidate",
+            "named_source_signal",
+            "manual_watchlist"
+          ]
+        },
+        "external_supplemental_count": 1
+      },
+      "triggers_evaluated_count": 1,
+      "jobs_created_count": 1,
+      "jobs_executed_count": 1,
+      "why_cycle_stopped": "phase48_completed",
+      "cycle_skipped": false,
+      "operator_override": null
     }
   ]
 }

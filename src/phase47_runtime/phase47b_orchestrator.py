@@ -41,9 +41,7 @@ def run_phase47b_user_first_ux(
         "action_framing_examples": ACTION_FRAMING_EXAMPLES,
         "advanced_boundary_rules": ADVANCED_BOUNDARY_RULES,
         "phase47c": {
-            "phase47c_recommendation": (
-                "visual_system_spacing_typography_empty_states_and_card_rhythm_v1"
-            ),
-            "focus": "Phase 47c: visual system, spacing, typography, dashboard clarity, badges, empty states",
+            "phase47c_recommendation": "traceability_replay_and_counterfactual_lab_scaffold_v1",
+            "focus": "Phase 47c: timeline replay API, event/plot grammar, counterfactual lab stub — see run-phase47c-traceability-replay",
         },
     }

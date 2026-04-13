@@ -30,6 +30,10 @@
 - Cycle **0**: triggers=0, jobs_created=0, jobs_executed=0, debates=0
 - Cycle **1**: triggers=0, jobs_created=0, jobs_executed=0, debates=0
 
-## Phase 50 (next fork token)
+## Phase 50 (구현·클로즈 완료)
 
-- **`fork_registry_controls_and_operator_timing_v1`**
+- 권위 토큰은 Phase 49 번들의 `phase50` 필드(`fork_registry_controls_and_operator_timing_v1`)로 기록될 수 있음 — **구현·실측**은 Phase 50 번들·문서가 본다.
+- **제어 평면·감사 요약**: `docs/operator_closeout/phase50_registry_controls_and_operator_timing_bundle.json`, `phase50_registry_controls_and_operator_timing_review.md`
+- **비영 스모크**: `docs/operator_closeout/phase50_positive_path_smoke_bundle.json`, `phase50_positive_path_smoke_review.md`
+- **클로즈·증거·패치**: `docs/operator_closeout/phase50_closeout.md`, `docs/phase50_evidence.md`, `docs/phase50_patch_report.md`
+- **Phase 51 (다음)**: `external_trigger_ingest_hooks_and_runtime_health_surface_v1` — `phase50_registry_controls_and_operator_timing_bundle.json` 내 `phase51` 참고

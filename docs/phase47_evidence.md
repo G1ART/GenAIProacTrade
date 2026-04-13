@@ -30,4 +30,4 @@
 
 ## Related
 
-`docs/phase47_patch_report.md`, `docs/phase46_evidence.md`, **`docs/operator_closeout/phase48_closeout.md`** (선행 연구 Phase 48 종료·Phase 49 연계), `HANDOFF.md`, `docs/research_engine_constitution.md`
+`docs/phase47_patch_report.md`, `docs/phase46_evidence.md`, **`docs/operator_closeout/phase48_closeout.md`** (Phase 48 종료·Phase 49 연계), **`docs/operator_closeout/phase50_closeout.md`** (Phase 50 제어 평면·스모크), `HANDOFF.md`, `docs/research_engine_constitution.md`

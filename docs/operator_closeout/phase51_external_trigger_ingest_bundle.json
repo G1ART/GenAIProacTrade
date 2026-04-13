@@ -1,7 +1,7 @@
 {
   "ok": true,
   "phase": "phase51_external_trigger_ingest",
-  "generated_utc": "2026-04-13T06:30:40.611318+00:00",
+  "generated_utc": "2026-04-13T06:38:15.299044+00:00",
   "input_phase50_control_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase50_registry_controls_and_operator_timing_bundle.json",
   "external_events_received": 1,
   "external_events_accepted": 1,
@@ -9,14 +9,14 @@
   "external_events_deduped": 0,
   "normalized_trigger_results": [
     {
-      "event_id": "3fb0d5fc-814d-4ac9-a087-019a061f1ed4",
+      "event_id": "630fbda8-722d-4f87-a3cf-0867105b1559",
       "normalized_trigger_type": "manual_watchlist",
       "status": "accepted",
       "reason": "accepted_governed"
     }
   ],
   "cycles_consuming_external_events": [
-    "d4b2678f-21d9-4026-94b5-8987e881018a"
+    "f36b11ba-f3e9-4d6e-902c-f24fcbe396c1"
   ],
   "runtime_health_summary": {
     "schema_version": 1,
@@ -44,20 +44,20 @@
       ]
     },
     "last_cycle_audit_excerpt": {
-      "timestamp": "2026-04-13T06:30:40.610800+00:00",
-      "cycle_id": "d4b2678f-21d9-4026-94b5-8987e881018a",
+      "timestamp": "2026-04-13T06:38:15.298172+00:00",
+      "cycle_id": "f36b11ba-f3e9-4d6e-902c-f24fcbe396c1",
       "skipped": false,
       "why_stopped": "phase48_completed",
       "jobs_created": 1,
       "jobs_executed": 1
     },
     "audit_tail_summary": {
-      "total_entries": 4,
-      "tail_count": 4,
+      "total_entries": 5,
+      "tail_count": 5,
       "skipped_in_tail": 0,
       "last_entry": {
-        "timestamp": "2026-04-13T06:30:40.610800+00:00",
-        "cycle_id": "d4b2678f-21d9-4026-94b5-8987e881018a",
+        "timestamp": "2026-04-13T06:38:15.298172+00:00",
+        "cycle_id": "f36b11ba-f3e9-4d6e-902c-f24fcbe396c1",
         "why_cycle_started": "phase51_external_positive_path",
         "lease_acquired": true,
         "controls_applied": {
@@ -112,7 +112,7 @@
     "subtext": "최근 감사 요약과 외부 트리거 적재 상태를 아래에서 확인할 수 있습니다.",
     "health_status": "healthy",
     "plain_lines": [
-      "마지막 감사 시각: 2026-04-13T06:30:40.610800+00:00",
+      "마지막 감사 시각: 2026-04-13T06:38:15.298172+00:00",
       "마지막 사이클 건너뜀: 아니오",
       "외부 트리거 적재: 총 1건 · 승인 대기 0 · 소비됨 1 · 거절 0 · 중복 제거 0"
     ],
@@ -150,20 +150,20 @@
         ]
       },
       "last_cycle_audit_excerpt": {
-        "timestamp": "2026-04-13T06:30:40.610800+00:00",
-        "cycle_id": "d4b2678f-21d9-4026-94b5-8987e881018a",
+        "timestamp": "2026-04-13T06:38:15.298172+00:00",
+        "cycle_id": "f36b11ba-f3e9-4d6e-902c-f24fcbe396c1",
         "skipped": false,
         "why_stopped": "phase48_completed",
         "jobs_created": 1,
         "jobs_executed": 1
       },
       "audit_tail_summary": {
-        "total_entries": 4,
-        "tail_count": 4,
+        "total_entries": 5,
+        "tail_count": 5,
         "skipped_in_tail": 0,
         "last_entry": {
-          "timestamp": "2026-04-13T06:30:40.610800+00:00",
-          "cycle_id": "d4b2678f-21d9-4026-94b5-8987e881018a",
+          "timestamp": "2026-04-13T06:38:15.298172+00:00",
+          "cycle_id": "f36b11ba-f3e9-4d6e-902c-f24fcbe396c1",
           "why_cycle_started": "phase51_external_positive_path",
           "lease_acquired": true,
           "controls_applied": {
@@ -213,7 +213,7 @@
       "health_status": "healthy"
     }
   },
-  "phase48_generated_utc": "2026-04-13T06:30:40.610522+00:00",
+  "phase48_generated_utc": "2026-04-13T06:38:15.297941+00:00",
   "trigger_results": [
     {
       "trigger_type": "manual_watchlist",
@@ -225,19 +225,19 @@
         "suggested_job_type": "debate.execute"
       },
       "suggested_job_type": "debate.execute",
-      "external_event_id": "3fb0d5fc-814d-4ac9-a087-019a061f1ed4",
+      "external_event_id": "630fbda8-722d-4f87-a3cf-0867105b1559",
       "manual_file": null
     }
   ],
   "jobs_created": [
     {
-      "job_id": "d8937ca3-f4f6-46f7-82d7-e7e91e9dbe2f",
+      "job_id": "14ea3493-ab8b-4508-b1bb-aa5324d5dcd6",
       "job_type": "debate.execute",
       "asset_scope": {
         "asset_id": "research_engine_fixture_cohort_8_row_v1"
       },
       "trigger_source": "manual_watchlist",
-      "created_at": "2026-04-13T06:30:40.609966+00:00",
+      "created_at": "2026-04-13T06:38:15.297506+00:00",
       "status": "pending",
       "priority": 15,
       "budget_class": "bounded_debate",
@@ -256,7 +256,7 @@
             "suggested_job_type": "debate.execute"
           },
           "suggested_job_type": "debate.execute",
-          "external_event_id": "3fb0d5fc-814d-4ac9-a087-019a061f1ed4",
+          "external_event_id": "630fbda8-722d-4f87-a3cf-0867105b1559",
           "manual_file": null
         }
       }
@@ -264,7 +264,7 @@
   ],
   "jobs_executed": [
     {
-      "job_id": "d8937ca3-f4f6-46f7-82d7-e7e91e9dbe2f",
+      "job_id": "14ea3493-ab8b-4508-b1bb-aa5324d5dcd6",
       "job_type": "debate.execute",
       "result_summary": "Bounded debate outcome=unknown; turns=3."
     }
@@ -366,8 +366,8 @@
   ],
   "discovery_candidates": [
     {
-      "candidate_id": "dc_1_20260413063040",
-      "created_at": "2026-04-13T06:30:40.610326+00:00",
+      "candidate_id": "dc_1_20260413063815",
+      "created_at": "2026-04-13T06:38:15.297789+00:00",
       "asset_scope": {
         "asset_id": "research_engine_fixture_cohort_8_row_v1"
       },
@@ -378,7 +378,7 @@
       "what_is_still_uncertain": "Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent.",
       "additional_evidence_needed": "Named dispositive path or premium ROI-reviewed dataset (candidate only).",
       "debate_converged_or_unresolved": false,
-      "linked_job_id": "d8937ca3-f4f6-46f7-82d7-e7e91e9dbe2f",
+      "linked_job_id": "14ea3493-ab8b-4508-b1bb-aa5324d5dcd6",
       "not_a_recommendation": true
     }
   ],
@@ -402,8 +402,8 @@
     {
       "kind": "discovery_candidate",
       "payload": {
-        "candidate_id": "dc_1_20260413063040",
-        "created_at": "2026-04-13T06:30:40.610326+00:00",
+        "candidate_id": "dc_1_20260413063815",
+        "created_at": "2026-04-13T06:38:15.297789+00:00",
         "asset_scope": {
           "asset_id": "research_engine_fixture_cohort_8_row_v1"
         },
@@ -414,7 +414,7 @@
         "what_is_still_uncertain": "Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent.",
         "additional_evidence_needed": "Named dispositive path or premium ROI-reviewed dataset (candidate only).",
         "debate_converged_or_unresolved": false,
-        "linked_job_id": "d8937ca3-f4f6-46f7-82d7-e7e91e9dbe2f",
+        "linked_job_id": "14ea3493-ab8b-4508-b1bb-aa5324d5dcd6",
         "not_a_recommendation": true
       }
     }

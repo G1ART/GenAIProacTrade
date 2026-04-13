@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Decision cockpit — Phase 47b</title>
+  <title>Decision cockpit — Phase 47c</title>
   <style>
     :root {
       --bg: #0f1419;
@@ -64,6 +64,17 @@
     .empty { color: var(--muted); font-size: 0.88rem; padding: 0.75rem; background: #0f1419; border-radius: 6px; margin: 0.5rem 0; }
     .empty strong { color: var(--text); }
     footer { font-size: 0.72rem; color: var(--muted); margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #2a3544; }
+    .replay-layout { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; }
+    .replay-main { flex: 1 1 320px; min-width: 0; }
+    .replay-aside { flex: 0 1 280px; background: #0f1419; border: 1px solid #2a3544; border-radius: 8px; padding: 0.85rem; font-size: 0.88rem; }
+    .replay-aside h3 { margin: 0 0 0.5rem; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    #replay-svg { width: 100%; height: 120px; display: block; }
+    ul.replay-events { list-style: none; padding: 0; margin: 0.5rem 0 0; max-height: 14rem; overflow: auto; }
+    ul.replay-events li { padding: 0.45rem 0.35rem; border-bottom: 1px solid #2a3544; cursor: pointer; font-size: 0.82rem; border-radius: 4px; }
+    ul.replay-events li:hover, ul.replay-events li.selected { background: rgba(91, 140, 255, 0.08); }
+    .replay-events .ev-type { font-size: 0.7rem; color: var(--accent); }
+    .cf-branch { padding: 0.35rem 0; border-bottom: 1px dashed #2a3544; font-size: 0.85rem; }
+    .cf-branch.stub { color: var(--muted); }
   </style>
 </head>
 <body>
@@ -78,6 +89,7 @@
       <button type="button" data-panel="object" class="nav-main">This object</button>
       <button type="button" data-panel="alerts" class="nav-main">Alerts</button>
       <button type="button" data-panel="history" class="nav-main">History</button>
+      <button type="button" data-panel="replay" class="nav-main">Replay</button>
       <button type="button" data-panel="ask_ai" class="nav-main">Ask AI</button>
       <button type="button" class="nav-main reload" id="btn-reload">Reload bundle</button>
     </nav>
@@ -145,6 +157,33 @@
       <div id="dec-list" class="mono"></div>
     </section>
 
+    <section id="panel-replay" class="panel">
+      <h2>Replay — time-ordered trace</h2>
+      <p class="meta">Historical replay only: what was knowable at each timestamp. <strong>Decision quality</strong> (process then) is separate from <strong>outcome quality</strong> (ex-post).</p>
+      <div class="tabs" id="replay-subtabs">
+        <button type="button" class="on" data-replay-sub="timeline">Replay</button>
+        <button type="button" data-replay-sub="counterfactual">Counterfactual Lab</button>
+      </div>
+      <div id="replay-sub-timeline">
+        <div class="replay-layout">
+          <div class="replay-main">
+            <svg id="replay-svg" viewBox="0 0 100 36" preserveAspectRatio="none" aria-label="Illustrative timeline"></svg>
+            <p class="meta" style="margin:0.35rem 0 0">Dashed line: illustrative rhythm only (not live prices). Green markers: decision posture index from stance codes.</p>
+            <ul class="replay-events" id="replay-event-list"></ul>
+          </div>
+          <aside class="replay-aside" id="replay-micro-brief">
+            <h3>Micro-brief</h3>
+            <p class="empty" style="margin:0">Select an event for stance, evidence, and “known then” framing.</p>
+          </aside>
+        </div>
+        <p class="meta" id="replay-portfolio-stub" style="margin-top:0.75rem"></p>
+      </div>
+      <div id="replay-sub-counterfactual" style="display:none">
+        <p class="meta">Hypothetical branches — not drawn on the replay axis. No numeric engine in this build.</p>
+        <div id="cf-branches"></div>
+      </div>
+    </section>
+
     <section id="panel-ask_ai" class="panel">
       <h2>Ask AI — bounded decision copilot</h2>
       <p class="meta">Grounded in the Phase 46 bundle only — not generic chat. Quick prompts:</p>
@@ -155,7 +194,7 @@
     </section>
 
     <footer>
-      Phase 47b — user-first IA per <code>docs/DESIGN.md</code>. Notifications: <span id="notif-hint" class="mono"></span>
+      Phase 47c — replay API <code>/api/replay/*</code>; user-first IA per <code>docs/DESIGN.md</code>. Notifications: <span id="notif-hint" class="mono"></span>
     </footer>
   </main>
   <script src="/static/app.js"></script>

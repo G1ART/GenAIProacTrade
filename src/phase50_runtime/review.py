@@ -44,6 +44,14 @@ def write_phase50_registry_controls_review_md(path: str, *, bundle: dict[str, An
         "",
         f"- **`{(bundle.get('phase51') or {}).get('phase51_recommendation')}`**",
         "",
+        "## Related (정적 문서)",
+        "",
+        "- 증거·체크리스트: `docs/phase50_evidence.md`",
+        "- 패치 보고: `docs/phase50_patch_report.md`",
+        "- 클로즈: `docs/operator_closeout/phase50_closeout.md`",
+        "- 스모크 리뷰: `docs/operator_closeout/phase50_positive_path_smoke_review.md`",
+        "- `HANDOFF.md` — Phase 50 절",
+        "",
     ]
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -85,6 +93,14 @@ def write_phase50_positive_path_smoke_review_md(path: str, *, bundle: dict[str, 
         "## Phase 51",
         "",
         f"- **`{(bundle.get('phase51') or {}).get('phase51_recommendation')}`**",
+        "",
+        "## Related (정적 문서)",
+        "",
+        "- 증거·체크리스트: `docs/phase50_evidence.md`",
+        "- 패치 보고: `docs/phase50_patch_report.md`",
+        "- 클로즈: `docs/operator_closeout/phase50_closeout.md`",
+        "- 제어 평면 번들 리뷰: `docs/operator_closeout/phase50_registry_controls_and_operator_timing_review.md`",
+        "- `HANDOFF.md` — Phase 50 절",
         "",
     ]
     p = Path(path)

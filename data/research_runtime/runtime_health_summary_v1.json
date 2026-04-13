@@ -24,20 +24,20 @@
     ]
   },
   "last_cycle_audit_excerpt": {
-    "timestamp": "2026-04-13T06:30:40.610800+00:00",
-    "cycle_id": "d4b2678f-21d9-4026-94b5-8987e881018a",
+    "timestamp": "2026-04-13T06:38:15.298172+00:00",
+    "cycle_id": "f36b11ba-f3e9-4d6e-902c-f24fcbe396c1",
     "skipped": false,
     "why_stopped": "phase48_completed",
     "jobs_created": 1,
     "jobs_executed": 1
   },
   "audit_tail_summary": {
-    "total_entries": 4,
-    "tail_count": 4,
+    "total_entries": 5,
+    "tail_count": 5,
     "skipped_in_tail": 0,
     "last_entry": {
-      "timestamp": "2026-04-13T06:30:40.610800+00:00",
-      "cycle_id": "d4b2678f-21d9-4026-94b5-8987e881018a",
+      "timestamp": "2026-04-13T06:38:15.298172+00:00",
+      "cycle_id": "f36b11ba-f3e9-4d6e-902c-f24fcbe396c1",
       "why_cycle_started": "phase51_external_positive_path",
       "lease_acquired": true,
       "controls_applied": {

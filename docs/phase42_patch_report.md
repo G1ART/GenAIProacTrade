@@ -71,6 +71,8 @@ pytest src/tests/test_phase42_evidence_accumulation.py -q
 
 **Phase 48** (선행 연구 단일 사이클): 잡 레지스트리·트리거·경계 토론·프리미엄 후보 — **클로즈** **`docs/operator_closeout/phase48_closeout.md`** — **`docs/phase48_patch_report.md`**, **`docs/phase48_evidence.md`**. 다중 사이클: **`docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`**.
 
+**Phase 50** (제어 평면·스모크): 리스·감사·타이밍·비영 스모크 — **클로즈** **`docs/operator_closeout/phase50_closeout.md`** — **`docs/phase50_patch_report.md`**, **`docs/phase50_evidence.md`**.
+
 ## Related
 
-`docs/phase41_patch_report.md`, **`docs/phase43_patch_report.md`**, **`docs/phase44_patch_report.md`**, **`docs/phase45_patch_report.md`**, **`docs/phase46_patch_report.md`**, **`docs/phase47_patch_report.md`**, **`docs/phase48_patch_report.md`**, `docs/research_engine_constitution.md`
+`docs/phase41_patch_report.md`, **`docs/phase43_patch_report.md`**, **`docs/phase44_patch_report.md`**, **`docs/phase45_patch_report.md`**, **`docs/phase46_patch_report.md`**, **`docs/phase47_patch_report.md`**, **`docs/phase48_patch_report.md`**, **`docs/phase50_patch_report.md`**, `docs/research_engine_constitution.md`

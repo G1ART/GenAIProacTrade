@@ -32,7 +32,7 @@ python3 src/main.py run-phase48-proactive-research-runtime \
 
 ## 스케줄
 
-한 번의 CLI 호출 = 한 사이클. cron/systemd에서 동일 명령 반복은 **Phase 49** `run-phase49-daemon-scheduler-multi-cycle-triggers-and-metrics-v1` 로 N회·집계·슬립을 묶어 실행한다.
+한 번의 CLI 호출 = 한 사이클. cron/systemd에서 동일 명령 반복은 **Phase 49** `run-phase49-daemon-scheduler-multi-cycle-triggers-and-metrics-v1` 로 N회·집계·슬립을 묶어 실행한다. **Phase 50** 에서 제어 평면·리스·감사·타이밍·스모크를 추가 — **`docs/phase50_patch_report.md`**.
 
 ## 클로즈아웃
 
@@ -46,4 +46,4 @@ pytest src/tests/test_phase48_proactive_research_runtime.py -q
 
 ## Related
 
-`docs/phase48_evidence.md`, `docs/operator_closeout/phase48_closeout.md`, `docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`, `HANDOFF.md`
+`docs/phase48_evidence.md`, `docs/operator_closeout/phase48_closeout.md`, `docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`, **`docs/phase50_evidence.md`**, **`docs/phase50_patch_report.md`**, `HANDOFF.md`

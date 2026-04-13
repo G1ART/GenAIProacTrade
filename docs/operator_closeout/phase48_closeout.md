@@ -16,7 +16,8 @@
 
 ## 후속 작업 (Phase 48 밖)
 
-- **Phase 49**: 다중 사이클·스케줄·메트릭 — 위 번들·리뷰 및 `HANDOFF.md` Phase 49 섹션(추가 예정 시 동기화).
+- **Phase 49**: 다중 사이클·스케줄·메트릭 — 위 번들·리뷰 및 `HANDOFF.md` Phase 49 절.
+- **Phase 50**: 런타임 제어 평면·비영 스모크 — **종료**, **`docs/operator_closeout/phase50_closeout.md`**, **`docs/phase50_evidence.md`**.
 - **Phase 47 UI**: UX/디자인 확장은 **47b, 47c, …** 병렬 트랙으로 진행(별도 지시서).
 
 ## 참고

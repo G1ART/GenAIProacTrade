@@ -5,6 +5,7 @@
 - **상태**: **종료** — Phase 49 다중 사이클 CLI가 **실행·검증**되었으며, Phase 48 단일 사이클 런타임은 **유지 컴포넌트**로 남는다.
 - **운영 클로즈 요약**: `docs/operator_closeout/phase48_closeout.md`
 - **Phase 49 수락 실행 (저장소 기록)**: `docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_bundle.json` (`generated_utc` `2026-04-13T01:10:08.591610+00:00`, `ok: true`) · `docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`
+- **Phase 50 (제어 평면·비영 스모크)**: **`docs/phase50_evidence.md`**, **`docs/operator_closeout/phase50_closeout.md`**, 스모크 번들 `phase50_positive_path_smoke_bundle.json`
 
 ## 확인 체크리스트
 
@@ -31,6 +32,7 @@
 | 입력 Phase 46 | `phase46_founder_decision_cockpit_bundle.json` |
 | `phase49.phase49_recommendation` | `daemon_scheduler_multi_cycle_triggers_and_metrics_v1` |
 | Phase 49 집계 번들 `generated_utc` (클로즈 검증) | `2026-04-13T01:10:08.591610+00:00` |
+| Phase 50 스모크 번들 `generated_utc` (비영 증명) | `2026-04-13T05:50:46.368148+00:00` (재실행 시 갱신) |
 
 ## 트리거 (현재 구현)
 
@@ -40,8 +42,8 @@
 | `operator_research_signal` | 결정 레저에 `last_cycle_utc` 이후 `watch` / `reopen_request` |
 | `closeout_reopen_candidate` | 동일 구간의 `reopen_request` |
 | `named_source_signal` | 클로즈아웃·명명 소스 전제 + 노트에 `named`/`source` 토큰 |
-| `manual_watchlist` | `data/research_runtime/manual_triggers_v1.json` 의 `pending[]` (잡 생성 시 소비·비움) |
+| `manual_watchlist` | `data/research_runtime/manual_triggers_v1.json` 의 `pending[]` (잡 생성 시 소비·비움); Phase 50 스모크는 격리 파일·선택 `suggested_job_type` 지원 |
 
 ## Related
 
-`docs/phase48_patch_report.md`, `docs/operator_closeout/phase48_closeout.md`, `docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`, `docs/phase47_evidence.md`, `docs/phase46_evidence.md`, `HANDOFF.md`, `docs/research_engine_constitution.md`
+`docs/phase48_patch_report.md`, `docs/operator_closeout/phase48_closeout.md`, `docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`, **`docs/phase50_evidence.md`**, **`docs/phase50_patch_report.md`**, `docs/phase47_evidence.md`, `docs/phase46_evidence.md`, `HANDOFF.md`, `docs/research_engine_constitution.md`

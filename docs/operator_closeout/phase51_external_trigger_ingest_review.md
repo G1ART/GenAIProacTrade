@@ -1,7 +1,7 @@
 # Phase 51 — External trigger ingest & governed cycle
 
 - **OK / metrics**: `True` / `smoke_metrics_ok=True`
-- **Generated**: `2026-04-13T06:30:40.611318+00:00`
+- **Generated**: `2026-04-13T06:38:15.299044+00:00`
 - **Phase 50 control bundle (input)**: `/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase50_registry_controls_and_operator_timing_bundle.json`
 
 ## External events
@@ -16,7 +16,7 @@
 ```json
 [
   {
-    "event_id": "3fb0d5fc-814d-4ac9-a087-019a061f1ed4",
+    "event_id": "630fbda8-722d-4f87-a3cf-0867105b1559",
     "normalized_trigger_type": "manual_watchlist",
     "status": "accepted",
     "reason": "accepted_governed"
@@ -28,7 +28,7 @@
 
 ```json
 [
-  "d4b2678f-21d9-4026-94b5-8987e881018a"
+  "f36b11ba-f3e9-4d6e-902c-f24fcbe396c1"
 ]
 ```
 

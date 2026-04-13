@@ -76,6 +76,7 @@
 - **Phase 46**: `run-phase46-founder-decision-cockpit` — 파운더 cockpit·피치·레저·UI 계약. 증거 **`docs/phase46_evidence.md`**, 패치 **`docs/phase46_patch_report.md`**.
 - **Phase 47**: `run-phase47-founder-cockpit-runtime` + `src/phase47_runtime/app.py` — 브라우저 런타임·거버넌스 대화·레저 쓰기. 증거 **`docs/phase47_evidence.md`**, 패치 **`docs/phase47_patch_report.md`**.
 - **Phase 48**: `run-phase48-proactive-research-runtime` — 트리거·잡 레지스트리·경계 토론·디스커버리 후보(추천 아님). **운영 클로즈 완료** — **`docs/operator_closeout/phase48_closeout.md`**. 증거 **`docs/phase48_evidence.md`**, 패치 **`docs/phase48_patch_report.md`**. 후속 다중 사이클: **`docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`**.
+- **Phase 50**: `run-phase50-registry-controls-and-operator-timing`, `run-phase50-positive-path-smoke` — 제어 평면·리스·감사·타이밍·**비영 스모크**. **클로즈** **`docs/operator_closeout/phase50_closeout.md`**. 증거 **`docs/phase50_evidence.md`**, 패치 **`docs/phase50_patch_report.md`**.
 
 ## 산출·영속
 
@@ -87,4 +88,4 @@
 
 ## Related
 
-`docs/phase42_patch_report.md`, `docs/phase41_evidence.md`, **`docs/operator_closeout/phase42_supabase_reviewer_audit.md`**, **`docs/phase43_evidence.md`**, **`docs/phase44_evidence.md`**, **`docs/phase45_evidence.md`**, **`docs/phase46_evidence.md`**, **`docs/phase47_evidence.md`**, **`docs/phase48_evidence.md`**, **`docs/operator_closeout/phase48_closeout.md`**, `HANDOFF.md`
+`docs/phase42_patch_report.md`, `docs/phase41_evidence.md`, **`docs/operator_closeout/phase42_supabase_reviewer_audit.md`**, **`docs/phase43_evidence.md`**, **`docs/phase44_evidence.md`**, **`docs/phase45_evidence.md`**, **`docs/phase46_evidence.md`**, **`docs/phase47_evidence.md`**, **`docs/phase48_evidence.md`**, **`docs/operator_closeout/phase48_closeout.md`**, **`docs/phase50_evidence.md`**, **`docs/operator_closeout/phase50_closeout.md`**, `HANDOFF.md`

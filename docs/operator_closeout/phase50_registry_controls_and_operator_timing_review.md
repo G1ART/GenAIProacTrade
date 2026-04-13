@@ -1,7 +1,7 @@
 # Phase 50 — Registry controls & operator timing
 
 - **Phase**: `phase50_registry_controls_and_operator_timing_v1`
-- **Generated**: `2026-04-13T05:45:52.889072+00:00`
+- **Generated**: `2026-04-13T05:50:40.090764+00:00`
 - **Phase 49 input**: `/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_bundle.json`
 
 ## Control plane
@@ -108,3 +108,11 @@
 ## Phase 51
 
 - **`external_trigger_ingest_hooks_and_runtime_health_surface_v1`**
+
+## Related (정적 문서)
+
+- 증거·체크리스트: `docs/phase50_evidence.md`
+- 패치 보고: `docs/phase50_patch_report.md`
+- 클로즈: `docs/operator_closeout/phase50_closeout.md`
+- 스모크 리뷰: `docs/operator_closeout/phase50_positive_path_smoke_review.md`
+- `HANDOFF.md` — Phase 50 절

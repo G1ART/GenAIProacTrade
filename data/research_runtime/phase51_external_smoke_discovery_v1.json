@@ -2,8 +2,8 @@
   "schema_version": 1,
   "candidates": [
     {
-      "candidate_id": "dc_1_20260413063040",
-      "created_at": "2026-04-13T06:30:40.610326+00:00",
+      "candidate_id": "dc_1_20260413063815",
+      "created_at": "2026-04-13T06:38:15.297789+00:00",
       "asset_scope": {
         "asset_id": "research_engine_fixture_cohort_8_row_v1"
       },
@@ -14,7 +14,7 @@
       "what_is_still_uncertain": "Filing-public strict pick and sector stratification remain proxy- or blocker-limited for this fixture.; Sector moved from 'no row' to 'blank field' in taxonomy only; sector_available is still absent.",
       "additional_evidence_needed": "Named dispositive path or premium ROI-reviewed dataset (candidate only).",
       "debate_converged_or_unresolved": false,
-      "linked_job_id": "d8937ca3-f4f6-46f7-82d7-e7e91e9dbe2f",
+      "linked_job_id": "14ea3493-ab8b-4508-b1bb-aa5324d5dcd6",
       "not_a_recommendation": true
     }
   ]

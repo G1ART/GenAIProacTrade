@@ -41,6 +41,11 @@ PRIMARY_NAVIGATION: list[dict[str, str]] = [
     {"id": "object", "label": "This object", "user_question": "Drill into one cohort or symbol"},
     {"id": "alerts", "label": "Alerts", "user_question": "What needs attention?"},
     {"id": "history", "label": "History", "user_question": "Decisions and trail"},
+    {
+        "id": "replay",
+        "label": "Replay",
+        "user_question": "What happened on a time axis — knowable then, not hypothetical",
+    },
     {"id": "ask_ai", "label": "Ask AI", "user_question": "Bounded decision copilot"},
 ]
 
