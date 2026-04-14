@@ -228,6 +228,35 @@ def api_external_ingest(state: CockpitRuntimeState, body: dict[str, Any]) -> dic
     return out
 
 
+def api_governed_external_ingest(
+    state: CockpitRuntimeState,
+    body: dict[str, Any],
+    headers: dict[str, str] | None,
+) -> dict[str, Any]:
+    from phase52_runtime.governed_ingress import process_governed_external_ingest
+
+    h = headers or {}
+    out = process_governed_external_ingest(
+        body,
+        source_id_header=str(h.get("X-Source-Id") or ""),
+        webhook_secret=str(h.get("X-Webhook-Secret") or ""),
+        repo_root=state.repo_root,
+    )
+    entry = out.get("registry_entry") or {}
+    q = out.get("queue") or {}
+    if out.get("ok"):
+        emit_notification(
+            "external_trigger_ingested",
+            {
+                "event_id": entry.get("event_id") or q.get("queue_id"),
+                "status": entry.get("status") or ("queued" if q else None),
+                "normalized_trigger_type": entry.get("normalized_trigger_type"),
+                "ingest_mode": out.get("ingest_mode"),
+            },
+        )
+    return out
+
+
 def api_replay_contract(state: CockpitRuntimeState) -> dict[str, Any]:
     _ = state
     return {
@@ -248,12 +277,18 @@ def dispatch_json(
     path: str,
     body: bytes | None,
     query: dict[str, str] | None = None,
+    headers: dict[str, str] | None = None,
 ) -> tuple[int, dict[str, Any]]:
     q = query or {}
     p = path.split("?", 1)[0].rstrip("/") or "/"
     raw: dict[str, Any] = {}
     _MAX_EXT_INGEST = 32768
-    if method == "POST" and p == "/api/runtime/external-ingest" and body and len(body) > _MAX_EXT_INGEST:
+    if (
+        method == "POST"
+        and p in ("/api/runtime/external-ingest", "/api/runtime/external-ingest/authenticated")
+        and body
+        and len(body) > _MAX_EXT_INGEST
+    ):
         return 413, {"ok": False, "error": "body_too_large", "max_bytes": _MAX_EXT_INGEST}
     if body:
         try:
@@ -293,6 +328,11 @@ def dispatch_json(
         return 200, api_runtime_health(state)
     if method == "POST" and p == "/api/runtime/external-ingest":
         return 200, api_external_ingest(state, raw)
+    if method == "POST" and p == "/api/runtime/external-ingest/authenticated":
+        go = api_governed_external_ingest(state, raw, headers)
+        code = int(go.get("http_status_hint") or 200)
+        resp = {k: v for k, v in go.items() if k != "http_status_hint"}
+        return code, resp
     if method == "POST" and p == "/api/reload":
         return 200, api_reload(state)
     if method == "POST" and p == "/api/alerts/action":

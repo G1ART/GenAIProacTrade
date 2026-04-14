@@ -49,7 +49,8 @@ PYTHONPATH=src python3 src/main.py run-phase51-external-positive-path-smoke --pe
 | 토론 outcome | `unknown` (`policy_max_turns_reached`) |
 | `runtime_health_summary.health_status` | `healthy` |
 | 감사 `why_cycle_started` | `phase51_external_positive_path` |
-| Phase 52 권고 | `governed_webhook_auth_rate_limits_and_multi_source_routing_v1` |
+| Phase 52 | **종료** — 동일 권고 토큰으로 구현·클로즈 (`docs/phase52_evidence.md`, `docs/operator_closeout/phase52_closeout.md`) |
+| Phase 53 권고 | `signed_payload_hmac_source_rotation_and_dead_letter_replay_v1` |
 
 격리 파일 (스모크 실행 시 갱신되는 경로 예시):
 
@@ -66,4 +67,4 @@ PYTHONPATH=src python3 src/main.py run-phase51-external-positive-path-smoke --pe
 
 ## Related
 
-`docs/phase51_patch_report.md`, `docs/operator_closeout/phase51_closeout.md`, `docs/phase50_evidence.md`, `HANDOFF.md`, `docs/research_engine_constitution.md`
+`docs/phase51_patch_report.md`, `docs/operator_closeout/phase51_closeout.md`, `docs/phase50_evidence.md`, `docs/phase52_evidence.md`, `docs/operator_closeout/phase52_closeout.md`, `HANDOFF.md`, `docs/research_engine_constitution.md`

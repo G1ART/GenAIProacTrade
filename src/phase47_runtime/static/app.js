@@ -279,6 +279,24 @@
         `<button type="button" class="btn" data-jump="ask_ai">Open Ask AI</button></div>`
     );
 
+    const rp = json.replay_preview || {};
+    const rpe = json.replay_preview_empty;
+    const rpHead = escapeHtml(rp.headline || "Replay");
+    const rpAsset = rp.asset_id ? `<strong>${escapeHtml(rp.asset_id)}</strong> · ` : "";
+    const rpTs = rp.timestamp ? `<span class="mono">${escapeHtml(rp.timestamp)}</span><br/>` : "";
+    parts.push(
+      `<div class="feed-card"><h3>Replay preview</h3>` +
+        (rpe
+          ? `<p class="sub"><strong>${escapeHtml(rpe.title)}</strong> — ${escapeHtml(rpe.why)} <em>${escapeHtml(rpe.fills_when)}</em></p>`
+          : "") +
+        `<p class="sub" style="font-weight:600;color:var(--text)">${rpHead}</p>` +
+        `${rpAsset}${rpTs}` +
+        `<p class="body" style="margin-top:0.45rem">${fmtBody(rp.one_line || "")}</p>` +
+        `<p class="sub">${escapeHtml(rp.time_axis_snippet || "")}</p>` +
+        `<p class="sub">${escapeHtml(rp.since_then || "")}</p>` +
+        `<button type="button" class="btn btn-primary" data-jump="replay">Open full Replay</button></div>`
+    );
+
     const ps = json.portfolio_snapshot || {};
     parts.push(
       `<div class="feed-card"><h3>Portfolio snapshot</h3><p class="sub">${escapeHtml(ps.copy || "")}</p>` +

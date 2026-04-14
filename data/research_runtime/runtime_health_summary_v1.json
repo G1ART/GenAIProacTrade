@@ -24,27 +24,27 @@
     ]
   },
   "last_cycle_audit_excerpt": {
-    "timestamp": "2026-04-13T06:38:15.298172+00:00",
-    "cycle_id": "f36b11ba-f3e9-4d6e-902c-f24fcbe396c1",
+    "timestamp": "2026-04-14T05:03:19.382786+00:00",
+    "cycle_id": "81395afa-235b-4598-952d-52b973a49358",
     "skipped": false,
     "why_stopped": "phase48_completed",
-    "jobs_created": 1,
-    "jobs_executed": 1
+    "jobs_created": 3,
+    "jobs_executed": 3
   },
   "audit_tail_summary": {
-    "total_entries": 5,
-    "tail_count": 5,
+    "total_entries": 9,
+    "tail_count": 9,
     "skipped_in_tail": 0,
     "last_entry": {
-      "timestamp": "2026-04-13T06:38:15.298172+00:00",
-      "cycle_id": "f36b11ba-f3e9-4d6e-902c-f24fcbe396c1",
-      "why_cycle_started": "phase51_external_positive_path",
+      "timestamp": "2026-04-14T05:03:19.382786+00:00",
+      "cycle_id": "81395afa-235b-4598-952d-52b973a49358",
+      "why_cycle_started": "phase52_governed_webhook_smoke",
       "lease_acquired": true,
       "controls_applied": {
         "timing": {
           "run": true,
-          "reason": "phase51_smoke_bypass_timing",
-          "detail": "external_positive_path",
+          "reason": "phase52_smoke_bypass_timing",
+          "detail": "governed_webhook",
           "profile": "manual_debug"
         },
         "trigger_controls": {
@@ -64,11 +64,11 @@
             "manual_watchlist"
           ]
         },
-        "external_supplemental_count": 1
+        "external_supplemental_count": 3
       },
-      "triggers_evaluated_count": 1,
-      "jobs_created_count": 1,
-      "jobs_executed_count": 1,
+      "triggers_evaluated_count": 3,
+      "jobs_created_count": 3,
+      "jobs_executed_count": 3,
       "why_cycle_stopped": "phase48_completed",
       "cycle_skipped": false,
       "operator_override": null

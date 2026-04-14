@@ -1,4 +1,4 @@
-"""Phase 47d: Home feed API, shell nav, copilot brief contract, bundle."""
+"""Phase 47d: UX shell reset — Home feed API, nav, copilot brief, replay preview, bundle."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from phase47_runtime.home_feed import (
     ask_ai_brief_contract,
     build_home_feed_payload,
     phase47d_bundle_core,
+    replay_preview_contract,
 )
 from phase47_runtime.phase47d_orchestrator import run_phase47d_thick_slice_home_feed
 from phase47_runtime.routes import dispatch_json
@@ -90,6 +91,7 @@ def test_home_blocks_catalog_covers_workorder() -> None:
         "alerts",
         "decision_journal",
         "ask_ai_brief",
+        "replay_preview",
         "portfolio_snapshot",
     ):
         assert need in ids
@@ -104,6 +106,12 @@ def test_ask_ai_brief_contract_includes_replay_panel_hint() -> None:
     assert replay.get("opens_panel") == "replay"
 
 
+def test_replay_preview_contract_shape() -> None:
+    c = replay_preview_contract()
+    assert c.get("surface") == "home_feed_card"
+    assert "includes" in c and isinstance(c["includes"], list)
+
+
 def test_build_home_feed_closed_fixture_today_is_plain_text(tmp_path: Path) -> None:
     st = _runtime(tmp_path)
     payload = build_home_feed_payload(st)
@@ -113,6 +121,15 @@ def test_build_home_feed_closed_fixture_today_is_plain_text(tmp_path: Path) -> N
     low = body.lower()
     assert "closed" in low or "archive" in low or "replay" in low
     assert payload["closed_context"]["is_fixture"] is True
+
+
+def test_build_home_feed_replay_preview_present(tmp_path: Path) -> None:
+    st = _runtime(tmp_path)
+    payload = build_home_feed_payload(st)
+    rp = payload.get("replay_preview") or {}
+    assert rp.get("opens_panel") == "replay"
+    assert rp.get("headline")
+    assert payload.get("replay_preview_empty") is not None
 
 
 def test_build_home_feed_journal_empty_state(tmp_path: Path) -> None:
@@ -137,6 +154,7 @@ def test_dispatch_home_feed_ok(tmp_path: Path) -> None:
     assert code == 200 and obj.get("ok") is True
     assert "today" in obj and "watchlist_block" in obj
     assert isinstance(obj["today"].get("body"), str)
+    assert "replay_preview" in obj
 
 
 def test_phase47d_orchestrator_required_fields(tmp_path: Path) -> None:
@@ -152,13 +170,16 @@ def test_phase47d_orchestrator_required_fields(tmp_path: Path) -> None:
         "navigation_shell",
         "closed_fixture_repositioning",
         "ask_ai_brief_contract",
+        "replay_preview_contract",
         "empty_state_rules_applied",
         "phase47e",
     ):
         assert k in out
     assert out["phase47e"].get("phase47e_recommendation")
+    assert out["phase"] == "phase47d_thick_slice_ux_shell_reset"
 
 
 def test_phase47d_bundle_core_static_shape() -> None:
     core = phase47d_bundle_core(design_source_path="docs/DESIGN_V3_MINIMAL_AND_STRONG.md")
     assert core["navigation_shell"][0]["id"] == "home"
+    assert core.get("replay_preview_contract", {}).get("surface") == "home_feed_card"

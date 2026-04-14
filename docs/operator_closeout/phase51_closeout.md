@@ -28,7 +28,8 @@
 
 ## 후속 (Phase 51 밖)
 
-- **Phase 52**: `governed_webhook_auth_rate_limits_and_multi_source_routing_v1` — 인증 웹훅, 소스별 예산, 라우팅·큐(여전히 기판·자율 매매 비목표). 번들 필드 `phase52` 참고.
+- **Phase 52**: **종료** — `governed_webhook_auth_rate_limits_and_multi_source_routing_v1` (인증 웹훅, 소스별 예산, 라우팅·큐). 증거·패치·클로즈: **`docs/phase52_evidence.md`**, **`docs/phase52_patch_report.md`**, **`docs/operator_closeout/phase52_closeout.md`**; 번들·리뷰: **`docs/operator_closeout/phase52_webhook_auth_routing_bundle.json`**, **`phase52_webhook_auth_routing_review.md`**, **`phase52_runtime_health_surface_review.md`**.
+- **Phase 53**: `signed_payload_hmac_source_rotation_and_dead_letter_replay_v1` — Phase 52 번들 필드 `phase53` 참고.
 
 ## 참고
 

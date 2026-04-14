@@ -55,4 +55,4 @@ PYTHONPATH=src python3 -m pytest src/tests/test_phase51_external_trigger_ingest_
 
 ## Related
 
-`docs/phase51_evidence.md`, `docs/operator_closeout/phase51_closeout.md`, `docs/phase50_patch_report.md`, `HANDOFF.md`
+`docs/phase51_evidence.md`, `docs/operator_closeout/phase51_closeout.md`, `docs/phase50_patch_report.md`, `docs/phase52_evidence.md`, `docs/phase52_patch_report.md`, `docs/operator_closeout/phase52_closeout.md`, `HANDOFF.md`

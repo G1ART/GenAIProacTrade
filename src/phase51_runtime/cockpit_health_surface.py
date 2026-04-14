@@ -57,6 +57,17 @@ def build_cockpit_runtime_health_payload(
     if lr:
         lines.append(f"최근 거절: {lr.get('reason')} ({lr.get('raw_event_type')})")
 
+    ext52 = raw.get("external_source_activity_v52")
+    if ext52:
+        lines.append(f"외부 소스(Phase 52): 인증·라우팅 레지스트리 사용 중 · 대기 큐 {ext52.get('queue_depth_pending', 0)}건")
+        for ps in (ext52.get("sources") or [])[:8]:
+            oc = ps.get("outcome_counts") or {}
+            if oc:
+                lines.append(f"  · {ps.get('source_id')}: 누적 {oc}")
+            af = ps.get("recent_auth_failures_tail") or []
+            if af:
+                lines.append(f"  · 최근 인증 실패: {len(af)}건(감사 로그 참고)")
+
     skips = raw.get("recent_skip_reasons") or []
     skip_plain = [f"{s.get('why')} @ {str(s.get('timestamp') or '')[:19]}" for s in skips[:5]]
 

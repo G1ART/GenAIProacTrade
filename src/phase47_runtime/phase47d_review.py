@@ -14,10 +14,10 @@ def write_phase47d_thick_slice_home_feed_bundle_json(path: str, *, bundle: dict[
     return str(p.resolve())
 
 
-def write_phase47d_thick_slice_home_feed_review_md(path: str, *, bundle: dict[str, Any]) -> str:
+def _write_phase47d_review_md(path: str, *, bundle: dict[str, Any], h1: str) -> str:
     p47e = bundle.get("phase47e") or {}
     lines = [
-        "# Phase 47d — Thick-slice Home feed & decision copilot shell",
+        h1,
         "",
         f"- **Phase**: `{bundle.get('phase')}`",
         f"- **Generated**: `{bundle.get('generated_utc')}`",
@@ -25,7 +25,7 @@ def write_phase47d_thick_slice_home_feed_review_md(path: str, *, bundle: dict[st
         "",
         "## DESIGN_V3 alignment",
         "",
-        "- Home-first blocks (Today, Watchlist, Research in progress, Alerts preview, Journal preview, Ask AI brief, portfolio stub).",
+        "- Home-first blocks (Today, Watchlist, Research in progress, Alerts, Decision journal, Ask AI brief, **Replay preview**, portfolio stub).",
         "- Top nav matches user mental model: Home, Watchlist, Research, Replay, Journal, Ask AI, Advanced.",
         "- Raw JSON and full alert tooling are confined to **Research → Advanced** cohort tab and **Advanced** top-level panel.",
         "- Closed research fixtures are de-prioritized on Home: Today explains archive context and points to Watchlist / Research / Alerts.",
@@ -56,6 +56,12 @@ def write_phase47d_thick_slice_home_feed_review_md(path: str, *, bundle: dict[st
         json.dumps(bundle.get("ask_ai_brief_contract"), indent=2, ensure_ascii=False),
         "```",
         "",
+        "## Replay preview contract",
+        "",
+        "```json",
+        json.dumps(bundle.get("replay_preview_contract"), indent=2, ensure_ascii=False),
+        "```",
+        "",
         "## Empty-state rules",
         "",
         "\n".join(f"- {x}" for x in (bundle.get("empty_state_rules_applied") or [])),
@@ -72,10 +78,25 @@ def write_phase47d_thick_slice_home_feed_review_md(path: str, *, bundle: dict[st
         "",
         "## UI",
         "",
-        "- `src/phase47_runtime/static/index.html`, `app.js` — Home grid, relocated alerts manager, Journal cards.",
+        "- `src/phase47_runtime/static/index.html`, `app.js` — Home grid, Replay preview card, relocated alerts manager, Journal cards.",
         "",
     ]
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text("\n".join(lines), encoding="utf-8")
     return str(p.resolve())
+
+
+_PHASE47D_REVIEW_H1 = "# Phase 47d — Thick-slice UX shell reset (Home & navigation)"
+
+
+def write_phase47d_thick_slice_home_feed_review_md(path: str, *, bundle: dict[str, Any]) -> str:
+    return _write_phase47d_review_md(path, bundle=bundle, h1=_PHASE47D_REVIEW_H1)
+
+
+def write_phase47d_thick_slice_ux_shell_review_md(path: str, *, bundle: dict[str, Any]) -> str:
+    return _write_phase47d_review_md(path, bundle=bundle, h1=_PHASE47D_REVIEW_H1)
+
+
+def write_phase47d_thick_slice_ux_shell_bundle_json(path: str, *, bundle: dict[str, Any]) -> str:
+    return write_phase47d_thick_slice_home_feed_bundle_json(path, bundle=bundle)

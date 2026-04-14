@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "last_phase46_generated_utc": "2026-04-12T20:40:43.768261+00:00",
+    "last_cycle_utc": "2026-04-14T05:03:19.381187+00:00"
+  },
+  "jobs": [
+    {
+      "job_id": "3d63c7ce-00e4-4010-bee8-e9accb13a25a",
+      "job_type": "debate.execute",
+      "asset_scope": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1"
+      },
+      "trigger_source": "manual_watchlist",
+      "created_at": "2026-04-14T05:03:19.381231+00:00",
+      "status": "completed",
+      "priority": 15,
+      "budget_class": "bounded_debate",
+      "attempt_count": 1,
+      "result_summary": "Bounded debate outcome=unknown; turns=3.",
+      "output_artifacts": [
+        {
+          "kind": "bounded_debate",
+          "ref": {
+            "question": "Governed check: manual_watchlist",
+            "max_turns_config": 3,
+            "max_roles_config": 5,
+            "turns_used": 3,
+            "roles_used": [
+              "signal_finder",
+              "skeptical_reviewer",
+              "management_decision_analyst",
+              "premium_data_advocate",
+              "operator_summarizer"
+            ],
+            "transcript": [
+              {
+                "role": "signal_finder",
+                "turn": 0,
+                "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+              },
+              {
+                "role": "skeptical_reviewer",
+                "turn": 0,
+                "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+              },
+              {
+                "role": "management_decision_analyst",
+                "turn": 0,
+                "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+              },
+              {
+                "role": "premium_data_advocate",
+                "turn": 0,
+                "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+              },
+              {
+                "role": "operator_summarizer",
+                "turn": 0,
+                "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+              },
+              {
+                "role": "signal_finder",
+                "turn": 1,
+                "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+              },
+              {
+                "role": "skeptical_reviewer",
+                "turn": 1,
+                "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+              },
+              {
+                "role": "management_decision_analyst",
+                "turn": 1,
+                "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+              },
+              {
+                "role": "premium_data_advocate",
+                "turn": 1,
+                "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+              },
+              {
+                "role": "operator_summarizer",
+                "turn": 1,
+                "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+              },
+              {
+                "role": "signal_finder",
+                "turn": 2,
+                "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+              },
+              {
+                "role": "skeptical_reviewer",
+                "turn": 2,
+                "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+              },
+              {
+                "role": "management_decision_analyst",
+                "turn": 2,
+                "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+              },
+              {
+                "role": "premium_data_advocate",
+                "turn": 2,
+                "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+              },
+              {
+                "role": "operator_summarizer",
+                "turn": 2,
+                "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+              }
+            ],
+            "outcome": "unknown",
+            "stopped_reason": "policy_max_turns_reached",
+            "governed": true
+          }
+        }
+      ],
+      "dedupe_key": "ext:webhook:phase52_rate:watchlist_submit:d3cf48fc187d6ae7adf0f6cf",
+      "trigger_payload": {
+        "trigger": {
+          "trigger_type": "manual_watchlist",
+          "dedupe_key": "ext:webhook:phase52_rate:watchlist_submit:d3cf48fc187d6ae7adf0f6cf",
+          "priority": 15,
+          "payload": {
+            "asset_id": "research_engine_fixture_cohort_8_row_v1",
+            "note": "rate-a",
+            "suggested_job_type": "debate.execute"
+          },
+          "suggested_job_type": "debate.execute",
+          "external_event_id": "1653a28d-0cf2-4c3c-9809-2bfe3d38c5e8",
+          "manual_file": null
+        }
+      }
+    },
+    {
+      "job_id": "aff7fe7d-9043-46df-81dc-3a91d1e1f6de",
+      "job_type": "debate.execute",
+      "asset_scope": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1"
+      },
+      "trigger_source": "manual_watchlist",
+      "created_at": "2026-04-14T05:03:19.381335+00:00",
+      "status": "completed",
+      "priority": 15,
+      "budget_class": "bounded_debate",
+      "attempt_count": 1,
+      "result_summary": "Bounded debate outcome=unknown; turns=3.",
+      "output_artifacts": [
+        {
+          "kind": "bounded_debate",
+          "ref": {
+            "question": "Governed check: manual_watchlist",
+            "max_turns_config": 3,
+            "max_roles_config": 5,
+            "turns_used": 3,
+            "roles_used": [
+              "signal_finder",
+              "skeptical_reviewer",
+              "management_decision_analyst",
+              "premium_data_advocate",
+              "operator_summarizer"
+            ],
+            "transcript": [
+              {
+                "role": "signal_finder",
+                "turn": 0,
+                "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+              },
+              {
+                "role": "skeptical_reviewer",
+                "turn": 0,
+                "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+              },
+              {
+                "role": "management_decision_analyst",
+                "turn": 0,
+                "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+              },
+              {
+                "role": "premium_data_advocate",
+                "turn": 0,
+                "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+              },
+              {
+                "role": "operator_summarizer",
+                "turn": 0,
+                "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+              },
+              {
+                "role": "signal_finder",
+                "turn": 1,
+                "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+              },
+              {
+                "role": "skeptical_reviewer",
+                "turn": 1,
+                "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+              },
+              {
+                "role": "management_decision_analyst",
+                "turn": 1,
+                "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+              },
+              {
+                "role": "premium_data_advocate",
+                "turn": 1,
+                "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+              },
+              {
+                "role": "operator_summarizer",
+                "turn": 1,
+                "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+              },
+              {
+                "role": "signal_finder",
+                "turn": 2,
+                "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+              },
+              {
+                "role": "skeptical_reviewer",
+                "turn": 2,
+                "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+              },
+              {
+                "role": "management_decision_analyst",
+                "turn": 2,
+                "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+              },
+              {
+                "role": "premium_data_advocate",
+                "turn": 2,
+                "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+              },
+              {
+                "role": "operator_summarizer",
+                "turn": 2,
+                "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+              }
+            ],
+            "outcome": "unknown",
+            "stopped_reason": "policy_max_turns_reached",
+            "governed": true
+          }
+        }
+      ],
+      "dedupe_key": "ext:webhook:phase52_direct:watchlist_submit:427596111609cd396414ef9b",
+      "trigger_payload": {
+        "trigger": {
+          "trigger_type": "manual_watchlist",
+          "dedupe_key": "ext:webhook:phase52_direct:watchlist_submit:427596111609cd396414ef9b",
+          "priority": 15,
+          "payload": {
+            "asset_id": "research_engine_fixture_cohort_8_row_v1",
+            "note": "direct-primary",
+            "suggested_job_type": "debate.execute"
+          },
+          "suggested_job_type": "debate.execute",
+          "external_event_id": "0e38e15f-0949-4fe4-bf59-aa546db8f96a",
+          "manual_file": null
+        }
+      }
+    },
+    {
+      "job_id": "b2d7bc8e-b79e-4f2c-8ed4-13cb8e136863",
+      "job_type": "debate.execute",
+      "asset_scope": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1"
+      },
+      "trigger_source": "manual_watchlist",
+      "created_at": "2026-04-14T05:03:19.381430+00:00",
+      "status": "completed",
+      "priority": 15,
+      "budget_class": "bounded_debate",
+      "attempt_count": 1,
+      "result_summary": "Bounded debate outcome=unknown; turns=3.",
+      "output_artifacts": [
+        {
+          "kind": "bounded_debate",
+          "ref": {
+            "question": "Governed check: manual_watchlist",
+            "max_turns_config": 3,
+            "max_roles_config": 5,
+            "turns_used": 3,
+            "roles_used": [
+              "signal_finder",
+              "skeptical_reviewer",
+              "management_decision_analyst",
+              "premium_data_advocate",
+              "operator_summarizer"
+            ],
+            "transcript": [
+              {
+                "role": "signal_finder",
+                "turn": 0,
+                "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+              },
+              {
+                "role": "skeptical_reviewer",
+                "turn": 0,
+                "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+              },
+              {
+                "role": "management_decision_analyst",
+                "turn": 0,
+                "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+              },
+              {
+                "role": "premium_data_advocate",
+                "turn": 0,
+                "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+              },
+              {
+                "role": "operator_summarizer",
+                "turn": 0,
+                "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+              },
+              {
+                "role": "signal_finder",
+                "turn": 1,
+                "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+              },
+              {
+                "role": "skeptical_reviewer",
+                "turn": 1,
+                "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+              },
+              {
+                "role": "management_decision_analyst",
+                "turn": 1,
+                "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+              },
+              {
+                "role": "premium_data_advocate",
+                "turn": 1,
+                "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+              },
+              {
+                "role": "operator_summarizer",
+                "turn": 1,
+                "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+              },
+              {
+                "role": "signal_finder",
+                "turn": 2,
+                "text": "Under authoritative recommendation `narrow_claims_document_proxy_limits_operator_closeout_v1`, I see no new dispositive public signal in the static bundle snapshot; watchpoints remain governance-bound."
+              },
+              {
+                "role": "skeptical_reviewer",
+                "turn": 2,
+                "text": "Proxy-limited gate `deferred_due_to_proxy_limited_falsifier_substrate` still caps falsifier strength; any urgency claim must stay subordinate to Phase 44 narrowing."
+              },
+              {
+                "role": "management_decision_analyst",
+                "turn": 2,
+                "text": "Closeout posture `closed_pending_new_evidence` implies hold until named path or new evidence; no auto-promotion."
+              },
+              {
+                "role": "premium_data_advocate",
+                "turn": 2,
+                "text": "Premium paths are **candidates only** until ROI review; public substrate did not clear the blocker."
+              },
+              {
+                "role": "operator_summarizer",
+                "turn": 2,
+                "text": "Operator summary: bounded debate consumed bundle-only facts; escalate only via explicit candidate records."
+              }
+            ],
+            "outcome": "unknown",
+            "stopped_reason": "policy_max_turns_reached",
+            "governed": true
+          }
+        }
+      ],
+      "dedupe_key": "ext:webhook:phase52_queue:watchlist_submit:af44e81f2486a655f975a65a",
+      "trigger_payload": {
+        "trigger": {
+          "trigger_type": "manual_watchlist",
+          "dedupe_key": "ext:webhook:phase52_queue:watchlist_submit:af44e81f2486a655f975a65a",
+          "priority": 15,
+          "payload": {
+            "asset_id": "research_engine_fixture_cohort_8_row_v1",
+            "note": "queued-item-1",
+            "suggested_job_type": "debate.execute"
+          },
+          "suggested_job_type": "debate.execute",
+          "external_event_id": "668d544f-5a4c-424d-8682-e60e4d8f692e",
+          "manual_file": null
+        }
+      }
+    }
+  ]
+}

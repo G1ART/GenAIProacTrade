@@ -4,7 +4,7 @@
 
 | Before (47b/47c) | After (47d) |
 |------------------|-------------|
-| Brief | **Home** (feed: Today, Watchlist, Research activity, Alerts preview, Journal preview, Ask AI brief, portfolio stub) |
+| Brief | **Home** (feed: Today, Watchlist, Research activity, Alerts preview, Journal preview, Ask AI brief, **Replay preview**, portfolio stub) |
 | This object | **Research** (same cohort tabs: Brief → Advanced) |
 | Alerts | *(preview on Home; full manager)* → **Advanced** |
 | History | **Journal** (decision cards + form; no raw JSON as default) |
@@ -17,7 +17,7 @@
 
 | Before | After |
 |--------|--------|
-| Single “Brief” panel dominated by one bundle object (often reads like a closed fixture pitch) | **Home** grid: attention first (alerts if any, else de-emphasized fixture copy), then tracking, threads, alerts preview, journal preview, copilot brief |
+| Single “Brief” panel dominated by one bundle object (often reads like a closed fixture pitch) | **Home** grid: attention first (alerts if any, else de-emphasized fixture copy), then tracking, threads, alerts preview, journal preview, copilot brief, **Replay preview** (signature teaser → full Replay) |
 | Raw-ish decision log as monospace JSON | **Journal** cards with timestamp, asset, type, note excerpt |
 
 ## Closed research fixtures

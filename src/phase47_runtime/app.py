@@ -69,7 +69,7 @@ def make_handler(state: CockpitRuntimeState):
                 self._send(200, sp.read_bytes(), _content_type(rel))
                 return
             if path.startswith("/api/"):
-                code, obj = dispatch_json(state, method="GET", path=path, body=None, query=q)
+                code, obj = dispatch_json(state, method="GET", path=path, body=None, query=q, headers=None)
                 self._send_json(code, obj)
                 return
             self.send_error(404)
@@ -80,7 +80,11 @@ def make_handler(state: CockpitRuntimeState):
             length = int(self.headers.get("Content-Length") or 0)
             body = self.rfile.read(length) if length > 0 else None
             if path.startswith("/api/"):
-                code, obj = dispatch_json(state, method="POST", path=path, body=body, query={})
+                hdrs = {
+                    "X-Source-Id": (self.headers.get("X-Source-Id") or ""),
+                    "X-Webhook-Secret": (self.headers.get("X-Webhook-Secret") or ""),
+                }
+                code, obj = dispatch_json(state, method="POST", path=path, body=body, query={}, headers=hdrs)
                 self._send_json(code, obj)
                 return
             self.send_error(404)

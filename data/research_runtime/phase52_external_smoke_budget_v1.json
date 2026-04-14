@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "by_source_id": {
+    "phase52_direct": {
+      "recent_auth_failures": [
+        {
+          "timestamp": "2026-04-14T05:03:19.378316+00:00",
+          "reason": "invalid_webhook_secret"
+        }
+      ],
+      "outcome_counts": {
+        "rejected_auth": 1,
+        "rejected_routing": 1,
+        "accepted_registry": 1
+      },
+      "last_outcome_at": "2026-04-14T05:03:19.379659+00:00",
+      "recent_routing_rejections": [
+        {
+          "timestamp": "2026-04-14T05:03:19.378782+00:00",
+          "reason": "raw_event_type_not_allowed:named_source_registration"
+        }
+      ],
+      "current_minute_key": "2026-04-14T05:03",
+      "events_this_minute": 1,
+      "window_started_at_utc": "2026-04-14T05:03:19.379659+00:00",
+      "events_this_window": 1
+    },
+    "phase52_rate": {
+      "current_minute_key": "2026-04-14T05:03",
+      "events_this_minute": 1,
+      "window_started_at_utc": "2026-04-14T05:03:19.379047+00:00",
+      "events_this_window": 1,
+      "outcome_counts": {
+        "accepted_registry": 1,
+        "rejected_rate": 1
+      },
+      "last_outcome_at": "2026-04-14T05:03:19.379434+00:00",
+      "recent_rate_limits": [
+        {
+          "timestamp": "2026-04-14T05:03:19.379434+00:00",
+          "reason": "rate_limit_per_minute",
+          "limit": 1
+        }
+      ]
+    },
+    "phase52_queue": {
+      "current_minute_key": "2026-04-14T05:03",
+      "events_this_minute": 1,
+      "window_started_at_utc": "2026-04-14T05:03:19.379999+00:00",
+      "events_this_window": 1,
+      "outcome_counts": {
+        "queued": 1
+      },
+      "last_outcome_at": "2026-04-14T05:03:19.379999+00:00"
+    }
+  }
+}

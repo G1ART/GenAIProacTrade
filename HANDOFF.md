@@ -44,6 +44,8 @@
 
 **CLI (Phase 51, 외부 트리거 인제스트·런타임 헬스)**: `run-phase51-external-positive-path-smoke` — **파일 드롭** 외부 이벤트 → 정규화·중복 제거 → Phase 48 **`supplemental_triggers`** 로 사이클 소비(`manual_triggers_v1` 시드 없음). `submit-external-trigger-json`, `refresh-runtime-health-summary`. 산출: `phase51_external_trigger_ingest_bundle.json`, `phase51_external_trigger_ingest_review.md`, `phase51_runtime_health_surface_review.md`. Cockpit: `GET /api/runtime/health`, `POST /api/runtime/external-ingest`(본문 **≤32768** 바이트). 테스트: `pytest src/tests/test_phase51_external_trigger_ingest_and_runtime_health.py -q`. 증거·패치·클로즈: **`docs/phase51_evidence.md`**, **`docs/phase51_patch_report.md`**, **`docs/operator_closeout/phase51_closeout.md`**.
 
+**CLI (Phase 52, 거버넌스 웹훅·소스 예산·라우팅·큐)**: `run-phase52-governed-webhook-auth-routing-smoke` — 소스 레지스트리(`shared_secret_hash` = SHA-256(비밀값))·분당/윈도 예산·원시/정규화 트리거 화이트리스트·선택 큐(`enqueue_before_cycle`) 후 플러시 → Phase 48. Cockpit: **`POST /api/runtime/external-ingest/authenticated`** + 헤더 **`X-Source-Id`**, **`X-Webhook-Secret`** (운영은 TLS 필수). 격리 스모크 산출: `data/research_runtime/phase52_external_smoke_*_v1.json`; 운영 기본 경로는 `external_source_registry_v1.json` 등. 산출: **`docs/operator_closeout/phase52_webhook_auth_routing_bundle.json`**, **`phase52_webhook_auth_routing_review.md`**, **`phase52_runtime_health_surface_review.md`**. 테스트: `pytest src/tests/test_phase52_webhook_auth_routing.py -q` (Phase 51·50 회귀 유지). 증거·패치·클로즈: **`docs/phase52_evidence.md`**, **`docs/phase52_patch_report.md`**, **`docs/operator_closeout/phase52_closeout.md`**.
+
 **Phase 46 실측 (참고)**: 저장소 기록 번들 `generated_utc` `2026-04-12T20:40:43Z` — `docs/phase46_evidence.md`.
 
 **Phase 47 실측 (참고)**: 메타 번들 `generated_utc` `2026-04-12T22:02:36Z` — `docs/phase47_evidence.md`.
@@ -56,9 +58,11 @@
 
 **Phase 51 실측 (참고)**: 번들 `generated_utc` **`2026-04-13T06:38:15.299044+00:00`**, `ok: true`, `smoke_metrics_ok: true` — 외부 1건 승인·사이클 `f36b11ba-f3e9-4d6e-902c-f24fcbe396c1`, `manual_watchlist`→`debate.execute`, 헬스 `healthy`. 산출: `docs/operator_closeout/phase51_external_trigger_ingest_bundle.json`, `phase51_external_trigger_ingest_review.md`, `phase51_runtime_health_surface_review.md`, **`docs/phase51_evidence.md`**, **`docs/phase51_patch_report.md`**, **`docs/operator_closeout/phase51_closeout.md`**; 격리 `data/research_runtime/phase51_external_*_v1.json`.
 
+**Phase 52 실측 (참고)**: 번들 `generated_utc` **`2026-04-14T05:03:19.383370+00:00`**, `ok: true`, `smoke_metrics_ok: true` — 인증 실패·라우팅 거절·레이트리밋·큐+플러시·supplemental 3건·잡 생성·실행 각 3, 사이클 `81395afa-235b-4598-952d-52b973a49358`, 감사 `why_cycle_started`: **`phase52_governed_webhook_smoke`**, 헬스 `healthy`. 산출: **`docs/operator_closeout/phase52_webhook_auth_routing_bundle.json`**, **`phase52_webhook_auth_routing_review.md`**, **`phase52_runtime_health_surface_review.md`**, **`docs/phase52_evidence.md`**, **`docs/phase52_patch_report.md`**, **`docs/operator_closeout/phase52_closeout.md`**; 격리 `data/research_runtime/phase52_external_smoke_*_v1.json`. 다음 권고 **`phase53`**: `signed_payload_hmac_source_rotation_and_dead_letter_replay_v1`.
+
 ---
 
-_Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41dea3b0-02fe-46d8-951d-e2778af01e9f`, 8/8 mismatch, 게이트 blocked → Phase 39 권고 `broaden_hypothesis_families…` 반영·**실측 완료**. Phase 38 상세 **`docs/phase38_evidence.md`**, Phase 39 상세 **`docs/phase39_evidence.md`**, Phase 40 **`docs/phase40_evidence.md`**, Phase 41 **`docs/phase41_evidence.md`**, Phase 42 **`docs/phase42_evidence.md`**, Phase 43 **`docs/phase43_evidence.md`**, Phase 44 **`docs/phase44_evidence.md`**, Phase 45 **`docs/phase45_evidence.md`**, Phase 46 **`docs/phase46_evidence.md`**, Phase 47 **`docs/phase47_evidence.md`**, Phase 48 **`docs/phase48_evidence.md`**, Phase 49 **`docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`**, Phase 50 **`docs/phase50_evidence.md`**, **`docs/phase50_patch_report.md`**, **`docs/operator_closeout/phase50_closeout.md`**, Phase 51 **`docs/phase51_evidence.md`**, **`docs/phase51_patch_report.md`**, **`docs/operator_closeout/phase51_closeout.md`**.
+_Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41dea3b0-02fe-46d8-951d-e2778af01e9f`, 8/8 mismatch, 게이트 blocked → Phase 39 권고 `broaden_hypothesis_families…` 반영·**실측 완료**. Phase 38 상세 **`docs/phase38_evidence.md`**, Phase 39 상세 **`docs/phase39_evidence.md`**, Phase 40 **`docs/phase40_evidence.md`**, Phase 41 **`docs/phase41_evidence.md`**, Phase 42 **`docs/phase42_evidence.md`**, Phase 43 **`docs/phase43_evidence.md`**, Phase 44 **`docs/phase44_evidence.md`**, Phase 45 **`docs/phase45_evidence.md`**, Phase 46 **`docs/phase46_evidence.md`**, Phase 47 **`docs/phase47_evidence.md`**, Phase 48 **`docs/phase48_evidence.md`**, Phase 49 **`docs/operator_closeout/phase49_daemon_scheduler_multi_cycle_review.md`**, Phase 50 **`docs/phase50_evidence.md`**, **`docs/phase50_patch_report.md`**, **`docs/operator_closeout/phase50_closeout.md`**, Phase 51 **`docs/phase51_evidence.md`**, **`docs/phase51_patch_report.md`**, **`docs/operator_closeout/phase51_closeout.md`**, Phase 52 번들·리뷰·증거·클로즈 **`docs/operator_closeout/phase52_webhook_auth_routing_*`**, **`phase52_runtime_health_surface_review.md`**, **`docs/phase52_evidence.md`**, **`docs/phase52_patch_report.md`**, **`docs/operator_closeout/phase52_closeout.md`**.
 
 ---
 
@@ -749,8 +753,8 @@ _Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41de
 
 - **목적**: Phase 46 산출물을 **실제 브라우저 런타임**으로 제공한다. **stdlib HTTP + 얇은 HTML/JS**; DB 불필요. **기판·수리·연구 패밀리 확장 없음.**
 - **입력**: `phase46_founder_decision_cockpit_bundle.json` (+ 번들이 가리키는 레저 JSON). 다른 머신에서는 번들 내 절대경로가 깨질 수 있으므로 **`PHASE47_PHASE46_BUNDLE`** 및 레저를 로컬 경로로 맞추거나 Phase 46을 재실행한다.
-- **화면 (Phase 47d 이후)**: **홈 피드 우선** — 상단 내비 **Home · Watchlist · Research · Replay · Journal · Ask AI · Advanced**. 기본 랜딩은 **Home** 에서 **Today / Watchlist / Research in progress / Alerts(미리보기) / Decision journal(미리보기) / Ask AI brief / Portfolio 스텁** 카드 그리드(요약만, 기본 블록에 원시 JSON 없음). **Research** 패널에 예전 `This object` 탭(**Brief · Why now · … · Advanced**) — 클로즈드 리서치 픽스처·아카이브 맥락은 여기서 다루고 **Home 히어로로 올리지 않음**. **Journal** 은 결정 카드 + 기록 폼(원시 JSON 배열 비주력). **전체 알림 필터·ack/resolve 등**은 **Advanced** 로 이동; Home 은 짧은 미리보기 + Advanced 링크. **Ask AI** 상단에 **copilot brief(한 줄)** + 워크오더 계약 숏컷(“What matters now?” 등, “Open Replay for this item” 은 Replay 패널로 이동). Replay 서브모드는 기존과 동일(**Replay** / **Counterfactual Lab**).
-- **API**: `GET /api/home/feed` — Home 블록용 조합 페이로드. `GET /api/overview` 의 `user_first.navigation.primary_navigation` 은 Phase 47d 셸과 동일. 나머지: `GET /api/user-first/section/…`, **Replay** `GET /api/replay/*`, **런타임** `GET /api/runtime/health`, `POST /api/runtime/external-ingest` (32KB 상한). 구현: **`home_feed.py`**, **`ui_copy.py`**, **`traceability_replay.py`**, **`phase51_runtime`**.
+- **화면 (Phase 47d 이후)**: **홈 피드 우선** — 상단 내비 **Home · Watchlist · Research · Replay · Journal · Ask AI · Advanced**. 기본 랜딩은 **Home** 에서 **Today / Watchlist / Research in progress / Alerts(미리보기) / Decision journal(미리보기) / Ask AI brief / Replay preview(시그니처 티저) / Portfolio 스텁** 카드 그리드(요약만, 기본 블록에 원시 JSON 없음). **Research** 패널에 예전 `This object` 탭(**Brief · Why now · … · Advanced**) — 클로즈드 리서치 픽스처·아카이브 맥락은 여기서 다루고 **Home 히어로로 올리지 않음**. **Journal** 은 결정 카드 + 기록 폼(원시 JSON 배열 비주력). **전체 알림 필터·ack/resolve 등**은 **Advanced** 로 이동; Home 은 짧은 미리보기 + Advanced 링크. **Ask AI** 상단에 **copilot brief(한 줄)** + 워크오더 계약 숏컷(“What matters now?” 등, “Open Replay for this item” 은 Replay 패널로 이동). **Replay preview** 카드는 마지막 결정(있으면)·타임축 안내·“Open full Replay” 로 시그니처 노출. Replay 서브모드는 기존과 동일(**Replay** / **Counterfactual Lab**).
+- **API**: `GET /api/home/feed` — Home 블록용 조합 페이로드. `GET /api/overview` 의 `user_first.navigation.primary_navigation` 은 Phase 47d 셸과 동일. 나머지: `GET /api/user-first/section/…`, **Replay** `GET /api/replay/*`, **런타임** `GET /api/runtime/health`, `POST /api/runtime/external-ingest` (32KB 상한), **`POST /api/runtime/external-ingest/authenticated`** (Phase 52: `X-Source-Id` + `X-Webhook-Secret`). 구현: **`home_feed.py`**, **`ui_copy.py`**, **`traceability_replay.py`**, **`phase51_runtime`**, **`phase52_runtime`**.
 - **거버넌스 대화 지원 의도**: `decision_summary`, `information_layer`, `research_layer`, `why_closed`, `provenance`, `what_changed`, `what_unproven`, `message_layer`, `closeout_layer` (**`what could change` 문구도 closeout_layer**); 범위 밖은 `outside_governed_cockpit_scope`.
 - **레저 쓰기**: `alert_ledger_v1.json`(상태 갱신), `decision_trace_ledger_v1.json`(hold/watch/defer/reopen_request/buy/sell/dismiss_alert).
 - **알림**: `notification_hooks` 인메모리 이벤트 + UI 폴링(`/api/notifications`). Phase 47 메타 번들의 `phase48` 권고 문자열(`external_notification_connectors…`)은 **구현 전 스텁**; 외부 커넥터·감사 로그는 **별도 스프린트**(Phase 49는 **선행 연구 다중 사이클·메트릭**에 해당)에서 검토.
@@ -759,9 +763,9 @@ _Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41de
 - **CLI**: `run-phase47-founder-cockpit-runtime` — 메타 번들·리뷰 MD. **서버**: `python3 src/phase47_runtime/app.py`.
 - **CLI (Phase 47b, IA 계약 번들)**: `run-phase47b-user-first-ux` — `docs/DESIGN.md` 경로·`phase47b_user_first_ux_bundle.json` / `phase47b_user_first_ux_review.md`. 테스트: `pytest src/tests/test_phase47b_user_first_ux.py -q`.
 - **CLI (Phase 47c, 추적성·리플레이 계약)**: `run-phase47c-traceability-replay` — 기본 `--design-source` 누락 시 `docs/DESIGN_V3_MINIMAL_AND_STRONG.md` 등 3종; 산출 `phase47c_traceability_replay_bundle.json` / `phase47c_traceability_replay_review.md`. 플롯 문법 메모: **`docs/operator_closeout/phase47c_plot_grammar_notes.md`**. 테스트: `pytest src/tests/test_phase47c_traceability_replay.py -q`.
-- **CLI (Phase 47d, 홈 피드·셸 메타 번들)**: `run-phase47d-thick-slice-home-feed` — 기본 `--design-source` `docs/DESIGN_V3_MINIMAL_AND_STRONG.md`; 산출 **`docs/operator_closeout/phase47d_thick_slice_home_feed_bundle.json`**, **`phase47d_thick_slice_home_feed_review.md`**. 권장 보조 문서: **`docs/operator_closeout/phase47d_shell_map_before_after.md`**. 테스트: `pytest src/tests/test_phase47d_thick_slice_home_feed.py -q`.
+- **CLI (Phase 47d, thick-slice UX 셸 리셋)**: `run-phase47d-thick-slice-home-feed` — 기본 `--design-source` `docs/DESIGN_V3_MINIMAL_AND_STRONG.md`; 권위 산출 **`docs/operator_closeout/phase47d_thick_slice_ux_shell_bundle.json`**, **`phase47d_thick_slice_ux_shell_review.md`** (기본 실행 시 이전 파일명 `phase47d_thick_slice_home_feed_*` 에도 동기화). 보조: **`docs/operator_closeout/phase47d_shell_before_after.md`**, 상세 맵 **`phase47d_shell_map_before_after.md`**. 테스트: `pytest src/tests/test_phase47d_thick_slice_ux_shell.py -q`.
 - **배포**: **`docs/operator_closeout/phase47_runtime_deploy_notes.md`** (내부 HTTPS 리버스 프록시 + VPN 권장).
-- **테스트**: `pytest src/tests/test_phase47_founder_cockpit_runtime.py src/tests/test_phase47b_user_first_ux.py src/tests/test_phase47c_traceability_replay.py src/tests/test_phase47d_thick_slice_home_feed.py -q`
+- **테스트**: `pytest src/tests/test_phase47_founder_cockpit_runtime.py src/tests/test_phase47b_user_first_ux.py src/tests/test_phase47c_traceability_replay.py src/tests/test_phase47d_thick_slice_ux_shell.py -q`
 - **증거·패치**: **`docs/phase47_evidence.md`**, **`docs/phase47_patch_report.md`**
 
 ## Phase 47b (user-first IA — DESIGN.md 정렬)
@@ -773,10 +777,12 @@ _Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41de
 - **Replay vs Counterfactual Lab**: 타임라인 카피는 **당시 알려진 사실** 범위; 가설·미래 암시 구문은 삭제/치환. 가상 분기는 **별도 모드**·`counterfactual_scaffold`(축 미표시). **결정 품질**(당시 과정)과 **결과 품질**(사후) 문구 분리.
 - **포트폴리오**: API `portfolio_traceability` **스텝** — 포지션 단위 계보는 후속.
 
-## Phase 47d (thick-slice Home feed & copilot shell)
+## Phase 47d (thick-slice UX shell reset — Home & navigation)
 
+- **권위 번들·리뷰**: `phase47d_thick_slice_ux_shell_bundle.json`, `phase47d_thick_slice_ux_shell_review.md` — 필드에 `replay_preview_contract`, `home_blocks`(Replay preview 포함), `phase` = `phase47d_thick_slice_ux_shell_reset`.
 - **번들 `phase47e` 권고 (구현 후 다음 슬라이스)**: `live_watchlist_multi_asset_and_portfolio_attribution_v1` — 다중 자산·심볼 훅(여전히 거버넌스), 포트폴리오 카드 데이터; **기판 수리 비목표**.
 - **Ask AI brief 블록**: 짧은 “now” 한 줄 + 계약된 숏컷(What matters now?, What changed?, …, Open Replay for this item); 거대한 채팅창을 중앙 히어로로 두지 않음.
+- **Replay preview (Home)**: API `replay_preview` + UI 카드 — 마지막 결정 티저 또는 저널 비었을 때 Replay 역할 설명, **Open full Replay** 로 이동.
 - **클로즈드 픽스처 위치**: Home **Today** 에서 아카이브 맥락을 설명하고 **Watchlist / Research / Alerts** 로 안내; 상세 카드·드릴다운은 **Research** 탭 및 **Advanced**.
 
 ## Phase 46 번들 내 레거시 Phase 47 권고 문자열
@@ -870,11 +876,11 @@ _Legacy 요약 (Phase 38 실측 숫자)_: `sp500_current`, `experiment_id` `41de
 - **제어 평면**: 적재 시 `effective_budget_policy` 로 **허용되지 않은 트리거 타입**은 거절; 선택적으로 **maintenance_mode** 에서 적재 자체를 억제(`maintenance_blocks_accept`).
 - **Phase 48 훅**: `evaluate_triggers(..., supplemental_triggers=…)` — 예산·중복 키는 기존과 동일.
 - **헬스 요약**: `runtime_health_summary_v1.json` — 제어 평면 발췌, 감사 꼬리, 외부 적재 카운트, 최근 스킵 이유, `health_status` 분류.
-- **Cockpit API**: `GET /api/runtime/health`, `POST /api/runtime/external-ingest`; `GET /api/overview` 에 `runtime_health` 포함. Brief 패널 하단 **Research runtime (Phase 51)**.
+- **Cockpit API**: `GET /api/runtime/health`, `POST /api/runtime/external-ingest`, **`POST /api/runtime/external-ingest/authenticated`** (Phase 52); `GET /api/overview` 에 `runtime_health` 포함(소스·큐 요약은 레지스트리에 소스가 있을 때 `external_source_activity_v52` 병합). Brief 패널 하단 **Research runtime (Phase 51)**.
 - **어댑터 (MVP)**: 파일 드롭 JSON 배열·단일 객체, CLI `submit-external-trigger-json`, 로컬 HTTP POST(본문 상한).
 - **권위 스모크**: `run-phase51-external-positive-path-smoke` — 격리 레지스트리/적재/감사 + `phase51_external_drop_smoke_v1.json` 생성 후 비영 사이클; `smoke_metrics_ok` 필수.
 - **코드**: `src/phase51_runtime/` — `external_trigger_ingest`, `trigger_normalizer`, `external_ingest_adapters`, `external_trigger_audit`, `runtime_health`, `cockpit_health_surface`, `orchestrator`, `review`, `phase52_recommend`.
-- **Phase 52 권고**: 번들 `phase52` — `governed_webhook_auth_rate_limits_and_multi_source_routing_v1`.
+- **Phase 52 (종료)**: `src/phase52_runtime/` — 소스 레지스트리·비밀 해시·예산·라우팅·선택 큐·`phase53_recommend`(번들에 Phase 53 토큰). 증거·클로즈 **`docs/phase52_evidence.md`**, **`docs/operator_closeout/phase52_closeout.md`**. **Phase 53 권고**: 번들 `phase53` — `signed_payload_hmac_source_rotation_and_dead_letter_replay_v1`.
 
 ## CLI
 

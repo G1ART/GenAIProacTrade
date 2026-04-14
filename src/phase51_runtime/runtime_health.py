@@ -116,6 +116,12 @@ def build_runtime_health_summary(
         "recent_skip_reasons": recent_skips[:8],
         "health_status": _classify_health(cp, last_skip),
     }
+    try:
+        from phase52_runtime.health_merge import merge_phase52_into_summary
+
+        merge_phase52_into_summary(summary, root)
+    except ImportError:
+        pass
     return summary
 
 

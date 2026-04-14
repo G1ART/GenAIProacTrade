@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "source_name": "source_phase52_direct",
+      "source_type": "webhook",
+      "source_id": "phase52_direct",
+      "enabled": true,
+      "shared_secret_hash": "dfac5d09e6d47e090f18b6486629f41728c04aea81f835654c466406d6f4a3ce",
+      "allowed_raw_event_types": [
+        "watchlist_submit"
+      ],
+      "normalized_trigger_allowlist": [
+        "manual_watchlist"
+      ],
+      "rate_limit_per_minute": 200,
+      "max_events_per_window": 500,
+      "window_seconds": 3600,
+      "queue_mode": "direct",
+      "notes": "phase52 smoke"
+    },
+    {
+      "source_name": "source_phase52_queue",
+      "source_type": "webhook",
+      "source_id": "phase52_queue",
+      "enabled": true,
+      "shared_secret_hash": "dfac5d09e6d47e090f18b6486629f41728c04aea81f835654c466406d6f4a3ce",
+      "allowed_raw_event_types": [
+        "watchlist_submit"
+      ],
+      "normalized_trigger_allowlist": [
+        "manual_watchlist"
+      ],
+      "rate_limit_per_minute": 200,
+      "max_events_per_window": 500,
+      "window_seconds": 3600,
+      "queue_mode": "enqueue_before_cycle",
+      "notes": "phase52 smoke"
+    },
+    {
+      "source_name": "source_phase52_rate",
+      "source_type": "webhook",
+      "source_id": "phase52_rate",
+      "enabled": true,
+      "shared_secret_hash": "dfac5d09e6d47e090f18b6486629f41728c04aea81f835654c466406d6f4a3ce",
+      "allowed_raw_event_types": [
+        "watchlist_submit"
+      ],
+      "normalized_trigger_allowlist": [
+        "manual_watchlist"
+      ],
+      "rate_limit_per_minute": 1,
+      "max_events_per_window": 500,
+      "window_seconds": 3600,
+      "queue_mode": "direct",
+      "notes": "phase52 smoke"
+    }
+  ]
+}

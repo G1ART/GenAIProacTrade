@@ -29,6 +29,7 @@ HOME_BLOCKS_CATALOG: list[dict[str, str]] = [
     {"id": "alerts", "label": "Alerts", "purpose": "Signals that need review"},
     {"id": "decision_journal", "label": "Decision journal", "purpose": "Recent decisions with replay link"},
     {"id": "ask_ai_brief", "label": "Ask AI brief", "purpose": "Copilot shortcuts — not a generic chat center"},
+    {"id": "replay_preview", "label": "Replay preview", "purpose": "Signature capability on Home — teaser, not full timeline"},
     {"id": "portfolio_snapshot", "label": "Portfolio snapshot", "purpose": "Placeholder — lineage in later phase"},
 ]
 
@@ -43,6 +44,20 @@ EMPTY_STATE_RULES_APPLIED: list[str] = [
     "No raw JSON as the default block body on Home — summaries and plain lines only.",
     "Advanced is the only top-level area where full alert tooling and raw drilldown appear by default.",
 ]
+
+
+def replay_preview_contract() -> dict[str, Any]:
+    """Static contract: what Home shows for Replay (DESIGN_V3 — no future leakage in teaser copy)."""
+    return {
+        "surface": "home_feed_card",
+        "includes": [
+            "last_decision_teaser_when_available",
+            "time_axis_snippet_label_illustrative",
+            "what_changed_since_teaser",
+            "jump_to_replay_panel",
+        ],
+        "design_v3": "Teasers use bundle-time summaries and known-then framing; full truth on Replay panel.",
+    }
 
 
 def ask_ai_brief_contract() -> list[dict[str, str]]:
@@ -203,6 +218,36 @@ def build_home_feed_payload(state: Any) -> dict[str, Any]:
         "fills_when": "You record a decision under Journal (or legacy path).",
     }
 
+    # Replay preview on Home (signature feature — compact, not the full timeline).
+    wc0 = str(wc[0]) if wc else ""
+    if recent_decs:
+        d0 = recent_decs[0]
+        replay_preview = {
+            "headline": "Last decision worth revisiting",
+            "asset_id": str(d0.get("asset_id") or ""),
+            "timestamp": str(d0.get("timestamp") or "")[:19],
+            "one_line": str(d0.get("why_short") or d0.get("action_framing_plain") or "")[:200],
+            "time_axis_snippet": "Illustrative rhythm on full Replay (dashed series) — not live prices.",
+            "since_then": wc0 or "Open Replay for stance and evidence at each event.",
+            "opens_panel": "replay",
+        }
+        replay_preview_empty = None
+    else:
+        replay_preview = {
+            "headline": "Replay — time-ordered trace",
+            "asset_id": "",
+            "timestamp": "",
+            "one_line": "No logged decisions yet — Replay still shows the bundle timeline and micro-briefs.",
+            "time_axis_snippet": "Full panel: illustrative reference + stance markers; select events for “known then”.",
+            "since_then": wc0 or str(brief.get("one_line_explanation") or "")[:220],
+            "opens_panel": "replay",
+        }
+        replay_preview_empty = {
+            "title": "No journal row for a decision teaser",
+            "why": "Decision journal is empty, so the teaser highlights Replay capability instead of a specific decision.",
+            "fills_when": "Decisions logged in the trace ledger populate the headline row; timeline always in Replay.",
+        }
+
     return {
         "ok": True,
         "shell_version": "phase47d",
@@ -237,6 +282,8 @@ def build_home_feed_payload(state: Any) -> dict[str, Any]:
             "state": "stub",
             "copy": "Portfolio attribution and positions are not shown here yet — reserved for a later slice.",
         },
+        "replay_preview": replay_preview,
+        "replay_preview_empty": replay_preview_empty,
         "closed_context": {
             "is_fixture": kind == "closed_research_fixture",
             "research_tab_note": "Full cohort cards, evidence, and archive-style context live under Research.",
@@ -249,13 +296,14 @@ def phase47d_bundle_core(*, design_source_path: str) -> dict[str, Any]:
 
     return {
         "ok": True,
-        "phase": "phase47d_thick_slice_home_feed",
+        "phase": "phase47d_thick_slice_ux_shell_reset",
         "generated_utc": datetime.now(timezone.utc).isoformat(),
         "design_source_path": design_source_path,
         "home_blocks": HOME_BLOCKS_CATALOG,
         "navigation_shell": SHELL_NAVIGATION_47D,
         "closed_fixture_repositioning": CLOSED_FIXTURE_REPOSITIONING,
         "ask_ai_brief_contract": ask_ai_brief_contract(),
+        "replay_preview_contract": replay_preview_contract(),
         "empty_state_rules_applied": EMPTY_STATE_RULES_APPLIED,
         "phase47e": {
             "phase47e_recommendation": "live_watchlist_multi_asset_and_portfolio_attribution_v1",

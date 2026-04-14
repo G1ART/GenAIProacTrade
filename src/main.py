@@ -7185,6 +7185,8 @@ def _cmd_run_phase47d_thick_slice_home_feed(
     from phase47_runtime.phase47d_review import (
         write_phase47d_thick_slice_home_feed_bundle_json,
         write_phase47d_thick_slice_home_feed_review_md,
+        write_phase47d_thick_slice_ux_shell_bundle_json,
+        write_phase47d_thick_slice_ux_shell_review_md,
     )
 
     design = (
@@ -7193,15 +7195,27 @@ def _cmd_run_phase47d_thick_slice_home_feed(
     )
     rr = str(getattr(args, "repo_root", "") or "").strip()
     root = Path(rr).resolve() if rr else None
+    rw = root if root is not None else Path.cwd().resolve()
     out = run_phase47d_thick_slice_home_feed(design_source_path=design, repo_root=root)
     bo = str(getattr(args, "bundle_out", "") or "").strip()
     if bo:
-        write_phase47d_thick_slice_home_feed_bundle_json(bo, bundle=out)
+        write_phase47d_thick_slice_ux_shell_bundle_json(bo, bundle=out)
         print("phase47d_bundle_written", flush=True)
     md = str(getattr(args, "out_md", "") or "").strip()
     if md:
-        write_phase47d_thick_slice_home_feed_review_md(md, bundle=out)
+        write_phase47d_thick_slice_ux_shell_review_md(md, bundle=out)
         print("phase47d_review_written", flush=True)
+    default_bo = (rw / "docs/operator_closeout/phase47d_thick_slice_ux_shell_bundle.json").resolve()
+    default_md = (rw / "docs/operator_closeout/phase47d_thick_slice_ux_shell_review.md").resolve()
+    if bo and md and Path(bo).resolve() == default_bo and Path(md).resolve() == default_md:
+        leg = rw / "docs/operator_closeout"
+        write_phase47d_thick_slice_home_feed_bundle_json(
+            str(leg / "phase47d_thick_slice_home_feed_bundle.json"), bundle=out
+        )
+        write_phase47d_thick_slice_home_feed_review_md(
+            str(leg / "phase47d_thick_slice_home_feed_review.md"), bundle=out
+        )
+        print("phase47d_legacy_home_feed_artifacts_synced", flush=True)
     print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0
 
@@ -7406,6 +7420,61 @@ def _cmd_run_phase51_external_positive_path_smoke(
     if md2:
         write_phase51_runtime_health_surface_review_md(md2, bundle=out)
         print("phase51_health_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_run_phase52_governed_webhook_auth_routing_smoke(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from pathlib import Path as Path_lib
+
+    from phase52_runtime.orchestrator import run_phase52_governed_webhook_auth_routing_smoke
+    from phase52_runtime.review import (
+        write_phase52_runtime_health_surface_review_md,
+        write_phase52_webhook_auth_routing_bundle_json,
+        write_phase52_webhook_auth_routing_review_md,
+    )
+    from phase51_runtime.runtime_health import refresh_and_persist_runtime_health
+
+    p46 = (
+        str(getattr(args, "phase46_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json"
+    )
+    p50 = (
+        str(getattr(args, "phase50_control_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase50_registry_controls_and_operator_timing_bundle.json"
+    )
+    p51 = (
+        str(getattr(args, "input_phase51_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase51_external_trigger_ingest_bundle.json"
+    )
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path_lib(rr).resolve() if rr else None
+    persist = bool(getattr(args, "persist_runtime_health", False))
+    out = run_phase52_governed_webhook_auth_routing_smoke(
+        phase46_bundle_in=p46,
+        phase50_control_bundle_in=p50,
+        input_phase51_bundle_path=p51,
+        repo_root=root,
+        persist_health_summary=persist,
+    )
+    if persist:
+        refresh_and_persist_runtime_health(root or Path_lib(__file__).resolve().parents[2])
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase52_webhook_auth_routing_bundle_json(bo, bundle=out)
+        print("phase52_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase52_webhook_auth_routing_review_md(md, bundle=out)
+        print("phase52_review_written", flush=True)
+    md2 = str(getattr(args, "out_md_health", "") or "").strip()
+    if md2:
+        write_phase52_runtime_health_surface_review_md(md2, bundle=out)
+        print("phase52_health_review_written", flush=True)
     print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0
 
@@ -11236,7 +11305,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p47d = sub.add_parser(
         "run-phase47d-thick-slice-home-feed",
-        help="Phase 47d: Home feed shell + copilot brief metadata bundle + review (DESIGN_V3-aligned)",
+        help="Phase 47d: thick-slice UX shell reset — Home feed + nav bundle + review (DESIGN_V3; writes ux_shell artifacts by default)",
     )
     p47d.add_argument(
         "--design-source",
@@ -11250,11 +11319,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p47d.add_argument(
         "--bundle-out",
-        default="docs/operator_closeout/phase47d_thick_slice_home_feed_bundle.json",
+        default="docs/operator_closeout/phase47d_thick_slice_ux_shell_bundle.json",
     )
     p47d.add_argument(
         "--out-md",
-        default="docs/operator_closeout/phase47d_thick_slice_home_feed_review.md",
+        default="docs/operator_closeout/phase47d_thick_slice_ux_shell_review.md",
     )
     p47d.set_defaults(func=_cmd_run_phase47d_thick_slice_home_feed)
 
@@ -11429,6 +11498,43 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write data/research_runtime/runtime_health_summary_v1.json",
     )
     p51smoke.set_defaults(func=_cmd_run_phase51_external_positive_path_smoke)
+
+    p52smoke = sub.add_parser(
+        "run-phase52-governed-webhook-auth-routing-smoke",
+        help="Phase 52: authenticated webhook-style ingest, budgets, routing, queue flush + bounded cycle (smoke)",
+    )
+    p52smoke.add_argument(
+        "--phase46-bundle-in",
+        default="docs/operator_closeout/phase46_founder_decision_cockpit_bundle.json",
+    )
+    p52smoke.add_argument(
+        "--phase50-control-bundle-in",
+        default="docs/operator_closeout/phase50_registry_controls_and_operator_timing_bundle.json",
+    )
+    p52smoke.add_argument(
+        "--input-phase51-bundle-in",
+        default="docs/operator_closeout/phase51_external_trigger_ingest_bundle.json",
+        help="Anchor path recorded in the Phase 52 bundle (read-only reference)",
+    )
+    p52smoke.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase52_webhook_auth_routing_bundle.json",
+    )
+    p52smoke.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase52_webhook_auth_routing_review.md",
+    )
+    p52smoke.add_argument(
+        "--out-md-health",
+        default="docs/operator_closeout/phase52_runtime_health_surface_review.md",
+    )
+    p52smoke.add_argument("--repo-root", default="")
+    p52smoke.add_argument(
+        "--persist-runtime-health",
+        action="store_true",
+        help="Refresh runtime_health_summary_v1.json for repo root",
+    )
+    p52smoke.set_defaults(func=_cmd_run_phase52_governed_webhook_auth_routing_smoke)
 
     p51ing = sub.add_parser(
         "submit-external-trigger-json",

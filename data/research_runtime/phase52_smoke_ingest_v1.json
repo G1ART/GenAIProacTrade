@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "event_id": "1653a28d-0cf2-4c3c-9809-2bfe3d38c5e8",
+      "received_at": "2026-04-14T05:03:19.379190+00:00",
+      "source_type": "webhook",
+      "source_id": "phase52_rate",
+      "raw_event_type": "watchlist_submit",
+      "normalized_trigger_type": "manual_watchlist",
+      "asset_scope": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1"
+      },
+      "status": "consumed",
+      "dedupe_key": "ext:webhook:phase52_rate:watchlist_submit:d3cf48fc187d6ae7adf0f6cf",
+      "accepted_or_rejected_reason": "accepted_governed",
+      "linked_cycle_id": "81395afa-235b-4598-952d-52b973a49358",
+      "normalized_payload": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1",
+        "note": "rate-a",
+        "suggested_job_type": "debate.execute"
+      }
+    },
+    {
+      "event_id": "0e38e15f-0949-4fe4-bf59-aa546db8f96a",
+      "received_at": "2026-04-14T05:03:19.379778+00:00",
+      "source_type": "webhook",
+      "source_id": "phase52_direct",
+      "raw_event_type": "watchlist_submit",
+      "normalized_trigger_type": "manual_watchlist",
+      "asset_scope": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1"
+      },
+      "status": "consumed",
+      "dedupe_key": "ext:webhook:phase52_direct:watchlist_submit:427596111609cd396414ef9b",
+      "accepted_or_rejected_reason": "accepted_governed",
+      "linked_cycle_id": "81395afa-235b-4598-952d-52b973a49358",
+      "normalized_payload": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1",
+        "note": "direct-primary",
+        "suggested_job_type": "debate.execute"
+      }
+    },
+    {
+      "event_id": "668d544f-5a4c-424d-8682-e60e4d8f692e",
+      "received_at": "2026-04-14T05:03:19.380400+00:00",
+      "source_type": "webhook",
+      "source_id": "phase52_queue",
+      "raw_event_type": "watchlist_submit",
+      "normalized_trigger_type": "manual_watchlist",
+      "asset_scope": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1"
+      },
+      "status": "consumed",
+      "dedupe_key": "ext:webhook:phase52_queue:watchlist_submit:af44e81f2486a655f975a65a",
+      "accepted_or_rejected_reason": "accepted_governed",
+      "linked_cycle_id": "81395afa-235b-4598-952d-52b973a49358",
+      "normalized_payload": {
+        "asset_id": "research_engine_fixture_cohort_8_row_v1",
+        "note": "queued-item-1",
+        "suggested_job_type": "debate.execute"
+      }
+    }
+  ]
+}
