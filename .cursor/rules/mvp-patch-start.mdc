@@ -1,0 +1,26 @@
+---
+description: 매 코딩 패치 시작 시 MVP·로드맵 정독 및 제품 북극성 정렬
+alwaysApply: true
+---
+
+# 패치 시작 의무 (GenAIProacTrade)
+
+## 1. 패치를 시작하기 전에 (코드 수정 전)
+
+다음 두 문서를 **한 차례 정독**한 뒤 작업을 시작한다.
+
+1. **MVP 정의(요약)**: 저장소 `docs/plan/MVP_ROADMAP_SYNTHESIS_KR_v3.md`  
+   - 원본 워드: `~/Downloads/GenAIProacTrade_MVP_Implementation_Roadmap_KR_v3.docx` — 저장소 요약과 불일치 시 **원본 우선**.
+2. **연속 빌드 로드맵**: 저장소 `docs/plan/PLAN_MODE_ROADMAP_CURSOR_CONTINUOUS_BUILD.md`  
+   - (원본은 `~/Downloads/PLAN_MODE_ROADMAP_CURSOR_CONTINUOUS_BUILD.md`와 동기.)
+
+## 2. 작업 중 준수
+
+- 스프린트 우선순위와 **Phase A→D** 순서를 기본으로 한다 (로드맵 §6).
+- 매 변경의 기준: **Today / Research / Replay** 중 하나를 더 **실제·읽기 쉽고·데모 가능**하게 만드는가 (로드맵 §0, §7).
+- 스프린트 종료 또는 패치 묶음마다 `HANDOFF.md` 갱신: 가시 제품 변화, 데모 장면, 남은 갭, **다음 스프린트 권고** (로드맵 §8).
+
+## 3. 범위 통제
+
+- 내부 연구 뷰어·데이터만 쌓는 변경은 지양한다.
+- “buy/sell” 권유 카피, 과장된 예측 확신 문구는 넣지 않는다.

@@ -1,7 +1,8 @@
-"""Authenticated, budgeted, routed external ingest (Phase 52)."""
+"""Authenticated, budgeted, routed external ingest (Phase 52 + Phase 53 signed / dead-letter)."""
 
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -45,6 +46,39 @@ def _audit_gate(
     append_external_audit(audit_path, row)
 
 
+def _maybe_dead_letter(
+    path: Path | None,
+    *,
+    source_id: str,
+    body: dict[str, Any],
+    raw_body: bytes | None,
+    stage: str,
+    reason: str,
+    dedupe_key: str | None,
+    replayable: bool,
+    norm_type: str | None = None,
+) -> None:
+    if path is None:
+        return
+    try:
+        from phase53_runtime.dead_letter_registry import append_dead_letter
+
+        append_dead_letter(
+            path,
+            source_id=source_id,
+            raw_event_type=str(body.get("raw_event_type") or None),
+            normalized_trigger_type=norm_type,
+            failure_stage=stage,
+            failure_reason=reason,
+            raw_body=raw_body,
+            body_dict=body,
+            dedupe_key=dedupe_key,
+            replayable=replayable,
+        )
+    except ImportError:
+        pass
+
+
 def process_governed_external_ingest(
     body: dict[str, Any],
     *,
@@ -58,9 +92,19 @@ def process_governed_external_ingest(
     audit_path: Path | None = None,
     control_plane_path: Path | None = None,
     now: datetime | None = None,
+    raw_body: bytes | None = None,
+    http_headers: dict[str, str] | None = None,
+    replay_guard_path: Path | None = None,
+    dead_letter_path: Path | None = None,
+    operator_replay_dead_letter_id: str | None = None,
 ) -> dict[str, Any]:
     """
     Headers (HTTP): X-Source-Id, X-Webhook-Secret (plain secret; TLS required in production).
+
+    Phase 53 signed ingress (when source requires it):
+    - X-Webhook-Timestamp (ISO UTC)
+    - X-Webhook-Signature (hex HMAC-SHA256 of canonical string; same secret material as X-Webhook-Secret for signing keys)
+    - X-Webhook-Nonce (unique per request within TTL)
 
     Returns JSON including `ok` (accepted or queued), `http_status_hint`, `gate_reason` on failure.
     """
@@ -71,36 +115,159 @@ def process_governed_external_ingest(
     ap = audit_path or default_external_trigger_audit_path(repo_root)
     cp_path = control_plane_path or default_control_plane_path(repo_root)
     cp = load_control_plane(cp_path)
+    h = http_headers or {}
+
+    try:
+        from phase53_runtime.dead_letter_registry import default_dead_letter_path
+        from phase53_runtime.replay_guard import default_replay_guard_path
+
+        dlp = dead_letter_path or default_dead_letter_path(repo_root)
+        rgp = replay_guard_path or default_replay_guard_path(repo_root)
+    except ImportError:
+        dlp = dead_letter_path
+        rgp = replay_guard_path
 
     sid = str(source_id_header or "").strip()
     if not sid:
+        if dlp:
+            _maybe_dead_letter(dlp, source_id="", body=body, raw_body=raw_body, stage="auth", reason="missing_source_id", dedupe_key=None, replayable=False)
         _audit_gate(ap, kind="phase52_auth_failure", source_id="", reason="missing_source_id_header")
         return {"ok": False, "http_status_hint": 401, "error": "missing_source_id", "gate_reason": "missing_source_id"}
 
     reg = load_source_registry(reg_p)
     src = find_source_by_id(reg, sid)
     if not src:
+        if dlp:
+            _maybe_dead_letter(dlp, source_id=sid, body=body, raw_body=raw_body, stage="auth", reason="unknown_source_id", dedupe_key=None, replayable=False)
         _audit_gate(ap, kind="phase52_auth_failure", source_id=sid, reason="unknown_source_id")
         record_auth_failure(source_id=sid, budget_path=bud_p, reason="unknown_source_id", now=now)
         record_outcome(source_id=sid, budget_path=bud_p, outcome="rejected_unknown_source", now=now)
         return {"ok": False, "http_status_hint": 403, "error": "unknown_source", "gate_reason": "unknown_source_id"}
 
-    ok_auth, auth_reason = verify_source_auth(src, presented_secret=webhook_secret)
-    if not ok_auth:
-        _audit_gate(
-            ap,
-            kind="phase52_auth_failure",
+    phase53_available = True
+    try:
+        from phase53_runtime.key_rotation import source_requires_signed_ingress
+        from phase53_runtime.replay_guard import try_register_nonce
+        from phase53_runtime.signed_auth import signature_tuple_digest, verify_signed_request
+    except ImportError:
+        phase53_available = False
+
+        def source_requires_signed_ingress(_s: dict[str, Any]) -> bool:  # type: ignore[misc]
+            return False
+
+    signed_required = source_requires_signed_ingress(src)
+    if signed_required and not phase53_available:
+        return {
+            "ok": False,
+            "http_status_hint": 503,
+            "error": "phase53_runtime_unavailable",
+            "gate_reason": "signed_ingress_required_but_phase53_missing",
+        }
+    verified_key_id: str | None = None
+
+    if signed_required:
+        rb = raw_body if raw_body is not None else json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+        ts_h = str(h.get("X-Webhook-Timestamp") or h.get("x-webhook-timestamp") or "")
+        sig_h = str(h.get("X-Webhook-Signature") or h.get("x-webhook-signature") or "")
+        nonce_h = str(h.get("X-Webhook-Nonce") or h.get("x-webhook-nonce") or "")
+        ok_sig, sig_reason, kid = verify_signed_request(
+            src,
+            raw_body=rb,
             source_id=sid,
-            reason=auth_reason,
-            extra={"raw_event_type": body.get("raw_event_type")},
+            timestamp_header=ts_h,
+            signature_header=sig_h,
+            nonce_header=nonce_h or None,
+            presented_plain_secret=webhook_secret,
+            now=now,
         )
-        record_auth_failure(source_id=sid, budget_path=bud_p, reason=auth_reason, now=now)
-        record_outcome(source_id=sid, budget_path=bud_p, outcome="rejected_auth", now=now)
-        return {"ok": False, "http_status_hint": 401, "error": "auth_failed", "gate_reason": auth_reason}
+        verified_key_id = kid
+        if not ok_sig:
+            if dlp:
+                _maybe_dead_letter(
+                    dlp,
+                    source_id=sid,
+                    body=body,
+                    raw_body=rb,
+                    stage="signature",
+                    reason=sig_reason,
+                    dedupe_key=None,
+                    replayable=sig_reason not in ("missing_nonce", "missing_signature", "invalid_timestamp_format"),
+                )
+            _audit_gate(
+                ap,
+                kind="phase53_signature_failure",
+                source_id=sid,
+                reason=sig_reason,
+                extra={"raw_event_type": body.get("raw_event_type"), "verified_key_id": kid},
+            )
+            record_auth_failure(source_id=sid, budget_path=bud_p, reason=sig_reason, now=now)
+            record_outcome(source_id=sid, budget_path=bud_p, outcome="rejected_signature", now=now)
+            code = 401 if sig_reason in ("bad_signature", "signing_secret_mismatch", "missing_signature") else 400
+            if sig_reason == "stale_timestamp":
+                code = 408
+            return {"ok": False, "http_status_hint": code, "error": "signature_failed", "gate_reason": sig_reason}
+
+        if rgp:
+            from phase53_runtime.signed_auth import canonical_signing_string
+
+            canon = canonical_signing_string(timestamp=ts_h, nonce=nonce_h, source_id=sid, raw_body=rb)
+            digest = signature_tuple_digest(timestamp=ts_h, nonce=nonce_h, source_id=sid, raw_body=rb)
+            ok_rg, rg_reason = try_register_nonce(rgp, source_id=sid, nonce=nonce_h, signature_digest=digest, now=now)
+            if not ok_rg:
+                if dlp:
+                    _maybe_dead_letter(
+                        dlp,
+                        source_id=sid,
+                        body=body,
+                        raw_body=rb,
+                        stage="replay_guard",
+                        reason=rg_reason,
+                        dedupe_key=None,
+                        replayable=False,
+                    )
+                _audit_gate(ap, kind="phase53_replay_blocked", source_id=sid, reason=rg_reason, extra={"canonical": canon[:120]})
+                record_outcome(source_id=sid, budget_path=bud_p, outcome="rejected_replay", now=now)
+                return {"ok": False, "http_status_hint": 409, "error": "replay_blocked", "gate_reason": rg_reason}
+    else:
+        ok_auth, auth_reason = verify_source_auth(src, presented_secret=webhook_secret)
+        if not ok_auth:
+            if dlp:
+                _maybe_dead_letter(
+                    dlp,
+                    source_id=sid,
+                    body=body,
+                    raw_body=raw_body,
+                    stage="auth",
+                    reason=auth_reason,
+                    dedupe_key=None,
+                    replayable=False,
+                    norm_type=None,
+                )
+            _audit_gate(
+                ap,
+                kind="phase52_auth_failure",
+                source_id=sid,
+                reason=auth_reason,
+                extra={"raw_event_type": body.get("raw_event_type")},
+            )
+            record_auth_failure(source_id=sid, budget_path=bud_p, reason=auth_reason, now=now)
+            record_outcome(source_id=sid, budget_path=bud_p, outcome="rejected_auth", now=now)
+            return {"ok": False, "http_status_hint": 401, "error": "auth_failed", "gate_reason": auth_reason}
 
     norm = normalize_raw_event(body)
     if not norm.get("ok"):
         reason = str(norm.get("reason") or "normalize_failed")
+        if dlp:
+            _maybe_dead_letter(
+                dlp,
+                source_id=sid,
+                body=body,
+                raw_body=raw_body,
+                stage="normalize",
+                reason=reason,
+                dedupe_key=None,
+                replayable=True,
+            )
         _audit_gate(ap, kind="phase52_normalize_rejected", source_id=sid, reason=reason)
         record_outcome(source_id=sid, budget_path=bud_p, outcome="rejected_normalize", now=now)
         return {"ok": False, "http_status_hint": 422, "error": "normalize_failed", "gate_reason": reason}
@@ -109,6 +276,24 @@ def process_governed_external_ingest(
     raw_t = str(body.get("raw_event_type") or "").strip()
     ok_route, route_reason = routing_allows_event(source=src, raw_event_type=raw_t, normalized_trigger_type=nt)
     if not ok_route:
+        dk_pre = compute_dedupe_key(
+            source_type=str(body.get("source_type") or src.get("source_type") or "webhook"),
+            source_id=sid,
+            raw_event_type=raw_t,
+            payload=dict(body.get("payload") or {}),
+        )
+        if dlp:
+            _maybe_dead_letter(
+                dlp,
+                source_id=sid,
+                body=body,
+                raw_body=raw_body,
+                stage="routing",
+                reason=route_reason,
+                dedupe_key=dk_pre,
+                replayable=True,
+                norm_type=nt,
+            )
         _audit_gate(ap, kind="phase52_routing_rejected", source_id=sid, reason=route_reason)
         record_routing_rejection(source_id=sid, budget_path=bud_p, reason=route_reason, now=now)
         record_outcome(source_id=sid, budget_path=bud_p, outcome="rejected_routing", now=now)
@@ -116,6 +301,18 @@ def process_governed_external_ingest(
 
     ok_budget, budget_reason = check_and_consume_budget(source=src, source_id=sid, budget_path=bud_p, now=now)
     if not ok_budget:
+        if dlp:
+            _maybe_dead_letter(
+                dlp,
+                source_id=sid,
+                body=body,
+                raw_body=raw_body,
+                stage="budget",
+                reason=budget_reason,
+                dedupe_key=None,
+                replayable=True,
+                norm_type=nt,
+            )
         _audit_gate(ap, kind="phase52_rate_limited", source_id=sid, reason=budget_reason)
         record_outcome(source_id=sid, budget_path=bud_p, outcome="rejected_rate", now=now)
         return {"ok": False, "http_status_hint": 429, "error": "rate_limited", "gate_reason": budget_reason}
@@ -132,6 +329,18 @@ def process_governed_external_ingest(
     if queue_mode in ("enqueue_before_cycle", "queue", "enqueue"):
         qres = enqueue_event(path=q_p, body=body, dedupe_key=dk_preview, source_id=sid, max_depth=int(src.get("queue_max_depth") or 500))
         if not qres.get("ok"):
+            if dlp:
+                _maybe_dead_letter(
+                    dlp,
+                    source_id=sid,
+                    body=body,
+                    raw_body=raw_body,
+                    stage="queue",
+                    reason=str(qres.get("reason") or "queue_error"),
+                    dedupe_key=dk_preview,
+                    replayable=True,
+                    norm_type=nt,
+                )
             record_outcome(source_id=sid, budget_path=bud_p, outcome="rejected_queue", now=now)
             return {
                 "ok": False,
@@ -149,6 +358,8 @@ def process_governed_external_ingest(
                 "dedupe_key": dk_preview,
                 "queue_id": qres.get("queue_id"),
                 "queue_depth_pending": qres.get("queue_depth_pending"),
+                "phase53_verified_key_id": verified_key_id,
+                "operator_replay_dead_letter_id": operator_replay_dead_letter_id,
             },
         )
         return {
@@ -157,6 +368,7 @@ def process_governed_external_ingest(
             "ingest_mode": "queued",
             "queue": qres,
             "dedupe_key": dk_preview,
+            "phase53_verified_key_id": verified_key_id,
         }
 
     out = process_external_payload(
@@ -179,6 +391,8 @@ def process_governed_external_ingest(
         "http_status_hint": 200,
         "ingest_mode": "direct",
         "source_id": sid,
+        "phase53_verified_key_id": verified_key_id,
+        "operator_replay_dead_letter_id": operator_replay_dead_letter_id,
     }
 
 

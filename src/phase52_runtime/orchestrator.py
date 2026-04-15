@@ -179,6 +179,11 @@ def run_phase52_governed_webhook_auth_routing_smoke(
     ]
     save_source_registry(src_reg_path, {"schema_version": 1, "sources": sources})
 
+    dl_smoke = data_rt / "phase53_smoke_external_dead_letter_v1.json"
+    rg_smoke = data_rt / "phase53_smoke_external_replay_guard_v1.json"
+    dl_smoke.write_text(json.dumps({"schema_version": 1, "entries": []}, indent=2, ensure_ascii=False), encoding="utf-8")
+    rg_smoke.write_text(json.dumps({"schema_version": 1, "entries": []}, indent=2, ensure_ascii=False), encoding="utf-8")
+
     auth_failures = 0
     routing_failures = 0
     rate_hits = 0
@@ -196,6 +201,8 @@ def run_phase52_governed_webhook_auth_routing_smoke(
         ingest_registry_path=ing_path,
         audit_path=ext_audit_path,
         control_plane_path=cp_smoke_path,
+        dead_letter_path=dl_smoke,
+        replay_guard_path=rg_smoke,
     )
     if not r0.get("ok") and r0.get("error") == "auth_failed":
         auth_failures += 1
@@ -218,6 +225,8 @@ def run_phase52_governed_webhook_auth_routing_smoke(
         ingest_registry_path=ing_path,
         audit_path=ext_audit_path,
         control_plane_path=cp_smoke_path,
+        dead_letter_path=dl_smoke,
+        replay_guard_path=rg_smoke,
     )
     if not r1.get("ok") and r1.get("error") == "routing_rejected":
         routing_failures += 1
@@ -233,6 +242,8 @@ def run_phase52_governed_webhook_auth_routing_smoke(
         ingest_registry_path=ing_path,
         audit_path=ext_audit_path,
         control_plane_path=cp_smoke_path,
+        dead_letter_path=dl_smoke,
+        replay_guard_path=rg_smoke,
     )
     r2b = process_governed_external_ingest(
         _watchlist_event(source_id=rt, asset_id=asset_id, note="rate-b"),
@@ -245,6 +256,8 @@ def run_phase52_governed_webhook_auth_routing_smoke(
         ingest_registry_path=ing_path,
         audit_path=ext_audit_path,
         control_plane_path=cp_smoke_path,
+        dead_letter_path=dl_smoke,
+        replay_guard_path=rg_smoke,
     )
     if r2a.get("ok") and (r2a.get("registry_entry") or {}).get("status") == "accepted":
         accepted_direct += 1
@@ -262,6 +275,8 @@ def run_phase52_governed_webhook_auth_routing_smoke(
         ingest_registry_path=ing_path,
         audit_path=ext_audit_path,
         control_plane_path=cp_smoke_path,
+        dead_letter_path=dl_smoke,
+        replay_guard_path=rg_smoke,
     )
     if r3.get("ok") and r3.get("ingest_mode") == "direct":
         accepted_direct += 1
@@ -277,6 +292,8 @@ def run_phase52_governed_webhook_auth_routing_smoke(
         ingest_registry_path=ing_path,
         audit_path=ext_audit_path,
         control_plane_path=cp_smoke_path,
+        dead_letter_path=dl_smoke,
+        replay_guard_path=rg_smoke,
     )
     if r4.get("ok") and r4.get("ingest_mode") == "queued":
         queued_events += 1
@@ -306,7 +323,15 @@ def run_phase52_governed_webhook_auth_routing_smoke(
     lease = try_acquire_lease(lease_path)
     if not lease["ok"]:
         gen = datetime.now(timezone.utc).isoformat()
-        health = build_runtime_health_summary(repo_root=root, ingest_registry_path=ing_path)
+        health = build_runtime_health_summary(
+            repo_root=root,
+            ingest_registry_path=ing_path,
+            external_source_registry_path=src_reg_path,
+            external_budget_state_path=bud_path,
+            external_event_queue_path=q_path,
+            dead_letter_path=dl_smoke,
+            replay_guard_path=rg_smoke,
+        )
         return {
             "ok": False,
             "phase": "phase52_webhook_auth_routing",
@@ -392,7 +417,15 @@ def run_phase52_governed_webhook_auth_routing_smoke(
         and extra_ok
     )
 
-    health = build_runtime_health_summary(repo_root=root, ingest_registry_path=ing_path)
+    health = build_runtime_health_summary(
+        repo_root=root,
+        ingest_registry_path=ing_path,
+        external_source_registry_path=src_reg_path,
+        external_budget_state_path=bud_path,
+        external_event_queue_path=q_path,
+        dead_letter_path=dl_smoke,
+        replay_guard_path=rg_smoke,
+    )
     cockpit_preview = build_cockpit_runtime_health_payload(repo_root=root, ingest_registry_path=ing_path)
     if persist_health_summary:
         refresh_and_persist_runtime_health(root)

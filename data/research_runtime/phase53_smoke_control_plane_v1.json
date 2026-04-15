@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "enabled": true,
+  "maintenance_mode": false,
+  "max_cycles_per_window": 120,
+  "window_seconds": 3600,
+  "disabled_trigger_types": [],
+  "allowed_trigger_types": [
+    "manual_watchlist"
+  ],
+  "legacy_external_ingest_enabled": false
+}

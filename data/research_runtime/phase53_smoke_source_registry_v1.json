@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "source_name": "signed_smoke",
+      "source_type": "webhook",
+      "source_id": "s53_signed",
+      "enabled": true,
+      "signed_ingress_required": true,
+      "active_signing_key_id": "k_active_v1",
+      "signing_keys": [
+        {
+          "key_id": "k_active_v1",
+          "secret_hash": "abbe86c5c36921e5e62f8d5cee454d44afa8f0eb96ea2a3cc3357f45195cdca4",
+          "status": "active",
+          "created_at": "2026-04-14T00:00:00+00:00"
+        },
+        {
+          "key_id": "k_retired_v0",
+          "secret_hash": "6327b2f52a3c5e27a9cf3b1c8178aa626a9ff5a36c3c338202cbf6b568d35b78",
+          "status": "retired",
+          "created_at": "2025-01-01T00:00:00+00:00"
+        }
+      ],
+      "allowed_raw_event_types": [
+        "watchlist_submit"
+      ],
+      "normalized_trigger_allowlist": [
+        "manual_watchlist"
+      ],
+      "rate_limit_per_minute": 200,
+      "max_events_per_window": 500,
+      "window_seconds": 3600,
+      "queue_mode": "direct",
+      "notes": "phase53 smoke signed-only"
+    }
+  ]
+}

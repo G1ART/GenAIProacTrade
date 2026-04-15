@@ -119,7 +119,18 @@ def test_build_home_feed_closed_fixture_today_is_plain_text(tmp_path: Path) -> N
     body = payload["today"]["body"]
     assert isinstance(body, str)
     low = body.lower()
-    assert "closed" in low or "archive" in low or "replay" in low
+    assert any(
+        x in low
+        for x in (
+            "closed",
+            "archive",
+            "replay",
+            "fixture",
+            "종료",
+            "리플레이",
+            "연구 기록",
+        )
+    )
     assert payload["closed_context"]["is_fixture"] is True
 
 
@@ -173,9 +184,11 @@ def test_phase47d_orchestrator_required_fields(tmp_path: Path) -> None:
         "replay_preview_contract",
         "empty_state_rules_applied",
         "phase47e",
+        "phase47f",
     ):
         assert k in out
     assert out["phase47e"].get("phase47e_recommendation")
+    assert out["phase47f"].get("phase47f_recommendation")
     assert out["phase"] == "phase47d_thick_slice_ux_shell_reset"
 
 

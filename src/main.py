@@ -7220,6 +7220,38 @@ def _cmd_run_phase47d_thick_slice_home_feed(
     return 0
 
 
+def _cmd_run_phase47e_bilingual_user_language(
+    args: argparse.Namespace,
+) -> int:
+    import json as json_lib
+
+    from pathlib import Path
+
+    from phase47_runtime.phase47e_orchestrator import run_phase47e_bilingual_user_language
+    from phase47_runtime.phase47e_review import (
+        write_phase47e_bilingual_user_language_bundle_json,
+        write_phase47e_bilingual_user_language_review_md,
+    )
+
+    design = (
+        str(getattr(args, "design_source", "") or "").strip()
+        or "docs/DESIGN_V3_MINIMAL_AND_STRONG.md"
+    )
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path(rr).resolve() if rr else None
+    out = run_phase47e_bilingual_user_language(design_source_path=design, repo_root=root)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase47e_bilingual_user_language_bundle_json(bo, bundle=out)
+        print("phase47e_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase47e_bilingual_user_language_review_md(md, bundle=out)
+        print("phase47e_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
 def _cmd_run_phase48_proactive_research_runtime(
     args: argparse.Namespace,
 ) -> int:
@@ -7477,6 +7509,91 @@ def _cmd_run_phase52_governed_webhook_auth_routing_smoke(
         print("phase52_health_review_written", flush=True)
     print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0
+
+
+def _cmd_run_phase53_signed_payload_hmac_smoke(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from pathlib import Path as Path_lib
+
+    from phase53_runtime.orchestrator import run_phase53_signed_payload_hmac_smoke
+    from phase53_runtime.review import (
+        write_phase53_dead_letter_replay_review_md,
+        write_phase53_runtime_health_parity_review_md,
+        write_phase53_signed_payload_hmac_bundle_json,
+        write_phase53_signed_payload_hmac_review_md,
+    )
+
+    p52 = (
+        str(getattr(args, "input_phase52_bundle_in", "") or "").strip()
+        or "docs/operator_closeout/phase52_webhook_auth_routing_bundle.json"
+    )
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path_lib(rr).resolve() if rr else None
+    out = run_phase53_signed_payload_hmac_smoke(input_phase52_bundle_path=p52, repo_root=root)
+    bo = str(getattr(args, "bundle_out", "") or "").strip()
+    if bo:
+        write_phase53_signed_payload_hmac_bundle_json(bo, bundle=out)
+        print("phase53_bundle_written", flush=True)
+    md = str(getattr(args, "out_md", "") or "").strip()
+    if md:
+        write_phase53_signed_payload_hmac_review_md(md, bundle=out)
+        print("phase53_review_written", flush=True)
+    md2 = str(getattr(args, "out_md_dead_letter", "") or "").strip()
+    if md2:
+        write_phase53_dead_letter_replay_review_md(md2, bundle=out)
+        print("phase53_dead_letter_review_written", flush=True)
+    md3 = str(getattr(args, "out_md_health_parity", "") or "").strip()
+    if md3:
+        write_phase53_runtime_health_parity_review_md(md3, bundle=out)
+        print("phase53_health_parity_review_written", flush=True)
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("smoke_metrics_ok") else 1
+
+
+def _cmd_list_phase53_dead_letter(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from pathlib import Path as Path_lib
+
+    from phase53_runtime.dead_letter_registry import default_dead_letter_path, list_dead_letters
+
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path_lib(rr).resolve() if rr else Path_lib(__file__).resolve().parents[2]
+    dlp = Path_lib(str(getattr(args, "dead_letter_path", "") or "").strip()) if str(
+        getattr(args, "dead_letter_path", "") or ""
+    ).strip() else default_dead_letter_path(root)
+    rows = list_dead_letters(dlp, limit=int(getattr(args, "limit", 200) or 200))
+    print(json_lib.dumps({"ok": True, "path": str(dlp), "entries": rows}, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_replay_phase53_dead_letter(args: argparse.Namespace) -> int:
+    import json as json_lib
+
+    from pathlib import Path as Path_lib
+
+    from phase53_runtime.dead_letter_registry import default_dead_letter_path
+    from phase53_runtime.dead_letter_replay import replay_dead_letter_entry
+
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path_lib(rr).resolve() if rr else Path_lib(__file__).resolve().parents[2]
+    dl_id = str(getattr(args, "dead_letter_id", "") or "").strip()
+    sec = str(getattr(args, "webhook_secret", "") or "").strip()
+    if not dl_id or not sec:
+        print(json_lib.dumps({"ok": False, "error": "dead_letter_id_and_webhook_secret_required"}), file=sys.stderr)
+        return 1
+    dlp = Path_lib(str(getattr(args, "dead_letter_path", "") or "").strip()) if str(
+        getattr(args, "dead_letter_path", "") or ""
+    ).strip() else default_dead_letter_path(root)
+    out = replay_dead_letter_entry(
+        dl_id,
+        repo_root=root,
+        webhook_secret=sec,
+        dead_letter_path=dlp,
+    )
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0 if out.get("ok") else 1
 
 
 def _cmd_submit_external_trigger_json(args: argparse.Namespace) -> int:
@@ -11327,6 +11444,30 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p47d.set_defaults(func=_cmd_run_phase47d_thick_slice_home_feed)
 
+    p47e = sub.add_parser(
+        "run-phase47e-bilingual-user-language",
+        help="Phase 47e: KO/EN user language contract — locale bundle + review (DESIGN_V3)",
+    )
+    p47e.add_argument(
+        "--design-source",
+        default="docs/DESIGN_V3_MINIMAL_AND_STRONG.md",
+        help="Path to DESIGN_V3 (or other) constitution",
+    )
+    p47e.add_argument(
+        "--repo-root",
+        default="",
+        help="Repository root for resolving design path (default: cwd)",
+    )
+    p47e.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase47e_bilingual_user_language_bundle.json",
+    )
+    p47e.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase47e_bilingual_user_language_review.md",
+    )
+    p47e.set_defaults(func=_cmd_run_phase47e_bilingual_user_language)
+
     p48run = sub.add_parser(
         "run-phase48-proactive-research-runtime",
         help="Phase 48: single-cycle proactive research (jobs, triggers, bounded debate, discovery)",
@@ -11535,6 +11676,49 @@ def build_parser() -> argparse.ArgumentParser:
         help="Refresh runtime_health_summary_v1.json for repo root",
     )
     p52smoke.set_defaults(func=_cmd_run_phase52_governed_webhook_auth_routing_smoke)
+
+    p53smoke = sub.add_parser(
+        "run-phase53-signed-payload-hmac-smoke",
+        help="Phase 53: signed HMAC ingress, replay guard, dead-letter, health parity smoke + bundle",
+    )
+    p53smoke.add_argument(
+        "--input-phase52-bundle-in",
+        default="docs/operator_closeout/phase52_webhook_auth_routing_bundle.json",
+    )
+    p53smoke.add_argument(
+        "--bundle-out",
+        default="docs/operator_closeout/phase53_signed_payload_hmac_bundle.json",
+    )
+    p53smoke.add_argument(
+        "--out-md",
+        default="docs/operator_closeout/phase53_signed_payload_hmac_review.md",
+    )
+    p53smoke.add_argument(
+        "--out-md-dead-letter",
+        default="docs/operator_closeout/phase53_dead_letter_replay_review.md",
+    )
+    p53smoke.add_argument(
+        "--out-md-health-parity",
+        default="docs/operator_closeout/phase53_runtime_health_parity_review.md",
+    )
+    p53smoke.add_argument("--repo-root", default="")
+    p53smoke.set_defaults(func=_cmd_run_phase53_signed_payload_hmac_smoke)
+
+    p53dl = sub.add_parser("list-phase53-dead-letter", help="List dead-letter entries (operator)")
+    p53dl.add_argument("--repo-root", default="")
+    p53dl.add_argument("--dead-letter-path", default="", help="Override default external_dead_letter_v1.json path")
+    p53dl.add_argument("--limit", type=int, default=200)
+    p53dl.set_defaults(func=_cmd_list_phase53_dead_letter)
+
+    p53rp = sub.add_parser(
+        "replay-phase53-dead-letter",
+        help="Replay one dead-letter id through governed ingress (bounded, rules still apply)",
+    )
+    p53rp.add_argument("--dead-letter-id", required=True)
+    p53rp.add_argument("--webhook-secret", required=True, help="Plain secret matching source registry signing key")
+    p53rp.add_argument("--repo-root", default="")
+    p53rp.add_argument("--dead-letter-path", default="")
+    p53rp.set_defaults(func=_cmd_replay_phase53_dead_letter)
 
     p51ing = sub.add_parser(
         "submit-external-trigger-json",

@@ -65,7 +65,11 @@ def _minimal_phase46_bundle() -> dict:
 
 
 def test_translate_token_known() -> None:
-    assert "limited" in translate_token("deferred_due_to_proxy_limited_falsifier_substrate").lower()
+    ko = translate_token("deferred_due_to_proxy_limited_falsifier_substrate", lang="ko")
+    assert len(ko) > 8
+    assert "proxy" not in ko.lower()
+    en = translate_token("deferred_due_to_proxy_limited_falsifier_substrate", lang="en")
+    assert "limited" in en.lower() or "thin" in en.lower()
 
 
 def test_infer_object_kind_fixture() -> None:
@@ -120,7 +124,7 @@ def test_api_user_first_section_dispatch(tmp_path: Path) -> None:
     bundle["decision_trace_ledger_path"] = str(dp)
     bpath.write_text(json.dumps(bundle), encoding="utf-8")
     st = CockpitRuntimeState.from_paths(repo_root=tmp_path, phase46_bundle_path=bpath)
-    ov = api_overview(st)
+    ov = api_overview(st, "ko")
     assert "user_first" in ov
     assert ov["user_first"]["brief"]["object_kind"] == "closed_research_fixture"
 

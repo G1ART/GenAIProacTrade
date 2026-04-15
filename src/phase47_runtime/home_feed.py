@@ -9,6 +9,18 @@ from typing import Any
 from phase46.alert_ledger import list_alerts
 from phase46.decision_trace_ledger import list_decisions
 
+from phase47_runtime.phase47e_user_locale import (
+    ask_ai_brief_contract_localized,
+    normalize_lang,
+    phase47f_recommend,
+    t,
+)
+from phase47_runtime.today_spectrum import (
+    build_today_spectrum_summary_for_home,
+    expand_watchlist_for_spectrum_filter,
+    list_spectrum_seed_asset_ids,
+    load_spectrum_watch_alias_map,
+)
 from phase47_runtime.ui_copy import build_user_first_brief, infer_object_kind, translate_token
 
 # Top shell per Phase 47d work order — internal research labels are not the mental model.
@@ -60,21 +72,9 @@ def replay_preview_contract() -> dict[str, Any]:
     }
 
 
-def ask_ai_brief_contract() -> list[dict[str, str]]:
-    """Premium copilot brief — shortcuts (label + governed prompt text)."""
-    return [
-        {"id": "matters_now", "label": "What matters now?", "prompt_text": "decision summary"},
-        {"id": "what_changed", "label": "What changed?", "prompt_text": "what changed"},
-        {"id": "active_research", "label": "Show my active research", "prompt_text": "research layer"},
-        {"id": "review_next", "label": "What should I review next?", "prompt_text": "what remains unproven"},
-        {"id": "last_decisions", "label": "Show my last decisions", "prompt_text": "decision summary"},
-        {
-            "id": "open_replay",
-            "label": "Open Replay for this item",
-            "prompt_text": "what changed",
-            "opens_panel": "replay",
-        },
-    ]
+def ask_ai_brief_contract(lang: str | None = None) -> list[dict[str, str]]:
+    """Premium copilot brief — shortcuts (label + governed prompt text). Default EN for static bundles/tests."""
+    return ask_ai_brief_contract_localized("en" if lang is None else lang)
 
 
 def _load_recent_jobs(repo_root: Path, *, limit: int = 6) -> list[dict[str, Any]]:
@@ -101,11 +101,12 @@ def _load_recent_jobs(repo_root: Path, *, limit: int = 6) -> list[dict[str, Any]
     return list(reversed(out))
 
 
-def build_home_feed_payload(state: Any) -> dict[str, Any]:
+def build_home_feed_payload(state: Any, lang: str | None = None) -> dict[str, Any]:
     """Compose machine + human-readable Home blocks for API + static UI."""
+    lg = normalize_lang(lang)
     bundle = state.bundle
     repo_root = state.repo_root
-    brief = build_user_first_brief(bundle)
+    brief = build_user_first_brief(bundle, lang=lg)
     kind = infer_object_kind(bundle)
     rm = bundle.get("founder_read_model") or {}
     alerts = list_alerts(state.alert_ledger_path)
@@ -116,37 +117,53 @@ def build_home_feed_payload(state: Any) -> dict[str, Any]:
     # Today — do not hero closed fixture without context
     if open_alerts:
         a0 = open_alerts[0]
-        today_title = "Attention on your alerts"
-        today_body = (
-            f"You have {len(open_alerts)} open alert(s). The most recent: "
-            f"{str(a0.get('alert_class') or 'signal')} — {(str(a0.get('message_summary') or '')[:220])}"
+        today_title = t(lg, "today.alert_title")
+        today_body = t(lg, "today.open_body").format(
+            count=len(open_alerts),
+            aclass=str(a0.get("alert_class") or "signal"),
+            summary=(str(a0.get("message_summary") or "")[:220]),
         )
         today_action = True
     elif kind != "closed_research_fixture":
-        today_title = "Current loadout"
+        today_title = t(lg, "today.loadout")
+        ev = brief["evidence_state_plain"] or t(lg, "today.evidence_fallback_short")
         today_body = (
             f"{brief['object_kind_label']}: {brief['one_line_explanation'][:400]}\n\n"
-            f"Stance: {brief['stance_plain']}. Evidence: {brief['evidence_state_plain'] or 'See Research.'}"
+            f"{t(lg, 'today.stance_label')}: {brief['stance_plain']}. {t(lg, 'today.evidence_label')}: {ev}"
         )
         af = str(brief.get("action_framing") or "").lower()
-        today_action = "no action" not in af
+        today_action = "no action" not in af and "조치 없음" not in af
     else:
-        today_title = "No live opportunity in this loadout"
-        today_body = (
-            "The primary bundle is a **closed research record** — useful for audit and replay, "
-            "not a headline buy/sell call. Check **Watchlist** for what you are tracking, "
-            "**Research in progress** for runtime activity, and **Alerts** for new signals."
-        )
+        today_title = t(lg, "today.no_opportunity")
+        today_body = t(lg, "today.body.fixture")
         today_action = False
+
+    today_spectrum_summary = build_today_spectrum_summary_for_home(repo_root=repo_root, lang=lg)
+    seed_spectrum_asset_ids = list_spectrum_seed_asset_ids(repo_root)
+    seed_id_set = set(seed_spectrum_asset_ids)
+    alias_map = load_spectrum_watch_alias_map(repo_root)
 
     watch_items: list[dict[str, Any]] = []
     sym = rm.get("cohort_symbols") or []
+    watch_filter_ids: list[str] = []
+    pa = str(rm.get("asset_id") or "").strip()
+    if pa:
+        watch_filter_ids.append(pa)
+    for s in sym:
+        ss = str(s).strip()
+        if ss and ss not in watch_filter_ids:
+            watch_filter_ids.append(ss)
+    watch_spectrum_filter_ids = expand_watchlist_for_spectrum_filter(watch_filter_ids, alias_map)
+    expanded_watch_set = set(watch_spectrum_filter_ids)
+    watch_on_spectrum_raw = sorted(set(watch_filter_ids) & seed_id_set)
+    watch_on_spectrum_aliased = sorted(expanded_watch_set & seed_id_set)
+    sym_lab = t(lg, "watch.symbols_label")
     if sym:
         watch_items.append(
             {
                 "label": str(rm.get("asset_id") or "Cohort"),
-                "detail": f"Symbols: {', '.join(str(s) for s in sym[:16])}",
-                "why_watching": "Governed cohort in current bundle — stance reflects evidence limits, not hype.",
+                "detail": f"{sym_lab}: {', '.join(str(s) for s in sym[:16])}",
+                "why_watching": t(lg, "watch.why_cohort"),
             }
         )
     else:
@@ -154,7 +171,7 @@ def build_home_feed_payload(state: Any) -> dict[str, Any]:
             {
                 "label": str(rm.get("asset_id") or "Primary object"),
                 "detail": brief["stance_plain"],
-                "why_watching": "Single-object loadout; add breadth via future watchlist ingest (Phase 51+).",
+                "why_watching": t(lg, "watch.why_single"),
             }
         )
 
@@ -165,9 +182,9 @@ def build_home_feed_payload(state: Any) -> dict[str, Any]:
         research_lines.append(
             {
                 "headline": f"{j.get('job_type', '')} · {st}",
-                "sub": j.get("result_summary") or "No summary yet.",
+                "sub": j.get("result_summary") or t(lg, "research.sub_default"),
                 "when": j.get("created_at") or "",
-                "checkpoint": "Next: bundle reload or external trigger may enqueue a new bounded cycle.",
+                "checkpoint": t(lg, "research.checkpoint"),
             }
         )
 
@@ -190,32 +207,32 @@ def build_home_feed_payload(state: Any) -> dict[str, Any]:
                 "timestamp": str(d.get("timestamp") or "")[:19],
                 "asset_id": str(d.get("asset_id") or ""),
                 "decision_type": str(d.get("decision_type") or ""),
-                "action_framing_plain": translate_token(str(d.get("decision_type") or "")),
+                "action_framing_plain": translate_token(str(d.get("decision_type") or ""), lang=lg),
                 "why_short": str(d.get("founder_note") or "")[:220],
-                "replay_hint": "Open Replay for the timeline around this decision.",
+                "replay_hint": t(lg, "journal.replay_hint"),
             }
         )
 
     wc = rm.get("what_changed") or []
     copilot_daily = (
-        f"Now: {brief['action_framing']}. "
-        f"{'Open items need review.' if open_alerts else 'No open alerts — scan Research activity or use a shortcut below.'}"
+        f"{brief['action_framing']}. "
+        f"{t(lg, 'copilot.has_alerts' if open_alerts else 'copilot.no_alerts')}"
     )
 
     empty_watch = {
-        "title": "Watchlist is thin",
-        "why": "This build loads one authoritative cohort object; multi-name watchlists arrive via future ingest.",
-        "fills_when": "Additional assets or external watch events are registered under governance.",
+        "title": t(lg, "watch.empty_title"),
+        "why": t(lg, "watch.empty_why"),
+        "fills_when": t(lg, "watch.empty_when"),
     }
     empty_research = {
-        "title": "No recent job rows",
-        "why": "The research job registry is empty or not yet populated on this machine.",
-        "fills_when": "Phase 48/51 cycles run and write to `research_job_registry_v1.json`.",
+        "title": t(lg, "research.empty_title"),
+        "why": t(lg, "research.empty_why"),
+        "fills_when": t(lg, "research.empty_when"),
     }
     empty_journal = {
-        "title": "Journal is empty",
-        "why": "No operator decisions have been logged in the decision trace ledger.",
-        "fills_when": "You record a decision under Journal (or legacy path).",
+        "title": t(lg, "journal.empty_title"),
+        "why": t(lg, "journal.empty_why"),
+        "fills_when": t(lg, "journal.empty_when"),
     }
 
     # Replay preview on Home (signature feature — compact, not the full timeline).
@@ -223,39 +240,48 @@ def build_home_feed_payload(state: Any) -> dict[str, Any]:
     if recent_decs:
         d0 = recent_decs[0]
         replay_preview = {
-            "headline": "Last decision worth revisiting",
+            "headline": t(lg, "replay.preview.head.decision"),
             "asset_id": str(d0.get("asset_id") or ""),
             "timestamp": str(d0.get("timestamp") or "")[:19],
             "one_line": str(d0.get("why_short") or d0.get("action_framing_plain") or "")[:200],
-            "time_axis_snippet": "Illustrative rhythm on full Replay (dashed series) — not live prices.",
-            "since_then": wc0 or "Open Replay for stance and evidence at each event.",
+            "time_axis_snippet": t(lg, "replay.preview.axis"),
+            "since_then": wc0 or t(lg, "journal.replay_hint"),
             "opens_panel": "replay",
         }
         replay_preview_empty = None
     else:
         replay_preview = {
-            "headline": "Replay — time-ordered trace",
+            "headline": t(lg, "replay.preview.head.default"),
             "asset_id": "",
             "timestamp": "",
-            "one_line": "No logged decisions yet — Replay still shows the bundle timeline and micro-briefs.",
-            "time_axis_snippet": "Full panel: illustrative reference + stance markers; select events for “known then”.",
+            "one_line": t(lg, "replay.preview.no_decision"),
+            "time_axis_snippet": t(lg, "replay.preview.axis"),
             "since_then": wc0 or str(brief.get("one_line_explanation") or "")[:220],
             "opens_panel": "replay",
         }
         replay_preview_empty = {
-            "title": "No journal row for a decision teaser",
-            "why": "Decision journal is empty, so the teaser highlights Replay capability instead of a specific decision.",
-            "fills_when": "Decisions logged in the trace ledger populate the headline row; timeline always in Replay.",
+            "title": t(lg, "replay.preview.empty_title"),
+            "why": t(lg, "replay.preview.empty_why"),
+            "fills_when": t(lg, "replay.preview.empty_when"),
         }
 
     return {
         "ok": True,
-        "shell_version": "phase47d",
+        "lang": lg,
+        "shell_version": "phase47e",
         "today": {
             "title": today_title,
             "body": today_body,
             "action_needed": today_action,
             "object_kind": kind,
+        },
+        "today_spectrum_summary": today_spectrum_summary,
+        "today_spectrum_ui": {
+            "watchlist_asset_ids": watch_filter_ids,
+            "watchlist_spectrum_filter_ids": watch_spectrum_filter_ids,
+            "spectrum_seed_asset_ids": seed_spectrum_asset_ids,
+            "watchlist_on_spectrum": watch_on_spectrum_raw,
+            "watchlist_on_spectrum_aliased": watch_on_spectrum_aliased,
         },
         "watchlist_block": {
             "items": watch_items,
@@ -268,25 +294,25 @@ def build_home_feed_payload(state: Any) -> dict[str, Any]:
         },
         "alerts_preview": alert_preview,
         "alerts_empty": {
-            "title": "No alerts",
-            "why": "Nothing in the alert ledger matches the current surface.",
-            "fills_when": "Runtime signals, reopen conditions, or Phase 48 outputs append to the ledger.",
+            "title": t(lg, "alerts.empty_title"),
+            "why": t(lg, "alerts.empty_why"),
+            "fills_when": t(lg, "alerts.empty_when"),
         },
         "decision_journal_preview": journal_preview,
         "decision_journal_empty": empty_journal if not journal_preview else None,
         "ask_ai_brief": {
             "daily_line": copilot_daily,
-            "shortcuts": ask_ai_brief_contract(),
+            "shortcuts": ask_ai_brief_contract_localized(lg),
         },
         "portfolio_snapshot": {
             "state": "stub",
-            "copy": "Portfolio attribution and positions are not shown here yet — reserved for a later slice.",
+            "copy": t(lg, "portfolio.stub"),
         },
         "replay_preview": replay_preview,
         "replay_preview_empty": replay_preview_empty,
         "closed_context": {
             "is_fixture": kind == "closed_research_fixture",
-            "research_tab_note": "Full cohort cards, evidence, and archive-style context live under Research.",
+            "research_tab_note": t(lg, "closed.research_tab_note"),
         },
     }
 
@@ -309,4 +335,5 @@ def phase47d_bundle_core(*, design_source_path: str) -> dict[str, Any]:
             "phase47e_recommendation": "live_watchlist_multi_asset_and_portfolio_attribution_v1",
             "focus": "Multi-row watchlist, live symbol hooks (still governed), portfolio card data — no substrate repair.",
         },
+        "phase47f": phase47f_recommend(),
     }

@@ -1,0 +1,175 @@
+{
+  "ok": true,
+  "phase": "phase53_signed_payload_hmac_dead_letter",
+  "generated_utc": "2026-04-14T05:45:34.138901+00:00",
+  "input_phase52_bundle_path": "/Users/hyunminkim/GenAIProacTrade/docs/operator_closeout/phase52_webhook_auth_routing_bundle.json",
+  "signed_ingress_enabled": true,
+  "signature_failures_recorded": 2,
+  "replay_attempts_blocked": 1,
+  "sources_with_rotation_enabled": 1,
+  "dead_letter_counts": {
+    "signature": 2,
+    "replay_guard": 1
+  },
+  "dead_letter_replay_summary": {
+    "cli_replay": "replay-phase53-dead-letter",
+    "note": "Replays re-enter governed ingress with current rules; use CLI with corrected secret/signature material."
+  },
+  "runtime_health_summary": {
+    "schema_version": 1,
+    "control_plane_excerpt": {
+      "enabled": true,
+      "maintenance_mode": false,
+      "max_cycles_per_window": 120,
+      "window_seconds": 3600
+    },
+    "trigger_controls": {
+      "allowed_trigger_types_effective": [
+        "changed_artifact_bundle",
+        "closeout_reopen_candidate",
+        "manual_watchlist",
+        "named_source_signal",
+        "operator_research_signal"
+      ],
+      "disabled_trigger_types_config": [],
+      "allowed_trigger_types_config": [
+        "changed_artifact_bundle",
+        "operator_research_signal",
+        "closeout_reopen_candidate",
+        "named_source_signal",
+        "manual_watchlist"
+      ]
+    },
+    "last_cycle_audit_excerpt": {
+      "timestamp": "2026-04-14T05:03:19.382786+00:00",
+      "cycle_id": "81395afa-235b-4598-952d-52b973a49358",
+      "skipped": false,
+      "why_stopped": "phase48_completed",
+      "jobs_created": 3,
+      "jobs_executed": 3
+    },
+    "audit_tail_summary": {
+      "total_entries": 9,
+      "tail_count": 9,
+      "skipped_in_tail": 0,
+      "last_entry": {
+        "timestamp": "2026-04-14T05:03:19.382786+00:00",
+        "cycle_id": "81395afa-235b-4598-952d-52b973a49358",
+        "why_cycle_started": "phase52_governed_webhook_smoke",
+        "lease_acquired": true,
+        "controls_applied": {
+          "timing": {
+            "run": true,
+            "reason": "phase52_smoke_bypass_timing",
+            "detail": "governed_webhook",
+            "profile": "manual_debug"
+          },
+          "trigger_controls": {
+            "allowed_trigger_types_effective": [
+              "changed_artifact_bundle",
+              "closeout_reopen_candidate",
+              "manual_watchlist",
+              "named_source_signal",
+              "operator_research_signal"
+            ],
+            "disabled_trigger_types_config": [],
+            "allowed_trigger_types_config": [
+              "changed_artifact_bundle",
+              "operator_research_signal",
+              "closeout_reopen_candidate",
+              "named_source_signal",
+              "manual_watchlist"
+            ]
+          },
+          "external_supplemental_count": 3
+        },
+        "triggers_evaluated_count": 3,
+        "jobs_created_count": 3,
+        "jobs_executed_count": 3,
+        "why_cycle_stopped": "phase48_completed",
+        "cycle_skipped": false,
+        "operator_override": null
+      }
+    },
+    "external_ingest_counts": {
+      "total_entries": 2,
+      "accepted_pending": 1,
+      "consumed": 0,
+      "rejected": 0,
+      "deduped": 1
+    },
+    "last_accepted_trigger": {
+      "event_id": "3d0b249a-2312-42cf-92b0-1755e9df35ea",
+      "normalized_trigger_type": "manual_watchlist",
+      "received_at": "2026-04-14T05:45:34.136368+00:00",
+      "status": "accepted"
+    },
+    "last_rejected_trigger": null,
+    "recent_skip_reasons": [],
+    "health_status": "healthy",
+    "legacy_ingest_status": {
+      "path": "POST /api/runtime/external-ingest",
+      "allowed": false,
+      "note": "Unauthenticated legacy path; disabled by default (control plane)."
+    },
+    "external_source_activity_v52": {
+      "sources": [
+        {
+          "source_id": "s53_signed",
+          "source_name": "signed_smoke",
+          "enabled": true,
+          "queue_mode": "direct",
+          "active_signing_key_id": "k_active_v1",
+          "outcome_counts": {
+            "accepted_registry": 1,
+            "rejected_signature": 2,
+            "registry_other": 1,
+            "rejected_replay": 1
+          },
+          "recent_auth_failures_tail": [
+            {
+              "timestamp": "2026-04-14T05:45:34.136675+00:00",
+              "reason": "bad_signature"
+            },
+            {
+              "timestamp": "2026-04-14T05:45:34.137104+00:00",
+              "reason": "stale_timestamp"
+            }
+          ],
+          "recent_rate_limits_tail": [],
+          "recent_routing_rejections_tail": []
+        }
+      ],
+      "queue_depth_pending": 0,
+      "registry_configured": true,
+      "registry_path": "/Users/hyunminkim/GenAIProacTrade/data/research_runtime/phase53_smoke_source_registry_v1.json"
+    },
+    "external_ingress_phase53": {
+      "signed_ingress_configured": true,
+      "sources_with_rotation_keys": 1,
+      "dead_letter_total_entries": 3,
+      "dead_letter_by_failure_stage": {
+        "signature": 2,
+        "replay_guard": 1
+      },
+      "replay_guard_active_entries": 2,
+      "registry_path_used": "/Users/hyunminkim/GenAIProacTrade/data/research_runtime/phase53_smoke_source_registry_v1.json"
+    }
+  },
+  "legacy_ingest_status": {
+    "path": "POST /api/runtime/external-ingest",
+    "allowed": false,
+    "note": "Unauthenticated legacy path; disabled by default (control plane)."
+  },
+  "phase54": {
+    "phase54_recommendation": "async_signed_ingress_worker_and_operator_ui_dead_letter_console_v1",
+    "focus": "Background worker for retries, cockpit UI for dead-letter triage, metrics export — no substrate repair or trade execution."
+  },
+  "smoke_metrics_ok": true,
+  "good_ingress_ok": true,
+  "paths": {
+    "source_registry": "/Users/hyunminkim/GenAIProacTrade/data/research_runtime/phase53_smoke_source_registry_v1.json",
+    "dead_letter": "/Users/hyunminkim/GenAIProacTrade/data/research_runtime/phase53_smoke_dead_letter_v1.json",
+    "replay_guard": "/Users/hyunminkim/GenAIProacTrade/data/research_runtime/phase53_smoke_replay_guard_v1.json"
+  }
+}

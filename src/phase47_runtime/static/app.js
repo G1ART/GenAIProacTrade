@@ -2,7 +2,7 @@
 (function () {
   const $ = (id) => document.getElementById(id);
 
-  const OBJECT_SECTIONS = [
+  const OBJECT_SECTIONS_FALLBACK = [
     { id: "brief", label: "Brief" },
     { id: "why_now", label: "Why now" },
     { id: "what_could_change", label: "What could change" },
@@ -11,12 +11,60 @@
     { id: "ask_ai", label: "Ask AI" },
     { id: "advanced", label: "Advanced" },
   ];
+  let objectSections = OBJECT_SECTIONS_FALLBACK.slice();
 
   /** @type {Record<string, unknown> | null} */
   let lastFeed = null;
 
+  /** Last Today spectrum query (for object detail API). */
+  const lastSpectrumQuery = { horizon: "short", mock_price_tick: "0" };
+
+  function cockpitLang() {
+    try {
+      return window.__cockpitLang || localStorage.getItem("cockpitLang") || "ko";
+    } catch (_) {
+      return window.__cockpitLang || "ko";
+    }
+  }
+
+  function withLang(path) {
+    if (path.indexOf("lang=") >= 0) return path;
+    const lg = cockpitLang();
+    const sep = path.indexOf("?") >= 0 ? "&" : "?";
+    return path + sep + "lang=" + encodeURIComponent(lg);
+  }
+
+  function tr(key) {
+    const m = window.__localeStrings || {};
+    return m[key] != null && String(m[key]) !== "" ? String(m[key]) : key;
+  }
+
+  async function loadLocaleStrings() {
+    const lg = cockpitLang();
+    const r = await fetch("/api/locale?lang=" + encodeURIComponent(lg));
+    const json = await r.json().catch(() => ({}));
+    if (json.ok && json.strings) window.__localeStrings = json.strings;
+  }
+
+  function applyChromeStrings() {
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const k = el.getAttribute("data-i18n");
+      if (k) el.textContent = tr(k);
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+      const k = el.getAttribute("data-i18n-placeholder");
+      if (k) el.setAttribute("placeholder", tr(k));
+    });
+  }
+
   async function api(path, opts) {
-    const r = await fetch(path, opts);
+    const o = opts || {};
+    const method = (o.method || "GET").toUpperCase();
+    let url = path;
+    if (method === "GET" && path.startsWith("/api/") && !path.startsWith("/api/locale")) {
+      url = withLang(path);
+    }
+    const r = await fetch(url, o);
     const j = await r.json().catch(() => ({}));
     return { ok: r.ok, status: r.status, json: j };
   }
@@ -172,6 +220,318 @@
     });
   }
 
+  function readSpectrumTablePrefs(wrap) {
+    let sortVal = "position_desc";
+    let watchOnly = false;
+    try {
+      sortVal = sessionStorage.getItem("todaySpectrumSort") || "position_desc";
+      watchOnly = sessionStorage.getItem("todaySpectrumWatchOnly") === "1";
+    } catch (_) {}
+    const ps = wrap && wrap.querySelector("#spectrum-sort-select");
+    const pw = wrap && wrap.querySelector("#spectrum-watch-only");
+    if (ps && ps.value) sortVal = ps.value;
+    if (pw) watchOnly = !!pw.checked;
+    return { sortVal, watchOnly };
+  }
+
+  async function loadTodaySpectrumDemo() {
+    const wrap = $("home-spectrum-demo-wrap");
+    if (!wrap) return;
+    const prefs = readSpectrumTablePrefs(wrap);
+    const prev = wrap.querySelector("#spectrum-horizon-select");
+    const prevMock = wrap.querySelector("#spectrum-mock-tick");
+    const hz = prev && prev.value ? prev.value : "short";
+    const mt = prevMock && prevMock.value ? prevMock.value : "0";
+    const { json } = await api(
+      "/api/today/spectrum?horizon=" + encodeURIComponent(hz) + "&mock_price_tick=" + encodeURIComponent(mt)
+    );
+    if (!json.ok) {
+      wrap.innerHTML = `<p class="empty">${escapeHtml(JSON.stringify(json))}</p>`;
+      return;
+    }
+    lastSpectrumQuery.horizon = json.horizon || "short";
+    lastSpectrumQuery.mock_price_tick = json.mock_price_tick || "0";
+    const opts = (json.horizon_options || [])
+      .map((o) => `<option value="${escapeHtml(o.id)}"${o.id === json.horizon ? " selected" : ""}>${escapeHtml(o.label)}</option>`)
+      .join("");
+    function bandLabel(b) {
+      if (b === "left") return tr("spectrum.band_left");
+      if (b === "right") return tr("spectrum.band_right");
+      return tr("spectrum.band_center");
+    }
+    function bandDot(b) {
+      const cls = b === "left" ? "left" : b === "right" ? "right" : "center";
+      return `<span class="spectrum-dot spectrum-dot--${cls}" aria-hidden="true"></span>`;
+    }
+    const watchArr = Array.isArray(window.__watchlistSpectrumFilterIds)
+      ? window.__watchlistSpectrumFilterIds
+      : window.__todayWatchlistAssetIds || [];
+    const watchIdSet = new Set(watchArr.map((x) => String(x)));
+    const watchFilterDisabled = watchIdSet.size === 0;
+    let rowObjs = (json.rows || []).slice();
+    if (prefs.watchOnly && !watchFilterDisabled) {
+      rowObjs = rowObjs.filter((r) => watchIdSet.has(String(r.asset_id || "")));
+    }
+    rowObjs.sort((a, b) => {
+      if (prefs.sortVal === "asset_az") {
+        return String(a.asset_id || "").localeCompare(String(b.asset_id || ""));
+      }
+      const pa = parseFloat(a.spectrum_position);
+      const pb = parseFloat(b.spectrum_position);
+      const na = Number.isFinite(pa) ? pa : 0;
+      const nb = Number.isFinite(pb) ? pb : 0;
+      if (prefs.sortVal === "position_asc") return na - nb;
+      return nb - na;
+    });
+    let rows = "";
+    if (!rowObjs.length) {
+      const rawCount = (json.rows || []).length;
+      const emptyMsg = rawCount && prefs.watchOnly ? tr("spectrum.watch_filter_empty") : "—";
+      rows = `<tr><td colspan="6" class="empty">${escapeHtml(emptyMsg)}</td></tr>`;
+    } else {
+      rowObjs.forEach((r) => {
+        const b = r.spectrum_band || "center";
+        const msg = r.message || {};
+        const head = escapeHtml(msg.headline || "");
+        const sub = escapeHtml(msg.one_line_take || "");
+        const aid = escapeHtml(r.asset_id || "");
+        const wcRaw = String(r.what_changed || "");
+        const wcEsc = escapeHtml(wcRaw);
+        const titleAttr = wcEsc.replace(/"/g, "&quot;");
+        const ratRaw = String(r.rationale_summary || "").trim();
+        const rat = escapeHtml(ratRaw);
+        const ratDetails = ratRaw
+          ? `<details class="spectrum-rationale"><summary>${escapeHtml(tr("spectrum.expand_rationale"))}</summary><div>${rat}</div></details>`
+          : "";
+        rows +=
+          "<tr><td class='mono'>" +
+          `<button type="button" class="spectrum-asset-btn" data-asset="${aid}">${aid}</button>` +
+          "</td><td>" +
+          bandDot(b) +
+          escapeHtml(bandLabel(b)) +
+          "</td><td>" +
+          escapeHtml(String(r.spectrum_position ?? "")) +
+          "</td><td>" +
+          escapeHtml(r.valuation_tension || "") +
+          "</td><td><span class='spectrum-msg-head'>" +
+          head +
+          "</span><span class='spectrum-msg-sub'>" +
+          sub +
+          "</span>" +
+          ratDetails +
+          "</td><td>" +
+          (wcEsc ? `<span class="wc-chip" title="${titleAttr}">${wcEsc}</span>` : `<span class="wc-chip">—</span>`) +
+          "</td></tr>";
+      });
+    }
+    const sd = prefs.sortVal === "position_desc" ? " selected" : "";
+    const sa = prefs.sortVal === "position_asc" ? " selected" : "";
+    const sz = prefs.sortVal === "asset_az" ? " selected" : "";
+    const wChk = prefs.watchOnly ? " checked" : "";
+    const wDis = watchFilterDisabled ? " disabled" : "";
+    wrap.innerHTML =
+      `<div class="feed-card today-hero-card"><h3>${escapeHtml(tr("spectrum.hero_title"))}</h3>` +
+      `<p class="sub">${escapeHtml(tr("spectrum.demo_meta"))}</p>` +
+      `<p class="meta">${escapeHtml(tr("spectrum.as_of"))}: ${escapeHtml(json.as_of_utc || "—")} · ${escapeHtml(tr("spectrum.model_family"))}: <span class="mono">${escapeHtml(
+        json.active_model_family || ""
+      )}</span></p>` +
+      (json.price_layer_note
+        ? `<p class="mono" style="font-size:0.72rem;margin:0.25rem 0;">${escapeHtml(json.price_layer_note)}</p>`
+        : "") +
+      (json.mock_price_tick === "1" && json.mock_price_tick_note
+        ? `<p class="sub" style="color:var(--warn)">${escapeHtml(json.mock_price_tick_note)}</p>`
+        : "") +
+      `<div class="spectrum-legend"><span>${bandDot("left")}${escapeHtml(tr("spectrum.band_left"))}</span>` +
+      `<span>${bandDot("center")}${escapeHtml(tr("spectrum.band_center"))}</span>` +
+      `<span>${bandDot("right")}${escapeHtml(tr("spectrum.band_right"))}</span></div>` +
+      `<div class="spectrum-toolbar">` +
+      `<label class="meta">${escapeHtml(tr("spectrum.sort_by"))} <select id="spectrum-sort-select">` +
+      `<option value="position_desc"${sd}>${escapeHtml(tr("spectrum.sort_position_desc"))}</option>` +
+      `<option value="position_asc"${sa}>${escapeHtml(tr("spectrum.sort_position_asc"))}</option>` +
+      `<option value="asset_az"${sz}>${escapeHtml(tr("spectrum.sort_asset_az"))}</option>` +
+      `</select></label>` +
+      `<label class="meta"><input type="checkbox" id="spectrum-watch-only"${wChk}${wDis} /> ${escapeHtml(tr("spectrum.watch_only"))}</label>` +
+      `</div>` +
+      (() => {
+        const W = (window.__todayWatchlistAssetIds || []).length;
+        const F = (window.__watchlistSpectrumFilterIds || []).length;
+        const S = (window.__spectrumSeedAssetIds || []).length;
+        const rawM = (window.__watchlistOnSpectrumRaw || []).length;
+        const M = (window.__watchlistOnSpectrumAliased || []).length;
+        const ctx =
+          `<p class="spectrum-context-line">` +
+          `${escapeHtml(tr("spectrum.label_bundle"))}: ${W} · ${escapeHtml(tr("spectrum.label_filter_tokens"))}: ${F} · ${escapeHtml(
+            tr("spectrum.label_seed_board")
+          )}: ${S} · ${escapeHtml(tr("spectrum.label_match_on_seed"))}: ${M}` +
+          `</p>`;
+        let hint = "";
+        if (rawM === 0 && M > 0) {
+          hint = `<p class="spectrum-hint-warn">${escapeHtml(tr("spectrum.hint_alias_active"))}</p>`;
+        } else if (M === 0 && W > 0 && S > 0) {
+          hint = `<p class="spectrum-hint-warn">${escapeHtml(tr("spectrum.hint_no_overlap"))}</p>`;
+        }
+        return ctx + hint;
+      })() +
+      `<p class="sub">${escapeHtml(tr("spectrum.row_click_hint"))}</p>` +
+      `<div class="row" style="margin:0.35rem 0;flex-wrap:wrap;gap:0.5rem"><label class="meta">${escapeHtml(tr("spectrum.horizon_picker"))} <select id="spectrum-horizon-select">${opts}</select></label>` +
+      `<label class="meta">${escapeHtml(tr("spectrum.mock_mode"))} <select id="spectrum-mock-tick">` +
+      `<option value="0"${json.mock_price_tick === "0" ? " selected" : ""}>${escapeHtml(tr("spectrum.mock_base"))}</option>` +
+      `<option value="1"${json.mock_price_tick === "1" ? " selected" : ""}>${escapeHtml(tr("spectrum.mock_shock"))}</option>` +
+      `</select></label></div>` +
+      `<div class="spectrum-table-scroll"><table style="width:100%;font-size:0.82rem;border-collapse:collapse"><thead><tr>` +
+      `<th style="text-align:left;border-bottom:1px solid #2a3544">${escapeHtml(tr("spectrum.col_asset"))}</th>` +
+      `<th style="text-align:left;border-bottom:1px solid #2a3544">${escapeHtml(tr("spectrum.col_band"))}</th>` +
+      `<th style="text-align:left;border-bottom:1px solid #2a3544">${escapeHtml(tr("spectrum.col_position"))}</th>` +
+      `<th style="text-align:left;border-bottom:1px solid #2a3544">${escapeHtml(tr("spectrum.col_tension"))}</th>` +
+      `<th style="text-align:left;border-bottom:1px solid #2a3544">${escapeHtml(tr("spectrum.col_message"))}</th>` +
+      `<th style="text-align:left;border-bottom:1px solid #2a3544">${escapeHtml(tr("spectrum.col_changed"))}</th>` +
+      `</tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    const sortEl = wrap.querySelector("#spectrum-sort-select");
+    if (sortEl) {
+      sortEl.onchange = () => {
+        try {
+          sessionStorage.setItem("todaySpectrumSort", sortEl.value);
+        } catch (_) {}
+        loadTodaySpectrumDemo();
+      };
+    }
+    const wo = wrap.querySelector("#spectrum-watch-only");
+    if (wo) {
+      wo.onchange = () => {
+        try {
+          sessionStorage.setItem("todaySpectrumWatchOnly", wo.checked ? "1" : "0");
+        } catch (_) {}
+        loadTodaySpectrumDemo();
+      };
+    }
+    const sel = wrap.querySelector("#spectrum-horizon-select");
+    if (sel) sel.onchange = () => loadTodaySpectrumDemo();
+    const sm = wrap.querySelector("#spectrum-mock-tick");
+    if (sm) sm.onchange = () => loadTodaySpectrumDemo();
+    wrap.querySelectorAll(".spectrum-asset-btn").forEach((btn) => {
+      btn.addEventListener("click", () => openTodayObjectDetail(btn.getAttribute("data-asset") || ""));
+    });
+  }
+
+  function renderTodayObjectDetailHtml(j) {
+    const msg = j.message || {};
+    const inf = j.information || {};
+    const res = j.research || {};
+    const links = res.links || {};
+    const spec = j.spectrum || {};
+    function ulItems(arr) {
+      const a = Array.isArray(arr) ? arr : [];
+      if (!a.length) return `<li class="sub">—</li>`;
+      return a.map((x) => `<li>${escapeHtml(x)}</li>`).join("");
+    }
+    function kv(labelKey, val) {
+      const v = val != null && String(val) !== "" ? String(val) : "—";
+      return `<div class="mir-kv"><span class="k">${escapeHtml(tr(labelKey))}</span>${escapeHtml(v)}</div>`;
+    }
+    const metaLine =
+      `${escapeHtml(j.horizon_label || "")} · <span class="mono">${escapeHtml(j.asset_id || "")}</span> · ${escapeHtml(
+        j.active_model_family || ""
+      )} · ${escapeHtml(j.as_of_utc || "")}`;
+    const msgBlock =
+      kv("today_detail.f_headline", msg.headline) +
+      kv("today_detail.f_one_line", msg.one_line_take) +
+      kv("today_detail.f_why_now", msg.why_now) +
+      kv("today_detail.f_what_changed", msg.what_changed) +
+      kv("today_detail.f_unproven", msg.what_remains_unproven) +
+      kv("today_detail.f_watch", msg.what_to_watch) +
+      kv("today_detail.f_confidence", msg.confidence_band) +
+      kv("today_detail.f_action", msg.action_frame) +
+      kv("today_detail.f_evidence", msg.linked_evidence_summary);
+    const infBlock =
+      `<div class="mir-kv"><span class="k">${escapeHtml(tr("today_detail.supporting"))}</span><ul class="feed-list">${ulItems(
+        inf.supporting_signals
+      )}</ul></div>` +
+      `<div class="mir-kv"><span class="k">${escapeHtml(tr("today_detail.opposing"))}</span><ul class="feed-list">${ulItems(
+        inf.opposing_signals
+      )}</ul></div>` +
+      kv("today_detail.evidence", inf.evidence_summary) +
+      kv("today_detail.data_note", inf.data_layer_note);
+    const prefillEnc = encodeURIComponent(links.prefill_ask_ai || "");
+    const resBlock =
+      `<div class="mir-kv"><span class="k">${escapeHtml(tr("today_detail.deeper_rationale"))}</span>${escapeHtml(
+        res.deeper_rationale || ""
+      )}</div>` +
+      `<div class="mir-kv"><span class="k">${escapeHtml(tr("spectrum.model_family"))}</span>${escapeHtml(
+        res.model_family_context || ""
+      )}</div>` +
+      `<div class="row" style="margin-top:0.75rem">` +
+      `<button type="button" class="btn" id="today-detail-btn-replay">${escapeHtml(tr("today_detail.link_replay"))}</button>` +
+      `<button type="button" class="btn btn-primary" id="today-detail-btn-ask" data-prefill="${prefillEnc}">${escapeHtml(
+        tr("today_detail.link_ask")
+      )}</button>` +
+      `</div>`;
+
+    return (
+      `<p class="meta">${metaLine}</p>` +
+      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.spectrum_ctx"))}</h4>` +
+      `<div class="mir-kv"><span class="k">${escapeHtml(tr("spectrum.col_band"))}</span>${escapeHtml(spec.spectrum_band || "")} · ${escapeHtml(
+        tr("spectrum.col_position")
+      )}: ${escapeHtml(String(spec.spectrum_position ?? ""))}</div>` +
+      `<div class="mir-kv"><span class="k">${escapeHtml(tr("spectrum.col_tension"))}</span>${escapeHtml(spec.valuation_tension || "")}</div>` +
+      `<div class="mir-kv"><span class="k">${escapeHtml(tr("spectrum.col_rationale"))}</span>${escapeHtml(spec.rationale_summary || "")}</div>` +
+      `<div class="mir-kv"><span class="k">${escapeHtml(tr("spectrum.col_changed"))}</span>${escapeHtml(spec.what_changed || "")}</div></div>` +
+      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_message"))}</h4>${msgBlock}</div>` +
+      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_information"))}</h4>${infBlock}</div>` +
+      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_research"))}</h4>${resBlock}</div>`
+    );
+  }
+
+  function wireTodayDetailActions() {
+    const br = $("today-detail-btn-replay");
+    if (br)
+      br.addEventListener("click", () => {
+        showPanel("replay");
+        loadReplay();
+      });
+    const ba = $("today-detail-btn-ask");
+    if (ba) {
+      ba.addEventListener("click", () => {
+        const raw = ba.getAttribute("data-prefill") || "";
+        let text = "";
+        try {
+          text = decodeURIComponent(raw);
+        } catch (_) {
+          text = raw;
+        }
+        const ta = $("conv-in");
+        if (ta) ta.value = text;
+        showPanel("ask_ai");
+        syncAskAiFromFeed();
+      });
+    }
+  }
+
+  async function openTodayObjectDetail(assetId) {
+    if (!assetId) return;
+    const q = lastSpectrumQuery;
+    const { json } = await api(
+      "/api/today/object?asset_id=" +
+        encodeURIComponent(assetId) +
+        "&horizon=" +
+        encodeURIComponent(q.horizon || "short") +
+        "&mock_price_tick=" +
+        encodeURIComponent(q.mock_price_tick || "0")
+    );
+    const root = $("today-detail-root");
+    if (!root) return;
+    const ptd = $("panel-today_detail");
+    if (!json.ok) {
+      if (ptd) ptd.removeAttribute("data-current-asset");
+      root.innerHTML = `<p class="empty">${escapeHtml(JSON.stringify(json))}</p>`;
+      showPanel("today_detail");
+      return;
+    }
+    if (ptd) ptd.setAttribute("data-current-asset", assetId);
+    root.innerHTML = renderTodayObjectDetailHtml(json);
+    wireTodayDetailActions();
+    showPanel("today_detail");
+  }
+
   async function loadHomeFeed() {
     const { json } = await api("/api/home/feed");
     lastFeed = json && json.ok ? json : lastFeed;
@@ -181,17 +541,46 @@
       return;
     }
 
-    const t = json.today || {};
-    const act = t.action_needed;
+    const tsui = json.today_spectrum_ui;
+    window.__todayWatchlistAssetIds = (tsui && tsui.watchlist_asset_ids) || [];
+    window.__watchlistSpectrumFilterIds = (tsui && tsui.watchlist_spectrum_filter_ids) || window.__todayWatchlistAssetIds;
+    window.__spectrumSeedAssetIds = (tsui && tsui.spectrum_seed_asset_ids) || [];
+    window.__watchlistOnSpectrumRaw = (tsui && tsui.watchlist_on_spectrum) || [];
+    window.__watchlistOnSpectrumAliased = (tsui && tsui.watchlist_on_spectrum_aliased) || [];
+
+    const today = json.today || {};
+    const act = today.action_needed;
     const actHtml = act
-      ? `<div class="action-flag">Review or action may be warranted on the surface above.</div>`
-      : `<div class="action-flag passive">No urgent cockpit action implied from this loadout — scan blocks below.</div>`;
+      ? `<div class="action-flag">${escapeHtml(tr("action.review"))}</div>`
+      : `<div class="action-flag passive">${escapeHtml(tr("action.calm"))}</div>`;
 
     const parts = [];
     parts.push(
-      `<div class="feed-card"><h3>Today</h3><div class="sub" style="font-weight:600;color:var(--text)">${escapeHtml(t.title || "")}</div>` +
-        `<div class="body" style="margin-top:0.5rem">${fmtBody(t.body || "")}</div>${actHtml}</div>`
+      `<div class="feed-card"><h3>${escapeHtml(tr("home.card.today"))}</h3><div class="sub" style="font-weight:600;color:var(--text)">${escapeHtml(today.title || "")}</div>` +
+        `<div class="body" style="margin-top:0.5rem">${fmtBody(today.body || "")}</div>${actHtml}</div>`
     );
+
+    const tss = json.today_spectrum_summary;
+    if (tss && tss.top_messages && tss.top_messages.length) {
+      let tli = "";
+      tss.top_messages.forEach((tm) => {
+        const aid = escapeHtml(tm.asset_id || "");
+        tli +=
+          `<li><button type="button" class="spectrum-asset-btn spectrum-home-summary-open" data-asset="${aid}"><strong class="mono">${aid}</strong></button> <span class="sub">(${escapeHtml(
+            tm.spectrum_band || ""
+          )})</span>` +
+          `<div style="margin-top:0.25rem;font-weight:600">${escapeHtml(tm.headline || "")}</div>` +
+          `<div class="sub">${escapeHtml(tm.one_line_take || "")}</div></li>`;
+      });
+      parts.push(
+        `<div class="feed-card"><h3>${escapeHtml(tr("home.spectrum.card_title"))}</h3>` +
+          `<p class="sub">${escapeHtml(tr("home.spectrum.card_meta"))}</p>` +
+          `<p class="meta">${escapeHtml(tss.horizon_label || "")} · <span class="mono">${escapeHtml(tss.active_model_family || "")}</span> · ${escapeHtml(
+            tss.as_of_utc || ""
+          )}</p>` +
+          `<ul class="feed-list">${tli}</ul></div>`
+      );
+    }
 
     const wb = json.watchlist_block || {};
     const witems = wb.items || [];
@@ -204,12 +593,14 @@
     const wch = (wb.what_changed_bullets || []).map((x) => `<li>${escapeHtml(x)}</li>`).join("");
     const wempty = wb.empty_state;
     parts.push(
-      `<div class="feed-card"><h3>Watchlist</h3>` +
+      `<div class="feed-card"><h3>${escapeHtml(tr("home.card.watchlist"))}</h3>` +
         (wempty
           ? `<p class="sub"><strong>${escapeHtml(wempty.title)}</strong> — ${escapeHtml(wempty.why)} <em>${escapeHtml(wempty.fills_when)}</em></p>`
           : "") +
         (whtml ? `<ul class="feed-list">${whtml}</ul>` : "") +
-        (wch ? `<div class="brief-label" style="margin-top:0.5rem">What changed</div><ul class="feed-list">${wch}</ul>` : "") +
+        (wch
+          ? `<div class="brief-label" style="margin-top:0.5rem">${escapeHtml(tr("home.section.what_changed"))}</div><ul class="feed-list">${wch}</ul>`
+          : "") +
         `</div>`
     );
 
@@ -223,11 +614,11 @@
     });
     const rempty = rip.empty_state;
     parts.push(
-      `<div class="feed-card"><h3>Research in progress</h3>` +
+      `<div class="feed-card"><h3>${escapeHtml(tr("home.card.research"))}</h3>` +
         (rempty
           ? `<p class="sub"><strong>${escapeHtml(rempty.title)}</strong> — ${escapeHtml(rempty.why)} <em>${escapeHtml(rempty.fills_when)}</em></p>`
           : "") +
-        (rhtml ? `<ul class="feed-list">${rhtml}</ul>` : `<p class="sub">No recent thread rows in the job registry.</p>`) +
+        (rhtml ? `<ul class="feed-list">${rhtml}</ul>` : `<p class="sub">${escapeHtml(tr("home.research.no_threads"))}</p>`) +
         `</div>`
     );
 
@@ -241,11 +632,11 @@
     });
     const ae = json.alerts_empty || {};
     parts.push(
-      `<div class="feed-card"><h3>Alerts</h3>` +
+      `<div class="feed-card"><h3>${escapeHtml(tr("home.card.alerts"))}</h3>` +
         (ahtml
           ? `<ul class="feed-list">${ahtml}</ul>`
           : `<p class="sub"><strong>${escapeHtml(ae.title || "No alerts")}</strong> — ${escapeHtml(ae.why || "")} <em>${escapeHtml(ae.fills_when || "")}</em></p>`) +
-        `<button type="button" class="btn" data-jump="advanced">Manage alerts in Advanced</button></div>`
+        `<button type="button" class="btn" data-jump="advanced">${escapeHtml(tr("home.jump.manage_alerts"))}</button></div>`
     );
 
     const jp = json.decision_journal_preview || [];
@@ -258,13 +649,13 @@
     });
     const je = json.decision_journal_empty;
     parts.push(
-      `<div class="feed-card"><h3>Decision journal</h3>` +
+      `<div class="feed-card"><h3>${escapeHtml(tr("home.card.journal"))}</h3>` +
         (jhtml
           ? `<ul class="feed-list">${jhtml}</ul>`
           : je
             ? `<p class="sub"><strong>${escapeHtml(je.title)}</strong> — ${escapeHtml(je.why)} <em>${escapeHtml(je.fills_when)}</em></p>`
             : "") +
-        `<button type="button" class="btn" data-jump="journal">Open full Journal</button></div>`
+        `<button type="button" class="btn" data-jump="journal">${escapeHtml(tr("home.jump.open_journal"))}</button></div>`
     );
 
     const ab = json.ask_ai_brief || {};
@@ -274,9 +665,9 @@
       sclist += `<li>${escapeHtml(s.label)}</li>`;
     });
     parts.push(
-      `<div class="feed-card"><h3>Ask AI brief</h3><p class="body">${escapeHtml(ab.daily_line || "")}</p>` +
+      `<div class="feed-card"><h3>${escapeHtml(tr("home.card.ask_ai"))}</h3><p class="body">${escapeHtml(ab.daily_line || "")}</p>` +
         `<ul class="feed-list" style="font-size:0.82rem">${sclist}</ul>` +
-        `<button type="button" class="btn" data-jump="ask_ai">Open Ask AI</button></div>`
+        `<button type="button" class="btn" data-jump="ask_ai">${escapeHtml(tr("home.jump.open_ask_ai"))}</button></div>`
     );
 
     const rp = json.replay_preview || {};
@@ -285,7 +676,7 @@
     const rpAsset = rp.asset_id ? `<strong>${escapeHtml(rp.asset_id)}</strong> · ` : "";
     const rpTs = rp.timestamp ? `<span class="mono">${escapeHtml(rp.timestamp)}</span><br/>` : "";
     parts.push(
-      `<div class="feed-card"><h3>Replay preview</h3>` +
+      `<div class="feed-card"><h3>${escapeHtml(tr("home.card.replay"))}</h3>` +
         (rpe
           ? `<p class="sub"><strong>${escapeHtml(rpe.title)}</strong> — ${escapeHtml(rpe.why)} <em>${escapeHtml(rpe.fills_when)}</em></p>`
           : "") +
@@ -294,18 +685,25 @@
         `<p class="body" style="margin-top:0.45rem">${fmtBody(rp.one_line || "")}</p>` +
         `<p class="sub">${escapeHtml(rp.time_axis_snippet || "")}</p>` +
         `<p class="sub">${escapeHtml(rp.since_then || "")}</p>` +
-        `<button type="button" class="btn btn-primary" data-jump="replay">Open full Replay</button></div>`
+        `<button type="button" class="btn btn-primary" data-jump="replay">${escapeHtml(tr("home.jump.open_replay"))}</button></div>`
     );
 
     const ps = json.portfolio_snapshot || {};
     parts.push(
-      `<div class="feed-card"><h3>Portfolio snapshot</h3><p class="sub">${escapeHtml(ps.copy || "")}</p>` +
+      `<div class="feed-card"><h3>${escapeHtml(tr("home.card.portfolio"))}</h3><p class="sub">${escapeHtml(ps.copy || "")}</p>` +
         `<span class="badge default">${escapeHtml(ps.state || "stub")}</span></div>`
     );
 
     root.innerHTML = parts.join("");
     wireHomeJumpButtons(root);
+    root.querySelectorAll(".spectrum-home-summary-open").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        lastSpectrumQuery.horizon = "short";
+        openTodayObjectDetail(btn.getAttribute("data-asset") || "");
+      });
+    });
     syncAskAiFromFeed();
+    loadTodaySpectrumDemo();
   }
 
   async function loadWatchlistPanel() {
@@ -333,7 +731,11 @@
       );
     }
     blocks.push(whtml);
-    if (wch) blocks.push(`<div class="feed-card"><h3>What changed</h3><ul class="feed-list">${wch}</ul></div>`);
+    if (wch) {
+      blocks.push(
+        `<div class="feed-card"><h3>${escapeHtml(tr("home.section.what_changed"))}</h3><ul class="feed-list">${wch}</ul></div>`
+      );
+    }
     const joined = blocks.filter(Boolean).join("");
     root.innerHTML = joined || `<p class="empty">No watchlist rows yet.</p>`;
   }
@@ -451,8 +853,9 @@
 
   function buildObjectTabs() {
     const host = $("object-tabs");
+    if (!host || !objectSections.length) return;
     host.innerHTML = "";
-    OBJECT_SECTIONS.forEach((S, i) => {
+    objectSections.forEach((S, i) => {
       const b = document.createElement("button");
       b.type = "button";
       b.textContent = S.label;
@@ -464,7 +867,18 @@
       });
       host.appendChild(b);
     });
-    loadObjectSection(OBJECT_SECTIONS[0].id);
+    loadObjectSection(objectSections[0].id);
+  }
+
+  async function refreshObjectTabsFromOverview() {
+    const { json } = await api("/api/overview");
+    const tabs = json.user_first && json.user_first.navigation && json.user_first.navigation.object_detail_sections;
+    if (json.ok && tabs && tabs.length) {
+      objectSections = tabs.map((x) => ({ id: x.id, label: x.label }));
+    } else {
+      objectSections = OBJECT_SECTIONS_FALLBACK.slice();
+    }
+    buildObjectTabs();
   }
 
   async function loadObjectSection(section) {
@@ -611,11 +1025,57 @@
     $("notif-hint").textContent = last ? last.kind + " @ " + last.event_timestamp : "none";
   }
 
-  buildObjectTabs();
-  buildAskShortcuts();
-  refreshMeta();
-  loadHomeFeed();
-  loadJournalDecisions();
-  pollNotif();
-  setInterval(pollNotif, 8000);
+  async function switchLang(lg) {
+    window.__cockpitLang = lg;
+    try {
+      localStorage.setItem("cockpitLang", lg);
+    } catch (_) {}
+    const koOn = lg === "ko";
+    const lk = $("lang-ko");
+    const le = $("lang-en");
+    if (lk) lk.setAttribute("aria-pressed", koOn ? "true" : "false");
+    if (le) le.setAttribute("aria-pressed", koOn ? "false" : "true");
+    await loadLocaleStrings();
+    applyChromeStrings();
+    await refreshObjectTabsFromOverview();
+    await loadHomeFeed();
+    if ($("panel-watchlist").classList.contains("visible")) await loadWatchlistPanel();
+    if ($("panel-research").classList.contains("visible") && objectSections[0]) await loadObjectSection(objectSections[0].id);
+    if ($("panel-replay").classList.contains("visible")) await loadReplay();
+    if ($("panel-advanced").classList.contains("visible")) await loadAlerts();
+    if ($("panel-home").classList.contains("visible")) await loadTodaySpectrumDemo();
+    const ptd2 = $("panel-today_detail");
+    if (ptd2 && ptd2.classList.contains("visible")) {
+      const aid = ptd2.getAttribute("data-current-asset");
+      if (aid) await openTodayObjectDetail(aid);
+    }
+  }
+
+  $("lang-ko").addEventListener("click", () => switchLang("ko"));
+  $("lang-en").addEventListener("click", () => switchLang("en"));
+
+  const tdb = $("today-detail-back");
+  if (tdb) {
+    tdb.addEventListener("click", () => {
+      const p = $("panel-today_detail");
+      if (p) p.removeAttribute("data-current-asset");
+      showPanel("home");
+      loadTodaySpectrumDemo();
+    });
+  }
+
+  async function initCockpit() {
+    window.__cockpitLang = cockpitLang();
+    await loadLocaleStrings();
+    applyChromeStrings();
+    await refreshObjectTabsFromOverview();
+    buildAskShortcuts();
+    await refreshMeta();
+    await loadHomeFeed();
+    await loadJournalDecisions();
+    pollNotif();
+    setInterval(pollNotif, 8000);
+  }
+
+  initCockpit();
 })();

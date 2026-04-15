@@ -257,7 +257,7 @@ def test_operator_phase46_smoke_for_overview_sections(tmp_path: Path) -> None:
     bpath = tmp_path / "phase46.json"
     bpath.write_text(json.dumps(out), encoding="utf-8")
     st = CockpitRuntimeState.from_paths(repo_root=tmp_path, phase46_bundle_path=bpath)
-    ov = api_overview(st)
+    ov = api_overview(st, "ko")
     assert ov.get("asset_id")
     assert ov.get("pitch_summary")
     assert ov.get("decision_card")

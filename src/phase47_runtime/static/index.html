@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Decision cockpit — Phase 47d</title>
+  <title>Decision cockpit — Phase 47e</title>
   <style>
     :root {
       --bg: #0f1419;
@@ -79,6 +79,8 @@
     .empty { color: var(--muted); font-size: 0.88rem; padding: 0.75rem; background: #0f1419; border-radius: 6px; margin: 0.5rem 0; }
     .empty strong { color: var(--text); }
     footer { font-size: 0.72rem; color: var(--muted); margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #2a3544; }
+    .lang-bar { display: flex; gap: 0.35rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; }
+    .lang-bar .meta { margin: 0; }
     .replay-layout { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; }
     .replay-main { flex: 1 1 320px; min-width: 0; }
     .replay-aside { flex: 0 1 280px; background: #0f1419; border: 1px solid #2a3544; border-radius: 8px; padding: 0.85rem; font-size: 0.88rem; }
@@ -90,67 +92,108 @@
     .replay-events .ev-type { font-size: 0.7rem; color: var(--accent); }
     .cf-branch { padding: 0.35rem 0; border-bottom: 1px dashed #2a3544; font-size: 0.85rem; }
     .cf-branch.stub { color: var(--muted); }
+    .spectrum-dot { display: inline-block; width: 0.55rem; height: 0.55rem; border-radius: 50%; margin-right: 0.35rem; vertical-align: middle; }
+    .spectrum-dot--left { background: #3d9a6e; box-shadow: 0 0 0 1px rgba(61,154,110,0.35); }
+    .spectrum-dot--center { background: #c9a227; box-shadow: 0 0 0 1px rgba(201,162,39,0.35); }
+    .spectrum-dot--right { background: #c45c5c; box-shadow: 0 0 0 1px rgba(196,92,92,0.35); }
+    .spectrum-msg-head { font-weight: 600; color: var(--text); font-size: 0.86rem; display: block; margin-bottom: 0.2rem; }
+    .spectrum-msg-sub { font-size: 0.78rem; color: var(--muted); line-height: 1.35; }
+    .spectrum-asset-btn { background: none; border: none; color: var(--accent); cursor: pointer; font: inherit; padding: 0; text-decoration: underline; text-align: left; }
+    .spectrum-asset-btn:hover { color: #7aa3ff; }
+    .mir-block { margin: 0.85rem 0 1rem; padding-bottom: 0.85rem; border-bottom: 1px solid #2a3544; }
+    .mir-block:last-of-type { border-bottom: none; }
+    .mir-block h4 { margin: 0 0 0.45rem; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+    .mir-kv { margin: 0.35rem 0; font-size: 0.88rem; }
+    .mir-kv .k { color: var(--muted); font-size: 0.76rem; display: block; margin-bottom: 0.15rem; }
+    .today-hero { margin-bottom: 1.15rem; padding-bottom: 0.35rem; border-bottom: 1px solid #2a3544; }
+    .today-hero-card { border-color: #3d4f66; }
+    .spectrum-toolbar { display: flex; flex-wrap: wrap; gap: 0.65rem 1rem; align-items: center; margin: 0.5rem 0 0.35rem; font-size: 0.8rem; color: var(--muted); }
+    .spectrum-legend { display: flex; flex-wrap: wrap; gap: 0.75rem 1.1rem; align-items: center; margin: 0.35rem 0 0.15rem; font-size: 0.76rem; color: var(--muted); }
+    .spectrum-legend span { display: inline-flex; align-items: center; gap: 0.25rem; }
+    .wc-chip { display: inline-block; max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; padding: 0.1rem 0.4rem; border-radius: 4px; background: #243044; font-size: 0.74rem; color: var(--text); border: 1px solid #2a3544; }
+    details.spectrum-rationale { margin-top: 0.35rem; font-size: 0.74rem; color: var(--muted); }
+    details.spectrum-rationale summary { cursor: pointer; color: var(--accent); }
+    .spectrum-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 0.5rem; max-width: 100%; }
+    .spectrum-table-scroll table { min-width: 36rem; }
+    .spectrum-context-line { font-size: 0.74rem; color: var(--muted); margin: 0.25rem 0 0.15rem; }
+    .spectrum-hint-warn { font-size: 0.74rem; color: var(--warn); margin: 0.35rem 0 0; max-width: 42rem; }
   </style>
 </head>
 <body>
   <header>
     <div>
-      <h1>Investment operating cockpit</h1>
-      <p class="subtitle">Premium daily surface: attention triage, watchlist, live research activity, decisions, and bounded AI — not an internal research-object viewer.</p>
+      <h1 data-i18n="shell.title">Investment operating cockpit</h1>
+      <p class="subtitle" data-i18n="shell.subtitle">Premium daily surface: attention triage, watchlist, live research activity, decisions, and bounded AI — not an internal research-object viewer.</p>
+      <div class="lang-bar">
+        <span class="meta" data-i18n="shell.lang_switch">Language</span>
+        <button type="button" class="btn" id="lang-ko" aria-pressed="true">KO</button>
+        <button type="button" class="btn" id="lang-en" aria-pressed="false">EN</button>
+      </div>
       <div id="hdr-meta" class="meta">Loading…</div>
     </div>
     <nav id="nav">
-      <button type="button" data-panel="home" class="nav-main active">Home</button>
-      <button type="button" data-panel="watchlist" class="nav-main">Watchlist</button>
-      <button type="button" data-panel="research" class="nav-main">Research</button>
-      <button type="button" data-panel="replay" class="nav-main">Replay</button>
-      <button type="button" data-panel="journal" class="nav-main">Journal</button>
-      <button type="button" data-panel="ask_ai" class="nav-main">Ask AI</button>
-      <button type="button" data-panel="advanced" class="nav-main">Advanced</button>
-      <button type="button" class="nav-main reload" id="btn-reload">Reload bundle</button>
+      <button type="button" data-panel="home" class="nav-main active" data-i18n="nav.home">Home</button>
+      <button type="button" data-panel="watchlist" class="nav-main" data-i18n="nav.watchlist">Watchlist</button>
+      <button type="button" data-panel="research" class="nav-main" data-i18n="nav.research">Research</button>
+      <button type="button" data-panel="replay" class="nav-main" data-i18n="nav.replay">Replay</button>
+      <button type="button" data-panel="journal" class="nav-main" data-i18n="nav.journal">Journal</button>
+      <button type="button" data-panel="ask_ai" class="nav-main" data-i18n="nav.ask_ai">Ask AI</button>
+      <button type="button" data-panel="advanced" class="nav-main" data-i18n="nav.advanced">Advanced</button>
+      <button type="button" class="nav-main reload" id="btn-reload" data-i18n="nav.reload">Reload bundle</button>
     </nav>
   </header>
   <main>
     <section id="panel-home" class="panel visible">
-      <h2>Home — daily surface</h2>
-      <p class="meta" style="margin:0 0 1rem">Blocks are governed summaries only; raw machine JSON stays under Advanced.</p>
+      <h2 data-i18n="panel.home.title">Home — daily surface</h2>
+      <p class="meta" style="margin:0 0 0.35rem" data-i18n="panel.home.meta">Blocks are governed summaries only; raw machine JSON stays under Advanced.</p>
+      <p class="meta" style="margin:0 0 1rem" data-i18n="panel.home.today_hero_meta">Today board first — Sprint 3 productization.</p>
+      <div id="home-today-hero" class="today-hero">
+        <div id="home-spectrum-demo-wrap"></div>
+      </div>
       <div id="home-feed-root" class="feed-stack"><p class="empty">Loading feed…</p></div>
       <div class="six-q">
-        <strong>This surface should answer:</strong>
+        <strong data-i18n="six_q.title">This surface should answer:</strong>
         <ul>
-          <li>What matters right now?</li>
-          <li>What changed?</li>
-          <li>What am I tracking?</li>
-          <li>What research is in motion?</li>
-          <li>What did I decide?</li>
-          <li>What should the copilot help me review next?</li>
+          <li data-i18n="six_q.1">What matters right now?</li>
+          <li data-i18n="six_q.2">What changed?</li>
+          <li data-i18n="six_q.3">What am I tracking?</li>
+          <li data-i18n="six_q.4">What research is in motion?</li>
+          <li data-i18n="six_q.5">What did I decide?</li>
+          <li data-i18n="six_q.6">What should the copilot help me review next?</li>
         </ul>
       </div>
     </section>
 
+    <section id="panel-today_detail" class="panel">
+      <button type="button" class="btn" id="today-detail-back" data-i18n="today_detail.back">← Back to Home</button>
+      <h2 data-i18n="panel.today_detail.title">Today — object detail</h2>
+      <p class="meta" style="margin:0 0 1rem" data-i18n="panel.today_detail.meta">MVP Sprint 4 order.</p>
+      <div id="today-detail-root"><p class="empty">Loading…</p></div>
+    </section>
+
     <section id="panel-watchlist" class="panel">
-      <h2>Watchlist</h2>
-      <p class="meta" style="margin:0 0 0.75rem">Cohorts and names you are tracking — stance and evidence limits in plain language.</p>
+      <h2 data-i18n="panel.watchlist.title">Watchlist</h2>
+      <p class="meta" style="margin:0 0 0.75rem" data-i18n="panel.watchlist.meta">Cohorts and names you are tracking — stance and evidence limits in plain language.</p>
       <div id="watchlist-root" class="feed-stack"><p class="empty">Open this tab to load.</p></div>
     </section>
 
     <section id="panel-research" class="panel">
-      <h2>Research</h2>
-      <p class="meta" style="margin:0 0 0.75rem">Cohort detail, evidence, and archive context — closed fixtures live here, not as the Home hero.</p>
+      <h2 data-i18n="panel.research.title">Research</h2>
+      <p class="meta" style="margin:0 0 0.75rem" data-i18n="panel.research.meta">Cohort detail, evidence, and archive context — closed fixtures live here, not as the Home hero.</p>
       <div class="tabs" id="object-tabs"></div>
       <div id="object-section-body"></div>
     </section>
 
     <section id="panel-journal" class="panel">
-      <h2>Journal — decision log</h2>
-      <p class="meta">What you decided and why — readable cards, not raw logs.</p>
+      <h2 data-i18n="panel.journal.title">Journal — decision log</h2>
+      <p class="meta" data-i18n="panel.journal.meta">What you decided and why — readable cards, not raw logs.</p>
       <div class="empty" id="decisions-empty" style="display:none">
         <strong>No decisions recorded yet.</strong> Log a decision below when you hold, watch, defer, reopen, or dismiss. Entries appear as cards with replay context.
       </div>
       <div id="journal-cards" class="feed-stack"></div>
-      <h2 style="margin-top:1.25rem">Record a decision</h2>
+      <h2 style="margin-top:1.25rem" data-i18n="panel.journal.record">Record a decision</h2>
       <div class="row">
-        <label>Type
+        <label><span data-i18n="journal.label_type">Type</span>
           <select id="rec-dt">
             <option value="hold">Hold</option>
             <option value="watch">Watch</option>
@@ -161,69 +204,69 @@
             <option value="dismiss_alert">Dismiss alert</option>
           </select>
         </label>
-        <label>Asset ID <input type="text" id="rec-aid" placeholder="required" /></label>
+        <label><span data-i18n="journal.label_asset">Asset ID</span> <input type="text" id="rec-aid" placeholder="required" /></label>
       </div>
-      <label>Founder note</label><textarea id="rec-note" placeholder="Why you chose this (governed, short)"></textarea>
-      <button type="button" class="btn btn-primary" id="btn-record-decision">Log my decision</button>
+      <label data-i18n="journal.label_note">Founder note</label><textarea id="rec-note" placeholder="Why you chose this (governed, short)"></textarea>
+      <button type="button" class="btn btn-primary" id="btn-record-decision" data-i18n="journal.btn_log">Log my decision</button>
     </section>
 
     <section id="panel-replay" class="panel">
-      <h2>Replay — time-ordered trace</h2>
-      <p class="meta">Historical replay only: what was knowable at each timestamp. <strong>Decision quality</strong> (process then) is separate from <strong>outcome quality</strong> (ex-post).</p>
+      <h2 data-i18n="panel.replay.title">Replay — time-ordered trace</h2>
+      <p class="meta" data-i18n="panel.replay.meta">Historical replay only: what was knowable at each timestamp. <strong>Decision quality</strong> (process then) is separate from <strong>outcome quality</strong> (ex-post).</p>
       <div class="tabs" id="replay-subtabs">
-        <button type="button" class="on" data-replay-sub="timeline">Replay</button>
-        <button type="button" data-replay-sub="counterfactual">Counterfactual Lab</button>
+        <button type="button" class="on" data-replay-sub="timeline" data-i18n="panel.replay.tab_timeline">Replay</button>
+        <button type="button" data-replay-sub="counterfactual" data-i18n="panel.replay.tab_cf">Counterfactual Lab</button>
       </div>
       <div id="replay-sub-timeline">
         <div class="replay-layout">
           <div class="replay-main">
             <svg id="replay-svg" viewBox="0 0 100 36" preserveAspectRatio="none" aria-label="Illustrative timeline"></svg>
-            <p class="meta" style="margin:0.35rem 0 0">Dashed line: illustrative rhythm only (not live prices). Green markers: decision posture index from stance codes.</p>
+            <p class="meta" style="margin:0.35rem 0 0" data-i18n="panel.replay.chart_note">Dashed line: illustrative rhythm only (not live prices). Green markers: decision posture index from stance codes.</p>
             <ul class="replay-events" id="replay-event-list"></ul>
           </div>
           <aside class="replay-aside" id="replay-micro-brief">
-            <h3>Micro-brief</h3>
-            <p class="empty" style="margin:0">Select an event for stance, evidence, and “known then” framing.</p>
+            <h3 data-i18n="panel.replay.micro">Micro-brief</h3>
+            <p class="empty" style="margin:0" data-i18n="panel.replay.micro_empty">Select an event for stance, evidence, and “known then” framing.</p>
           </aside>
         </div>
         <p class="meta" id="replay-portfolio-stub" style="margin-top:0.75rem"></p>
       </div>
       <div id="replay-sub-counterfactual" style="display:none">
-        <p class="meta">Hypothetical branches — not drawn on the replay axis. No numeric engine in this build.</p>
+        <p class="meta" data-i18n="panel.replay.cf_intro">Hypothetical branches — not drawn on the replay axis. No numeric engine in this build.</p>
         <div id="cf-branches"></div>
       </div>
     </section>
 
     <section id="panel-ask_ai" class="panel">
-      <h2>Ask AI — decision copilot</h2>
-      <p class="meta">Bounded prompts grounded in the bundle — not a generic chat center.</p>
+      <h2 data-i18n="panel.ask_ai.title">Ask AI — decision copilot</h2>
+      <p class="meta" data-i18n="panel.ask_ai.meta">Bounded prompts grounded in the bundle — not a generic chat center.</p>
       <div class="ask-brief-strip" id="ask-brief-strip">
-        <div class="brief-label">Copilot brief (now)</div>
+        <div class="brief-label" data-i18n="panel.ask_ai.brief_label">Copilot brief (now)</div>
         <div id="ask-brief-line" class="brief-value">Loading…</div>
       </div>
-      <div class="brief-label" style="margin-bottom:0.35rem">Shortcuts</div>
+      <div class="brief-label" style="margin-bottom:0.35rem" data-i18n="panel.ask_ai.shortcuts">Shortcuts</div>
       <div class="shortcut-row" id="ask-shortcuts"></div>
-      <textarea id="conv-in" placeholder="Or type a governed prompt (e.g. decision summary, information layer)…"></textarea>
-      <button type="button" class="btn btn-primary" id="btn-conv">Submit</button>
+      <textarea id="conv-in" data-i18n-placeholder="panel.ask_ai.placeholder" placeholder="Or type a governed prompt (e.g. decision summary, information layer)…"></textarea>
+      <button type="button" class="btn btn-primary" id="btn-conv" data-i18n="panel.ask_ai.submit">Submit</button>
       <div id="conv-out"></div>
     </section>
 
     <section id="panel-advanced" class="panel">
-      <h2>Advanced — alerts &amp; machine detail</h2>
-      <p class="meta">Full alert workflow and filters. Default Home shows a short preview only.</p>
+      <h2 data-i18n="panel.advanced.title">Advanced — alerts &amp; machine detail</h2>
+      <p class="meta" data-i18n="panel.advanced.meta">Full alert workflow and filters. Default Home shows a short preview only.</p>
       <div class="empty" id="alerts-empty" style="display:none">
         <strong>No alerts match this filter.</strong> Alerts appear when the runtime records a change, conflict, reopen condition, or operator signal.
       </div>
       <div class="row">
-        <label>Status <select id="flt-alert-status"><option value="">All</option><option value="open">Open</option><option value="acknowledged">Acknowledged</option><option value="resolved">Resolved</option><option value="superseded">Superseded</option><option value="dismissed">Dismissed</option></select></label>
-        <label>Asset <input type="text" id="flt-alert-asset" placeholder="optional" /></label>
-        <button type="button" class="btn" id="btn-alerts-refresh">Refresh</button>
+        <label><span data-i18n="advanced.filter_status">Status</span> <select id="flt-alert-status"><option value="">All</option><option value="open">Open</option><option value="acknowledged">Acknowledged</option><option value="resolved">Resolved</option><option value="superseded">Superseded</option><option value="dismissed">Dismissed</option></select></label>
+        <label><span data-i18n="advanced.filter_asset">Asset</span> <input type="text" id="flt-alert-asset" placeholder="optional" /></label>
+        <button type="button" class="btn" id="btn-alerts-refresh" data-i18n="advanced.btn_refresh">Refresh</button>
       </div>
       <ul class="alerts" id="alert-list"></ul>
     </section>
 
     <footer>
-      Phase 47d — <code>GET /api/home/feed</code> · shell per <code>docs/DESIGN.md</code> / DESIGN_V3. Notifications: <span id="notif-hint" class="mono"></span>
+      <span data-i18n="footer.tagline">Phase 47e bilingual · DESIGN_V3</span> — <code>GET /api/home/feed</code> · <code>GET /api/locale</code>. Notifications: <span id="notif-hint" class="mono"></span>
     </footer>
   </main>
   <script src="/static/app.js"></script>

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "dead_letter_id": "9ee6195d-6d6b-4403-9cb2-d7a70f56f076",
+      "received_at": "2026-04-14T05:45:34.136737+00:00",
+      "source_id": "s53_signed",
+      "raw_event_type": "watchlist_submit",
+      "normalized_trigger_type": null,
+      "failure_stage": "signature",
+      "failure_reason": "bad_signature",
+      "raw_body_excerpt": "{\"source_type\":\"webhook\",\"source_id\":\"s53_signed\",\"raw_event_type\":\"watchlist_submit\",\"asset_scope\":{\"asset_id\":\"phase53_asset\"},\"payload\":{\"note\":\"signed-smoke\",\"suggested_job_type\":\"debate.execute\"}}",
+      "dedupe_key": null,
+      "replayable": true,
+      "replay_status": "none",
+      "linked_replay_event_id": null,
+      "payload_sha256": "0178beaa2bd6fe889bcaec2086788aaf06676bec7f8a7b0d6939fd277a4f4f1a"
+    },
+    {
+      "dead_letter_id": "c86abc9f-5884-4022-987c-ad1d9456cbda",
+      "received_at": "2026-04-14T05:45:34.137156+00:00",
+      "source_id": "s53_signed",
+      "raw_event_type": "watchlist_submit",
+      "normalized_trigger_type": null,
+      "failure_stage": "signature",
+      "failure_reason": "stale_timestamp",
+      "raw_body_excerpt": "{\"source_type\":\"webhook\",\"source_id\":\"s53_signed\",\"raw_event_type\":\"watchlist_submit\",\"asset_scope\":{\"asset_id\":\"phase53_asset\"},\"payload\":{\"note\":\"signed-smoke\",\"suggested_job_type\":\"debate.execute\"}}",
+      "dedupe_key": null,
+      "replayable": true,
+      "replay_status": "none",
+      "linked_replay_event_id": null,
+      "payload_sha256": "0178beaa2bd6fe889bcaec2086788aaf06676bec7f8a7b0d6939fd277a4f4f1a"
+    },
+    {
+      "dead_letter_id": "dff442d1-3977-4aaa-8b56-4a4b307abf09",
+      "received_at": "2026-04-14T05:45:34.138236+00:00",
+      "source_id": "s53_signed",
+      "raw_event_type": "watchlist_submit",
+      "normalized_trigger_type": null,
+      "failure_stage": "replay_guard",
+      "failure_reason": "nonce_replay",
+      "raw_body_excerpt": "{\"source_type\":\"webhook\",\"source_id\":\"s53_signed\",\"raw_event_type\":\"watchlist_submit\",\"asset_scope\":{\"asset_id\":\"phase53_asset\"},\"payload\":{\"note\":\"signed-smoke\",\"suggested_job_type\":\"debate.execute\"}}",
+      "dedupe_key": null,
+      "replayable": false,
+      "replay_status": "none",
+      "linked_replay_event_id": null,
+      "payload_sha256": "0178beaa2bd6fe889bcaec2086788aaf06676bec7f8a7b0d6939fd277a4f4f1a"
+    }
+  ]
+}

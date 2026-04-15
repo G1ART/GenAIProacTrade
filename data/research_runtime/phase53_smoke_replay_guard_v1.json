@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "guard_id": "8b42efea-1f76-4c22-ac36-12761aceaa11",
+      "source_id": "s53_signed",
+      "nonce": "n-1776145534.135712-ok",
+      "signature_digest": "1c15fdf2807348adcdb7177a9a7eccec298ea41bbac24c3c255407b7ed34a921",
+      "first_seen_at": "2026-04-14T05:45:34.135801+00:00",
+      "expires_at": "2026-04-14T06:00:34.135801+00:00"
+    },
+    {
+      "guard_id": "26860609-c47c-4a55-b621-15603e57bf2f",
+      "source_id": "s53_signed",
+      "nonce": "n-1776145534.135712-replay",
+      "signature_digest": "4040b9720c891403a3c7df1a4504301364c0f9720d8fd8701348e02a2846182b",
+      "first_seen_at": "2026-04-14T05:45:34.137542+00:00",
+      "expires_at": "2026-04-14T06:00:34.137542+00:00"
+    }
+  ]
+}

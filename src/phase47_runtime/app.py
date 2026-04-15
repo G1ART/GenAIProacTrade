@@ -69,7 +69,11 @@ def make_handler(state: CockpitRuntimeState):
                 self._send(200, sp.read_bytes(), _content_type(rel))
                 return
             if path.startswith("/api/"):
-                code, obj = dispatch_json(state, method="GET", path=path, body=None, query=q, headers=None)
+                hdrs = {
+                    "X-User-Language": (self.headers.get("X-User-Language") or ""),
+                    "X-Cockpit-Lang": (self.headers.get("X-Cockpit-Lang") or ""),
+                }
+                code, obj = dispatch_json(state, method="GET", path=path, body=None, query=q, headers=hdrs)
                 self._send_json(code, obj)
                 return
             self.send_error(404)
@@ -83,6 +87,9 @@ def make_handler(state: CockpitRuntimeState):
                 hdrs = {
                     "X-Source-Id": (self.headers.get("X-Source-Id") or ""),
                     "X-Webhook-Secret": (self.headers.get("X-Webhook-Secret") or ""),
+                    "X-Webhook-Timestamp": (self.headers.get("X-Webhook-Timestamp") or ""),
+                    "X-Webhook-Signature": (self.headers.get("X-Webhook-Signature") or ""),
+                    "X-Webhook-Nonce": (self.headers.get("X-Webhook-Nonce") or ""),
                 }
                 code, obj = dispatch_json(state, method="POST", path=path, body=body, query={}, headers=hdrs)
                 self._send_json(code, obj)

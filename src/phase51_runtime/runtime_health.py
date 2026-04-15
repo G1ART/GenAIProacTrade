@@ -28,6 +28,18 @@ def _classify_health(cp: dict[str, Any], last_skip_reason: str | None) -> str:
     return "healthy"
 
 
+def _last_accepted_or_consumed_trigger(entries: list[dict[str, Any]]) -> dict[str, Any] | None:
+    cands = [
+        e
+        for e in entries
+        if e.get("status") in ("accepted", "consumed") and e.get("normalized_trigger_type")
+    ]
+    if not cands:
+        return None
+    cands.sort(key=lambda e: str(e.get("received_at") or ""))
+    return cands[-1]
+
+
 def build_runtime_health_summary(
     *,
     repo_root: Path | None = None,
@@ -35,6 +47,11 @@ def build_runtime_health_summary(
     audit_path: Path | None = None,
     ingest_registry_path: Path | None = None,
     last_n_audit: int = 25,
+    external_source_registry_path: Path | None = None,
+    external_budget_state_path: Path | None = None,
+    external_event_queue_path: Path | None = None,
+    dead_letter_path: Path | None = None,
+    replay_guard_path: Path | None = None,
 ) -> dict[str, Any]:
     root = repo_root or Path(__file__).resolve().parents[2]
     cp_p = control_plane_path or default_control_plane_path(root)
@@ -55,7 +72,7 @@ def build_runtime_health_summary(
     deduped = [e for e in entries if e.get("status") == "deduped"]
     consumed = [e for e in entries if e.get("status") == "consumed"]
 
-    last_acc = next((e for e in reversed(entries) if e.get("status") == "accepted"), None)
+    last_acc = _last_accepted_or_consumed_trigger(entries)
     last_rej = next((e for e in reversed(entries) if e.get("status") == "rejected"), None)
 
     recent_skips: list[dict[str, Any]] = []
@@ -100,6 +117,7 @@ def build_runtime_health_summary(
                 "event_id": last_acc.get("event_id"),
                 "normalized_trigger_type": last_acc.get("normalized_trigger_type"),
                 "received_at": last_acc.get("received_at"),
+                "status": last_acc.get("status"),
             }
             if last_acc
             else None
@@ -115,11 +133,34 @@ def build_runtime_health_summary(
         ),
         "recent_skip_reasons": recent_skips[:8],
         "health_status": _classify_health(cp, last_skip),
+        "legacy_ingest_status": {
+            "path": "POST /api/runtime/external-ingest",
+            "allowed": bool(cp.get("legacy_external_ingest_enabled")),
+            "note": "Unauthenticated legacy path; disabled by default (control plane).",
+        },
     }
     try:
         from phase52_runtime.health_merge import merge_phase52_into_summary
 
-        merge_phase52_into_summary(summary, root)
+        merge_phase52_into_summary(
+            summary,
+            root,
+            source_registry_path=external_source_registry_path,
+            budget_state_path=external_budget_state_path,
+            event_queue_path=external_event_queue_path,
+        )
+    except ImportError:
+        pass
+    try:
+        from phase53_runtime.health_merge_v53 import merge_phase53_into_summary
+
+        merge_phase53_into_summary(
+            summary,
+            root,
+            source_registry_path=external_source_registry_path,
+            dead_letter_path=dead_letter_path,
+            replay_guard_path=replay_guard_path,
+        )
     except ImportError:
         pass
     return summary

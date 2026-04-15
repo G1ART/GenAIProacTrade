@@ -31,6 +31,7 @@ def default_control_plane_state() -> dict[str, Any]:
         "last_operator_override_at": None,
         "operator_note": "",
         "positive_path_smoke_enabled": False,
+        "legacy_external_ingest_enabled": False,
     }
 
 

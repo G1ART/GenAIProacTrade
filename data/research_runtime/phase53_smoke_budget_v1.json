@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "by_source_id": {
+    "s53_signed": {
+      "current_minute_key": "2026-04-14T05:45",
+      "events_this_minute": 2,
+      "window_started_at_utc": "2026-04-14T05:45:34.135801+00:00",
+      "events_this_window": 2,
+      "outcome_counts": {
+        "accepted_registry": 1,
+        "rejected_signature": 2,
+        "registry_other": 1,
+        "rejected_replay": 1
+      },
+      "last_outcome_at": "2026-04-14T05:45:34.138163+00:00",
+      "recent_auth_failures": [
+        {
+          "timestamp": "2026-04-14T05:45:34.136675+00:00",
+          "reason": "bad_signature"
+        },
+        {
+          "timestamp": "2026-04-14T05:45:34.137104+00:00",
+          "reason": "stale_timestamp"
+        }
+      ]
+    }
+  }
+}

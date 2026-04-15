@@ -1,0 +1,56 @@
+{
+  "ok": true,
+  "phase": "phase47e_bilingual_user_language",
+  "generated_utc": "2026-04-14T06:15:51.370890+00:00",
+  "design_source_path": "/Users/hyunminkim/GenAIProacTrade/docs/DESIGN_V3_MINIMAL_AND_STRONG.md",
+  "shell_version": "phase47e",
+  "supported_langs": [
+    "ko",
+    "en"
+  ],
+  "locale_string_counts": {
+    "ko": 118,
+    "en": 118
+  },
+  "navigation_primary_nav_sample": {
+    "ko": [
+      {
+        "id": "home",
+        "label": "홈",
+        "user_question": "지금 화면 전체에서 무엇이 핵심인가요?"
+      },
+      {
+        "id": "watchlist",
+        "label": "워치리스트",
+        "user_question": "무엇을 추적 중이며 어떻게 움직이나요?"
+      },
+      {
+        "id": "research",
+        "label": "연구",
+        "user_question": "무엇이 진행 중이고 아카이브 맥락은 무엇인가요?"
+      }
+    ],
+    "en": [
+      {
+        "id": "home",
+        "label": "Home",
+        "user_question": "What matters now across my surface?"
+      },
+      {
+        "id": "watchlist",
+        "label": "Watchlist",
+        "user_question": "What am I tracking and how is it moving?"
+      },
+      {
+        "id": "research",
+        "label": "Research",
+        "user_question": "What is being worked on and archived context?"
+      }
+    ]
+  },
+  "phase47d_core_phase": "phase47d_thick_slice_ux_shell_reset",
+  "phase47f": {
+    "phase47f_recommendation": "per_asset_narrative_strip_and_digest_reading_modes_v1",
+    "focus": "Per-asset story strip on Home, optional “plain / standard / deep” reading depth for long research objects — still governed, no substrate expansion."
+  }
+}

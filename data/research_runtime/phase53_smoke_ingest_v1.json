@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "event_id": "3d0b249a-2312-42cf-92b0-1755e9df35ea",
+      "received_at": "2026-04-14T05:45:34.136368+00:00",
+      "source_type": "webhook",
+      "source_id": "s53_signed",
+      "raw_event_type": "watchlist_submit",
+      "normalized_trigger_type": "manual_watchlist",
+      "asset_scope": {
+        "asset_id": "phase53_asset"
+      },
+      "status": "accepted",
+      "dedupe_key": "ext:webhook:s53_signed:watchlist_submit:dfd8dfa01310140669e575d5",
+      "accepted_or_rejected_reason": "accepted_governed",
+      "linked_cycle_id": null,
+      "normalized_payload": {
+        "asset_id": "phase53_asset",
+        "note": "signed-smoke",
+        "suggested_job_type": "debate.execute"
+      }
+    },
+    {
+      "event_id": "be7c240d-d3d9-4fa5-ba88-192289644552",
+      "received_at": "2026-04-14T05:45:34.137854+00:00",
+      "source_type": "webhook",
+      "source_id": "s53_signed",
+      "raw_event_type": "watchlist_submit",
+      "normalized_trigger_type": "manual_watchlist",
+      "asset_scope": {
+        "asset_id": "phase53_asset"
+      },
+      "status": "deduped",
+      "dedupe_key": "ext:webhook:s53_signed:watchlist_submit:dfd8dfa01310140669e575d5",
+      "accepted_or_rejected_reason": "duplicate_dedupe_key",
+      "linked_cycle_id": null,
+      "normalized_payload": {
+        "asset_id": "phase53_asset",
+        "note": "signed-smoke",
+        "suggested_job_type": "debate.execute"
+      }
+    }
+  ]
+}

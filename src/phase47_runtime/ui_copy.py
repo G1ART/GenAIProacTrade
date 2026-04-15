@@ -8,6 +8,18 @@ from __future__ import annotations
 
 from typing import Any
 
+from phase47_runtime.phase47e_user_locale import (
+    ACTION_FRAMING,
+    SECTION_LABELS,
+    governed_prompt_shortcuts_localized,
+    normalize_lang,
+    object_kind_hint_localized,
+    object_kind_label_localized,
+    shell_nav_rows,
+    translate_status_token,
+    t as locale_t,
+)
+
 # Forbidden in default user-facing strings (governed conversation + surface).
 FORBIDDEN_LEGACY_OPTIMISTIC_TOKENS = (
     "continue_bounded_falsifier_retest_or_narrow_claims_v1",
@@ -70,18 +82,8 @@ ADVANCED_BOUNDARY_RULES: list[str] = [
 ]
 
 
-def translate_token(token: str | None) -> str:
-    if not token:
-        return ""
-    t = str(token).strip()
-    if t in STATUS_TRANSLATIONS:
-        return STATUS_TRANSLATIONS[t]
-    # partial contains
-    low = t.lower()
-    for k, v in STATUS_TRANSLATIONS.items():
-        if k.lower() in low:
-            return v
-    return t
+def translate_token(token: str | None, lang: str | None = None) -> str:
+    return translate_status_token(lang, token)
 
 
 def infer_object_kind(bundle: dict[str, Any]) -> str:
@@ -98,33 +100,32 @@ def infer_object_kind(bundle: dict[str, Any]) -> str:
     return "cohort_research_object"
 
 
-def object_kind_label(kind: str) -> str:
-    for row in OBJECT_HIERARCHY:
-        if row["kind"] == kind:
-            return row["label"]
-    return "Research object"
+def object_kind_label(kind: str, lang: str | None = None) -> str:
+    return object_kind_label_localized(lang, kind)
 
 
-def action_framing(bundle: dict[str, Any]) -> str:
+def action_framing(bundle: dict[str, Any], lang: str | None = None) -> str:
+    lg = normalize_lang(lang)
+    msgs = ACTION_FRAMING.get(lg) or ACTION_FRAMING["en"]
     rm = bundle.get("founder_read_model") or {}
     cs = bundle.get("cockpit_state") or {}
     agg = cs.get("cohort_aggregate") or {}
     primary = str(agg.get("founder_primary_status") or rm.get("decision_status") or "")
-    closeout = str(rm.get("closeout_status") or "")
     kind = infer_object_kind(bundle)
 
     if kind == "closed_research_fixture":
         if rm.get("reopen_requires_named_source"):
-            return "Consider reopen request — only with a new named source path"
-        return "Research closed — hold until new evidence or named source"
+            return msgs["closed_reopen"]
+        return msgs["closed_hold"]
     if primary == "watching_for_new_evidence" or "watch" in primary.lower():
-        return "Keep watching"
+        return msgs["keep_watching"]
     if "defer" in primary.lower():
-        return "No action — deferred"
-    return "Review new evidence"
+        return msgs["defer"]
+    return msgs["review"]
 
 
-def build_user_first_brief(bundle: dict[str, Any]) -> dict[str, Any]:
+def build_user_first_brief(bundle: dict[str, Any], lang: str | None = None) -> dict[str, Any]:
+    lg = normalize_lang(lang)
     rm = bundle.get("founder_read_model") or {}
     pitch = bundle.get("representative_pitch") or {}
     cs = bundle.get("cockpit_state") or {}
@@ -135,23 +136,23 @@ def build_user_first_brief(bundle: dict[str, Any]) -> dict[str, Any]:
 
     kind = infer_object_kind(bundle)
     one_line = (dc.get("body") or rm.get("headline_message") or pitch.get("top_level_pitch") or "").strip()
-    stance_plain = translate_token(str(rm.get("current_stance") or ""))
-    gate_plain = translate_token(str(pbc) if pbc else "")
+    stance_plain = translate_token(str(rm.get("current_stance") or ""), lang=lg)
+    gate_plain = translate_token(str(pbc) if pbc else "", lang=lg)
 
     return {
         "object_kind": kind,
-        "object_kind_label": object_kind_label(kind),
-        "object_kind_hint": next((x["hint"] for x in OBJECT_HIERARCHY if x["kind"] == kind), ""),
+        "object_kind_label": object_kind_label_localized(lg, kind),
+        "object_kind_hint": object_kind_hint_localized(lg, kind),
         "stance_plain": stance_plain or str(rm.get("current_stance") or ""),
         "one_line_explanation": one_line[:2000],
-        "action_framing": action_framing(bundle),
-        "evidence_state_plain": gate_plain or translate_token(str(gate.get("gate_status") or "")),
+        "action_framing": action_framing(bundle, lang=lg),
+        "evidence_state_plain": gate_plain or translate_token(str(gate.get("gate_status") or ""), lang=lg),
         "asset_id": rm.get("asset_id"),
         "symbols_preview": (rm.get("cohort_symbols") or [])[:12],
     }
 
 
-def build_section_payload(bundle: dict[str, Any], section: str) -> dict[str, Any]:
+def build_section_payload(bundle: dict[str, Any], section: str, lang: str | None = None) -> dict[str, Any]:
     """Compose one user-first section from Phase 46 bundle fields + drilldown."""
     rm = bundle.get("founder_read_model") or {}
     cs = bundle.get("cockpit_state") or {}
@@ -159,7 +160,8 @@ def build_section_payload(bundle: dict[str, Any], section: str) -> dict[str, Any
     dd = bundle.get("drilldown_examples") or {}
     pitch = bundle.get("representative_pitch") or {}
 
-    brief = build_user_first_brief(bundle)
+    lg = normalize_lang(lang)
+    brief = build_user_first_brief(bundle, lang=lg)
     out: dict[str, Any] = {
         "section": section,
         "object_kind_label": brief["object_kind_label"],
@@ -169,10 +171,10 @@ def build_section_payload(bundle: dict[str, Any], section: str) -> dict[str, Any
     if section == "brief":
         out["paragraphs"] = [
             f"**{brief['object_kind_label']}** — {brief['object_kind_hint']}",
-            f"**Current stance (plain):** {brief['stance_plain']}",
-            f"**What the system is saying:** {brief['one_line_explanation'][:1200]}",
-            f"**What to do now:** {brief['action_framing']}",
-            f"**Evidence state:** {brief['evidence_state_plain'] or 'See Evidence tab'}",
+            f"**{locale_t(lg, 'brief.label_stance')}:** {brief['stance_plain']}",
+            f"**{locale_t(lg, 'brief.label_saying')}:** {brief['one_line_explanation'][:1200]}",
+            f"**{locale_t(lg, 'brief.label_action')}:** {brief['action_framing']}",
+            f"**{locale_t(lg, 'brief.label_evidence')}:** {brief['evidence_state_plain'] or locale_t(lg, 'brief.evidence_fallback')}",
         ]
         return out
 
@@ -181,18 +183,15 @@ def build_section_payload(bundle: dict[str, Any], section: str) -> dict[str, Any
         out["bullets_changed"] = [str(x) for x in wc][:20]
         mc = agg.get("message_card") or {}
         out["message_summary"] = str(mc.get("body") or rm.get("headline_message") or "")[:2500]
-        out["intro"] = (
-            "This object is on screen because it is part of your governed cockpit loadout "
-            "and has a defined research stance. Recent changes below are from the latest authoritative bundle."
-        )
+        out["intro"] = locale_t(lg, "why_now.intro")
         return out
 
     if section == "what_could_change":
         nw = rm.get("next_watchpoints") or []
         crc = agg.get("closeout_reopen_card") or {}
-        out["watchpoints_plain"] = [translate_token(str(x)) for x in nw][:20]
+        out["watchpoints_plain"] = [translate_token(str(x), lang=lg) for x in nw][:20]
         out["reopen_note"] = str(crc.get("reopen_note") or "")[:2000]
-        out["closeout_plain"] = translate_token(str(crc.get("closeout") or rm.get("closeout_status") or ""))
+        out["closeout_plain"] = translate_token(str(crc.get("closeout") or rm.get("closeout_status") or ""), lang=lg)
         return out
 
     if section == "evidence":
@@ -207,16 +206,16 @@ def build_section_payload(bundle: dict[str, Any], section: str) -> dict[str, Any
         return out
 
     if section == "history":
-        out["intro"] = "Alerts and recorded decisions live under top-level Advanced and Journal (Phase 47d shell)."
+        out["intro"] = locale_t(lg, "history.intro")
         out["links"] = [
-            {"panel": "advanced", "label": "Open Alerts (Advanced)"},
-            {"panel": "journal", "label": "Open Journal"},
+            {"panel": "advanced", "label": locale_t(lg, "history.link_advanced")},
+            {"panel": "journal", "label": locale_t(lg, "history.link_journal")},
         ]
         return out
 
     if section == "ask_ai":
-        out["intro"] = "Use quick prompts below — responses are governed and grounded in the bundle (not generic chat)."
-        out["shortcuts"] = governed_prompt_shortcuts()
+        out["intro"] = locale_t(lg, "ask_ai.intro")
+        out["shortcuts"] = governed_prompt_shortcuts(lg)
         return out
 
     if section == "advanced":
@@ -229,23 +228,17 @@ def build_section_payload(bundle: dict[str, Any], section: str) -> dict[str, Any
     return {**out, "error": "unknown_section"}
 
 
-def governed_prompt_shortcuts() -> list[dict[str, str]]:
-    return [
-        {"label": "Explain this briefly", "text": "decision summary"},
-        {"label": "Show key evidence", "text": "information layer"},
-        {"label": "Why is this closed?", "text": "why is this closed"},
-        {"label": "What changed?", "text": "what changed"},
-        {"label": "What could change?", "text": "what could change"},
-        {"label": "Show research history", "text": "research layer"},
-        {"label": "Log context (provenance)", "text": "show provenance"},
-    ]
+def governed_prompt_shortcuts(lang: str | None = None) -> list[dict[str, str]]:
+    if lang is None:
+        return governed_prompt_shortcuts_localized("en")
+    return governed_prompt_shortcuts_localized(lang)
 
 
-def navigation_contract() -> dict[str, Any]:
-    from phase47_runtime.home_feed import SHELL_NAVIGATION_47D
-
+def navigation_contract(lang: str | None = None) -> dict[str, Any]:
+    lg = normalize_lang(lang)
+    tabs = SECTION_LABELS.get(lg, SECTION_LABELS["en"]).get("tabs") or OBJECT_DETAIL_SECTIONS
     return {
-        "primary_navigation": SHELL_NAVIGATION_47D,
-        "object_detail_sections": OBJECT_DETAIL_SECTIONS,
+        "primary_navigation": shell_nav_rows(lg),
+        "object_detail_sections": tabs,
         "internal_layers": ["decision", "message", "information", "research", "provenance", "closeout"],
     }

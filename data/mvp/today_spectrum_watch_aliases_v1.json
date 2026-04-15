@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "note": "Optional MVP demo: map bundle founder_read_model ids/symbols to Today spectrum seed asset_id. Safe to delete for strict bundle-only behavior.",
+  "aliases": {
+    "research_engine_fixture_cohort_8_row_v1": "DEMO_KR_A",
+    "BBY": "DEMO_KR_A",
+    "ADSK": "DEMO_KR_B",
+    "CRM": "DEMO_KR_C",
+    "CRWD": "DEMO_KR_A",
+    "DELL": "DEMO_KR_B",
+    "DUK": "DEMO_KR_C",
+    "NVDA": "DEMO_KR_A",
+    "WMT": "DEMO_KR_B"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "timestamp": "2026-04-14T05:45:34.136521+00:00",
+      "kind": "external_ingest",
+      "raw_event_excerpt": {
+        "source_type": "webhook",
+        "source_id": "s53_signed",
+        "raw_event_type": "watchlist_submit"
+      },
+      "event_id": "3d0b249a-2312-42cf-92b0-1755e9df35ea",
+      "registry_status": "accepted",
+      "accepted_or_rejected_reason": "accepted_governed",
+      "normalized_trigger_type": "manual_watchlist",
+      "normalization_ok": true,
+      "normalization_reason": null,
+      "deduped_away": false,
+      "consumed_by_cycle_id": null
+    },
+    {
+      "timestamp": "2026-04-14T05:45:34.136850+00:00",
+      "kind": "phase53_signature_failure",
+      "source_id": "s53_signed",
+      "gate_reason": "bad_signature",
+      "ingest_path": "phase52_governed",
+      "raw_event_type": "watchlist_submit",
+      "verified_key_id": "k_active_v1"
+    },
+    {
+      "timestamp": "2026-04-14T05:45:34.137294+00:00",
+      "kind": "phase53_signature_failure",
+      "source_id": "s53_signed",
+      "gate_reason": "stale_timestamp",
+      "ingest_path": "phase52_governed",
+      "raw_event_type": "watchlist_submit",
+      "verified_key_id": null
+    },
+    {
+      "timestamp": "2026-04-14T05:45:34.138014+00:00",
+      "kind": "external_ingest",
+      "raw_event_excerpt": {
+        "source_type": "webhook",
+        "source_id": "s53_signed",
+        "raw_event_type": "watchlist_submit"
+      },
+      "event_id": "be7c240d-d3d9-4fa5-ba88-192289644552",
+      "registry_status": "deduped",
+      "accepted_or_rejected_reason": "duplicate_dedupe_key",
+      "normalized_trigger_type": "manual_watchlist",
+      "normalization_ok": true,
+      "normalization_reason": null,
+      "deduped_away": true,
+      "consumed_by_cycle_id": null
+    },
+    {
+      "timestamp": "2026-04-14T05:45:34.138354+00:00",
+      "kind": "phase53_replay_blocked",
+      "source_id": "s53_signed",
+      "gate_reason": "nonce_replay",
+      "ingest_path": "phase52_governed",
+      "canonical": "v1|2026-04-14T05:45:34.135712Z|n-1776145534.135712-replay|s53_signed|0178beaa2bd6fe889bcaec2086788aaf06676bec7f8a7b0d693"
+    }
+  ]
+}
