@@ -1,8 +1,31 @@
 # GenAIProacTrade — Phase 0–6 + Universe Backfill (SEC + XBRL + 팩터 + 시장 + 연구 + 상태변화 + 오케스트레이션)
 
+## Metis MVP 제품면 (현재 권위 문서와 위치)
+
+이 저장소의 **MVP 제품 정의·실행 우선순위**는 아래 두 문서가 단일 권위입니다.
+
+- `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` — Today / Research / Replay, Bones·Heart·Brain·Skin, **Today 읽기 전용 입력 = Active Horizon Model Registry** 등.
+- `docs/plan/METIS_MVP_Unified_Build_Plan_KR_v1.md` — Stage 0(Brain Lock) → Stage 6(Trust) 순서, **스킨보다 Brain 먼저** 명시.
+
+**코드 기준 현재 위치 (요약).**
+
+- **닫힌 것(계약·수직 슬라이스)**: `src/metis_brain`에 Artifact / Promotion Gate / Registry 스키마와 번들 검증(`validate_active_registry_integrity`), Phase 47 런타임에서 **Registry 우선 Today**·메시지 스냅샷·Replay lineage·워치 순서·헬스의 `mvp_brain_gate` 등 **제품 표면과 Brain JSON 계약**이 연결되어 있습니다.
+- **아직 데모에 가까운 것(실질)**: `data/mvp/metis_brain_bundle_v0.json`은 시드 스펙트럼과 맞춘 **데모/스모크 번들**이며, `deterministic_kernel:v0`·`stub_feature_set` 등으로 **실제 검증 파이프라인이 자동 생산한 모델 패밀리**를 대체하지는 않습니다.
+- **다음 P0 (로드맵과 감사 공통)**: `factor_validation_*` / `research_validation` 결과를 **ModelArtifactPacketV0 + metric 기반 PromotionGateRecordV0 + Registry entry**로 뽑아 내는 **빌더·승격 다리**를 코드로 닫는 것. 그 위에 Research Ask/Sandbox **acceptance 문장**을 스펙 수준으로 조이는 것. (쉘·커넥터 확장은 뒤로.)
+
+런타임 스모크: `python3 src/main.py validate-metis-brain-bundle`, Today 스펙트럼은 `python3 src/phase47_runtime/app.py` 후 `/api/today/spectrum` 등.
+
+검증 → 게이트(JSON) 한 걸음(DB에 completed `factor_validation`이 있을 때):  
+`python3 src/main.py export-metis-gates-from-factor-validation --factor accruals --universe sp500_current --horizon next_month --return-basis excess --artifact-id <번들의 artifact_id>`  
+PIT은 `summary_json.pit_certified`가 true일 때만 통과로 표시됩니다. 미설정 시 운영자가 PIT 근거를 채운 뒤 번들에 병합합니다.
+
+`PYTHONPATH=src python3 src/main.py merge-metis-gate-into-bundle --repo-root . --from-json <export.json> --dry-run`으로 스키마·active registry 무결성을 확인한 뒤, 통과하면 `--dry-run` 없이 저장(`--out`으로 다른 경로에 쓸 수 있음).
+
+---
+
 미국 SEC **공시 메타데이터**·**XBRL fact**·**분기 스냅샷**·**회계 팩터**에 이어, Phase 4에서 **시장 가격·선행 수익률·무위험 이자율**을 **provider 추상화**로 적재하고 **`factor_market_validation_panels`** 까지 조인합니다. **Phase 5**에서는 그 패널 위에 **결정적 기술 검증·분위 기술통계**를 쌓는 **`factor_validation_*` 연구 레이어**(백테스트·전략·실행 아님)를 추가합니다.
 
-**Phase 4–6에서도 포함하지 않는 것**: 팩터 **랭킹·알파 점수**, 포트폴리오·롱숏 바스켓, **백테스트 리포트**, **OpenAI/AI 하네스**, 알림·Slack·email, Railway·**스케줄러/cron**·**UI**, “공식 S&P 편입 후보” 포장. (GDELT/FINRA 등 확장 API는 무위험 FRED 최소 수준만.)
+**Phase 4–6(아래 데이터·CLI 본문 기준)에서 원래 범위 밖인 것**: 팩터 **랭킹·알파 점수**, 포트폴리오·롱숏 바스켓, **백테스트 리포트**, **OpenAI/AI 하네스**, 알림·Slack·email, Railway·**스케줄러/cron**, “공식 S&P 편입 후보” 포장. (GDELT/FINRA 등 확장 API는 무위험 FRED 최소 수준만.) **Metis MVP 제품 셸(Today/Research/Replay 등)** 은 `src/phase47_runtime` 에서 별도로 제공되며, 위 Phase 4–6 문단은 **truth·검증 서브스트레이트** 설명에 가깝다.
 
 **Phase 6 한 줄**: “좋은 팩터 연구”가 아니라, truth spine + Phase 5와 **분리된** **issuer–날짜 단위 상태변화 후보 스파인**(`state_change_*`). **매수·매도·전략 점수·추천 메시지 없음** — `investigate_*` 등 **조사 후보 분류**만.
 

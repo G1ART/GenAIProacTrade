@@ -7294,6 +7294,205 @@ def _cmd_validate_metis_brain_bundle(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_export_metis_gates_from_factor_validation(args: argparse.Namespace) -> int:
+    """P0 bridge: latest completed factor_validation_summaries → Metis PromotionGateRecordV0 (JSON).
+
+    Requires DB. PIT is false unless summary_json contains pit_certified: true (operator or future PIT job).
+    """
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from db.records import fetch_factor_quantiles_for_run, fetch_latest_factor_validation_summaries
+    from metis_brain.factor_validation_gate_adapter_v0 import build_metis_gate_summary_from_factor_summary_row
+    from metis_brain.validation_bridge_v0 import promotion_gate_from_validation_summary
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    factor = str(args.factor)
+    universe = str(args.universe)
+    horizon = str(args.horizon)
+    basis = str(args.return_basis or "raw")
+    artifact_id = str(getattr(args, "artifact_id", "") or "").strip()
+    if not artifact_id:
+        print(json_lib.dumps({"ok": False, "error": "artifact_id_required"}, indent=2))
+        return 1
+    rid, rows = fetch_latest_factor_validation_summaries(
+        client,
+        factor_name=factor,
+        universe_name=universe,
+        horizon_type=horizon,
+    )
+    if not rid or not rows:
+        print(
+            json_lib.dumps(
+                {
+                    "ok": False,
+                    "error": "no_completed_factor_validation_summary",
+                    "hint": "Run run-factor-validation for this universe/horizon first.",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    row_by = {str(r.get("return_basis")): r for r in rows}
+    if basis not in row_by:
+        print(
+            json_lib.dumps(
+                {
+                    "ok": False,
+                    "error": "return_basis_row_missing",
+                    "return_basis_requested": basis,
+                    "available_return_basis": sorted(row_by.keys()),
+                    "hint": "Pick --return-basis from available keys, or re-run factor validation so both raw and excess summaries exist.",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    r0 = row_by[basis]
+    r0 = {**dict(r0), "run_id": rid}
+    quants = fetch_factor_quantiles_for_run(
+        client,
+        run_id=rid,
+        factor_name=factor,
+        universe_name=universe,
+        horizon_type=horizon,
+        return_basis=basis,
+    )
+    summ = build_metis_gate_summary_from_factor_summary_row(
+        r0, quantiles=quants or None, return_basis=basis
+    )
+    gate = promotion_gate_from_validation_summary(
+        artifact_id=artifact_id,
+        evaluation_run_id=rid,
+        summary=summ,
+    )
+    try:
+        gate_dict = gate.model_dump()
+    except AttributeError:
+        gate_dict = gate.dict()  # type: ignore[union-attr]
+    out = {
+        "ok": True,
+        "contract": "METIS_EXPORT_PROMOTION_GATE_FROM_FACTOR_VALIDATION_V0",
+        "factor_validation_run_id": rid,
+        "return_basis_used": basis,
+        "diagnostics": {
+            "sample_count": r0.get("sample_count"),
+            "valid_factor_count": r0.get("valid_factor_count"),
+            "spearman_rank_corr": r0.get("spearman_rank_corr"),
+            "pearson_corr": r0.get("pearson_corr"),
+            "factor_quantile_rows": len(quants or []),
+            "note": "All false is valid when excess row lacks pairs/corr, coverage < adapter thresholds, or quantiles empty; try --return-basis raw. pit_pass needs summary_json.pit_certified.",
+        },
+        "gate_summary_input": summ,
+        "promotion_gate": gate_dict,
+    }
+    print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_merge_metis_gate_into_bundle(args: argparse.Namespace) -> int:
+    """P0: merge export-metis-gates-from-factor-validation JSON into metis_brain_bundle (validated)."""
+    import json as json_lib
+
+    from pathlib import Path
+
+    from metis_brain.bundle import brain_bundle_path
+    from metis_brain.bundle_promotion_merge_v0 import (
+        extract_promotion_gate_dict,
+        load_bundle_json,
+        merge_promotion_gate_into_bundle_dict,
+        validate_merged_bundle_dict,
+        write_bundle_json,
+    )
+
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path(rr).resolve() if rr else Path.cwd().resolve()
+    bundle_arg = str(getattr(args, "bundle", "") or "").strip()
+    bundle_path = Path(bundle_arg).resolve() if bundle_arg else brain_bundle_path(root).resolve()
+    from_json = Path(str(getattr(args, "from_json", "") or "").strip()).resolve()
+    out_arg = str(getattr(args, "out", "") or "").strip()
+    out_path = Path(out_arg).resolve() if out_arg else bundle_path
+    dry = bool(getattr(args, "dry_run", False))
+
+    if not from_json.is_file():
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "from_json_not_found", "path": str(from_json)},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    if not bundle_path.is_file():
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "bundle_not_found", "path": str(bundle_path)},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+
+    try:
+        gate_wrap = json_lib.loads(from_json.read_text(encoding="utf-8"))
+        gate_dict = extract_promotion_gate_dict(gate_wrap)
+    except (OSError, json_lib.JSONDecodeError, ValueError) as e:
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "gate_json_invalid", "detail": str(e)},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+
+    try:
+        bundle_dict = load_bundle_json(bundle_path)
+        merged = merge_promotion_gate_into_bundle_dict(bundle_dict, gate_dict)
+    except ValueError as e:
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "merge_failed", "detail": str(e)},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+
+    integrity_ok, errs = validate_merged_bundle_dict(merged)
+    payload = {
+        "ok": integrity_ok,
+        "contract": "METIS_MERGE_PROMOTION_GATE_INTO_BUNDLE_V0",
+        "bundle_path": str(bundle_path),
+        "write_path": str(out_path),
+        "dry_run": dry,
+        "artifact_id": gate_dict.get("artifact_id"),
+        "integrity_ok": integrity_ok,
+        "errors": errs if not integrity_ok else [],
+    }
+    print(json_lib.dumps(payload, indent=2, ensure_ascii=False, default=str))
+    if not integrity_ok:
+        return 1
+    if dry:
+        return 0
+    try:
+        write_bundle_json(out_path, merged)
+    except OSError as e:
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "write_failed", "detail": str(e), "write_path": str(out_path)},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    return 0
+
+
 def _cmd_run_phase48_proactive_research_runtime(
     args: argparse.Namespace,
 ) -> int:
@@ -7995,6 +8194,60 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("raw", "excess"),
     )
     prp.set_defaults(func=_cmd_report_factor_summary)
+
+    pmetis_gate = sub.add_parser(
+        "export-metis-gates-from-factor-validation",
+        help="P0: latest factor_validation_summaries → Metis promotion_gate JSON (DB; pit_certified in summary_json for PIT)",
+    )
+    pmetis_gate.add_argument("--factor", required=True, help="예: accruals")
+    pmetis_gate.add_argument("--universe", required=True)
+    pmetis_gate.add_argument(
+        "--horizon",
+        required=True,
+        choices=("next_month", "next_quarter"),
+    )
+    pmetis_gate.add_argument(
+        "--return-basis",
+        default="raw",
+        choices=("raw", "excess"),
+    )
+    pmetis_gate.add_argument(
+        "--artifact-id",
+        required=True,
+        help="Metis bundle artifact_id this gate row will attach to",
+    )
+    pmetis_gate.set_defaults(func=_cmd_export_metis_gates_from_factor_validation)
+
+    pmetis_merge = sub.add_parser(
+        "merge-metis-gate-into-bundle",
+        help="P0: factor-validation export JSON의 promotion_gate를 번들에 병합(스키마+active registry 무결성 검증 후 저장)",
+    )
+    pmetis_merge.add_argument(
+        "--from-json",
+        required=True,
+        help="export-metis-gates-from-factor-validation 출력 또는 promotion_gate 단일 객체 JSON 파일",
+    )
+    pmetis_merge.add_argument(
+        "--bundle",
+        default="",
+        help="대상 번들 경로. 생략 시 METIS_BRAIN_BUNDLE 또는 <repo-root>/data/mvp/metis_brain_bundle_v0.json",
+    )
+    pmetis_merge.add_argument(
+        "--out",
+        default="",
+        help="저장 경로. 생략 시 --bundle과 동일(덮어쓰기)",
+    )
+    pmetis_merge.add_argument(
+        "--repo-root",
+        default="",
+        help="기본 번들 경로 해석용(미지정 시 cwd)",
+    )
+    pmetis_merge.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="병합·검증만 수행하고 디스크에 쓰지 않음",
+    )
+    pmetis_merge.set_defaults(func=_cmd_merge_metis_gate_into_bundle)
 
     srr = sub.add_parser(
         "smoke-research",
