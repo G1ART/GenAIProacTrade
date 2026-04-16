@@ -55,6 +55,7 @@
 ## 5. 자동 점검 (런타임)
 
 `GET /api/runtime/health` 응답에 **`mvp_product_spec_survey_v0`** 블록이 포함된다.  
+CLI: `PYTHONPATH=src python3 src/main.py print-mvp-spec-survey --repo-root .` (CI: `--fail-on-false`).  
 (자동 가능한 Q1–Q5 신호 + 나머지는 수동 증명 목록.)
 
 ---

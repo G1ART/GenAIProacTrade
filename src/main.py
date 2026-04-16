@@ -7294,6 +7294,27 @@ def _cmd_validate_metis_brain_bundle(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_print_mvp_spec_survey(args: argparse.Namespace) -> int:
+    """Product Spec §10 — dump automated MVP signals (same block shape as /api/runtime/health)."""
+    import json as json_lib
+
+    from pathlib import Path
+
+    from metis_brain.mvp_spec_survey_v0 import build_mvp_spec_survey_v0
+
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path(rr).resolve() if rr else Path.cwd().resolve()
+    survey = build_mvp_spec_survey_v0(root)
+    qs = survey.get("questions") or []
+    bad = [q for q in qs if not q.get("ok")]
+    survey["all_automated_ok"] = len(bad) == 0
+    survey["failed_question_ids"] = [str(q.get("id") or "") for q in bad if q.get("id")]
+    print(json_lib.dumps(survey, indent=2, ensure_ascii=False))
+    if bool(getattr(args, "fail_on_false", False)) and bad:
+        return 1
+    return 0
+
+
 def _cmd_export_metis_gates_from_factor_validation(args: argparse.Namespace) -> int:
     """P0 bridge: latest completed factor_validation_summaries → Metis PromotionGateRecordV0 (JSON).
 
@@ -11882,6 +11903,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Repository root (default: cwd); optional METIS_BRAIN_BUNDLE env overrides JSON path",
     )
     p47brain.set_defaults(func=_cmd_validate_metis_brain_bundle)
+
+    p47mvp = sub.add_parser(
+        "print-mvp-spec-survey",
+        help="Product Spec §10: JSON survey (Q1–Q5 자동 신호). CI는 --fail-on-false",
+    )
+    p47mvp.add_argument("--repo-root", default="", help="저장소 루트(기본 cwd)")
+    p47mvp.add_argument(
+        "--fail-on-false",
+        action="store_true",
+        help="자동 질문 중 하나라도 ok=false면 exit 1",
+    )
+    p47mvp.set_defaults(func=_cmd_print_mvp_spec_survey)
 
     p48run = sub.add_parser(
         "run-phase48-proactive-research-runtime",
