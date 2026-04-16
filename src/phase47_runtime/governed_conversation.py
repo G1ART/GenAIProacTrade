@@ -21,6 +21,8 @@ _INTENT_PATTERNS: list[tuple[str, list[str]]] = [
     ("provenance", [r"\bshow\s+provenance\b", r"\bprovenance\b", r"\btrace\b"]),
     ("what_changed", [r"\bwhat\s+changed\b"]),
     ("what_unproven", [r"\bwhat\s+remains\s+unproven\b", r"\bunproven\b"]),
+    ("why_now", [r"\bwhy\s+now\b"]),
+    ("what_to_watch", [r"\bwhat\s+to\s+watch\b"]),
     ("message_layer", [r"\bmessage\s+layer\b", r"\bchief\b", r"\bpitch\b"]),
     ("closeout_layer", [r"\bcloseout\b", r"\breopen\b", r"\bwhat\s+could\s+change\b"]),
 ]
@@ -59,10 +61,113 @@ def build_governed_conversation_contract() -> dict[str, Any]:
         "description": "Founder prompts are matched to governed bundle slices only; no LLM.",
         "intents_supported": [name for name, _ in _INTENT_PATTERNS],
         "fallback": "outside_governed_cockpit_scope",
+        "optional_request_fields": ["copilot_context"],
     }
 
 
-def process_governed_prompt(bundle: dict[str, Any], user_text: str) -> dict[str, Any]:
+_SAFE_COPILOT_KEYS = frozenset(
+    {
+        "source",
+        "asset_id",
+        "horizon",
+        "horizon_label",
+        "active_model_family",
+        "as_of_utc",
+        "spectrum_band",
+        "spectrum_quintile",
+        "spectrum_position",
+        "rank_index",
+        "rank_movement",
+        "headline",
+        "message_summary",
+        "valuation_tension",
+        "why_now",
+        "what_to_watch",
+        "what_remains_unproven",
+        "replay_lineage_pointer",
+        "message_snapshot_id",
+        "linked_registry_entry_id",
+        "linked_artifact_id",
+        "challenger_hint",
+    }
+)
+
+
+def _sanitize_copilot_context(raw: Any) -> dict[str, str]:
+    if not isinstance(raw, dict):
+        return {}
+    out: dict[str, str] = {}
+    for k, v in raw.items():
+        if not isinstance(k, str):
+            continue
+        key = k.strip()[:64]
+        if key not in _SAFE_COPILOT_KEYS:
+            continue
+        s = str(v).strip().replace("\n", " ").replace("**", "")
+        if len(s) > 500:
+            s = s[:497] + "..."
+        if s:
+            out[key] = s
+    return out
+
+
+def _copilot_context_markdown_prefix(ctx: dict[str, str]) -> str:
+    if not ctx:
+        return ""
+    order = [
+        "source",
+        "asset_id",
+        "horizon",
+        "horizon_label",
+        "spectrum_band",
+        "spectrum_quintile",
+        "spectrum_position",
+        "rank_index",
+        "rank_movement",
+        "active_model_family",
+        "as_of_utc",
+        "headline",
+        "message_summary",
+        "valuation_tension",
+        "why_now",
+        "what_to_watch",
+        "what_remains_unproven",
+        "replay_lineage_pointer",
+        "message_snapshot_id",
+        "linked_registry_entry_id",
+        "linked_artifact_id",
+        "challenger_hint",
+    ]
+    lines = ["## Copilot context (UI)", ""]
+    seen: set[str] = set()
+    for k in order:
+        if k in ctx and ctx[k]:
+            label = k.replace("_", " ").title()
+            lines.append(f"- **{label}**: {ctx[k]}")
+            seen.add(k)
+    for k in sorted(ctx.keys()):
+        if k in seen or not ctx[k]:
+            continue
+        lines.append(f"- **{k}**: {ctx[k]}")
+    return "\n".join(lines) + "\n\n---\n\n"
+
+
+def _apply_copilot_prefix(out: dict[str, Any], copilot_context: dict[str, str] | None) -> dict[str, Any]:
+    prefix = _copilot_context_markdown_prefix(copilot_context or {})
+    if not prefix:
+        return out
+    body = str(out.get("body_markdown") or "")
+    out = {**out, "body_markdown": (prefix + body).strip()}
+    return out
+
+
+def process_governed_prompt(
+    bundle: dict[str, Any],
+    user_text: str,
+    *,
+    copilot_context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    ctx = _sanitize_copilot_context(copilot_context)
     intent = _detect_intent(user_text)
     rm = bundle.get("founder_read_model") or {}
     pitch = bundle.get("representative_pitch") or {}
@@ -84,7 +189,7 @@ def process_governed_prompt(bundle: dict[str, Any], user_text: str) -> dict[str,
             "structured": {},
         }
         assert_pitch_governed(out["title"] + "\n" + out["body_markdown"])
-        return out
+        return _apply_copilot_prefix(out, ctx)
 
     if intent == "decision_summary":
         card = agg.get("decision_card") or {}
@@ -123,6 +228,18 @@ def process_governed_prompt(bundle: dict[str, Any], user_text: str) -> dict[str,
     elif intent == "what_unproven":
         body = str(pitch.get("what_remains_unproven") or "")
         structured = {"what_remains_unproven": pitch.get("what_remains_unproven")}
+    elif intent == "why_now":
+        wn = str(ctx.get("why_now") or ctx.get("headline") or "").strip()
+        if not wn:
+            wn = str(rm.get("headline_message") or "").strip()
+        body = "**Why now**\n\n" + (wn or "_No Today row context — open a spectrum row or pass copilot_context._")
+        structured = {"why_now": wn}
+    elif intent == "what_to_watch":
+        wt = str(ctx.get("what_to_watch") or "").strip()
+        if not wt:
+            wt = str(pitch.get("what_to_watch") or "").strip()
+        body = "**What to watch**\n\n" + (wt or "_No watch list from Today context — use copilot_context or bundle pitch._")
+        structured = {"what_to_watch": wt}
     else:
         layer = dd.get("message") or {}
         body = str(pitch.get("top_level_pitch") or layer.get("summary") or "")
@@ -135,13 +252,14 @@ def process_governed_prompt(bundle: dict[str, Any], user_text: str) -> dict[str,
         if bad.lower() in blob.lower():
             raise ValueError(f"governed conversation leaked forbidden token: {bad}")
 
-    return {
+    out = {
         "governed": True,
         "intent": intent,
         "title": intent.replace("_", " ").title(),
         "body_markdown": body.strip(),
         "structured": structured,
     }
+    return _apply_copilot_prefix(out, ctx)
 
 
 def list_intent_registry() -> list[dict[str, str]]:

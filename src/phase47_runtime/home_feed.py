@@ -15,12 +15,14 @@ from phase47_runtime.phase47e_user_locale import (
     phase47f_recommend,
     t,
 )
+from phase47_runtime.frozen_snapshot_pack_v0 import load_frozen_snapshot_pack_v0
 from phase47_runtime.today_spectrum import (
     build_today_spectrum_summary_for_home,
     expand_watchlist_for_spectrum_filter,
     list_spectrum_seed_asset_ids,
     load_spectrum_watch_alias_map,
 )
+from phase47_runtime.watchlist_order_v1 import load_watchlist_order, merge_watchlist_display_order
 from phase47_runtime.ui_copy import build_user_first_brief, infer_object_kind, translate_token
 
 # Top shell per Phase 47d work order — internal research labels are not the mental model.
@@ -75,6 +77,20 @@ def replay_preview_contract() -> dict[str, Any]:
 def ask_ai_brief_contract(lang: str | None = None) -> list[dict[str, str]]:
     """Premium copilot brief — shortcuts (label + governed prompt text). Default EN for static bundles/tests."""
     return ask_ai_brief_contract_localized("en" if lang is None else lang)
+
+
+def bundle_watch_candidate_asset_ids(bundle: dict[str, Any]) -> list[str]:
+    """Primary + cohort symbols in bundle order (before user reorder merge)."""
+    rm = bundle.get("founder_read_model") or {}
+    out: list[str] = []
+    pa = str(rm.get("asset_id") or "").strip()
+    if pa:
+        out.append(pa)
+    for s in rm.get("cohort_symbols") or []:
+        ss = str(s).strip()
+        if ss and ss not in out:
+            out.append(ss)
+    return out
 
 
 def _load_recent_jobs(repo_root: Path, *, limit: int = 6) -> list[dict[str, Any]]:
@@ -145,14 +161,10 @@ def build_home_feed_payload(state: Any, lang: str | None = None) -> dict[str, An
 
     watch_items: list[dict[str, Any]] = []
     sym = rm.get("cohort_symbols") or []
-    watch_filter_ids: list[str] = []
-    pa = str(rm.get("asset_id") or "").strip()
-    if pa:
-        watch_filter_ids.append(pa)
-    for s in sym:
-        ss = str(s).strip()
-        if ss and ss not in watch_filter_ids:
-            watch_filter_ids.append(ss)
+    watch_filter_ids = merge_watchlist_display_order(
+        bundle_watch_candidate_asset_ids(bundle),
+        load_watchlist_order(repo_root),
+    )
     watch_spectrum_filter_ids = expand_watchlist_for_spectrum_filter(watch_filter_ids, alias_map)
     expanded_watch_set = set(watch_spectrum_filter_ids)
     watch_on_spectrum_raw = sorted(set(watch_filter_ids) & seed_id_set)
@@ -209,6 +221,9 @@ def build_home_feed_payload(state: Any, lang: str | None = None) -> dict[str, An
                 "decision_type": str(d.get("decision_type") or ""),
                 "action_framing_plain": translate_token(str(d.get("decision_type") or ""), lang=lg),
                 "why_short": str(d.get("founder_note") or "")[:220],
+                "linked_message_summary": str(d.get("linked_message_summary") or "")[:220],
+                "message_snapshot_id": str(d.get("message_snapshot_id") or ""),
+                "replay_lineage_pointer": str(d.get("replay_lineage_pointer") or ""),
                 "replay_hint": t(lg, "journal.replay_hint"),
             }
         )
@@ -218,6 +233,8 @@ def build_home_feed_payload(state: Any, lang: str | None = None) -> dict[str, An
         f"{brief['action_framing']}. "
         f"{t(lg, 'copilot.has_alerts' if open_alerts else 'copilot.no_alerts')}"
     )
+
+    fdp = load_frozen_snapshot_pack_v0(repo_root, lang=lg)
 
     empty_watch = {
         "title": t(lg, "watch.empty_title"),
@@ -287,6 +304,7 @@ def build_home_feed_payload(state: Any, lang: str | None = None) -> dict[str, An
             "items": watch_items,
             "what_changed_bullets": [str(x) for x in wc[:6]],
             "empty_state": empty_watch if not sym else None,
+            "reorderable_asset_ids": list(watch_filter_ids),
         },
         "research_in_progress": {
             "threads": research_lines,
@@ -310,6 +328,7 @@ def build_home_feed_payload(state: Any, lang: str | None = None) -> dict[str, An
         },
         "replay_preview": replay_preview,
         "replay_preview_empty": replay_preview_empty,
+        "frozen_demo_pack": fdp if fdp.get("ok") else None,
         "closed_context": {
             "is_fixture": kind == "closed_research_fixture",
             "research_tab_note": t(lg, "closed.research_tab_note"),

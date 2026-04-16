@@ -87,6 +87,13 @@ def test_timeline_merges_bundle_decisions_alerts(tmp_path: Path) -> None:
     assert "decision_event" in types
     assert "outcome_checkpoint" in types
     assert replay_labels_have_no_future_leakage(events)
+    for e in events:
+        assert "asset_id" in e
+    assert next(e for e in events if e["event_id"] == "evt_bundle_authoritative").get("asset_id") == "t1"
+    assert next(e for e in events if e["event_type"] == "decision_event").get("asset_id") == "t1"
+    assert next(e for e in events if e["event_type"] == "ai_message_event").get("asset_id") == "t1"
+    de = next(e for e in events if e["event_type"] == "decision_event")
+    assert "replay_lineage_pointer" in de and "message_snapshot_id" in de
 
 
 def test_micro_brief_includes_style_and_framing() -> None:
@@ -95,6 +102,7 @@ def test_micro_brief_includes_style_and_framing() -> None:
     eid = events[0]["event_id"]
     mb = micro_brief_for_event(events, eid)
     assert mb and mb.get("style_token")
+    assert mb.get("asset_id") == "t1"
     assert "decision_quality_note" in mb
     assert "outcome_quality_note" in mb
 

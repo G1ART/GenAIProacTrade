@@ -103,6 +103,8 @@ def test_governed_conversation_intents() -> None:
         ("decision summary", "decision_summary"),
         ("information layer", "information_layer"),
         ("what changed", "what_changed"),
+        ("why now", "why_now"),
+        ("what to watch", "what_to_watch"),
         ("why is this closed", "why_closed"),
         ("show provenance", "provenance"),
         ("what could change", "closeout_layer"),
@@ -117,6 +119,20 @@ def test_governed_conversation_intents() -> None:
 def test_governed_conversation_outside_scope() -> None:
     r = process_governed_prompt(_minimal_phase46_bundle(), "buy everything now random")
     assert r["intent"] == "outside_governed_cockpit_scope"
+
+
+def test_governed_conversation_copilot_context_prefix() -> None:
+    b = _minimal_phase46_bundle()
+    ctx: dict[str, str] = {"source": "today_detail", "asset_id": "DEMO_A", "headline": "Test headline"}
+    r = process_governed_prompt(b, "decision summary", copilot_context=ctx)
+    assert "Copilot context" in r["body_markdown"]
+    assert "DEMO_A" in r["body_markdown"]
+    r2 = process_governed_prompt(b, "buy everything now random", copilot_context=ctx)
+    assert r2["intent"] == "outside_governed_cockpit_scope"
+    assert "DEMO_A" in r2["body_markdown"]
+    r3 = process_governed_prompt(b, "what changed", copilot_context={"evil": "x", "asset_id": "ONLY_SAFE"})
+    assert "evil" not in r3["body_markdown"]
+    assert "ONLY_SAFE" in r3["body_markdown"]
 
 
 @pytest.mark.parametrize(
@@ -214,6 +230,20 @@ def test_dispatch_http_shapes(tmp_path: Path) -> None:
     )
     assert code == 200
     assert obj["response"]["intent"] == "research_layer"
+
+    code, obj = dispatch_json(
+        st,
+        method="POST",
+        path="/api/conversation",
+        body=json.dumps(
+            {
+                "text": "what changed",
+                "copilot_context": {"source": "today_detail", "asset_id": "Z99", "headline": "Ctx line"},
+            }
+        ).encode(),
+    )
+    assert code == 200
+    assert "Z99" in obj["response"]["body_markdown"]
 
 
 def test_phase47_orchestrator_bundle_fields() -> None:

@@ -49,8 +49,16 @@ def test_build_today_spectrum_includes_message_layer(tmp_path: Path) -> None:
     out = build_today_spectrum_payload(repo_root=tmp_path, horizon="short", lang="ko")
     assert out["ok"] is True
     assert out.get("message_layer_version") == 1
+    assert out.get("spectrum_scoring_surface") == "underpriced_overpriced_index_v1"
     row_a = next(x for x in out["rows"] if x.get("asset_id") == "DEMO_KR_A")
     assert row_a.get("spectrum_band") in ("left", "center", "right")
+    assert row_a.get("spectrum_quintile") in (
+        "extreme_underpriced",
+        "underpriced",
+        "neutral",
+        "overpriced",
+        "extreme_overpriced",
+    )
     msg = row_a.get("message") or {}
     assert msg.get("message_id")
     assert "밸류" in (msg.get("headline") or "") or "방어" in (msg.get("headline") or "")
@@ -98,3 +106,19 @@ def test_dispatch_invalid_horizon_404(tmp_path: Path) -> None:
     code, obj = dispatch_json(st, method="GET", path="/api/today/spectrum", body=None, query={"horizon": "nope"})
     assert code == 404
     assert obj.get("error") == "invalid_horizon"
+
+
+def test_today_object_detail_lens_and_quintile(tmp_path: Path) -> None:
+    st = _runtime(tmp_path)
+    code, obj = dispatch_json(
+        st,
+        method="GET",
+        path="/api/today/object",
+        body=None,
+        query={"asset_id": "DEMO_KR_A", "horizon": "short", "lang": "ko"},
+    )
+    assert code == 200 and obj.get("ok") is True
+    assert obj.get("spectrum", {}).get("spectrum_quintile")
+    assert obj.get("spectrum", {}).get("rank_index") is not None
+    assert isinstance(obj.get("research", {}).get("horizon_lens_compare"), list)
+    assert obj.get("research", {}).get("disagreement_preserving", {}).get("note")

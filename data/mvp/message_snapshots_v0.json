@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "snapshots": {
+    "msg_snap:v1:4c4bc51ca6c3d83e4f9af5df": {
+      "asset_id": "DEMO_KR_A",
+      "horizon": "short",
+      "lang": "en",
+      "active_model_family": "shallow_value_blend_v0",
+      "as_of_utc": "2026-04-01T12:00:00+00:00",
+      "mock_price_tick": "0",
+      "today_input_source": "active_horizon_model_registry_v0",
+      "registry_entry_id": "reg_short_demo_v0",
+      "message": {
+        "message_id": "msg_demo_short_kr_a",
+        "asset_id": "DEMO_KR_A",
+        "horizon": "short",
+        "headline": "Short lens: valuation stays defensive and tight",
+        "one_line_take": "Reads less ‘cheap’ and more ‘no fresh reason to chase yet.’",
+        "why_now": "Catalyst calendar is thin while the band sits compressed.",
+        "what_changed": "No recent guidance change.",
+        "what_remains_unproven": "Whether margin defense holds into the next print.",
+        "what_to_watch": "Turnover vs average; strength vs sector beta.",
+        "action_frame": "Keep on radar — no urgent allocation shift.",
+        "confidence_band": "medium",
+        "linked_model_family": "shallow_value_blend_v0",
+        "linked_evidence_summary": "Summary: lower valuation band + catalyst gap (seed).",
+        "linked_registry_entry_id": "reg_short_demo_v0",
+        "linked_artifact_id": "art_short_demo_v0",
+        "linked_evidence": [
+          {
+            "pointer": "spectrum_row:DEMO_KR_A:short:v1",
+            "summary": "Summary: lower valuation band + catalyst gap (seed).",
+            "kind": "validation"
+          }
+        ]
+      },
+      "spectrum": {
+        "spectrum_position": 0.18,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "rank_index": 3,
+        "rank_total": 3,
+        "rank_movement": "steady",
+        "valuation_tension": "compressed",
+        "rationale_summary": "Short window: valuation is tight; catalysts are still thin.",
+        "what_changed": "No recent guidance change."
+      },
+      "replay_lineage_join_v1": {
+        "contract": "REPLAY_LINEAGE_JOIN_V1",
+        "replay_lineage_pointer": "lineage:registry:short:demo_v0",
+        "message_snapshot_id": "msg_snap:v1:4c4bc51ca6c3d83e4f9af5df",
+        "linked_registry_entry_id": "reg_short_demo_v0",
+        "linked_artifact_id": "art_short_demo_v0",
+        "today_input_source": "active_horizon_model_registry_v0",
+        "registry_entry_id": "reg_short_demo_v0"
+      },
+      "stored_at_utc": "2026-04-16T00:06:50.201244+00:00"
+    },
+    "msg_snap:v1:6193eb513c287653797b05ec": {
+      "asset_id": "DEMO_KR_A",
+      "horizon": "short",
+      "lang": "en",
+      "active_model_family": "shallow_value_blend_v0",
+      "as_of_utc": "2026-04-01T12:00:00+00:00",
+      "mock_price_tick": "0",
+      "today_input_source": "today_spectrum_seed_v1",
+      "registry_entry_id": null,
+      "message": {
+        "message_id": "msg_demo_short_kr_a",
+        "asset_id": "DEMO_KR_A",
+        "horizon": "short",
+        "headline": "Short lens: valuation stays defensive and tight",
+        "one_line_take": "Reads less ‘cheap’ and more ‘no fresh reason to chase yet.’",
+        "why_now": "Catalyst calendar is thin while the band sits compressed.",
+        "what_changed": "No recent guidance change.",
+        "what_remains_unproven": "Whether margin defense holds into the next print.",
+        "what_to_watch": "Turnover vs average; strength vs sector beta.",
+        "action_frame": "Keep on radar — no urgent allocation shift.",
+        "confidence_band": "medium",
+        "linked_model_family": "shallow_value_blend_v0",
+        "linked_evidence_summary": "Summary: lower valuation band + catalyst gap (seed).",
+        "linked_registry_entry_id": "seed:unlinked_registry_v0",
+        "linked_artifact_id": "seed:unlinked_artifact_v0",
+        "linked_evidence": [
+          {
+            "pointer": "spectrum_row:DEMO_KR_A:short:v1",
+            "summary": "Summary: lower valuation band + catalyst gap (seed).",
+            "kind": "validation"
+          }
+        ]
+      },
+      "spectrum": {
+        "spectrum_position": 0.18,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "rank_index": 3,
+        "rank_total": 3,
+        "rank_movement": "steady",
+        "valuation_tension": "compressed",
+        "rationale_summary": "Short window: valuation is tight; catalysts are still thin.",
+        "what_changed": "No recent guidance change."
+      },
+      "replay_lineage_join_v1": {
+        "contract": "REPLAY_LINEAGE_JOIN_V1",
+        "replay_lineage_pointer": "seed:replay_lineage_v0",
+        "message_snapshot_id": "msg_snap:v1:6193eb513c287653797b05ec",
+        "linked_registry_entry_id": "seed:unlinked_registry_v0",
+        "linked_artifact_id": "seed:unlinked_artifact_v0",
+        "today_input_source": "today_spectrum_seed_v1",
+        "registry_entry_id": null
+      },
+      "registry_surface_v1": {
+        "contract": "TODAY_REGISTRY_SURFACE_V1",
+        "registry_entry_id": "seed:unlinked_registry_v0",
+        "horizon": "short",
+        "status": "seed_fixture",
+        "active_model_family_name": "shallow_value_blend_v0",
+        "active_artifact_id": "seed:unlinked_artifact_v0",
+        "active_thesis_family": "",
+        "challenger_artifact_ids": [],
+        "challengers_resolved": [],
+        "universe": "",
+        "scoring_endpoint_contract": "seed_inline_v0",
+        "replay_lineage_pointer": "seed:replay_lineage_v0"
+      },
+      "stored_at_utc": "2026-04-16T04:34:57.408102+00:00"
+    }
+  }
+}

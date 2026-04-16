@@ -151,6 +151,21 @@ def test_build_home_feed_journal_empty_state(tmp_path: Path) -> None:
     assert "title" in es and "why" in es and "fills_when" in es
 
 
+def test_build_home_feed_includes_frozen_demo_when_pack_present(tmp_path: Path) -> None:
+    import shutil
+
+    repo = Path(__file__).resolve().parents[2]
+    src = repo / "data" / "mvp" / "frozen_snapshot_pack_v0.json"
+    dst = tmp_path / "data" / "mvp" / "frozen_snapshot_pack_v0.json"
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(src, dst)
+    st = _runtime(tmp_path)
+    payload = build_home_feed_payload(st, lang="ko")
+    fdp = payload.get("frozen_demo_pack")
+    assert fdp and fdp.get("ok") is True
+    assert (fdp.get("investor_demo_steps_resolved") or [None])[0].get("label")
+
+
 def test_history_section_links_journal_and_advanced() -> None:
     b = _minimal_phase46_bundle()
     hist = build_section_payload(b, "history")

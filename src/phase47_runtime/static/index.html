@@ -71,6 +71,14 @@
     .shortcut-row button { font-size: 0.78rem; }
     .ask-brief-strip { background: #0f1419; border: 1px solid #2a3544; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.45; }
     .ask-brief-strip .brief-label { margin-bottom: 0.35rem; }
+    .ask-context-strip { background: #121a24; border: 1px solid #2d4a6a; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.88rem; line-height: 1.45; }
+    .ask-context-strip .brief-label { margin-bottom: 0.35rem; color: #8ab4e8; }
+    .sandbox-card { background: #0f1419; border: 1px solid #2a3544; border-radius: 8px; padding: 1rem 1.1rem; margin-bottom: 1.25rem; font-size: 0.88rem; }
+    .sandbox-card h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+    .sandbox-card textarea { width: 100%; max-width: 48rem; margin: 0.35rem 0 0.75rem; min-height: 4.5rem; }
+    .sandbox-card table { width: 100%; max-width: 48rem; border-collapse: collapse; font-size: 0.82rem; margin-top: 0.5rem; }
+    .sandbox-card th, .sandbox-card td { border: 1px solid #2a3544; padding: 0.35rem 0.5rem; text-align: left; }
+    .sandbox-card th { background: #121820; color: var(--muted); font-weight: 600; }
     #conv-out { min-height: 5rem; }
     #conv-out .md { white-space: pre-wrap; font-size: 0.88rem; line-height: 1.45; }
     .intent-tag { font-size: 0.72rem; color: var(--accent); margin-bottom: 0.35rem; }
@@ -89,6 +97,7 @@
     ul.replay-events { list-style: none; padding: 0; margin: 0.5rem 0 0; max-height: 14rem; overflow: auto; }
     ul.replay-events li { padding: 0.45rem 0.35rem; border-bottom: 1px solid #2a3544; cursor: pointer; font-size: 0.82rem; border-radius: 4px; }
     ul.replay-events li:hover, ul.replay-events li.selected { background: rgba(91, 140, 255, 0.08); }
+    ul.replay-events li.replay-asset-hit { box-shadow: inset 3px 0 0 var(--accent); background: rgba(91, 140, 255, 0.06); }
     .replay-events .ev-type { font-size: 0.7rem; color: var(--accent); }
     .cf-branch { padding: 0.35rem 0; border-bottom: 1px dashed #2a3544; font-size: 0.85rem; }
     .cf-branch.stub { color: var(--muted); }
@@ -180,6 +189,55 @@
     <section id="panel-research" class="panel">
       <h2 data-i18n="panel.research.title">Research</h2>
       <p class="meta" style="margin:0 0 0.75rem" data-i18n="panel.research.meta">Cohort detail, evidence, and archive context — closed fixtures live here, not as the Home hero.</p>
+      <div id="research-registry-strip" class="meta" style="display:none;margin:0 0 1rem;padding:0.65rem 0.85rem;background:#101820;border:1px solid #2a4a62;border-radius:8px;font-size:0.86rem"></div>
+      <p class="meta" id="research-deferred-empty" style="margin:0 0 0.75rem" data-i18n="panel.research.deferred_empty">Open Today detail on a symbol (or set Asset ID in the sandbox), then return here — the same message → registry → information → research contract loads read-only.</p>
+      <div id="research-deferred-context" class="sandbox-card" style="display:none;margin:0 0 1rem;padding:0.85rem 1rem">
+        <h3 style="margin-top:0" data-i18n="panel.research.deferred_title">Deferred research context</h3>
+        <p class="meta" style="margin:0 0 0.65rem" data-i18n="panel.research.deferred_meta">Same payload as Today object detail — Stage 3 minimum surface (no extra telemetry).</p>
+        <div id="research-deferred-inner"></div>
+        <div class="row" style="flex-wrap:wrap;gap:0.45rem;margin-top:0.75rem;align-items:center" id="research-ask-chips"></div>
+      </div>
+      <div class="sandbox-card" id="research-sandbox-root">
+        <h3 data-i18n="panel.research.sandbox_title">Custom Research Sandbox v1</h3>
+        <p class="meta" style="margin:0 0 0.65rem" data-i18n="panel.research.sandbox_meta">Bounded hypothesis run vs bundle + Today seed.</p>
+        <div id="sandbox-today-strip" class="ask-context-strip" style="display:none">
+          <div class="brief-label" data-i18n="sandbox.strip_from_today">Context from Today detail</div>
+          <div id="sandbox-today-line" class="brief-value"></div>
+        </div>
+        <label for="sandbox-hypothesis" class="brief-label" data-i18n="sandbox.label_hypothesis">Hypothesis or question</label>
+        <textarea id="sandbox-hypothesis" placeholder="e.g. What would falsify the short-term stance?"></textarea>
+        <div class="row" style="flex-wrap:wrap;gap:0.75rem;align-items:flex-end;margin-bottom:0.75rem">
+          <label><span data-i18n="sandbox.label_asset">Asset ID</span> <input type="text" id="sandbox-asset-id" class="mono" style="min-width:10rem" placeholder="DEMO_KR_A" /></label>
+          <label><span data-i18n="sandbox.label_horizon">Horizon</span>
+            <select id="sandbox-horizon">
+              <option value="short">short</option>
+              <option value="medium">medium</option>
+              <option value="medium_long">medium_long</option>
+              <option value="long">long</option>
+            </select>
+          </label>
+          <label><span data-i18n="sandbox.label_pit_mode">Time mode</span>
+            <select id="sandbox-pit-mode">
+              <option value="snapshot" data-i18n="sandbox.pit_snapshot">Current snapshot</option>
+              <option value="pit_stub" data-i18n="sandbox.pit_stub">PIT stub</option>
+            </select>
+          </label>
+          <label><span data-i18n="sandbox.label_mock_tick">Demo price overlay</span>
+            <select id="sandbox-mock-tick"><option value="0">0</option><option value="1">1</option></select>
+          </label>
+        </div>
+        <label style="display:flex;align-items:center;gap:0.45rem;margin:0.35rem 0 0.5rem;cursor:pointer">
+          <input type="checkbox" id="sandbox-save" checked />
+          <span data-i18n="sandbox.save_label">Save this run to the ledger</span>
+        </label>
+        <button type="button" class="btn btn-primary" id="btn-sandbox-run" data-i18n="sandbox.btn_run">Run bounded analysis</button>
+        <div id="sandbox-result" style="margin-top:1rem"></div>
+        <div id="sandbox-ledger-detail" style="display:none;margin-top:0.85rem;padding:0.85rem 1rem;background:#121820;border:1px solid #2d4a6a;border-radius:8px;font-size:0.86rem"></div>
+        <div id="sandbox-runs-wrap" style="margin-top:1.1rem;padding-top:1rem;border-top:1px solid #2a3544">
+          <div class="brief-label" data-i18n="sandbox.recent_title">Recent saved runs</div>
+          <ul id="sandbox-runs-list" class="feed-list" style="margin-top:0.35rem;font-size:0.82rem"></ul>
+        </div>
+      </div>
       <div class="tabs" id="object-tabs"></div>
       <div id="object-section-body"></div>
     </section>
@@ -192,6 +250,7 @@
       </div>
       <div id="journal-cards" class="feed-stack"></div>
       <h2 style="margin-top:1.25rem" data-i18n="panel.journal.record">Record a decision</h2>
+      <p class="meta" id="journal-lineage-hint" style="display:none;margin:0.25rem 0 0.5rem"></p>
       <div class="row">
         <label><span data-i18n="journal.label_type">Type</span>
           <select id="rec-dt">
@@ -220,6 +279,8 @@
       <div id="replay-sub-timeline">
         <div class="replay-layout">
           <div class="replay-main">
+            <div id="replay-lineage-context" class="meta" style="display:none;margin:0 0 0.5rem"></div>
+            <div id="replay-now-then-frame" class="meta" style="display:none;margin:0 0 0.5rem;padding:0.5rem;background:#0f1620;border-radius:6px;border:1px solid #2a4a62"></div>
             <svg id="replay-svg" viewBox="0 0 100 36" preserveAspectRatio="none" aria-label="Illustrative timeline"></svg>
             <p class="meta" style="margin:0.35rem 0 0" data-i18n="panel.replay.chart_note">Dashed line: illustrative rhythm only (not live prices). Green markers: decision posture index from stance codes.</p>
             <ul class="replay-events" id="replay-event-list"></ul>
@@ -243,6 +304,11 @@
       <div class="ask-brief-strip" id="ask-brief-strip">
         <div class="brief-label" data-i18n="panel.ask_ai.brief_label">Copilot brief (now)</div>
         <div id="ask-brief-line" class="brief-value">Loading…</div>
+      </div>
+      <div id="ask-context-strip" class="ask-context-strip" style="display:none">
+        <div class="brief-label" data-i18n="panel.ask_ai.context_label">Today / detail context</div>
+        <div id="ask-context-line" class="brief-value"></div>
+        <button type="button" class="btn" id="btn-ask-context-clear" style="margin-top:0.4rem" data-i18n="panel.ask_ai.context_clear">Clear context</button>
       </div>
       <div class="brief-label" style="margin-bottom:0.35rem" data-i18n="panel.ask_ai.shortcuts">Shortcuts</div>
       <div class="shortcut-row" id="ask-shortcuts"></div>

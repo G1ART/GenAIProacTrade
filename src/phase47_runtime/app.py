@@ -124,6 +124,8 @@ def main() -> int:
     if not bundle_path.is_file():
         print(json.dumps({"ok": False, "error": "phase46_bundle_missing", "path": str(bundle_path)}), file=sys.stderr)
         return 1
+    # MVP: Today reads Brain/registry first unless operator sets METIS_TODAY_SOURCE (see Unified Product Spec §3.3).
+    os.environ.setdefault("METIS_TODAY_SOURCE", "registry")
     state = CockpitRuntimeState.from_paths(repo_root=root, phase46_bundle_path=bundle_path)
     handler = make_handler(state)
     httpd = HTTPServer((args.host, args.port), handler)

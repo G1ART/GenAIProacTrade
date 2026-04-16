@@ -233,6 +233,12 @@ def test_dispatch_runtime_health_and_oversized_ingest(tmp_path: Path) -> None:
     code, obj = dispatch_json(st, method="GET", path="/api/runtime/health", body=None)
     assert code == 200
     assert obj.get("headline")
+    gate = obj.get("mvp_brain_gate") or {}
+    assert gate.get("contract") == "MVP_RUNTIME_BRAIN_GATE_V0"
+    assert "registry_bundle_ok" in gate and isinstance(gate.get("bundle_errors"), list)
+    hr = gate.get("horizons_ready") or {}
+    assert set(hr.keys()) == {"short", "medium", "medium_long", "long"}
+    assert all(isinstance(v, bool) for v in hr.values())
 
     big = b'{"x":"' + b"y" * 40000 + b'"}'
     code2, obj2 = dispatch_json(

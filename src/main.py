@@ -7252,6 +7252,48 @@ def _cmd_run_phase47e_bilingual_user_language(
     return 0
 
 
+def _cmd_validate_metis_brain_bundle(args: argparse.Namespace) -> int:
+    """Unified Build Plan section 3.5 / Patch Bundle A — operator gate before Today reads registry."""
+    import json as json_lib
+
+    from pathlib import Path
+
+    from metis_brain.bundle import brain_bundle_path, bundle_ready_for_horizon, try_load_brain_bundle_v0
+
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path(rr).resolve() if rr else Path.cwd().resolve()
+    bundle, errs = try_load_brain_bundle_v0(root)
+    bp = brain_bundle_path(root)
+    if bundle is None:
+        print(
+            json_lib.dumps(
+                {"ok": False, "bundle_path": str(bp), "errors": errs or ["bundle_missing_or_invalid"]},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    horizons = {h: bundle_ready_for_horizon(bundle, h) for h in ("short", "medium", "medium_long", "long")}
+    print(
+        json_lib.dumps(
+            {
+                "ok": True,
+                "bundle_path": str(bp),
+                "as_of_utc": bundle.as_of_utc,
+                "horizons_ready": horizons,
+                "counts": {
+                    "artifacts": len(bundle.artifacts),
+                    "promotion_gates": len(bundle.promotion_gates),
+                    "registry_entries": len(bundle.registry_entries),
+                },
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
 def _cmd_run_phase48_proactive_research_runtime(
     args: argparse.Namespace,
 ) -> int:
@@ -11467,6 +11509,17 @@ def build_parser() -> argparse.ArgumentParser:
         default="docs/operator_closeout/phase47e_bilingual_user_language_review.md",
     )
     p47e.set_defaults(func=_cmd_run_phase47e_bilingual_user_language)
+
+    p47brain = sub.add_parser(
+        "validate-metis-brain-bundle",
+        help="MVP Stage 0: validate metis_brain_bundle_v0.json (artifact, promotion gate, registry integrity for Today)",
+    )
+    p47brain.add_argument(
+        "--repo-root",
+        default="",
+        help="Repository root (default: cwd); optional METIS_BRAIN_BUNDLE env overrides JSON path",
+    )
+    p47brain.set_defaults(func=_cmd_validate_metis_brain_bundle)
 
     p48run = sub.add_parser(
         "run-phase48-proactive-research-runtime",

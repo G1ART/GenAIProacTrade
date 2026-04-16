@@ -1,14 +1,20 @@
-"""Message Layer v1 — first-class message objects on Today spectrum rows (MVP Sprint 2 contract, stub).
+"""Message Layer v1 — Today spectrum row message (UI) + Metis Product Spec §6.4 object (Patch Bundle B).
 
-Field names align with PLAN_MODE / MVP roadmap. Optional `message` block in spectrum seed
-fills gaps; otherwise we derive a minimal message from rationale + what_changed.
+Legacy keys (`one_line_take`, `linked_model_family`, `linked_evidence_summary`) remain for `app.js`.
+`linked_registry_entry_id`, `linked_artifact_id`, `linked_evidence` satisfy the unified product contract.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-# Contract keys returned per row under `message` (subset of full MVP object).
+from metis_brain.message_object_v1 import (
+    MessageObjectV1,
+    build_message_object_v1_for_today_row,
+    format_linked_evidence_summary_v1,
+)
+
+# Keys returned per row under `message` (UI + contract).
 MESSAGE_LAYER_V1_KEYS: tuple[str, ...] = (
     "message_id",
     "asset_id",
@@ -23,6 +29,9 @@ MESSAGE_LAYER_V1_KEYS: tuple[str, ...] = (
     "confidence_band",
     "linked_model_family",
     "linked_evidence_summary",
+    "linked_registry_entry_id",
+    "linked_artifact_id",
+    "linked_evidence",
 )
 
 
@@ -49,6 +58,26 @@ def spectrum_band_from_position(position: float | None) -> str:
     return "center"
 
 
+def spectrum_quintile_from_position(position: float | None) -> str:
+    """Product Spec §5.1 — five-way valuation band (0–1 spectrum index, higher = more stretched)."""
+    if position is None:
+        return "neutral"
+    try:
+        p = float(position)
+    except (TypeError, ValueError):
+        return "neutral"
+    p = max(0.0, min(1.0, p))
+    if p < 0.15:
+        return "extreme_underpriced"
+    if p < 0.35:
+        return "underpriced"
+    if p <= 0.65:
+        return "neutral"
+    if p < 0.85:
+        return "overpriced"
+    return "extreme_overpriced"
+
+
 def build_message_layer_v1_for_row(
     *,
     row: dict[str, Any],
@@ -58,34 +87,41 @@ def build_message_layer_v1_for_row(
     rationale_summary: str,
     what_changed: str,
     confidence_band: str | None,
+    linked_registry_entry_id: str,
+    linked_artifact_id: str,
 ) -> dict[str, Any]:
+    obj: MessageObjectV1 = build_message_object_v1_for_today_row(
+        row=row,
+        horizon=horizon,
+        lang=lang,
+        rationale_summary=rationale_summary,
+        what_changed_plain=what_changed,
+        confidence_band=confidence_band,
+        linked_registry_entry_id=linked_registry_entry_id,
+        linked_artifact_id=linked_artifact_id,
+    )
     m = row.get("message") if isinstance(row.get("message"), dict) else {}
     aid = str(row.get("asset_id") or "")
     mid = str(m.get("message_id") or "").strip() or f"demo_{horizon}_{aid}".replace(" ", "_")
 
-    headline = _pick_lang(m.get("headline"), lang) or (rationale_summary[:100] + ("…" if len(rationale_summary) > 100 else ""))
-    one_line = _pick_lang(m.get("one_line_take"), lang) or rationale_summary[:220]
-    why_now = _pick_lang(m.get("why_now"), lang) or (one_line[:160] if one_line else rationale_summary[:160])
-    wchg = _pick_lang(m.get("what_changed"), lang) or what_changed
-    unproven = _pick_lang(m.get("what_remains_unproven"), lang)
-    watch = _pick_lang(m.get("what_to_watch"), lang)
-    action = _pick_lang(m.get("action_frame"), lang)
-    evidence = _pick_lang(m.get("linked_evidence_summary"), lang)
-
-    cb = str(m.get("confidence_band") or confidence_band or "").strip()
+    one_line = _pick_lang(m.get("one_line_take"), lang) or obj.headline[:220]
+    evidence_summary = format_linked_evidence_summary_v1(obj.linked_evidence)
 
     return {
         "message_id": mid,
         "asset_id": aid,
         "horizon": horizon,
-        "headline": headline,
+        "headline": obj.headline,
         "one_line_take": one_line,
-        "why_now": why_now,
-        "what_changed": wchg,
-        "what_remains_unproven": unproven,
-        "what_to_watch": watch,
-        "action_frame": action,
-        "confidence_band": cb,
+        "why_now": obj.why_now,
+        "what_changed": obj.what_changed,
+        "what_remains_unproven": obj.what_remains_unproven,
+        "what_to_watch": obj.what_to_watch,
+        "action_frame": obj.action_frame,
+        "confidence_band": obj.confidence_band,
         "linked_model_family": str(m.get("linked_model_family") or active_model_family or ""),
-        "linked_evidence_summary": evidence,
+        "linked_evidence_summary": evidence_summary,
+        "linked_registry_entry_id": obj.linked_registry_entry_id,
+        "linked_artifact_id": obj.linked_artifact_id,
+        "linked_evidence": [x.model_dump() for x in obj.linked_evidence],
     }

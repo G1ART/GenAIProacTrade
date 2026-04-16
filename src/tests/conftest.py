@@ -1,4 +1,4 @@
-"""pytest 공통 설정."""
+"""Pytest defaults — keep tmp_path-only trees on seed while product default is registry (MVP Spec §3.3)."""
 
 from __future__ import annotations
 
@@ -6,8 +6,6 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def _default_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    """대부분의 테스트에 필요한 최소 환경변수."""
-    monkeypatch.setenv("SUPABASE_URL", "https://test-project.supabase.co")
-    monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "test-service-role-key")
-    monkeypatch.setenv("EDGAR_IDENTITY", "Test User test@example.com")
+def _metis_today_source_seed_for_isolated_tests(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Real repo runs use registry by default; tests that copy only today_spectrum_seed need seed."""
+    monkeypatch.setenv("METIS_TODAY_SOURCE", "seed")

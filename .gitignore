@@ -20,3 +20,6 @@ docs/public_core_quality/samples/*.json
 docs/research_engine/dossiers/*.json
 docs/research_validation/scorecards/*.json
 docs/research_validation/scorecards/*.md
+
+# Phase 47e: local sandbox run ledger (optional; created on first save)
+data/product_surface/sandbox_runs_ledger_v1.json

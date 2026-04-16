@@ -29,6 +29,7 @@ class CockpitRuntimeState:
     phase46_bundle_path: Path
     alert_ledger_path: Path
     decision_ledger_path: Path
+    sandbox_ledger_path: Path
     bundle: dict[str, Any] = field(default_factory=dict)
     source_mtime_at_load: float = 0.0
     loaded_at_utc: str = ""
@@ -44,11 +45,13 @@ class CockpitRuntimeState:
     ) -> CockpitRuntimeState:
         ap = alert_ledger_path or (repo_root / "data" / "product_surface" / "alert_ledger_v1.json")
         dp = decision_ledger_path or (repo_root / "data" / "product_surface" / "decision_trace_ledger_v1.json")
+        sp = repo_root / "data" / "product_surface" / "sandbox_runs_ledger_v1.json"
         st = cls(
             repo_root=repo_root,
             phase46_bundle_path=phase46_bundle_path,
             alert_ledger_path=ap,
             decision_ledger_path=dp,
+            sandbox_ledger_path=sp,
         )
         st.reload_bundle()
         return st
@@ -84,6 +87,7 @@ class CockpitRuntimeState:
             "phase46_bundle_path": str(self.phase46_bundle_path.resolve()),
             "alert_ledger_path": str(self.alert_ledger_path.resolve()),
             "decision_ledger_path": str(self.decision_ledger_path.resolve()),
+            "sandbox_ledger_path": str(self.sandbox_ledger_path.resolve()),
             "phase": b.get("phase"),
             "bundle_ok": b.get("ok"),
         }

@@ -180,11 +180,13 @@ def build_timeline_events(
 
     events: list[dict[str, Any]] = []
     dc = _decision_card_from_bundle(bundle)
+    primary_asset = str(rm.get("asset_id") or "").strip()
     events.append(
         {
             "event_id": "evt_bundle_authoritative",
             "timestamp_utc": anchor.isoformat(),
             "event_type": "research_event",
+            "asset_id": primary_asset,
             "title": "Authoritative bundle snapshot",
             "stance_at_time": str(rm.get("current_stance") or ""),
             "message_summary": _sanitize_replay_text(str(dc.get("body") or rm.get("headline_message") or "")),
@@ -206,6 +208,7 @@ def build_timeline_events(
                 "event_id": f"evt_decision_{i}_{d.get('decision_type', 'x')}",
                 "timestamp_utc": ts.isoformat(),
                 "event_type": "decision_event",
+                "asset_id": str(d.get("asset_id") or "").strip(),
                 "title": f"Decision: {d.get('decision_type')}",
                 "stance_at_time": str(d.get("decision_type") or ""),
                 "message_summary": _sanitize_replay_text(str(d.get("linked_message_summary") or "")),
@@ -213,6 +216,10 @@ def build_timeline_events(
                 "founder_note": _sanitize_replay_text(str(d.get("founder_note") or "")),
                 "known_then": "Ledger fields recorded with this decision row only.",
                 "later_outcome_link": "outcome_placeholder in ledger may be filled later — not shown as ex-ante known.",
+                "replay_lineage_pointer": str(d.get("replay_lineage_pointer") or ""),
+                "message_snapshot_id": str(d.get("message_snapshot_id") or ""),
+                "linked_registry_entry_id": str(d.get("linked_registry_entry_id") or ""),
+                "linked_artifact_id": str(d.get("linked_artifact_id") or ""),
             }
         )
 
@@ -227,6 +234,7 @@ def build_timeline_events(
                 "event_id": f"evt_alert_{i}",
                 "timestamp_utc": ts.isoformat(),
                 "event_type": "ai_message_event",
+                "asset_id": str(a.get("asset_id") or "").strip(),
                 "title": f"Alert: {a.get('alert_class') or 'signal'}",
                 "stance_at_time": "",
                 "message_summary": _sanitize_replay_text(str(a.get("message_summary") or "")),
@@ -243,6 +251,7 @@ def build_timeline_events(
             "event_id": "evt_outcome_review_frame",
             "timestamp_utc": now.isoformat(),
             "event_type": "outcome_checkpoint",
+            "asset_id": primary_asset,
             "title": "Review frame (present)",
             "stance_at_time": str(rm.get("current_stance") or ""),
             "message_summary": "Ex-post review only — not knowable at prior decision times.",
@@ -255,6 +264,75 @@ def build_timeline_events(
 
     events.sort(key=lambda e: e["timestamp_utc"])
     return events, None
+
+
+def _spectrum_review_context_for_asset(
+    *,
+    repo_root: Path,
+    asset_id: str,
+    horizon: str,
+    lang: str,
+    mock_price_tick: str | None,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    """Resolve REPLAY_LINEAGE_JOIN_V1 row + TODAY_REGISTRY_SURFACE_V1 from one Today spectrum build."""
+    from phase47_runtime.phase47e_user_locale import normalize_lang
+    from phase47_runtime.today_spectrum import _normalize_mock_price_tick, build_today_spectrum_payload
+
+    hz = (horizon or "short").strip().lower().replace("-", "_")
+    lg = normalize_lang(lang)
+    mt = _normalize_mock_price_tick(mock_price_tick)
+    sp = build_today_spectrum_payload(repo_root=repo_root, horizon=hz, lang=lg, mock_price_tick=mt)
+    if not sp.get("ok"):
+        return None, None
+    raw_rs = sp.get("registry_surface_v1")
+    registry_surface = raw_rs if isinstance(raw_rs, dict) else None
+    aid = (asset_id or "").strip()
+    for r in sp.get("rows") or []:
+        if not isinstance(r, dict):
+            continue
+        if str(r.get("asset_id") or "").strip() != aid:
+            continue
+        msg = r.get("message") if isinstance(r.get("message"), dict) else {}
+        fam = str(sp.get("active_model_family") or "")
+        join = {
+            "contract": "REPLAY_LINEAGE_JOIN_V1",
+            "asset_id": aid,
+            "horizon": hz,
+            "active_model_family_name": fam,
+            "replay_lineage_pointer": str(r.get("replay_lineage_pointer") or ""),
+            "message_snapshot_id": str(r.get("message_snapshot_id") or ""),
+            "linked_registry_entry_id": str(msg.get("linked_registry_entry_id") or ""),
+            "linked_artifact_id": str(msg.get("linked_artifact_id") or ""),
+        }
+        return join, registry_surface
+    return None, registry_surface
+
+
+def _inject_lineage_into_timeline_events(
+    events: list[dict[str, Any]],
+    join: dict[str, Any],
+    registry_surface: dict[str, Any] | None,
+) -> None:
+    """Attach Today/registry lineage (+ registry surface) to ledger events for the same asset_id (§6.3)."""
+    aid = str(join.get("asset_id") or "").strip()
+    if not aid:
+        return
+    rs_ok = isinstance(registry_surface, dict) and registry_surface.get("contract") == "TODAY_REGISTRY_SURFACE_V1"
+    for e in events:
+        if str(e.get("asset_id") or "").strip() != aid:
+            continue
+        if str(join.get("active_model_family_name") or "").strip():
+            e["active_model_family_name"] = join["active_model_family_name"]
+        if str(join.get("replay_lineage_pointer") or "").strip():
+            e["replay_lineage_pointer"] = join["replay_lineage_pointer"]
+        if str(join.get("message_snapshot_id") or "").strip():
+            e["message_snapshot_id"] = join["message_snapshot_id"]
+        if str(join.get("linked_registry_entry_id") or "").strip():
+            e["linked_registry_entry_id"] = join["linked_registry_entry_id"]
+        if str(join.get("linked_artifact_id") or "").strip():
+            e["linked_artifact_id"] = join["linked_artifact_id"]
+        if rs_ok:
+            e["registry_surface_v1"] = registry_surface
 
 
 def build_plot_series(events: list[dict[str, Any]], *, bundle: dict[str, Any]) -> list[dict[str, Any]]:
@@ -308,10 +386,11 @@ def micro_brief_for_event(events: list[dict[str, Any]], event_id: str) -> dict[s
     for e in events:
         if e.get("event_id") == event_id:
             g = next((x for x in EVENT_GRAMMAR if x["type"] == e.get("event_type")), {})
-            return {
+            mb: dict[str, Any] = {
                 "event_id": event_id,
                 "timestamp_utc": e.get("timestamp_utc"),
                 "event_type": e.get("event_type"),
+                "asset_id": str(e.get("asset_id") or "").strip(),
                 "style_token": g,
                 "title": e.get("title"),
                 "stance_at_time": e.get("stance_at_time"),
@@ -322,6 +401,22 @@ def micro_brief_for_event(events: list[dict[str, Any]], event_id: str) -> dict[s
                 "decision_quality_note": "Evaluated with information available at this timestamp.",
                 "outcome_quality_note": "Outcome quality is assessed separately — may differ from decision quality.",
             }
+            lineage_keys = (
+                "replay_lineage_pointer",
+                "message_snapshot_id",
+                "linked_registry_entry_id",
+                "linked_artifact_id",
+                "active_model_family_name",
+            )
+            if any(str(e.get(k) or "").strip() for k in lineage_keys):
+                for k in lineage_keys:
+                    v = e.get(k)
+                    if v is not None and str(v).strip():
+                        mb[k] = v
+            rs = e.get("registry_surface_v1")
+            if isinstance(rs, dict) and rs.get("contract") == "TODAY_REGISTRY_SURFACE_V1":
+                mb["registry_surface_v1"] = rs
+            return mb
     return None
 
 
@@ -351,8 +446,47 @@ def build_counterfactual_scaffold() -> dict[str, Any]:
     }
 
 
+def build_now_then_frame_v1(
+    *,
+    bundle: dict[str, Any],
+    join: dict[str, Any],
+    lang: str | None,
+) -> dict[str, Any]:
+    """Product Spec §5.3 — connect spectrum-bound 'then' vs authoritative bundle 'now' review frame."""
+    from phase47_runtime.phase47e_user_locale import normalize_lang, t
+
+    lg = normalize_lang(lang)
+    rm = bundle.get("founder_read_model") or {}
+    now_stance = str(rm.get("current_stance") or "")
+    now_head = str(rm.get("headline_message") or "")[:220]
+    fam = str(join.get("active_model_family_name") or "—")
+    snap = str(join.get("message_snapshot_id") or "")
+    snap_short = (snap[:56] + "…") if len(snap) > 56 else snap or "—"
+    head_short = (now_head[:180] + "…") if len(now_head) > 180 else now_head or "—"
+    return {
+        "contract": "REPLAY_NOW_THEN_FRAME_V1",
+        "then_active_model_family": fam,
+        "then_message_snapshot_id": snap,
+        "then_replay_lineage_pointer": str(join.get("replay_lineage_pointer") or ""),
+        "now_authoritative_bundle_stance": now_stance,
+        "now_authoritative_bundle_headline_snippet": now_head,
+        "title": t(lg, "replay.now_then.title"),
+        "body_then": t(lg, "replay.now_then.body_then").format(family=fam, snapshot_id=snap_short),
+        "body_now": t(lg, "replay.now_then.body_now").format(stance=now_stance or "—", headline=head_short),
+        "disclaimer": t(lg, "replay.now_then.disclaimer"),
+    }
+
+
 def api_replay_timeline_payload(
-    bundle: dict[str, Any], alert_path: Path | str, decision_path: Path | str
+    bundle: dict[str, Any],
+    alert_path: Path | str,
+    decision_path: Path | str,
+    *,
+    repo_root: Path | None = None,
+    timeline_asset_id: str | None = None,
+    horizon: str | None = None,
+    lang: str | None = None,
+    mock_price_tick: str | None = None,
 ) -> dict[str, Any]:
     ap = Path(alert_path)
     dp = Path(decision_path)
@@ -361,11 +495,24 @@ def api_replay_timeline_payload(
     events, err = build_timeline_events(bundle=bundle, decisions=decisions, alerts=alerts)
     if err:
         return {"ok": False, "error": err, "mode": "replay"}
+    join: dict[str, Any] | None = None
+    registry_surface: dict[str, Any] | None = None
+    if repo_root is not None and (timeline_asset_id or "").strip():
+        join, registry_surface = _spectrum_review_context_for_asset(
+            repo_root=repo_root,
+            asset_id=timeline_asset_id.strip(),
+            horizon=horizon or "short",
+            lang=lang or "en",
+            mock_price_tick=mock_price_tick,
+        )
+        if join:
+            _inject_lineage_into_timeline_events(events, join, registry_surface)
     series = build_plot_series(events, bundle=bundle)
-    return {
+    out: dict[str, Any] = {
         "ok": True,
         "mode": "replay",
         "replay_rules": REPLAY_RULES,
+        "replay_lineage_join_contract": "REPLAY_LINEAGE_JOIN_V1",
         "decision_vs_outcome_framing": DECISION_VS_OUTCOME_RULES,
         "event_grammar": EVENT_GRAMMAR,
         "plot_grammar": PLOT_GRAMMAR,
@@ -376,6 +523,12 @@ def api_replay_timeline_payload(
             "note": "Position-level lineage and attribution reserved for a later phase; not implied by this timeline.",
         },
     }
+    if join:
+        out["today_lineage_join_v1"] = join
+        out["now_then_frame_v1"] = build_now_then_frame_v1(bundle=bundle, join=join, lang=lang)
+    if isinstance(registry_surface, dict) and registry_surface.get("contract") == "TODAY_REGISTRY_SURFACE_V1":
+        out["registry_surface_v1"] = registry_surface
+    return out
 
 
 def phase47c_bundle_core(*, design_paths: list[str]) -> dict[str, Any]:

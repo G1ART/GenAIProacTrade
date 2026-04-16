@@ -44,4 +44,6 @@
 - `information`: `supporting_signals`·`opposing_signals`(문자열 배열), `evidence_summary`, `data_layer_note` — 시드 `information_layer`가 있으면 사용, 없으면 스펙트럼 행으로 최소 생성.
 - `research`: `deeper_rationale`, `model_family_context`, `links.prefill_ask_ai` 등 — 시드 `research_layer` 또는 폴백.
 
-구현: `src/phase47_runtime/message_layer_v1.py`, `today_spectrum.py`.
+리플레이 타임라인 `events[]` 항목에 **`asset_id`**(알림·저널 결정·번들 primary 등)가 포함되며, Today 종목 상세 `research.links.replay_highlight_asset_id` 로 리플레이 패널에서 동일 ID 행을 강조할 수 있다.
+
+구현: `src/phase47_runtime/message_layer_v1.py`, `today_spectrum.py`, `traceability_replay.py`.

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "contract": "FROZEN_SNAPSHOT_PACK_V0",
+  "pack_id": "mvp_demo_default_v0",
+  "as_of_utc": "2026-04-12T20:40:43+00:00",
+  "pinned_inputs": {
+    "today_spectrum_seed": "data/mvp/today_spectrum_seed_v1.json",
+    "message_snapshots_store": "data/mvp/message_snapshots_v0.json",
+    "phase46_bundle_note": "PHASE46_COCKPIT_BUNDLE_PATH or cockpit default bundle"
+  },
+  "price_overlay_demo": {
+    "query_param": "mock_price_tick",
+    "baseline_value": "0",
+    "shock_value": "1",
+    "semantics": "demo_axis_inversion_v1 — not live OHLC"
+  },
+  "investor_demo_steps": [
+    { "id": "home_today", "label_key": "demo.route.home_today" },
+    { "id": "object_detail", "label_key": "demo.route.object_detail" },
+    { "id": "journal_log", "label_key": "demo.route.journal_log" },
+    { "id": "replay_timeline", "label_key": "demo.route.replay_timeline" },
+    { "id": "counterfactual", "label_key": "demo.route.counterfactual" }
+  ],
+  "disclaimer": "Manifest of pinned demo inputs for repeatable investor walk-through — not a live market snapshot."
+}
