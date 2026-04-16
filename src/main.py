@@ -7405,6 +7405,7 @@ def _cmd_merge_metis_gate_into_bundle(args: argparse.Namespace) -> int:
         extract_promotion_gate_dict,
         load_bundle_json,
         merge_promotion_gate_into_bundle_dict,
+        sync_artifact_validation_pointer_for_factor_run,
         validate_merged_bundle_dict,
         write_bundle_json,
     )
@@ -7453,6 +7454,12 @@ def _cmd_merge_metis_gate_into_bundle(args: argparse.Namespace) -> int:
     try:
         bundle_dict = load_bundle_json(bundle_path)
         merged = merge_promotion_gate_into_bundle_dict(bundle_dict, gate_dict)
+        if bool(getattr(args, "sync_artifact_validation_pointer", False)):
+            merged = sync_artifact_validation_pointer_for_factor_run(
+                merged,
+                artifact_id=str(gate_dict.get("artifact_id") or ""),
+                evaluation_run_id=str(gate_dict.get("evaluation_run_id") or ""),
+            )
     except ValueError as e:
         print(
             json_lib.dumps(
@@ -7470,6 +7477,9 @@ def _cmd_merge_metis_gate_into_bundle(args: argparse.Namespace) -> int:
         "bundle_path": str(bundle_path),
         "write_path": str(out_path),
         "dry_run": dry,
+        "sync_artifact_validation_pointer": bool(
+            getattr(args, "sync_artifact_validation_pointer", False)
+        ),
         "artifact_id": gate_dict.get("artifact_id"),
         "integrity_ok": integrity_ok,
         "errors": errs if not integrity_ok else [],
@@ -8246,6 +8256,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--dry-run",
         action="store_true",
         help="병합·검증만 수행하고 디스크에 쓰지 않음",
+    )
+    pmetis_merge.add_argument(
+        "--sync-artifact-validation-pointer",
+        action="store_true",
+        help="같은 artifact_id의 ModelArtifactPacket.validation_pointer를 factor_validation_run:<evaluation_run_id>로 맞춤",
     )
     pmetis_merge.set_defaults(func=_cmd_merge_metis_gate_into_bundle)
 

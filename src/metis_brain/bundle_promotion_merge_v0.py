@@ -43,6 +43,37 @@ def merge_promotion_gate_into_bundle_dict(
     return out
 
 
+def sync_artifact_validation_pointer_for_factor_run(
+    bundle_dict: dict[str, Any],
+    *,
+    artifact_id: str,
+    evaluation_run_id: str,
+    pointer_prefix: str = "factor_validation_run",
+) -> dict[str, Any]:
+    """Point the bundle artifact's validation_pointer at the factor_validation_summaries run (gate.evaluation_run_id)."""
+    aid = str(artifact_id or "").strip()
+    rid = str(evaluation_run_id or "").strip()
+    if not aid:
+        raise ValueError("artifact_id required")
+    if not rid:
+        raise ValueError("evaluation_run_id required")
+    pp = str(pointer_prefix or "").strip() or "factor_validation_run"
+    out = json.loads(json.dumps(bundle_dict, default=str))
+    arts = list(out.get("artifacts") or [])
+    found = False
+    for a in arts:
+        if not isinstance(a, dict):
+            continue
+        if str(a.get("artifact_id") or "").strip() == aid:
+            a["validation_pointer"] = f"{pp}:{rid}"
+            found = True
+            break
+    if not found:
+        raise ValueError(f"no artifact with artifact_id={aid!r}")
+    out["artifacts"] = arts
+    return out
+
+
 def validate_merged_bundle_dict(bundle_dict: dict[str, Any]) -> tuple[bool, list[str]]:
     """Schema + active-registry integrity (same rules as Today consumption)."""
     try:

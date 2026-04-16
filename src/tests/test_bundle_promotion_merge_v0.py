@@ -11,6 +11,7 @@ import pytest
 from metis_brain.bundle_promotion_merge_v0 import (
     extract_promotion_gate_dict,
     merge_promotion_gate_into_bundle_dict,
+    sync_artifact_validation_pointer_for_factor_run,
     validate_merged_bundle_dict,
 )
 
@@ -58,6 +59,33 @@ def test_merge_failing_gate_breaks_integrity() -> None:
     ok, errs = validate_merged_bundle_dict(merged)
     assert ok is False
     assert any("no passing promotion gate" in e for e in errs)
+
+
+def test_sync_artifact_validation_pointer_for_factor_run() -> None:
+    p = _repo_bundle_path()
+    bundle = json.loads(p.read_text(encoding="utf-8"))
+    g = dict(bundle["promotion_gates"][0])
+    merged = merge_promotion_gate_into_bundle_dict(bundle, g)
+    out = sync_artifact_validation_pointer_for_factor_run(
+        merged,
+        artifact_id="art_short_demo_v0",
+        evaluation_run_id="00000000-0000-0000-0000-000000000099",
+    )
+    art = next(x for x in out["artifacts"] if x["artifact_id"] == "art_short_demo_v0")
+    assert art["validation_pointer"] == "factor_validation_run:00000000-0000-0000-0000-000000000099"
+    ok, errs = validate_merged_bundle_dict(out)
+    assert ok is True, errs
+
+
+def test_sync_artifact_validation_pointer_missing_artifact() -> None:
+    p = _repo_bundle_path()
+    bundle = json.loads(p.read_text(encoding="utf-8"))
+    with pytest.raises(ValueError, match="no artifact"):
+        sync_artifact_validation_pointer_for_factor_run(
+            bundle,
+            artifact_id="art_nonexistent_v0",
+            evaluation_run_id="00000000-0000-0000-0000-000000000099",
+        )
 
 
 def test_merge_roundtrip_write_tmp(tmp_path: Path) -> None:
