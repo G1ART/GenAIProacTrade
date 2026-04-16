@@ -193,12 +193,32 @@ def api_decision_append(state: CockpitRuntimeState, body: dict[str, Any]) -> dic
 def api_conversation(state: CockpitRuntimeState, body: dict[str, Any]) -> dict[str, Any]:
     text = str(body.get("text") or "")
     raw_ctx = body.get("copilot_context")
-    copilot_ctx = raw_ctx if isinstance(raw_ctx, dict) else None
+    copilot_ctx: dict[str, Any] | None = raw_ctx if isinstance(raw_ctx, dict) else None
+    sid = str(body.get("message_snapshot_id") or "").strip()
+    if not sid and isinstance(copilot_ctx, dict):
+        sid = str(copilot_ctx.get("message_snapshot_id") or "").strip()
+    if sid:
+        from metis_brain.message_snapshot_copilot_bridge_v0 import enrich_copilot_context_from_message_snapshot
+
+        merged, err = enrich_copilot_context_from_message_snapshot(
+            state.repo_root, sid, copilot_ctx
+        )
+        if err:
+            return {
+                "ok": False,
+                "error": err,
+                "message_snapshot_id": sid,
+                "contract": "GOVERNED_CONVERSATION_MESSAGE_SNAPSHOT_V0",
+            }
+        copilot_ctx = merged
     try:
         out = process_governed_prompt(state.bundle, text, copilot_context=copilot_ctx)
     except ValueError as e:
         return {"ok": False, "error": "governance_violation", "detail": str(e)}
-    return {"ok": True, "response": out}
+    resp: dict[str, Any] = {"ok": True, "response": out}
+    if sid:
+        resp["message_snapshot_id"] = sid
+    return resp
 
 
 def api_sandbox_run(state: CockpitRuntimeState, body: dict[str, Any], lang: str) -> dict[str, Any]:

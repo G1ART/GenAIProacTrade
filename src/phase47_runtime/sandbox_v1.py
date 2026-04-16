@@ -42,8 +42,28 @@ def run_sandbox_v1(
     if len(hyp) > _MAX_HYP:
         hyp = hyp[: _MAX_HYP - 1] + "…"
 
+    sid_snap = str(body.get("message_snapshot_id") or "").strip()
+    snap_row: dict[str, Any] | None = None
+    if sid_snap:
+        from metis_brain.message_snapshots_store import get_message_snapshot
+
+        raw = get_message_snapshot(repo_root, sid_snap)
+        if not raw:
+            return {
+                "ok": False,
+                "error": "message_snapshot_not_found",
+                "message_snapshot_id": sid_snap,
+                "contract": CONTRACT,
+            }
+        snap_row = raw
+
     aid = str(body.get("asset_id") or "").strip()[:_MAX_ASSET]
-    hz = str(body.get("horizon") or "short").strip().lower().replace("-", "_")
+    if not aid and snap_row:
+        aid = str(snap_row.get("asset_id") or "").strip()[:_MAX_ASSET]
+
+    raw_hz = body.get("horizon")
+    hz_src = raw_hz if raw_hz is not None else ((snap_row or {}).get("horizon") or "short")
+    hz = str(hz_src or "short").strip().lower().replace("-", "_")
     if hz not in _ALLOWED:
         return {"ok": False, "error": "invalid_horizon", "allowed": sorted(_ALLOWED), "contract": CONTRACT}
 
@@ -60,6 +80,12 @@ def run_sandbox_v1(
     bullets: list[str] = []
     hyp_snip = hyp if len(hyp) <= 420 else hyp[:419] + "…"
     bullets.append(f"{t(lg, 'sandbox.bullet_hypothesis_prefix')} {hyp_snip}")
+    if snap_row:
+        msg0 = snap_row.get("message") if isinstance(snap_row.get("message"), dict) else {}
+        hl0 = str(msg0.get("headline") or "").strip()
+        if hl0:
+            sn = sid_snap if len(sid_snap) <= 24 else sid_snap[:20] + "…"
+            bullets.append(f"[message_snapshot {sn}] {hl0[:320]}{'…' if len(hl0) > 320 else ''}")
 
     horizon_scan: list[dict[str, Any]] = []
 
@@ -157,6 +183,7 @@ def run_sandbox_v1(
             "horizon": hz,
             "pit_mode": pit_mode,
             "mock_price_tick": mt,
+            "message_snapshot_id": sid_snap or None,
         },
         "result": {
             "summary_bullets": bullets,

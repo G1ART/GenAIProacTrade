@@ -23,6 +23,8 @@ PIT은 `summary_json.pit_certified`가 true일 때만 통과로 표시됩니다.
 
 **한 방 빌드(Slice A)**: `data/mvp/metis_bundle_from_validation_config.example.json`을 복사해 `gates[]`(팩터·유니버스·검증 지평·return_basis·번들의 `artifact_id`)를 채운 뒤, `PYTHONPATH=src python3 src/main.py build-metis-brain-bundle-from-factor-validation --repo-root . --config <your.json> --dry-run` → 무결성 통과 시 `--dry-run` 제거해 `output_bundle_path`에 저장. 실패 시 JSON `report.steps`·`errors`로 원인이 한 번에 나온다.
 
+**스냅샷 스레드(Slice B)**: `GET /api/today/object` 응답 최상위 `message_snapshot_id`·`research.message_snapshot_id`가 `replay_lineage_join_v1`과 동일. `POST /api/conversation` 본문에 `message_snapshot_id`만 넘기면 저장된 스냅샷으로 copilot 컨텍스트가 채워져 Ask가 동일 메시지에 답한다. 샌드박스는 `message_snapshot_id`로 자산·헤드라인 맥락을 주입할 수 있다.
+
 ---
 
 미국 SEC **공시 메타데이터**·**XBRL fact**·**분기 스냅샷**·**회계 팩터**에 이어, Phase 4에서 **시장 가격·선행 수익률·무위험 이자율**을 **provider 추상화**로 적재하고 **`factor_market_validation_panels`** 까지 조인합니다. **Phase 5**에서는 그 패널 위에 **결정적 기술 검증·분위 기술통계**를 쌓는 **`factor_validation_*` 연구 레이어**(백테스트·전략·실행 아님)를 추가합니다.

@@ -724,8 +724,10 @@ def build_today_object_detail_payload(
         research = {**research, "links": rlinks}
     msg = row.get("message") or {}
     qz = str(row.get("spectrum_quintile") or "neutral")
+    snap_id = str(row.get("message_snapshot_id") or "").strip()
     research = {
         **research,
+        "message_snapshot_id": snap_id,
         "horizon_lens_compare": _horizon_lens_compare(
             repo_root=repo_root,
             asset_id=aid,
@@ -743,7 +745,6 @@ def build_today_object_detail_payload(
         },
     }
 
-    snap_id = str(row.get("message_snapshot_id") or "").strip()
     rj = {
         "contract": str(sp.get("replay_lineage_join_contract") or "REPLAY_LINEAGE_JOIN_V1"),
         "replay_lineage_pointer": str(row.get("replay_lineage_pointer") or ""),
@@ -767,6 +768,7 @@ def build_today_object_detail_payload(
         "as_of_utc": sp.get("as_of_utc"),
         "mock_price_tick": sp.get("mock_price_tick"),
         "asset_id": aid,
+        "message_snapshot_id": snap_id,
         "spectrum": {
             "spectrum_position": row.get("spectrum_position"),
             "spectrum_band": row.get("spectrum_band"),
