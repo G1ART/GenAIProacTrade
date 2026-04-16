@@ -7580,6 +7580,18 @@ def _cmd_build_metis_brain_bundle_from_factor_validation(args: argparse.Namespac
         "gate_count": len(specs),
         "report": report,
     }
+    ar = str((report or {}).get("aborted_reason") or "")
+    if merged is None:
+        payload["hint_ko"] = (
+            "복붙 절차·에러 해석: docs/operator_closeout/METIS_SLICE_A_COPYPASTE_KR.md | "
+            "무결성 실패 시: export-metis-gates-from-factor-validation 로 promotion_gate 확인 → "
+            "pit/coverage/mono가 모두 true일 때만 active registry 통과. "
+            "DB 쪽은 report-factor-summary / run-factor-validation 로 요약·분위를 먼저 살리기."
+        )
+        if ar == "export_failed":
+            payload["hint_ko"] += " | 이번 실패: DB에서 게이트 export 단계에서 막힘(report.steps)."
+        elif ar == "integrity_failed":
+            payload["hint_ko"] += " | 이번 실패: 병합 후 번들 무결성(주로 no passing promotion gate)."
     print(json_lib.dumps(payload, indent=2, ensure_ascii=False, default=str))
     if merged is None:
         return 1

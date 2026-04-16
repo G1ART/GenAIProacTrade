@@ -1,4 +1,5 @@
 {
+  "_read_me_ko": "운영 복붙 절차는 docs/operator_closeout/METIS_SLICE_A_COPYPASTE_KR.md 를 본다. gates[] 각 객체는 DB(factor·universe·horizon_type·return_basis)와 번들 artifact_id 를 연결한다. output_bundle_path 는 결과 파일(템플릿과 다른 경로 권장).",
   "schema_version": 1,
   "contract": "METIS_BUNDLE_FROM_VALIDATION_CONFIG_V0",
   "template_bundle_path": "data/mvp/metis_brain_bundle_v0.json",

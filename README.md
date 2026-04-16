@@ -21,7 +21,7 @@ PIT은 `summary_json.pit_certified`가 true일 때만 통과로 표시됩니다.
 
 `PYTHONPATH=src python3 src/main.py merge-metis-gate-into-bundle --repo-root . --from-json <export.json> --dry-run`으로 스키마·active registry 무결성을 확인한 뒤, 통과하면 `--dry-run` 없이 저장(`--out`으로 다른 경로에 쓸 수 있음). DB run과 아티팩트를 맞출 때는 `--sync-artifact-validation-pointer`로 `validation_pointer`를 `factor_validation_run:<run_id>` 형태로 갱신할 수 있다.
 
-**한 방 빌드(Slice A)**: `data/mvp/metis_bundle_from_validation_config.example.json`을 복사해 `gates[]`(팩터·유니버스·검증 지평·return_basis·번들의 `artifact_id`)를 채운 뒤, `PYTHONPATH=src python3 src/main.py build-metis-brain-bundle-from-factor-validation --repo-root . --config <your.json> --dry-run` → 무결성 통과 시 `--dry-run` 제거해 `output_bundle_path`에 저장. 실패 시 JSON `report.steps`·`errors`로 원인이 한 번에 나온다.
+**한 방 빌드(Slice A)**: 터미널 복붙 전용 절차는 `docs/operator_closeout/METIS_SLICE_A_COPYPASTE_KR.md`. 요약: `cat <<'EOF' > data/mvp/my_metis_bundle_build.json` 로 설정 파일을 만든 뒤 `build-metis-brain-bundle-from-factor-validation --dry-run` → `ok:true`일 때만 `--dry-run` 제거. 실패 시 응답 JSON의 `hint_ko`·`report` 참고.
 
 **스냅샷 스레드(Slice B)**: `GET /api/today/object` 응답 최상위 `message_snapshot_id`·`research.message_snapshot_id`가 `replay_lineage_join_v1`과 동일. `POST /api/conversation` 본문에 `message_snapshot_id`만 넘기면 저장된 스냅샷으로 copilot 컨텍스트가 채워져 Ask가 동일 메시지에 답한다. 샌드박스는 `message_snapshot_id`로 자산·헤드라인 맥락을 주입할 수 있다.
 
