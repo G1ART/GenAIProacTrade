@@ -41,6 +41,9 @@ def build_cockpit_runtime_health_payload(
         "bundle_errors": brain_errs if _b is None else [],
         "horizons_ready": horizons_ready,
     }
+    from metis_brain.mvp_spec_survey_v0 import build_mvp_spec_survey_v0
+
+    mvp_spec_survey = build_mvp_spec_survey_v0(root)
     st = raw.get("health_status") or "unknown"
     lg = normalize_lang(lang)
     headline, sub, lines = cockpit_health_public_text(lg, raw)
@@ -58,5 +61,6 @@ def build_cockpit_runtime_health_payload(
         "recent_skips_plain": skip_plain,
         "effective_trigger_types": (raw.get("trigger_controls") or {}).get("allowed_trigger_types_effective", []),
         "mvp_brain_gate": mvp_brain_gate,
+        "mvp_product_spec_survey_v0": mvp_spec_survey,
         "advanced": raw,
     }

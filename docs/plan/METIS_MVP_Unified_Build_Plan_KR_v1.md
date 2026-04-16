@@ -32,6 +32,8 @@
 - Today/Research/Replay 방향성
 - trust/health/injest 일부
 
+> **진척 갱신 (2026-04):** Artifact·Promotion Gate·Registry 스키마와 번들 검증, Today의 registry 우선 입력, factor_validation→게이트/번들 빌드 CLI, 메시지 스냅샷·Research/Ask 연동 등이 코드에 반영됨. §1 아래 “아직 없는 것”은 문서 최초 작성 시점 기준이며, **현재 스펙 대비 갭·스프린트 우선순위**는 `docs/plan/METIS_MVP_PROGRESS_VS_SPEC_KR_v1.md`를 본다.
+
 아직 없는 것:
 - active horizon model registry
 - artifact packet contract

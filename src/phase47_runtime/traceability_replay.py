@@ -298,6 +298,7 @@ def _spectrum_review_context_for_asset(
             "contract": "REPLAY_LINEAGE_JOIN_V1",
             "asset_id": aid,
             "horizon": hz,
+            "registry_entry_id": str(sp.get("registry_entry_id") or ""),
             "active_model_family_name": fam,
             "replay_lineage_pointer": str(r.get("replay_lineage_pointer") or ""),
             "message_snapshot_id": str(r.get("message_snapshot_id") or ""),
@@ -331,6 +332,8 @@ def _inject_lineage_into_timeline_events(
             e["linked_registry_entry_id"] = join["linked_registry_entry_id"]
         if str(join.get("linked_artifact_id") or "").strip():
             e["linked_artifact_id"] = join["linked_artifact_id"]
+        if str(join.get("registry_entry_id") or "").strip():
+            e["registry_entry_id"] = join["registry_entry_id"]
         if rs_ok:
             e["registry_surface_v1"] = registry_surface
 
@@ -406,6 +409,7 @@ def micro_brief_for_event(events: list[dict[str, Any]], event_id: str) -> dict[s
                 "message_snapshot_id",
                 "linked_registry_entry_id",
                 "linked_artifact_id",
+                "registry_entry_id",
                 "active_model_family_name",
             )
             if any(str(e.get(k) or "").strip() for k in lineage_keys):

@@ -13,7 +13,7 @@
 - **아직 데모에 가까운 것(실질)**: `data/mvp/metis_brain_bundle_v0.json`은 시드 스펙트럼과 맞춘 **데모/스모크 번들**이며, `deterministic_kernel:v0`·`stub_feature_set` 등으로 **실제 검증 파이프라인이 자동 생산한 모델 패밀리**를 대체하지는 않습니다.
 - **다음 P0 (로드맵과 감사 공통)**: `factor_validation_*` / `research_validation` 결과를 **ModelArtifactPacketV0 + metric 기반 PromotionGateRecordV0 + Registry entry**로 뽑아 내는 **빌더·승격 다리**를 코드로 닫는 것. 그 위에 Research Ask/Sandbox **acceptance 문장**을 스펙 수준으로 조이는 것. (쉘·커넥터 확장은 뒤로.)
 
-런타임 스모크: `python3 src/main.py validate-metis-brain-bundle`, Today 스펙트럼은 `python3 src/phase47_runtime/app.py` 후 `/api/today/spectrum` 등.
+런타임 스모크: `python3 src/main.py validate-metis-brain-bundle`, Today 스펙트럼은 `python3 src/phase47_runtime/app.py` 후 `/api/today/spectrum` 등. **스펙 §10 대비 자동 신호**는 `GET /api/runtime/health` JSON의 `mvp_product_spec_survey_v0`와 `docs/plan/METIS_MVP_PROGRESS_VS_SPEC_KR_v1.md`를 본다.
 
 검증 → 게이트(JSON) 한 걸음(DB에 completed `factor_validation`이 있을 때):  
 `python3 src/main.py export-metis-gates-from-factor-validation --factor accruals --universe sp500_current --horizon next_month --return-basis excess --artifact-id <번들의 artifact_id>`  
