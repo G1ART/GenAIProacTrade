@@ -7302,9 +7302,7 @@ def _cmd_export_metis_gates_from_factor_validation(args: argparse.Namespace) -> 
     import json as json_lib
 
     from db.client import get_supabase_client
-    from db.records import fetch_factor_quantiles_for_run, fetch_latest_factor_validation_summaries
-    from metis_brain.factor_validation_gate_adapter_v0 import build_metis_gate_summary_from_factor_summary_row
-    from metis_brain.validation_bridge_v0 import promotion_gate_from_validation_summary
+    from metis_brain.factor_validation_gate_export_v0 import export_promotion_gate_from_factor_validation_db
 
     settings = load_settings()
     configure_logging()
@@ -7314,84 +7312,21 @@ def _cmd_export_metis_gates_from_factor_validation(args: argparse.Namespace) -> 
     horizon = str(args.horizon)
     basis = str(args.return_basis or "raw")
     artifact_id = str(getattr(args, "artifact_id", "") or "").strip()
-    if not artifact_id:
-        print(json_lib.dumps({"ok": False, "error": "artifact_id_required"}, indent=2))
-        return 1
-    rid, rows = fetch_latest_factor_validation_summaries(
+    out = export_promotion_gate_from_factor_validation_db(
         client,
-        factor_name=factor,
-        universe_name=universe,
-        horizon_type=horizon,
-    )
-    if not rid or not rows:
-        print(
-            json_lib.dumps(
-                {
-                    "ok": False,
-                    "error": "no_completed_factor_validation_summary",
-                    "hint": "Run run-factor-validation for this universe/horizon first.",
-                },
-                indent=2,
-                ensure_ascii=False,
-            )
-        )
-        return 1
-    row_by = {str(r.get("return_basis")): r for r in rows}
-    if basis not in row_by:
-        print(
-            json_lib.dumps(
-                {
-                    "ok": False,
-                    "error": "return_basis_row_missing",
-                    "return_basis_requested": basis,
-                    "available_return_basis": sorted(row_by.keys()),
-                    "hint": "Pick --return-basis from available keys, or re-run factor validation so both raw and excess summaries exist.",
-                },
-                indent=2,
-                ensure_ascii=False,
-            )
-        )
-        return 1
-    r0 = row_by[basis]
-    r0 = {**dict(r0), "run_id": rid}
-    quants = fetch_factor_quantiles_for_run(
-        client,
-        run_id=rid,
         factor_name=factor,
         universe_name=universe,
         horizon_type=horizon,
         return_basis=basis,
-    )
-    summ = build_metis_gate_summary_from_factor_summary_row(
-        r0, quantiles=quants or None, return_basis=basis
-    )
-    gate = promotion_gate_from_validation_summary(
         artifact_id=artifact_id,
-        evaluation_run_id=rid,
-        summary=summ,
     )
-    try:
-        gate_dict = gate.model_dump()
-    except AttributeError:
-        gate_dict = gate.dict()  # type: ignore[union-attr]
-    out = {
-        "ok": True,
-        "contract": "METIS_EXPORT_PROMOTION_GATE_FROM_FACTOR_VALIDATION_V0",
-        "factor_validation_run_id": rid,
-        "return_basis_used": basis,
-        "diagnostics": {
-            "sample_count": r0.get("sample_count"),
-            "valid_factor_count": r0.get("valid_factor_count"),
-            "spearman_rank_corr": r0.get("spearman_rank_corr"),
-            "pearson_corr": r0.get("pearson_corr"),
-            "factor_quantile_rows": len(quants or []),
-            "note": "All false is valid when excess row lacks pairs/corr, coverage < adapter thresholds, or quantiles empty; try --return-basis raw. pit_pass needs summary_json.pit_certified.",
-        },
-        "gate_summary_input": summ,
-        "promotion_gate": gate_dict,
-    }
+    if out.get("ok") and "diagnostics" in out and isinstance(out["diagnostics"], dict):
+        out["diagnostics"]["note"] = (
+            "All false is valid when excess row lacks pairs/corr, coverage < adapter thresholds, or quantiles empty; "
+            "try --return-basis raw. pit_pass needs summary_json.pit_certified."
+        )
     print(json_lib.dumps(out, indent=2, ensure_ascii=False, default=str))
-    return 0
+    return 0 if out.get("ok") else 1
 
 
 def _cmd_merge_metis_gate_into_bundle(args: argparse.Namespace) -> int:
@@ -7495,6 +7430,146 @@ def _cmd_merge_metis_gate_into_bundle(args: argparse.Namespace) -> int:
         print(
             json_lib.dumps(
                 {"ok": False, "error": "write_failed", "detail": str(e), "write_path": str(out_path)},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    return 0
+
+
+def _cmd_build_metis_brain_bundle_from_factor_validation(args: argparse.Namespace) -> int:
+    """Slice A: template bundle + config gate list (DB) → merge, validate, write one output JSON."""
+    import json as json_lib
+
+    from pathlib import Path
+
+    from db.client import get_supabase_client
+    from metis_brain.brain_bundle_from_validation_v0 import (
+        build_bundle_from_validation_gates,
+        load_build_config,
+        normalize_gate_specs,
+        resolve_repo_path,
+        write_output_bundle,
+    )
+    from metis_brain.bundle_promotion_merge_v0 import load_bundle_json
+    from metis_brain.factor_validation_gate_export_v0 import export_promotion_gate_from_factor_validation_db
+
+    settings = load_settings()
+    configure_logging()
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path(rr).resolve() if rr else Path.cwd().resolve()
+    cfg_path = Path(str(getattr(args, "config", "") or "").strip()).resolve()
+    out_cli = str(getattr(args, "out", "") or "").strip()
+    dry = bool(getattr(args, "dry_run", False))
+
+    if not cfg_path.is_file():
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "config_not_found", "path": str(cfg_path)},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+
+    try:
+        config = load_build_config(cfg_path)
+        specs = normalize_gate_specs(config)
+    except (OSError, json_lib.JSONDecodeError, ValueError) as e:
+        print(
+            json_lib.dumps({"ok": False, "error": "config_invalid", "detail": str(e)}, indent=2, ensure_ascii=False)
+        )
+        return 1
+
+    tpl_rel = str(config.get("template_bundle_path") or "data/mvp/metis_brain_bundle_v0.json").strip()
+    tpl_path = resolve_repo_path(root, tpl_rel)
+    if not tpl_path.is_file():
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "template_bundle_not_found", "path": str(tpl_path)},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+
+    out_rel = str(config.get("output_bundle_path") or "").strip()
+    if out_cli:
+        out_path = Path(out_cli).resolve()
+    elif out_rel:
+        out_path = resolve_repo_path(root, out_rel)
+    else:
+        print(
+            json_lib.dumps(
+                {
+                    "ok": False,
+                    "error": "output_bundle_path_required",
+                    "hint": "Set output_bundle_path in config or pass --out",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+
+    sync_ptr = bool(config.get("sync_artifact_validation_pointer", True))
+    if getattr(args, "no_sync_artifact_validation_pointer", False):
+        sync_ptr = False
+
+    try:
+        template = load_bundle_json(tpl_path)
+    except (OSError, json_lib.JSONDecodeError, ValueError) as e:
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "template_read_failed", "detail": str(e)},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+
+    client = get_supabase_client(settings)
+
+    def _fetch(client_: object, spec: dict[str, object]) -> dict[str, object]:
+        return export_promotion_gate_from_factor_validation_db(
+            client_,
+            factor_name=str(spec["factor_name"]),
+            universe_name=str(spec["universe_name"]),
+            horizon_type=str(spec["horizon_type"]),
+            return_basis=str(spec["return_basis"]),
+            artifact_id=str(spec["artifact_id"]),
+        )
+
+    merged, report = build_bundle_from_validation_gates(
+        template_bundle=template,
+        gate_specs=specs,
+        fetch_gate=_fetch,
+        client=client,
+        sync_artifact_validation_pointer=sync_ptr,
+    )
+
+    payload: dict[str, object] = {
+        "ok": merged is not None,
+        "contract": "METIS_BUILD_BRAIN_BUNDLE_FROM_FACTOR_VALIDATION_V0",
+        "template_bundle_path": str(tpl_path),
+        "output_bundle_path": str(out_path),
+        "dry_run": dry,
+        "sync_artifact_validation_pointer": sync_ptr,
+        "gate_count": len(specs),
+        "report": report,
+    }
+    print(json_lib.dumps(payload, indent=2, ensure_ascii=False, default=str))
+    if merged is None:
+        return 1
+    if dry:
+        return 0
+    try:
+        write_output_bundle(out_path, merged)
+    except OSError as e:
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "write_failed", "detail": str(e), "path": str(out_path)},
                 indent=2,
                 ensure_ascii=False,
             )
@@ -8263,6 +8338,25 @@ def build_parser() -> argparse.ArgumentParser:
         help="같은 artifact_id의 ModelArtifactPacket.validation_pointer를 factor_validation_run:<evaluation_run_id>로 맞춤",
     )
     pmetis_merge.set_defaults(func=_cmd_merge_metis_gate_into_bundle)
+
+    pmetis_build = sub.add_parser(
+        "build-metis-brain-bundle-from-factor-validation",
+        help="Slice A: config gates[] × DB → 템플릿 번들에 병합·active registry 무결성 검증·output_bundle_path에 저장",
+    )
+    pmetis_build.add_argument(
+        "--config",
+        required=True,
+        help="JSON: template_bundle_path, output_bundle_path, gates[{factor_name,universe_name,horizon_type,return_basis,artifact_id}]",
+    )
+    pmetis_build.add_argument("--repo-root", default="", help="상대 경로 해석 기준(기본 cwd)")
+    pmetis_build.add_argument("--out", default="", help="config의 output_bundle_path 대신 쓸 출력 경로")
+    pmetis_build.add_argument("--dry-run", action="store_true", help="DB·병합·검증만 하고 디스크에 쓰지 않음")
+    pmetis_build.add_argument(
+        "--no-sync-artifact-validation-pointer",
+        action="store_true",
+        help="병합 후 validation_pointer 동기화 생략",
+    )
+    pmetis_build.set_defaults(func=_cmd_build_metis_brain_bundle_from_factor_validation)
 
     srr = sub.add_parser(
         "smoke-research",
