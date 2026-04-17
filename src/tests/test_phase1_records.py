@@ -5,6 +5,8 @@ from unittest.mock import MagicMock
 from db.records import (
     ingest_run_create_started,
     ingest_run_finalize,
+    issuer_quarter_factor_panel_join_key,
+    normalize_sec_cik,
     upsert_filing_index,
     upsert_issuer_master,
 )
@@ -95,3 +97,34 @@ def test_ingest_run_lifecycle() -> None:
         error_json={"errors": []},
     )
     assert client.table.call_count >= 2
+
+
+def test_normalize_sec_cik_digit_string_and_float_json() -> None:
+    assert normalize_sec_cik("320193") == "0000320193"
+    assert normalize_sec_cik(320193) == "0000320193"
+    assert normalize_sec_cik(320193.0) == "0000320193"
+    assert normalize_sec_cik("320193.0") == "0000320193"
+    assert normalize_sec_cik("") == ""
+    assert normalize_sec_cik(None) == ""
+
+
+def test_issuer_quarter_factor_panel_join_key_aligns_empty_and_whitespace_fv() -> None:
+    base = ("0000320193", "0000320193-25-000001", "v1")
+    assert (
+        issuer_quarter_factor_panel_join_key(
+            "320193", " 0000320193-25-000001 ", "", default_factor_version="v1"
+        )
+        == base
+    )
+    assert (
+        issuer_quarter_factor_panel_join_key(
+            "320193", "0000320193-25-000001", "  v1  ", default_factor_version="v1"
+        )
+        == base
+    )
+    assert (
+        issuer_quarter_factor_panel_join_key(
+            "320193", "0000320193-25-000001", None, default_factor_version="v1"
+        )
+        == base
+    )

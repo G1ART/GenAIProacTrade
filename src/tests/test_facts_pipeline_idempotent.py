@@ -70,26 +70,34 @@ def test_facts_pipeline_second_run_inserts_nothing(patched_extract, monkeypatch:
     settings.edgar_identity = "t t@t.com"
 
     raw_seen: set[str] = set()
-    silver_seen: set[tuple[str, str, str]] = set()
+    silver_seen: set[tuple[str, int, str]] = set()
 
-    def raw_exists(_c, *, cik, accession_no, dedupe_key):
-        k = f"{cik}|{accession_no}|{dedupe_key}"
-        if k in raw_seen:
-            return True
-        raw_seen.add(k)
-        return False
+    def fetch_raw_keys(_c, *, cik, accession_no, **_k):
+        return {k.split("|", 2)[2] for k in raw_seen if k.startswith(f"{cik}|{accession_no}|")}
 
-    def silver_exists(_c, *, cik, accession_no, canonical_concept, revision_no, fact_period_key):
-        t = (cik, accession_no, canonical_concept, fact_period_key)
-        if t in silver_seen:
-            return True
-        silver_seen.add(t)
-        return False
+    def fetch_silver_keys(_c, *, cik, accession_no, **_k):
+        return set(silver_seen)
 
-    monkeypatch.setattr("db.records.raw_xbrl_fact_exists", raw_exists)
-    monkeypatch.setattr("db.records.silver_xbrl_fact_exists", silver_exists)
-    monkeypatch.setattr("db.records.insert_raw_xbrl_fact", MagicMock())
-    monkeypatch.setattr("db.records.insert_silver_xbrl_fact", MagicMock())
+    def raw_bulk(_c, rows, **_k):
+        for row in rows:
+            raw_seen.add(f"{row['cik']}|{row['accession_no']}|{row['dedupe_key']}")
+        return len(rows)
+
+    def silver_bulk(_c, rows, **_k):
+        for row in rows:
+            silver_seen.add(
+                (
+                    str(row.get("canonical_concept") or ""),
+                    int(row.get("revision_no") or 0),
+                    str(row.get("fact_period_key") or ""),
+                )
+            )
+        return len(rows)
+
+    monkeypatch.setattr("db.records.fetch_raw_xbrl_fact_dedupe_keys_for_filing", fetch_raw_keys)
+    monkeypatch.setattr("db.records.fetch_silver_xbrl_fact_keys_for_filing", fetch_silver_keys)
+    monkeypatch.setattr("db.records.insert_raw_xbrl_facts_bulk", raw_bulk)
+    monkeypatch.setattr("db.records.insert_silver_xbrl_facts_bulk", silver_bulk)
     monkeypatch.setattr(
         "db.records.upsert_issuer_quarter_snapshot",
         MagicMock(return_value={"inserted": True, "updated": False}),

@@ -2,10 +2,70 @@
 
 from __future__ import annotations
 
+import math
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from supabase import Client
+
+
+def normalize_sec_cik(c: Any) -> str:
+    """SEC CIK 정규화: 숫자·숫자 문자열은 10자리 0패딩(issuer_master·패널 조인과 동일).
+
+    Supabase/JSON에서 cik이 float(예: 320193.0)이면 str(c)가 '320193.0'이 되어
+    isdigit()만으로는 패딩되지 않으므로 정수화 후 zfill 한다.
+    """
+    if c is None:
+        return ""
+    if isinstance(c, bool):
+        return ""
+    if isinstance(c, int):
+        return str(abs(c)).zfill(10)
+    if isinstance(c, float):
+        if not math.isfinite(c):
+            return ""
+        iv = int(c)
+        if abs(c - float(iv)) < 1e-9:
+            return str(abs(iv)).zfill(10)
+        return str(c).strip()
+    t = str(c).strip()
+    if not t:
+        return t
+    if t.isdigit():
+        return t.zfill(10)
+    try:
+        fv = float(t)
+        if math.isfinite(fv):
+            iv = int(fv)
+            if abs(fv - float(iv)) < 1e-9:
+                return str(abs(iv)).zfill(10)
+    except ValueError:
+        pass
+    return t
+
+
+def issuer_quarter_factor_panel_join_key(
+    cik: Any,
+    accession_no: Any,
+    factor_version: Any,
+    *,
+    default_factor_version: str = "v1",
+) -> tuple[str, str, str]:
+    """issuer_quarter_factor_panels ↔ factor_market_validation_panels 조인 키.
+
+    PostgREST/레거시 행에서 ``factor_version``이 빈 문자열이거나 공백만 있는 경우,
+    ``fp_map`` 키와 ``fp_for`` 조회 쪽 규칙이 어긋나 전 행 미스매치(커버리지 0)가
+    나지 않도록 한 곳에서 정규화한다.
+    """
+    d = (default_factor_version or "v1").strip() or "v1"
+    if factor_version is None:
+        fv = d
+    else:
+        fv = str(factor_version).strip()
+        if not fv:
+            fv = d
+    acc = str(accession_no or "").strip()
+    return (normalize_sec_cik(cik), acc, fv)
 
 
 def raw_filing_exists(client: Client, *, cik: str, accession_no: str) -> bool:
@@ -205,6 +265,66 @@ def insert_raw_xbrl_fact(client: Client, row: dict[str, Any]) -> None:
     client.table("raw_xbrl_facts").insert(row).execute()
 
 
+def fetch_raw_xbrl_fact_dedupe_keys_for_filing(
+    client: Client,
+    *,
+    cik: str,
+    accession_no: str,
+    page_size: int = 1000,
+) -> set[str]:
+    """Return the set of already-ingested ``dedupe_key`` values for one filing.
+
+    Backfill speed: avoids N-per-fact SELECTs by hydrating the dedupe index with
+    at most ``ceil(n_existing / page_size)`` requests; callers drive bulk insert
+    through this set.
+    """
+    keys: set[str] = set()
+    offset = 0
+    while True:
+        r = (
+            client.table("raw_xbrl_facts")
+            .select("dedupe_key")
+            .eq("cik", cik)
+            .eq("accession_no", accession_no)
+            .range(offset, offset + page_size - 1)
+            .execute()
+        )
+        batch = list(r.data or [])
+        if not batch:
+            break
+        for row in batch:
+            dk = row.get("dedupe_key")
+            if dk:
+                keys.add(str(dk))
+        if len(batch) < page_size:
+            break
+        offset += page_size
+    return keys
+
+
+def insert_raw_xbrl_facts_bulk(
+    client: Client,
+    rows: list[dict[str, Any]],
+    *,
+    chunk_size: int = 500,
+) -> int:
+    """Chunked bulk insert for ``raw_xbrl_facts``. Returns total rows inserted.
+
+    Caller must ensure ``rows`` contains only new records (pre-filtered against
+    :func:`fetch_raw_xbrl_fact_dedupe_keys_for_filing`).
+    """
+    if not rows:
+        return 0
+    if chunk_size <= 0:
+        chunk_size = len(rows)
+    inserted = 0
+    for i in range(0, len(rows), chunk_size):
+        batch = rows[i : i + chunk_size]
+        client.table("raw_xbrl_facts").insert(batch).execute()
+        inserted += len(batch)
+    return inserted
+
+
 def silver_xbrl_fact_exists(
     client: Client,
     *,
@@ -230,6 +350,63 @@ def silver_xbrl_fact_exists(
 
 def insert_silver_xbrl_fact(client: Client, row: dict[str, Any]) -> None:
     client.table("silver_xbrl_facts").insert(row).execute()
+
+
+def fetch_silver_xbrl_fact_keys_for_filing(
+    client: Client,
+    *,
+    cik: str,
+    accession_no: str,
+    page_size: int = 1000,
+) -> set[tuple[str, int, str]]:
+    """Return the existing ``(canonical_concept, revision_no, fact_period_key)`` tuples for one filing."""
+    keys: set[tuple[str, int, str]] = set()
+    offset = 0
+    while True:
+        r = (
+            client.table("silver_xbrl_facts")
+            .select("canonical_concept, revision_no, fact_period_key")
+            .eq("cik", cik)
+            .eq("accession_no", accession_no)
+            .range(offset, offset + page_size - 1)
+            .execute()
+        )
+        batch = list(r.data or [])
+        if not batch:
+            break
+        for row in batch:
+            try:
+                k = (
+                    str(row.get("canonical_concept") or ""),
+                    int(row.get("revision_no") or 0),
+                    str(row.get("fact_period_key") or ""),
+                )
+            except (TypeError, ValueError):
+                continue
+            keys.add(k)
+        if len(batch) < page_size:
+            break
+        offset += page_size
+    return keys
+
+
+def insert_silver_xbrl_facts_bulk(
+    client: Client,
+    rows: list[dict[str, Any]],
+    *,
+    chunk_size: int = 500,
+) -> int:
+    """Chunked bulk insert for ``silver_xbrl_facts``. Returns total rows inserted."""
+    if not rows:
+        return 0
+    if chunk_size <= 0:
+        chunk_size = len(rows)
+    inserted = 0
+    for i in range(0, len(rows), chunk_size):
+        batch = rows[i : i + chunk_size]
+        client.table("silver_xbrl_facts").insert(batch).execute()
+        inserted += len(batch)
+    return inserted
 
 
 def upsert_issuer_quarter_snapshot(client: Client, row: dict[str, Any]) -> Dict[str, bool]:
@@ -395,15 +572,15 @@ def fetch_issuer_master_ciks_present(
 ) -> set[str]:
     """issuer_master 에 실제 존재하는 CIK 집합(숫자형은 10자리 정규화로 조회)."""
 
-    def _nz(c: str) -> str:
-        t = str(c or "").strip()
-        if not t:
-            return ""
-        return t.zfill(10) if t.isdigit() else t
-
     if not ciks:
         return set()
-    uniq = sorted({_nz(c) for c in ciks if c and str(c).strip() and _nz(c)})
+    uniq = sorted(
+        {
+            normalize_sec_cik(c)
+            for c in ciks
+            if c and str(c).strip() and normalize_sec_cik(c)
+        }
+    )
     present: set[str] = set()
     step = 80
     for i in range(0, len(uniq), step):
@@ -576,6 +753,39 @@ def factor_panel_exists(
 
 def insert_factor_panel(client: Client, row: dict[str, Any]) -> None:
     client.table("issuer_quarter_factor_panels").insert(row).execute()
+
+
+def upsert_factor_panel(client: Client, row: dict[str, Any]) -> None:
+    """(cik, fiscal_year, fiscal_period, accession_no, factor_version) 충돌 시 전 행 갱신."""
+    client.table("issuer_quarter_factor_panels").upsert(
+        row,
+        on_conflict="cik,fiscal_year,fiscal_period,accession_no,factor_version",
+    ).execute()
+
+
+def fetch_factor_panel_by_identity(
+    client: Client,
+    *,
+    cik: str,
+    fiscal_year: int,
+    fiscal_period: str,
+    accession_no: str,
+    factor_version: str,
+) -> Optional[dict[str, Any]]:
+    r = (
+        client.table("issuer_quarter_factor_panels")
+        .select("*")
+        .eq("cik", cik)
+        .eq("fiscal_year", fiscal_year)
+        .eq("fiscal_period", fiscal_period)
+        .eq("accession_no", accession_no)
+        .eq("factor_version", factor_version)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    return dict(r.data[0])
 
 
 def fetch_factor_panels_for_cik(
@@ -1000,7 +1210,49 @@ def fetch_issuer_quarter_factor_panels_for_ciks(
             .execute()
         )
         for row in r.data or []:
-            k = (str(row["cik"]), str(row["accession_no"]), str(row["factor_version"]))
+            k = issuer_quarter_factor_panel_join_key(
+                row.get("cik"),
+                row.get("accession_no"),
+                row.get("factor_version"),
+                default_factor_version="v1",
+            )
+            m[k] = dict(row)
+    return m
+
+
+def fetch_issuer_quarter_factor_panels_for_accessions(
+    client: Client,
+    *,
+    accession_nos: list[str],
+    limit_per_batch: int = 8000,
+    chunk_size: int = 100,
+) -> dict[tuple[str, str, str], dict[str, Any]]:
+    """(cik, accession_no, factor_version) → 행.
+
+    `factor_market_validation_panels`와 조인할 때는 CIK만으로 ``limit`` 조회하면
+    동일 CIK의 다른 분기 행만 먼저 채워져 스냅샷 키가 빠질 수 있어,
+    검증 슬라이스에 등장하는 ``accession_no``로 직접 조회하는 편이 안전하다.
+    """
+    m: dict[tuple[str, str, str], dict[str, Any]] = {}
+    uniq = sorted({str(a).strip() for a in accession_nos if a and str(a).strip()})
+    if not uniq:
+        return m
+    for i in range(0, len(uniq), max(1, chunk_size)):
+        batch = uniq[i : i + chunk_size]
+        r = (
+            client.table("issuer_quarter_factor_panels")
+            .select("*")
+            .in_("accession_no", batch)
+            .limit(max(1, limit_per_batch))
+            .execute()
+        )
+        for row in r.data or []:
+            k = issuer_quarter_factor_panel_join_key(
+                row.get("cik"),
+                row.get("accession_no"),
+                row.get("factor_version"),
+                default_factor_version="v1",
+            )
             m[k] = dict(row)
     return m
 

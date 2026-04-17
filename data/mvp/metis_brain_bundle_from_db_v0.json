@@ -1,0 +1,4628 @@
+{
+  "schema_version": 1,
+  "as_of_utc": "2026-04-01T12:00:00+00:00",
+  "price_layer_note": "metis_brain_bundle_v0_aligned_to_today_spectrum_seed_v1",
+  "artifacts": [
+    {
+      "artifact_id": "art_short_challenger_momentum_v0",
+      "created_at": "2026-04-01T12:00:00+00:00",
+      "created_by": "deterministic_kernel:v0",
+      "horizon": "short",
+      "universe": "large_cap_research_slice_demo_v0",
+      "sector_scope": "multi_sector_v0",
+      "thesis_family": "short_momentum_reversion_probe_v0",
+      "feature_set": "stub_feature_set:v0",
+      "feature_transforms": "identity_v0",
+      "weighting_rule": "equal_weight:v0",
+      "score_formula": "spectrum_position_from_kernel:v0",
+      "banding_rule": "tertiary_band:v0",
+      "ranking_direction": "higher_more_stretched:v0",
+      "invalidation_conditions": "pit_or_coverage_fail:v0",
+      "expected_holding_horizon": "short",
+      "confidence_rule": "band_from_validation_pointer:v0",
+      "evidence_requirements": "validation_pointer_required:v0",
+      "validation_pointer": "pit:demo:short_challenger:v0",
+      "replay_eligibility": "eligible_when_lineage_present:v0",
+      "notes_for_message_layer": "challenger_family_for_short_horizon_registry_v0"
+    },
+    {
+      "artifact_id": "art_medium_demo_v0",
+      "created_at": "2026-04-01T12:00:00+00:00",
+      "created_by": "deterministic_kernel:v0",
+      "horizon": "medium",
+      "universe": "large_cap_research_slice_demo_v0",
+      "sector_scope": "multi_sector_v0",
+      "thesis_family": "quality_earnings_bridge_v0",
+      "feature_set": "stub_feature_set:v0",
+      "feature_transforms": "identity_v0",
+      "weighting_rule": "equal_weight:v0",
+      "score_formula": "spectrum_position_from_kernel:v0",
+      "banding_rule": "tertiary_band:v0",
+      "ranking_direction": "higher_more_stretched:v0",
+      "invalidation_conditions": "pit_or_coverage_fail:v0",
+      "expected_holding_horizon": "medium",
+      "confidence_rule": "band_from_validation_pointer:v0",
+      "evidence_requirements": "validation_pointer_required:v0",
+      "validation_pointer": "pit:demo:medium:v0",
+      "replay_eligibility": "eligible_when_lineage_present:v0",
+      "notes_for_message_layer": "aligned_to_seed_horizon=medium"
+    },
+    {
+      "artifact_id": "art_medium_long_demo_v0",
+      "created_at": "2026-04-01T12:00:00+00:00",
+      "created_by": "deterministic_kernel:v0",
+      "horizon": "medium_long",
+      "universe": "large_cap_research_slice_demo_v0",
+      "sector_scope": "multi_sector_v0",
+      "thesis_family": "cycle_positioning_v0",
+      "feature_set": "stub_feature_set:v0",
+      "feature_transforms": "identity_v0",
+      "weighting_rule": "equal_weight:v0",
+      "score_formula": "spectrum_position_from_kernel:v0",
+      "banding_rule": "tertiary_band:v0",
+      "ranking_direction": "higher_more_stretched:v0",
+      "invalidation_conditions": "pit_or_coverage_fail:v0",
+      "expected_holding_horizon": "medium_long",
+      "confidence_rule": "band_from_validation_pointer:v0",
+      "evidence_requirements": "validation_pointer_required:v0",
+      "validation_pointer": "pit:demo:medium_long:v0",
+      "replay_eligibility": "eligible_when_lineage_present:v0",
+      "notes_for_message_layer": "aligned_to_seed_horizon=medium_long"
+    },
+    {
+      "artifact_id": "art_long_demo_v0",
+      "created_at": "2026-04-01T12:00:00+00:00",
+      "created_by": "deterministic_kernel:v0",
+      "horizon": "long",
+      "universe": "large_cap_research_slice_demo_v0",
+      "sector_scope": "multi_sector_v0",
+      "thesis_family": "owner_earnings_growth_v0",
+      "feature_set": "stub_feature_set:v0",
+      "feature_transforms": "identity_v0",
+      "weighting_rule": "equal_weight:v0",
+      "score_formula": "spectrum_position_from_kernel:v0",
+      "banding_rule": "tertiary_band:v0",
+      "ranking_direction": "higher_more_stretched:v0",
+      "invalidation_conditions": "pit_or_coverage_fail:v0",
+      "expected_holding_horizon": "long",
+      "confidence_rule": "band_from_validation_pointer:v0",
+      "evidence_requirements": "validation_pointer_required:v0",
+      "validation_pointer": "pit:demo:long:v0",
+      "replay_eligibility": "eligible_when_lineage_present:v0",
+      "notes_for_message_layer": "aligned_to_seed_horizon=long"
+    },
+    {
+      "artifact_id": "art_short_demo_v0",
+      "created_at": "2026-04-17T16:02:14.108105+00:00",
+      "created_by": "artifact_from_validation_v1",
+      "horizon": "short",
+      "universe": "sp500_current",
+      "sector_scope": "multi_sector_v0",
+      "thesis_family": "factor_accruals_v0",
+      "feature_set": "factor:accruals",
+      "feature_transforms": "identity_v0",
+      "weighting_rule": "equal_weight:v0",
+      "score_formula": "rank_position_from_spearman_and_quantile:v0",
+      "banding_rule": "quintile_from_factor_rank:v0",
+      "ranking_direction": "higher_more_stretched:v0",
+      "invalidation_conditions": "pit_or_coverage_or_monotonicity_fail:v0",
+      "expected_holding_horizon": "short",
+      "confidence_rule": "band_from_valid_rows:valid=702;sample=1294;v0",
+      "evidence_requirements": "validation_pointer_required:v0",
+      "validation_pointer": "factor_validation_run:ab5b909a-8f2d-4f9e-8b81-df7d28fac5cb",
+      "replay_eligibility": "eligible_when_lineage_present:v0",
+      "notes_for_message_layer": "factor=accruals;horizon=short;universe=sp500_current;return_basis=raw;spearman=0.11085820583530621"
+    }
+  ],
+  "promotion_gates": [
+    {
+      "artifact_id": "art_short_challenger_momentum_v0",
+      "evaluation_run_id": "eval_short_challenger_demo_v0",
+      "pit_pass": true,
+      "coverage_pass": true,
+      "monotonicity_pass": true,
+      "regime_notes": "demo_challenger_neutral:v0",
+      "sector_override_notes": "",
+      "challenger_or_active": "challenger",
+      "approved_by_rule": "bundle_v0_challenger_smoke_gate",
+      "approved_at": "2026-04-01T12:00:00+00:00",
+      "supersedes_registry_entry": "",
+      "reasons": "demo_challenger_family_registered:v0",
+      "expiry_or_recheck_rule": "recheck_when_active_supersedes:v0"
+    },
+    {
+      "artifact_id": "art_medium_demo_v0",
+      "evaluation_run_id": "eval_medium_demo_v0",
+      "pit_pass": true,
+      "coverage_pass": true,
+      "monotonicity_pass": true,
+      "regime_notes": "demo_regime_neutral:v0",
+      "sector_override_notes": "",
+      "challenger_or_active": "active",
+      "approved_by_rule": "bundle_v0_smoke_gate",
+      "approved_at": "2026-04-01T12:00:00+00:00",
+      "supersedes_registry_entry": "",
+      "reasons": "demo_bundle_integrity:v0",
+      "expiry_or_recheck_rule": "recheck_on_next_artifact_drop:v0"
+    },
+    {
+      "artifact_id": "art_medium_long_demo_v0",
+      "evaluation_run_id": "eval_medium_long_demo_v0",
+      "pit_pass": true,
+      "coverage_pass": true,
+      "monotonicity_pass": true,
+      "regime_notes": "demo_regime_neutral:v0",
+      "sector_override_notes": "",
+      "challenger_or_active": "active",
+      "approved_by_rule": "bundle_v0_smoke_gate",
+      "approved_at": "2026-04-01T12:00:00+00:00",
+      "supersedes_registry_entry": "",
+      "reasons": "demo_bundle_integrity:v0",
+      "expiry_or_recheck_rule": "recheck_on_next_artifact_drop:v0"
+    },
+    {
+      "artifact_id": "art_long_demo_v0",
+      "evaluation_run_id": "eval_long_demo_v0",
+      "pit_pass": true,
+      "coverage_pass": true,
+      "monotonicity_pass": true,
+      "regime_notes": "demo_regime_neutral:v0",
+      "sector_override_notes": "",
+      "challenger_or_active": "active",
+      "approved_by_rule": "bundle_v0_smoke_gate",
+      "approved_at": "2026-04-01T12:00:00+00:00",
+      "supersedes_registry_entry": "",
+      "reasons": "demo_bundle_integrity:v0",
+      "expiry_or_recheck_rule": "recheck_on_next_artifact_drop:v0"
+    },
+    {
+      "artifact_id": "art_short_demo_v0",
+      "evaluation_run_id": "ab5b909a-8f2d-4f9e-8b81-df7d28fac5cb",
+      "pit_pass": true,
+      "coverage_pass": true,
+      "monotonicity_pass": true,
+      "regime_notes": "universe=sp500_current horizon=next_month return_basis=raw",
+      "sector_override_notes": "",
+      "challenger_or_active": "active",
+      "approved_by_rule": "factor_validation_summary_adapter:v0|run=ab5b909a-8f2d-4f9e-8b81-df7d28fac5cb|factor=accruals",
+      "approved_at": "2026-04-17T16:02:11+00:00",
+      "supersedes_registry_entry": "",
+      "reasons": "mapped_from_factor_validation;pit=certified;spearman=0.11085820583530621;quantile_spread_checked=True",
+      "expiry_or_recheck_rule": "recheck_on_next_factor_validation_run:v0"
+    }
+  ],
+  "registry_entries": [
+    {
+      "registry_entry_id": "reg_short_demo_v0",
+      "horizon": "short",
+      "active_model_family_name": "shallow_value_blend_v0",
+      "active_artifact_id": "art_short_demo_v0",
+      "challenger_artifact_ids": [
+        "art_short_challenger_momentum_v0"
+      ],
+      "universe": "large_cap_research_slice_demo_v0",
+      "sector_scope": "multi_sector_v0",
+      "effective_from": "2026-04-01T00:00:00+00:00",
+      "effective_to": "",
+      "scoring_endpoint_contract": "inline_spectrum_rows_v0",
+      "message_contract_version": "v1",
+      "replay_lineage_pointer": "lineage:registry:short:demo_v0",
+      "status": "active"
+    },
+    {
+      "registry_entry_id": "reg_medium_demo_v0",
+      "horizon": "medium",
+      "active_model_family_name": "quality_earnings_bridge_v0",
+      "active_artifact_id": "art_medium_demo_v0",
+      "challenger_artifact_ids": [],
+      "universe": "large_cap_research_slice_demo_v0",
+      "sector_scope": "multi_sector_v0",
+      "effective_from": "2026-04-01T00:00:00+00:00",
+      "effective_to": "",
+      "scoring_endpoint_contract": "inline_spectrum_rows_v0",
+      "message_contract_version": "v1",
+      "replay_lineage_pointer": "lineage:registry:medium:demo_v0",
+      "status": "active"
+    },
+    {
+      "registry_entry_id": "reg_medium_long_demo_v0",
+      "horizon": "medium_long",
+      "active_model_family_name": "cycle_positioning_v0",
+      "active_artifact_id": "art_medium_long_demo_v0",
+      "challenger_artifact_ids": [],
+      "universe": "large_cap_research_slice_demo_v0",
+      "sector_scope": "multi_sector_v0",
+      "effective_from": "2026-04-01T00:00:00+00:00",
+      "effective_to": "",
+      "scoring_endpoint_contract": "inline_spectrum_rows_v0",
+      "message_contract_version": "v1",
+      "replay_lineage_pointer": "lineage:registry:medium_long:demo_v0",
+      "status": "active"
+    },
+    {
+      "registry_entry_id": "reg_long_demo_v0",
+      "horizon": "long",
+      "active_model_family_name": "owner_earnings_growth_v0",
+      "active_artifact_id": "art_long_demo_v0",
+      "challenger_artifact_ids": [],
+      "universe": "large_cap_research_slice_demo_v0",
+      "sector_scope": "multi_sector_v0",
+      "effective_from": "2026-04-01T00:00:00+00:00",
+      "effective_to": "",
+      "scoring_endpoint_contract": "inline_spectrum_rows_v0",
+      "message_contract_version": "v1",
+      "replay_lineage_pointer": "lineage:registry:long:demo_v0",
+      "status": "active"
+    }
+  ],
+  "spectrum_rows_by_horizon": {
+    "short": [
+      {
+        "asset_id": "TRGP",
+        "spectrum_position": 0.997436,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 1/195 → position=1.00 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 1/195 → position=1.00 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-266435",
+          "factor_value": -53.61904761904762
+        }
+      },
+      {
+        "asset_id": "TAP",
+        "spectrum_position": 0.992308,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 2/195 → position=0.99 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 2/195 → position=0.99 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000024545-25-000039",
+          "factor_value": -15.242385242385243
+        }
+      },
+      {
+        "asset_id": "WYNN",
+        "spectrum_position": 0.987179,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 3/195 → position=0.99 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 3/195 → position=0.99 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001174922-25-000151",
+          "factor_value": -2.095745325922183
+        }
+      },
+      {
+        "asset_id": "SLB",
+        "spectrum_position": 0.982051,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 4/195 → position=0.98 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 4/195 → position=0.98 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-246028",
+          "factor_value": -0.5447718082033507
+        }
+      },
+      {
+        "asset_id": "NUE",
+        "spectrum_position": 0.976923,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 5/195 → position=0.98 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 5/195 → position=0.98 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-276207",
+          "factor_value": -0.32086084617265836
+        }
+      },
+      {
+        "asset_id": "TYL",
+        "spectrum_position": 0.971795,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 6/195 → position=0.97 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 6/195 → position=0.97 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000860731-25-000046",
+          "factor_value": -0.28675689765026163
+        }
+      },
+      {
+        "asset_id": "NI",
+        "spectrum_position": 0.966667,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 7/195 → position=0.97 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 7/195 → position=0.97 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001111711-25-000055",
+          "factor_value": -0.2763830259942235
+        }
+      },
+      {
+        "asset_id": "SJM",
+        "spectrum_position": 0.961538,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 8/195 → position=0.96 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 8/195 → position=0.96 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0000091419-26-000016",
+          "factor_value": -0.2675412981812114
+        }
+      },
+      {
+        "asset_id": "PRU",
+        "spectrum_position": 0.95641,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 9/195 → position=0.96 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 9/195 → position=0.96 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001137774-25-000178",
+          "factor_value": -0.25386557972619733
+        }
+      },
+      {
+        "asset_id": "SATS",
+        "spectrum_position": 0.951282,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 10/195 → position=0.95 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 10/195 → position=0.95 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001104659-25-107277",
+          "factor_value": -0.2452223987457301
+        }
+      },
+      {
+        "asset_id": "NEM",
+        "spectrum_position": 0.946154,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 11/195 → position=0.95 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 11/195 → position=0.95 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001164727-25-000046",
+          "factor_value": -0.2418266735858848
+        }
+      },
+      {
+        "asset_id": "TSN",
+        "spectrum_position": 0.941026,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 12/195 → position=0.94 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 12/195 → position=0.94 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000100493-26-000007",
+          "factor_value": -0.2250990752972259
+        }
+      },
+      {
+        "asset_id": "RTX",
+        "spectrum_position": 0.935897,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 13/195 → position=0.94 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 13/195 → position=0.94 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000101829-25-000042",
+          "factor_value": -0.19415256424436825
+        }
+      },
+      {
+        "asset_id": "O",
+        "spectrum_position": 0.930769,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 14/195 → position=0.93 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 14/195 → position=0.93 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000726728-25-000148",
+          "factor_value": -0.17398444893558754
+        }
+      },
+      {
+        "asset_id": "VTRS",
+        "spectrum_position": 0.925641,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 15/195 → position=0.93 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 15/195 → position=0.93 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "FY",
+          "accession_no": "0001792044-26-000013",
+          "factor_value": -0.14818918850230006
+        }
+      },
+      {
+        "asset_id": "WDAY",
+        "spectrum_position": 0.920513,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 16/195 → position=0.92 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 16/195 → position=0.92 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "FY",
+          "accession_no": "0001327811-26-000014",
+          "factor_value": -0.12460125932706444
+        }
+      },
+      {
+        "asset_id": "SRE",
+        "spectrum_position": 0.915385,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 17/195 → position=0.92 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 17/195 → position=0.92 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001032208-25-000065",
+          "factor_value": -0.11988011988011989
+        }
+      },
+      {
+        "asset_id": "PHM",
+        "spectrum_position": 0.910256,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 18/195 → position=0.91 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 18/195 → position=0.91 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000822416-25-000061",
+          "factor_value": -0.11321816408101604
+        }
+      },
+      {
+        "asset_id": "MDT",
+        "spectrum_position": 0.905128,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 19/195 → position=0.91 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 19/195 → position=0.91 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-26-011107",
+          "factor_value": -0.09541767681302565
+        }
+      },
+      {
+        "asset_id": "META",
+        "spectrum_position": 0.9,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 20/195 → position=0.90 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 20/195 → position=0.90 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-047240",
+          "factor_value": -0.09118124653350886
+        }
+      },
+      {
+        "asset_id": "WEC",
+        "spectrum_position": 0.894872,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 21/195 → position=0.89 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 21/195 → position=0.89 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000783325-25-000060",
+          "factor_value": -0.09045532018504991
+        }
+      },
+      {
+        "asset_id": "TPR",
+        "spectrum_position": 0.889744,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 22/195 → position=0.89 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 22/195 → position=0.89 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0001116132-26-000005",
+          "factor_value": -0.07928917362620601
+        }
+      },
+      {
+        "asset_id": "PFE",
+        "spectrum_position": 0.884615,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 23/195 → position=0.88 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 23/195 → position=0.88 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000078003-25-000150",
+          "factor_value": -0.07399150003483593
+        }
+      },
+      {
+        "asset_id": "SHW",
+        "spectrum_position": 0.879487,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 24/195 → position=0.88 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 24/195 → position=0.88 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000089800-25-000126",
+          "factor_value": -0.07269412548737236
+        }
+      },
+      {
+        "asset_id": "VRSN",
+        "spectrum_position": 0.874359,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 25/195 → position=0.87 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 25/195 → position=0.87 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001014473-25-000046",
+          "factor_value": -0.0675084474479815
+        }
+      },
+      {
+        "asset_id": "AMZN",
+        "spectrum_position": 0.869231,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 26/195 → position=0.87 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 26/195 → position=0.87 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001018724-25-000123",
+          "factor_value": -0.06340208009056177
+        }
+      },
+      {
+        "asset_id": "WM",
+        "spectrum_position": 0.864103,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 27/195 → position=0.86 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 27/195 → position=0.86 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001104659-25-103136",
+          "factor_value": -0.06212506674204592
+        }
+      },
+      {
+        "asset_id": "SO",
+        "spectrum_position": 0.858974,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 28/195 → position=0.86 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 28/195 → position=0.86 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000092122-25-000084",
+          "factor_value": -0.05518990721580669
+        }
+      },
+      {
+        "asset_id": "RL",
+        "spectrum_position": 0.853846,
+        "spectrum_band": "right",
+        "spectrum_quintile": "extreme_overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 29/195 → position=0.85 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 29/195 → position=0.85 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-26-005784",
+          "factor_value": -0.05513966296210797
+        }
+      },
+      {
+        "asset_id": "UDR",
+        "spectrum_position": 0.848718,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 30/195 → position=0.85 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 30/195 → position=0.85 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000074208-25-000072",
+          "factor_value": -0.051899146730459284
+        }
+      },
+      {
+        "asset_id": "SNA",
+        "spectrum_position": 0.84359,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 31/195 → position=0.84 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 31/195 → position=0.84 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "FY",
+          "accession_no": "0000091440-26-000045",
+          "factor_value": -0.05084546274863667
+        }
+      },
+      {
+        "asset_id": "PCAR",
+        "spectrum_position": 0.838462,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 32/195 → position=0.84 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 32/195 → position=0.84 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-258509",
+          "factor_value": -0.04469694442193763
+        }
+      },
+      {
+        "asset_id": "POOL",
+        "spectrum_position": 0.833333,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 33/195 → position=0.83 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 33/195 → position=0.83 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-255740",
+          "factor_value": -0.04469045999464352
+        }
+      },
+      {
+        "asset_id": "OKE",
+        "spectrum_position": 0.828205,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 34/195 → position=0.83 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 34/195 → position=0.83 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001039684-25-000123",
+          "factor_value": -0.042274817169130126
+        }
+      },
+      {
+        "asset_id": "SBUX",
+        "spectrum_position": 0.823077,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 35/195 → position=0.82 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 35/195 → position=0.82 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000829224-26-000011",
+          "factor_value": -0.04060826796164861
+        }
+      },
+      {
+        "asset_id": "SWKS",
+        "spectrum_position": 0.817949,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 36/195 → position=0.82 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 36/195 → position=0.82 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000004127-26-000008",
+          "factor_value": -0.04007627542778225
+        }
+      },
+      {
+        "asset_id": "PPL",
+        "spectrum_position": 0.812821,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 37/195 → position=0.81 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 37/195 → position=0.81 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000922224-25-000051",
+          "factor_value": -0.0397619193716635
+        }
+      },
+      {
+        "asset_id": "TTWO",
+        "spectrum_position": 0.807692,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 38/195 → position=0.81 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 38/195 → position=0.81 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-26-005119",
+          "factor_value": -0.03963007943934537
+        }
+      },
+      {
+        "asset_id": "QCOM",
+        "spectrum_position": 0.802564,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 39/195 → position=0.80 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 39/195 → position=0.80 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000804328-26-000017",
+          "factor_value": -0.03801234771315312
+        }
+      },
+      {
+        "asset_id": "TDG",
+        "spectrum_position": 0.797436,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 40/195 → position=0.80 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 40/195 → position=0.80 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0001260221-26-000017",
+          "factor_value": -0.03725631768953069
+        }
+      },
+      {
+        "asset_id": "TSLA",
+        "spectrum_position": 0.792308,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 41/195 → position=0.79 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 41/195 → position=0.79 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-045968",
+          "factor_value": -0.036972649846360305
+        }
+      },
+      {
+        "asset_id": "NRG",
+        "spectrum_position": 0.787179,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 42/195 → position=0.79 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 42/195 → position=0.79 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001013871-25-000025",
+          "factor_value": -0.03650156670881205
+        }
+      },
+      {
+        "asset_id": "STLD",
+        "spectrum_position": 0.782051,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 43/195 → position=0.78 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 43/195 → position=0.78 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001104659-25-102052",
+          "factor_value": -0.035908260055009196
+        }
+      },
+      {
+        "asset_id": "PSX",
+        "spectrum_position": 0.776923,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 44/195 → position=0.78 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 44/195 → position=0.78 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001534701-25-000155",
+          "factor_value": -0.03455402165826238
+        }
+      },
+      {
+        "asset_id": "PPG",
+        "spectrum_position": 0.771795,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 45/195 → position=0.77 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 45/195 → position=0.77 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000079879-25-000311",
+          "factor_value": -0.03418551536137921
+        }
+      },
+      {
+        "asset_id": "VRSK",
+        "spectrum_position": 0.766667,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 46/195 → position=0.77 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 46/195 → position=0.77 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001437749-25-032073",
+          "factor_value": -0.03225572629747753
+        }
+      },
+      {
+        "asset_id": "AAPL",
+        "spectrum_position": 0.761538,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 47/195 → position=0.76 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 47/195 → position=0.76 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000320193-26-000006",
+          "factor_value": -0.03203085013905852
+        }
+      },
+      {
+        "asset_id": "OXY",
+        "spectrum_position": 0.75641,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 48/195 → position=0.76 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 48/195 → position=0.76 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-051071",
+          "factor_value": -0.031866513986585965
+        }
+      },
+      {
+        "asset_id": "SWK",
+        "spectrum_position": 0.751282,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 49/195 → position=0.75 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 49/195 → position=0.75 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "FY",
+          "accession_no": "0000093556-26-000009",
+          "factor_value": -0.031767820921674156
+        }
+      },
+      {
+        "asset_id": "UPS",
+        "spectrum_position": 0.746154,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 50/195 → position=0.75 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 50/195 → position=0.75 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-049661",
+          "factor_value": -0.031199211360669277
+        }
+      },
+      {
+        "asset_id": "SW",
+        "spectrum_position": 0.741026,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 51/195 → position=0.74 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 51/195 → position=0.74 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-050408",
+          "factor_value": -0.030551441463162608
+        }
+      },
+      {
+        "asset_id": "ODFL",
+        "spectrum_position": 0.735897,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 52/195 → position=0.74 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 52/195 → position=0.74 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-268415",
+          "factor_value": -0.03009235771717174
+        }
+      },
+      {
+        "asset_id": "TPL",
+        "spectrum_position": 0.730769,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 53/195 → position=0.73 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 53/195 → position=0.73 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001811074-25-000096",
+          "factor_value": -0.02694082688819484
+        }
+      },
+      {
+        "asset_id": "VRT",
+        "spectrum_position": 0.725641,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 54/195 → position=0.73 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 54/195 → position=0.73 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001674101-25-000024",
+          "factor_value": -0.0260989010989011
+        }
+      },
+      {
+        "asset_id": "XYZ",
+        "spectrum_position": 0.720513,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 55/195 → position=0.72 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 55/195 → position=0.72 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-050234",
+          "factor_value": -0.026025676023531133
+        }
+      },
+      {
+        "asset_id": "GOOGL",
+        "spectrum_position": 0.715385,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 56/195 → position=0.72 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 56/195 → position=0.72 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001652044-25-000091",
+          "factor_value": -0.02587330841330275
+        }
+      },
+      {
+        "asset_id": "SYK",
+        "spectrum_position": 0.710256,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 57/195 → position=0.71 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 57/195 → position=0.71 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000310764-25-000129",
+          "factor_value": -0.025134252339035597
+        }
+      },
+      {
+        "asset_id": "PKG",
+        "spectrum_position": 0.705128,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 58/195 → position=0.71 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 58/195 → position=0.71 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-268514",
+          "factor_value": -0.024504025732723315
+        }
+      },
+      {
+        "asset_id": "MMM",
+        "spectrum_position": 0.7,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 59/195 → position=0.70 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 59/195 → position=0.70 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000066740-25-000089",
+          "factor_value": -0.02439153439153439
+        }
+      },
+      {
+        "asset_id": "TKO",
+        "spectrum_position": 0.694872,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 60/195 → position=0.69 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 60/195 → position=0.69 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-267014",
+          "factor_value": -0.024330608795511518
+        }
+      },
+      {
+        "asset_id": "MNST",
+        "spectrum_position": 0.689744,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 61/195 → position=0.69 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 61/195 → position=0.69 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001104659-25-107944",
+          "factor_value": -0.02406510689263346
+        }
+      },
+      {
+        "asset_id": "TXN",
+        "spectrum_position": 0.684615,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 62/195 → position=0.68 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 62/195 → position=0.68 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000097476-25-000060",
+          "factor_value": -0.0236212591332199
+        }
+      },
+      {
+        "asset_id": "TXT",
+        "spectrum_position": 0.679487,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 63/195 → position=0.68 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 63/195 → position=0.68 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "FY",
+          "accession_no": "0000217346-26-000006",
+          "factor_value": -0.02326688485569771
+        }
+      },
+      {
+        "asset_id": "MSCI",
+        "spectrum_position": 0.674359,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 64/195 → position=0.67 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 64/195 → position=0.67 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001408198-25-000196",
+          "factor_value": -0.023052517110763577
+        }
+      },
+      {
+        "asset_id": "TMUS",
+        "spectrum_position": 0.669231,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 65/195 → position=0.67 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 65/195 → position=0.67 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001283699-25-000154",
+          "factor_value": -0.022069549558771866
+        }
+      },
+      {
+        "asset_id": "URI",
+        "spectrum_position": 0.664103,
+        "spectrum_band": "right",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 66/195 → position=0.66 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 66/195 → position=0.66 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001067701-25-000039",
+          "factor_value": -0.021970477171301066
+        }
+      },
+      {
+        "asset_id": "PGR",
+        "spectrum_position": 0.658974,
+        "spectrum_band": "center",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 67/195 → position=0.66 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 67/195 → position=0.66 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000080661-25-000129",
+          "factor_value": -0.021770774001645465
+        }
+      },
+      {
+        "asset_id": "VST",
+        "spectrum_position": 0.653846,
+        "spectrum_band": "center",
+        "spectrum_quintile": "overpriced",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 68/195 → position=0.65 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 68/195 → position=0.65 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001692819-25-000094",
+          "factor_value": -0.02140062495076543
+        }
+      },
+      {
+        "asset_id": "MGM",
+        "spectrum_position": 0.648718,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 69/195 → position=0.65 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 69/195 → position=0.65 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000789570-25-000074",
+          "factor_value": -0.021373122719971913
+        }
+      },
+      {
+        "asset_id": "MO",
+        "spectrum_position": 0.64359,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 70/195 → position=0.64 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 70/195 → position=0.64 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000764180-25-000130",
+          "factor_value": -0.021354321354321356
+        }
+      },
+      {
+        "asset_id": "VMC",
+        "spectrum_position": 0.638462,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 71/195 → position=0.64 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 71/195 → position=0.64 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001396009-25-000031",
+          "factor_value": -0.02082758239938166
+        }
+      },
+      {
+        "asset_id": "PFG",
+        "spectrum_position": 0.633333,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 72/195 → position=0.63 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 72/195 → position=0.63 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001104659-25-103708",
+          "factor_value": -0.020788653079483705
+        }
+      },
+      {
+        "asset_id": "MTD",
+        "spectrum_position": 0.628205,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 73/195 → position=0.63 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 73/195 → position=0.63 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "FY",
+          "accession_no": "0001037646-26-000011",
+          "factor_value": -0.020491251355862924
+        }
+      },
+      {
+        "asset_id": "WST",
+        "spectrum_position": 0.623077,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 74/195 → position=0.62 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 74/195 → position=0.62 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000105770-25-000093",
+          "factor_value": -0.019661086859381983
+        }
+      },
+      {
+        "asset_id": "MCHP",
+        "spectrum_position": 0.617949,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 75/195 → position=0.62 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 75/195 → position=0.62 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0000827054-26-000009",
+          "factor_value": -0.01935739289881647
+        }
+      },
+      {
+        "asset_id": "TEL",
+        "spectrum_position": 0.612821,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 76/195 → position=0.61 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 76/195 → position=0.61 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0001104659-26-006062",
+          "factor_value": -0.018936275316976784
+        }
+      },
+      {
+        "asset_id": "STT",
+        "spectrum_position": 0.607692,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 77/195 → position=0.61 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 77/195 → position=0.61 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000093751-25-000575",
+          "factor_value": -0.01882889111471582
+        }
+      },
+      {
+        "asset_id": "RSG",
+        "spectrum_position": 0.602564,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_stretched",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 78/195 → position=0.60 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 78/195 → position=0.60 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-047655",
+          "factor_value": -0.01878367517042241
+        }
+      },
+      {
+        "asset_id": "WMT",
+        "spectrum_position": 0.597436,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 79/195 → position=0.60 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 79/195 → position=0.60 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0000104169-25-000191",
+          "factor_value": -0.018555310163837473
+        }
+      },
+      {
+        "asset_id": "TTD",
+        "spectrum_position": 0.592308,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 80/195 → position=0.59 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 80/195 → position=0.59 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001671933-25-000144",
+          "factor_value": -0.018345448601092097
+        }
+      },
+      {
+        "asset_id": "PSA",
+        "spectrum_position": 0.587179,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 81/195 → position=0.59 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 81/195 → position=0.59 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-047163",
+          "factor_value": -0.017907814366624607
+        }
+      },
+      {
+        "asset_id": "WRB",
+        "spectrum_position": 0.582051,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 82/195 → position=0.58 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 82/195 → position=0.58 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000011544-25-000032",
+          "factor_value": -0.01787504184496534
+        }
+      },
+      {
+        "asset_id": "VLO",
+        "spectrum_position": 0.576923,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 83/195 → position=0.58 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 83/195 → position=0.58 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-046072",
+          "factor_value": -0.01786634222266066
+        }
+      },
+      {
+        "asset_id": "NVR",
+        "spectrum_position": 0.571795,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 84/195 → position=0.57 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 84/195 → position=0.57 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000906163-25-000121",
+          "factor_value": -0.017628261030009792
+        }
+      },
+      {
+        "asset_id": "TECH",
+        "spectrum_position": 0.566667,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 85/195 → position=0.57 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 85/195 → position=0.57 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0001104659-26-010335",
+          "factor_value": -0.017588966352119602
+        }
+      },
+      {
+        "asset_id": "WELL",
+        "spectrum_position": 0.561538,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 86/195 → position=0.56 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 86/195 → position=0.56 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000766704-25-000040",
+          "factor_value": -0.017301093390246346
+        }
+      },
+      {
+        "asset_id": "VLTO",
+        "spectrum_position": 0.55641,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 87/195 → position=0.56 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 87/195 → position=0.56 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001967680-25-000136",
+          "factor_value": -0.017235188509874325
+        }
+      },
+      {
+        "asset_id": "XOM",
+        "spectrum_position": 0.551282,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 88/195 → position=0.55 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 88/195 → position=0.55 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000034088-25-000061",
+          "factor_value": -0.016913135868858148
+        }
+      },
+      {
+        "asset_id": "SNDK",
+        "spectrum_position": 0.546154,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 89/195 → position=0.55 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 89/195 → position=0.55 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0001628280-26-004407",
+          "factor_value": -0.016778653823746457
+        }
+      },
+      {
+        "asset_id": "SNPS",
+        "spectrum_position": 0.541026,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 90/195 → position=0.54 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 90/195 → position=0.54 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000883241-26-000014",
+          "factor_value": -0.016595352542455227
+        }
+      },
+      {
+        "asset_id": "MRK",
+        "spectrum_position": 0.535897,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 91/195 → position=0.54 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 91/195 → position=0.54 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000310158-25-000059",
+          "factor_value": -0.016473130987699793
+        }
+      },
+      {
+        "asset_id": "VZ",
+        "spectrum_position": 0.530769,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 92/195 → position=0.53 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 92/195 → position=0.53 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000732712-25-000116",
+          "factor_value": -0.016370837307676356
+        }
+      },
+      {
+        "asset_id": "PTC",
+        "spectrum_position": 0.525641,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 93/195 → position=0.53 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 93/195 → position=0.53 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0001193125-26-039347",
+          "factor_value": -0.01582697909108367
+        }
+      },
+      {
+        "asset_id": "MLM",
+        "spectrum_position": 0.520513,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 94/195 → position=0.52 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 94/195 → position=0.52 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-264566",
+          "factor_value": -0.01570290561063671
+        }
+      },
+      {
+        "asset_id": "NEE",
+        "spectrum_position": 0.515385,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 95/195 → position=0.52 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 95/195 → position=0.52 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000753308-25-000056",
+          "factor_value": -0.015480554379098331
+        }
+      },
+      {
+        "asset_id": "ORCL",
+        "spectrum_position": 0.510256,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 96/195 → position=0.51 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 96/195 → position=0.51 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-26-101045",
+          "factor_value": -0.015236859874195955
+        }
+      },
+      {
+        "asset_id": "STX",
+        "spectrum_position": 0.505128,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 97/195 → position=0.51 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 97/195 → position=0.51 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0001137789-26-000026",
+          "factor_value": -0.015160349854227406
+        }
+      },
+      {
+        "asset_id": "MPWR",
+        "spectrum_position": 0.5,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 98/195 → position=0.50 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 98/195 → position=0.50 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001437749-25-033332",
+          "factor_value": -0.014915507564740282
+        }
+      },
+      {
+        "asset_id": "PAYX",
+        "spectrum_position": 0.494872,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 99/195 → position=0.49 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 99/195 → position=0.49 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-26-126204",
+          "factor_value": -0.014822085024228408
+        }
+      },
+      {
+        "asset_id": "PCG",
+        "spectrum_position": 0.489744,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 100/195 → position=0.49 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 100/195 → position=0.49 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001004980-25-000148",
+          "factor_value": -0.014572174501971723
+        }
+      },
+      {
+        "asset_id": "NOW",
+        "spectrum_position": 0.484615,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 101/195 → position=0.48 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 101/195 → position=0.48 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001373715-25-000309",
+          "factor_value": -0.014187956204379562
+        }
+      },
+      {
+        "asset_id": "WMB",
+        "spectrum_position": 0.479487,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 102/195 → position=0.48 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 102/195 → position=0.48 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000107263-25-000145",
+          "factor_value": -0.014158406106706472
+        }
+      },
+      {
+        "asset_id": "ROP",
+        "spectrum_position": 0.474359,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 103/195 → position=0.47 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 103/195 → position=0.47 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000882835-25-000045",
+          "factor_value": -0.013892821747132947
+        }
+      },
+      {
+        "asset_id": "WTW",
+        "spectrum_position": 0.469231,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 104/195 → position=0.47 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 104/195 → position=0.47 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-257944",
+          "factor_value": -0.013305434840924942
+        }
+      },
+      {
+        "asset_id": "MSI",
+        "spectrum_position": 0.464103,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 105/195 → position=0.46 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 105/195 → position=0.46 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000068505-25-000052",
+          "factor_value": -0.013291301013887705
+        }
+      },
+      {
+        "asset_id": "SYF",
+        "spectrum_position": 0.458974,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 106/195 → position=0.46 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 106/195 → position=0.46 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001601712-25-000259",
+          "factor_value": -0.013137450576658287
+        }
+      },
+      {
+        "asset_id": "NSC",
+        "spectrum_position": 0.453846,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 107/195 → position=0.45 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 107/195 → position=0.45 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-046128",
+          "factor_value": -0.012621851580548826
+        }
+      },
+      {
+        "asset_id": "ON",
+        "spectrum_position": 0.448718,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 108/195 → position=0.45 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 108/195 → position=0.45 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001097864-25-000019",
+          "factor_value": -0.01252659126735128
+        }
+      },
+      {
+        "asset_id": "PM",
+        "spectrum_position": 0.44359,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 109/195 → position=0.44 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 109/195 → position=0.44 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-046179",
+          "factor_value": -0.012525172055146163
+        }
+      },
+      {
+        "asset_id": "SBAC",
+        "spectrum_position": 0.438462,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 110/195 → position=0.44 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 110/195 → position=0.44 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001034054-25-000010",
+          "factor_value": -0.012453904112529536
+        }
+      },
+      {
+        "asset_id": "PODD",
+        "spectrum_position": 0.433333,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 111/195 → position=0.43 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 111/195 → position=0.43 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001145197-25-000069",
+          "factor_value": -0.011725782872970686
+        }
+      },
+      {
+        "asset_id": "VTR",
+        "spectrum_position": 0.428205,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 112/195 → position=0.43 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 112/195 → position=0.43 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000740260-25-000277",
+          "factor_value": -0.011605592765164412
+        }
+      },
+      {
+        "asset_id": "UNH",
+        "spectrum_position": 0.423077,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 113/195 → position=0.42 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 113/195 → position=0.42 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000731766-25-000305",
+          "factor_value": -0.011531766056148833
+        }
+      },
+      {
+        "asset_id": "WBD",
+        "spectrum_position": 0.417949,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 114/195 → position=0.42 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 114/195 → position=0.42 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001437107-25-000216",
+          "factor_value": -0.011144843408522294
+        }
+      },
+      {
+        "asset_id": "TDY",
+        "spectrum_position": 0.412821,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 115/195 → position=0.41 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 115/195 → position=0.41 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001094285-25-000140",
+          "factor_value": -0.010980075027517577
+        }
+      },
+      {
+        "asset_id": "UNP",
+        "spectrum_position": 0.407692,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 116/195 → position=0.41 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 116/195 → position=0.41 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000100885-25-000321",
+          "factor_value": -0.010697915072546147
+        }
+      },
+      {
+        "asset_id": "PWR",
+        "spectrum_position": 0.402564,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "balanced",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 117/195 → position=0.40 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 117/195 → position=0.40 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001050915-25-000111",
+          "factor_value": -0.010511356506609705
+        }
+      },
+      {
+        "asset_id": "WY",
+        "spectrum_position": 0.397436,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 118/195 → position=0.40 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 118/195 → position=0.40 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-260808",
+          "factor_value": -0.01027180783817952
+        }
+      },
+      {
+        "asset_id": "SYY",
+        "spectrum_position": 0.392308,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 119/195 → position=0.39 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 119/195 → position=0.39 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0000096021-26-000009",
+          "factor_value": -0.010072954856867756
+        }
+      },
+      {
+        "asset_id": "STE",
+        "spectrum_position": 0.387179,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 120/195 → position=0.39 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 120/195 → position=0.39 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-26-006055",
+          "factor_value": -0.009894248670371059
+        }
+      },
+      {
+        "asset_id": "V",
+        "spectrum_position": 0.382051,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 121/195 → position=0.38 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 121/195 → position=0.38 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0001403161-26-000045",
+          "factor_value": -0.009437948289817298
+        }
+      },
+      {
+        "asset_id": "NOC",
+        "spectrum_position": 0.376923,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 122/195 → position=0.38 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 122/195 → position=0.38 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001133421-25-000053",
+          "factor_value": -0.009255602474911646
+        }
+      },
+      {
+        "asset_id": "PYPL",
+        "spectrum_position": 0.371795,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 123/195 → position=0.37 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 123/195 → position=0.37 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001633917-25-000196",
+          "factor_value": -0.009098998608830792
+        }
+      },
+      {
+        "asset_id": "PEG",
+        "spectrum_position": 0.366667,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 124/195 → position=0.37 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 124/195 → position=0.37 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-262643",
+          "factor_value": -0.008888242806857238
+        }
+      },
+      {
+        "asset_id": "ROL",
+        "spectrum_position": 0.361538,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 125/195 → position=0.36 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 125/195 → position=0.36 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000084839-25-000100",
+          "factor_value": -0.008694782567932872
+        }
+      },
+      {
+        "asset_id": "REG",
+        "spectrum_position": 0.35641,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 126/195 → position=0.36 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 126/195 → position=0.36 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-266456",
+          "factor_value": -0.008475712920316689
+        }
+      },
+      {
+        "asset_id": "PNW",
+        "spectrum_position": 0.351282,
+        "spectrum_band": "center",
+        "spectrum_quintile": "neutral",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 127/195 → position=0.35 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 127/195 → position=0.35 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000764622-25-000087",
+          "factor_value": -0.008370810447001447
+        }
+      },
+      {
+        "asset_id": "MPC",
+        "spectrum_position": 0.346154,
+        "spectrum_band": "center",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 128/195 → position=0.35 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 128/195 → position=0.35 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001510295-25-000064",
+          "factor_value": -0.008236254359278772
+        }
+      },
+      {
+        "asset_id": "WAT",
+        "spectrum_position": 0.341026,
+        "spectrum_band": "center",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 129/195 → position=0.34 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 129/195 → position=0.34 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-263533",
+          "factor_value": -0.00801303545619452
+        }
+      },
+      {
+        "asset_id": "RVTY",
+        "spectrum_position": 0.335897,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 130/195 → position=0.34 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 130/195 → position=0.34 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000031791-25-000037",
+          "factor_value": -0.007497263153667325
+        }
+      },
+      {
+        "asset_id": "TT",
+        "spectrum_position": 0.330769,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 131/195 → position=0.33 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 131/195 → position=0.33 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-047439",
+          "factor_value": -0.0073835753216741455
+        }
+      },
+      {
+        "asset_id": "PLD",
+        "spectrum_position": 0.325641,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 132/195 → position=0.33 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 132/195 → position=0.33 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-253512",
+          "factor_value": -0.006972032094287762
+        }
+      },
+      {
+        "asset_id": "VRTX",
+        "spectrum_position": 0.320513,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 133/195 → position=0.32 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 133/195 → position=0.32 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000875320-25-000232",
+          "factor_value": -0.006482750158489948
+        }
+      },
+      {
+        "asset_id": "PNR",
+        "spectrum_position": 0.315385,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 134/195 → position=0.32 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 134/195 → position=0.32 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000077360-25-000047",
+          "factor_value": -0.006471968287355392
+        }
+      },
+      {
+        "asset_id": "MCO",
+        "spectrum_position": 0.310256,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 135/195 → position=0.31 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 135/195 → position=0.31 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-046118",
+          "factor_value": -0.006277910814833991
+        }
+      },
+      {
+        "asset_id": "TMO",
+        "spectrum_position": 0.305128,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 136/195 → position=0.31 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 136/195 → position=0.31 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000097745-25-000159",
+          "factor_value": -0.00605140758873929
+        }
+      },
+      {
+        "asset_id": "TJX",
+        "spectrum_position": 0.3,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 137/195 → position=0.30 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 137/195 → position=0.30 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0000109198-25-000061",
+          "factor_value": -0.005721733049365841
+        }
+      },
+      {
+        "asset_id": "SPG",
+        "spectrum_position": 0.294872,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 138/195 → position=0.29 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 138/195 → position=0.29 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001104659-25-107395",
+          "factor_value": -0.005607479792792554
+        }
+      },
+      {
+        "asset_id": "STZ",
+        "spectrum_position": 0.289744,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 139/195 → position=0.29 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 139/195 → position=0.29 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0000016918-26-000005",
+          "factor_value": -0.005294319626567183
+        }
+      },
+      {
+        "asset_id": "NFLX",
+        "spectrum_position": 0.284615,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 140/195 → position=0.28 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 140/195 → position=0.28 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001065280-25-000406",
+          "factor_value": -0.005151280425709199
+        }
+      },
+      {
+        "asset_id": "PG",
+        "spectrum_position": 0.279487,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 141/195 → position=0.28 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 141/195 → position=0.28 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0000080424-26-000011",
+          "factor_value": -0.005029719285167821
+        }
+      },
+      {
+        "asset_id": "PANW",
+        "spectrum_position": 0.274359,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 142/195 → position=0.27 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 142/195 → position=0.27 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0001327567-26-000005",
+          "factor_value": -0.005029372359064207
+        }
+      },
+      {
+        "asset_id": "TRV",
+        "spectrum_position": 0.269231,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 143/195 → position=0.27 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 143/195 → position=0.27 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000086312-26-000111",
+          "factor_value": -0.004583939269864129
+        }
+      },
+      {
+        "asset_id": "TSCO",
+        "spectrum_position": 0.264103,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 144/195 → position=0.26 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 144/195 → position=0.26 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000916365-25-000163",
+          "factor_value": -0.004532876158066958
+        }
+      },
+      {
+        "asset_id": "PLTR",
+        "spectrum_position": 0.258974,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 145/195 → position=0.26 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 145/195 → position=0.26 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001321655-25-000131",
+          "factor_value": -0.004142859062428293
+        }
+      },
+      {
+        "asset_id": "OMC",
+        "spectrum_position": 0.253846,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 146/195 → position=0.25 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 146/195 → position=0.25 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000029989-25-000037",
+          "factor_value": -0.004064053086042702
+        }
+      },
+      {
+        "asset_id": "REGN",
+        "spectrum_position": 0.248718,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 147/195 → position=0.25 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 147/195 → position=0.25 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000872589-25-000028",
+          "factor_value": -0.00404905815386421
+        }
+      },
+      {
+        "asset_id": "WAB",
+        "spectrum_position": 0.24359,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 148/195 → position=0.24 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 148/195 → position=0.24 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-045790",
+          "factor_value": -0.003949967083607637
+        }
+      },
+      {
+        "asset_id": "MET",
+        "spectrum_position": 0.238462,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 149/195 → position=0.24 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 149/195 → position=0.24 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001099219-25-000230",
+          "factor_value": -0.003756163004255391
+        }
+      },
+      {
+        "asset_id": "UAL",
+        "spectrum_position": 0.233333,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 150/195 → position=0.23 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 150/195 → position=0.23 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000100517-25-000193",
+          "factor_value": -0.0035054340743829655
+        }
+      },
+      {
+        "asset_id": "WSM",
+        "spectrum_position": 0.228205,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 151/195 → position=0.23 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 151/195 → position=0.23 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000719955-25-000049",
+          "factor_value": -0.003182314519865006
+        }
+      },
+      {
+        "asset_id": "USB",
+        "spectrum_position": 0.223077,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 152/195 → position=0.22 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 152/195 → position=0.22 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000036104-25-000064",
+          "factor_value": -0.0019975002297848996
+        }
+      },
+      {
+        "asset_id": "RF",
+        "spectrum_position": 0.217949,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 153/195 → position=0.22 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 153/195 → position=0.22 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001281761-25-000080",
+          "factor_value": -0.0018298835015948813
+        }
+      },
+      {
+        "asset_id": "T",
+        "spectrum_position": 0.212821,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 154/195 → position=0.21 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 154/195 → position=0.21 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000732717-25-000171",
+          "factor_value": -0.0016923890960057193
+        }
+      },
+      {
+        "asset_id": "PNC",
+        "spectrum_position": 0.207692,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 155/195 → position=0.21 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 155/195 → position=0.21 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000713676-25-000132",
+          "factor_value": -0.0014788885992584279
+        }
+      },
+      {
+        "asset_id": "NDSN",
+        "spectrum_position": 0.202564,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "leaning_compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 156/195 → position=0.20 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 156/195 → position=0.20 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000072331-26-000014",
+          "factor_value": -0.0011863347903789696
+        }
+      },
+      {
+        "asset_id": "PH",
+        "spectrum_position": 0.197436,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 157/195 → position=0.20 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 157/195 → position=0.20 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0000076334-26-000008",
+          "factor_value": -0.0010011778563015312
+        }
+      },
+      {
+        "asset_id": "MTB",
+        "spectrum_position": 0.192308,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 158/195 → position=0.19 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 158/195 → position=0.19 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000036270-25-000024",
+          "factor_value": -0.0009885044967495229
+        }
+      },
+      {
+        "asset_id": "NTRS",
+        "spectrum_position": 0.187179,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 159/195 → position=0.19 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 159/195 → position=0.19 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000073124-25-000247",
+          "factor_value": -0.0003986591724197998
+        }
+      },
+      {
+        "asset_id": "UHS",
+        "spectrum_position": 0.182051,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 160/195 → position=0.18 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 160/195 → position=0.18 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-272385",
+          "factor_value": -0.00010372739070121859
+        }
+      },
+      {
+        "asset_id": "TFC",
+        "spectrum_position": 0.176923,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 161/195 → position=0.18 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 161/195 → position=0.18 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000092230-25-000157",
+          "factor_value": -8.27446206802711e-05
+        }
+      },
+      {
+        "asset_id": "SPGI",
+        "spectrum_position": 0.171795,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 162/195 → position=0.17 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 162/195 → position=0.17 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000064040-25-000167",
+          "factor_value": -1.6670868535927164e-05
+        }
+      },
+      {
+        "asset_id": "OTIS",
+        "spectrum_position": 0.166667,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 163/195 → position=0.17 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 163/195 → position=0.17 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001781335-25-000049",
+          "factor_value": 0.0
+        }
+      },
+      {
+        "asset_id": "MCK",
+        "spectrum_position": 0.161538,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 164/195 → position=0.16 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 164/195 → position=0.16 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0000927653-26-000017",
+          "factor_value": 0.00021384021384021385
+        }
+      },
+      {
+        "asset_id": "MDLZ",
+        "spectrum_position": 0.15641,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 165/195 → position=0.16 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 165/195 → position=0.16 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-046773",
+          "factor_value": 0.0004073663065923106
+        }
+      },
+      {
+        "asset_id": "ROST",
+        "spectrum_position": 0.151282,
+        "spectrum_band": "left",
+        "spectrum_quintile": "underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 166/195 → position=0.15 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 166/195 → position=0.15 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000745732-25-000061",
+          "factor_value": 0.0009301898877968166
+        }
+      },
+      {
+        "asset_id": "NXPI",
+        "spectrum_position": 0.146154,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 167/195 → position=0.15 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 167/195 → position=0.15 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001413447-25-000120",
+          "factor_value": 0.002364157817223471
+        }
+      },
+      {
+        "asset_id": "NKE",
+        "spectrum_position": 0.141026,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 168/195 → position=0.14 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 168/195 → position=0.14 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0000320187-26-000037",
+          "factor_value": 0.0024047774912826815
+        }
+      },
+      {
+        "asset_id": "RCL",
+        "spectrum_position": 0.135897,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 169/195 → position=0.14 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 169/195 → position=0.14 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000884887-25-000148",
+          "factor_value": 0.0027971672324573114
+        }
+      },
+      {
+        "asset_id": "SCHW",
+        "spectrum_position": 0.130769,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 170/195 → position=0.13 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 170/195 → position=0.13 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000316709-25-000051",
+          "factor_value": 0.0039385797957348645
+        }
+      },
+      {
+        "asset_id": "VICI",
+        "spectrum_position": 0.125641,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 171/195 → position=0.13 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 171/195 → position=0.13 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001705696-25-000132",
+          "factor_value": 0.004046468888284239
+        }
+      },
+      {
+        "asset_id": "MSFT",
+        "spectrum_position": 0.120513,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 172/195 → position=0.12 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 172/195 → position=0.12 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0001193125-26-027207",
+          "factor_value": 0.004148571086149688
+        }
+      },
+      {
+        "asset_id": "TROW",
+        "spectrum_position": 0.115385,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 173/195 → position=0.12 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 173/195 → position=0.12 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-047751",
+          "factor_value": 0.005310842511505679
+        }
+      },
+      {
+        "asset_id": "RMD",
+        "spectrum_position": 0.110256,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 174/195 → position=0.11 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 174/195 → position=0.11 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0000943819-26-000007",
+          "factor_value": 0.006287041862814529
+        }
+      },
+      {
+        "asset_id": "NDAQ",
+        "spectrum_position": 0.105128,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 175/195 → position=0.11 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 175/195 → position=0.11 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-046006",
+          "factor_value": 0.006618936055179645
+        }
+      },
+      {
+        "asset_id": "ORLY",
+        "spectrum_position": 0.1,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 176/195 → position=0.10 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 176/195 → position=0.10 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000898173-25-000057",
+          "factor_value": 0.006813717253132577
+        }
+      },
+      {
+        "asset_id": "TGT",
+        "spectrum_position": 0.094872,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 177/195 → position=0.09 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 177/195 → position=0.09 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000027419-25-000126",
+          "factor_value": 0.00791086740128879
+        }
+      },
+      {
+        "asset_id": "NCLH",
+        "spectrum_position": 0.089744,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 178/195 → position=0.09 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 178/195 → position=0.09 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001104659-25-106057",
+          "factor_value": 0.008342131716393909
+        }
+      },
+      {
+        "asset_id": "ROK",
+        "spectrum_position": 0.084615,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 179/195 → position=0.08 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 179/195 → position=0.08 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0001024478-26-000005",
+          "factor_value": 0.009439855625737488
+        }
+      },
+      {
+        "asset_id": "TER",
+        "spectrum_position": 0.079487,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 180/195 → position=0.08 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 180/195 → position=0.08 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001193125-25-258477",
+          "factor_value": 0.018253097205612565
+        }
+      },
+      {
+        "asset_id": "SMCI",
+        "spectrum_position": 0.074359,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 181/195 → position=0.07 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 181/195 → position=0.07 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0001375365-26-000007",
+          "factor_value": 0.02002762738870596
+        }
+      },
+      {
+        "asset_id": "MU",
+        "spectrum_position": 0.069231,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 182/195 → position=0.07 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 182/195 → position=0.07 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0000723125-26-000006",
+          "factor_value": 0.020076808192873906
+        }
+      },
+      {
+        "asset_id": "MOS",
+        "spectrum_position": 0.064103,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 183/195 → position=0.06 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 183/195 → position=0.06 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001628280-25-049494",
+          "factor_value": 0.020088735518856298
+        }
+      },
+      {
+        "asset_id": "PEP",
+        "spectrum_position": 0.058974,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 184/195 → position=0.06 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 184/195 → position=0.06 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000077476-26-000017",
+          "factor_value": 0.020968148776628677
+        }
+      },
+      {
+        "asset_id": "MRSH",
+        "spectrum_position": 0.053846,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 185/195 → position=0.05 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 185/195 → position=0.05 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000062709-26-000098",
+          "factor_value": 0.03196261363442547
+        }
+      },
+      {
+        "asset_id": "ULTA",
+        "spectrum_position": 0.048718,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 186/195 → position=0.05 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 186/195 → position=0.05 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001104659-25-118458",
+          "factor_value": 0.04982210852837691
+        }
+      },
+      {
+        "asset_id": "MRNA",
+        "spectrum_position": 0.04359,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 187/195 → position=0.04 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 187/195 → position=0.04 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001682852-25-000075",
+          "factor_value": 0.05359287637191965
+        }
+      },
+      {
+        "asset_id": "NVDA",
+        "spectrum_position": 0.038462,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 188/195 → position=0.04 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 188/195 → position=0.04 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q3",
+          "accession_no": "0001045810-25-000230",
+          "factor_value": 0.05405315878736485
+        }
+      },
+      {
+        "asset_id": "MKC",
+        "spectrum_position": 0.033333,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 189/195 → position=0.03 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 189/195 → position=0.03 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000063754-26-000192",
+          "factor_value": 0.06732298608006819
+        }
+      },
+      {
+        "asset_id": "UBER",
+        "spectrum_position": 0.028205,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 190/195 → position=0.03 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 190/195 → position=0.03 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001543151-25-000033",
+          "factor_value": 0.07203794646598394
+        }
+      },
+      {
+        "asset_id": "WDC",
+        "spectrum_position": 0.023077,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 191/195 → position=0.02 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 191/195 → position=0.02 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q2",
+          "accession_no": "0001628280-26-004207",
+          "factor_value": 0.07320653987320654
+        }
+      },
+      {
+        "asset_id": "SOLV",
+        "spectrum_position": 0.017949,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 192/195 → position=0.02 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 192/195 → position=0.02 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0001964738-25-000091",
+          "factor_value": 0.0819361724102317
+        }
+      },
+      {
+        "asset_id": "WFC",
+        "spectrum_position": 0.012821,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 193/195 → position=0.01 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 193/195 → position=0.01 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000072971-25-000253",
+          "factor_value": 0.50453125
+        }
+      },
+      {
+        "asset_id": "RJF",
+        "spectrum_position": 0.007692,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 194/195 → position=0.01 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 194/195 → position=0.01 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2026,
+          "fiscal_period": "Q1",
+          "accession_no": "0000720005-26-000035",
+          "factor_value": 7.2075471698113205
+        }
+      },
+      {
+        "asset_id": "MS",
+        "spectrum_position": 0.002564,
+        "spectrum_band": "left",
+        "spectrum_quintile": "extreme_underpriced",
+        "valuation_tension": "compressed",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "ko": "팩터 'accruals' 순위 195/195 → position=0.00 (quality_like). 검증 런으로부터 생성.",
+          "en": "Factor 'accruals' rank 195/195 → position=0.00 (quality_like). Generated from validation run."
+        },
+        "what_changed": {
+          "ko": "최신 분기 팩터 순위 업데이트.",
+          "en": "Latest quarterly factor rank refreshed."
+        },
+        "source_period": {
+          "fiscal_year": 2025,
+          "fiscal_period": "Q3",
+          "accession_no": "0000895421-25-000539",
+          "factor_value": 42.82573726541555
+        }
+      }
+    ],
+    "medium": [
+      {
+        "asset_id": "DEMO_KR_A",
+        "spectrum_position": 0.55,
+        "valuation_tension": "balanced",
+        "rationale_summary": {
+          "ko": "중기 렌즈에서는 품질 대비 가격이 중립에 가깝습니다.",
+          "en": "Medium lens: quality vs price looks roughly fair."
+        },
+        "confidence_band": "medium",
+        "what_changed": {
+          "ko": "이익 추정치 소폭 상향.",
+          "en": "Earnings estimates nudged up."
+        }
+      },
+      {
+        "asset_id": "DEMO_KR_B",
+        "spectrum_position": 0.38,
+        "valuation_tension": "compressed",
+        "rationale_summary": {
+          "ko": "중기 기준으로는 과열이 일부 완화된 모습.",
+          "en": "Some cooling vs the short-term stretch."
+        },
+        "confidence_band": "medium",
+        "what_changed": {
+          "ko": "마진 가이던스 보수화.",
+          "en": "Margin guide turned more conservative."
+        }
+      }
+    ],
+    "medium_long": [
+      {
+        "asset_id": "DEMO_KR_A",
+        "spectrum_position": 0.62,
+        "valuation_tension": "asymmetric",
+        "rationale_summary": {
+          "ko": "사이클 상단 구간에서 옵션성이 남아 있습니다.",
+          "en": "Cycle positioning still leaves upside optionality."
+        },
+        "confidence_band": "low",
+        "what_changed": {
+          "ko": "정책 민감도 상승.",
+          "en": "Policy sensitivity increased."
+        }
+      }
+    ],
+    "long": [
+      {
+        "asset_id": "DEMO_KR_A",
+        "spectrum_position": 0.28,
+        "valuation_tension": "compressed",
+        "rationale_summary": {
+          "ko": "장기 현금흐름 관점에서는 여전히 방어적 밴드.",
+          "en": "Long horizon: still defensive vs owner-earnings growth path."
+        },
+        "confidence_band": "high",
+        "what_changed": {
+          "ko": "장기 캐픽스 계획 재확인.",
+          "en": "Long-run capex plan reaffirmed."
+        }
+      },
+      {
+        "asset_id": "DEMO_KR_B",
+        "spectrum_position": 0.81,
+        "valuation_tension": "stretched",
+        "rationale_summary": {
+          "ko": "장기 성장 스토리는 강하지만 밸류에이션 부담.",
+          "en": "Strong long story but valuation load is heavy."
+        },
+        "confidence_band": "medium",
+        "what_changed": {
+          "ko": "TAM 서사 확장.",
+          "en": "TAM narrative expanded."
+        }
+      }
+    ]
+  }
+}

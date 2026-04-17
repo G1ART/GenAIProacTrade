@@ -80,6 +80,7 @@ def build_replay_aging_brief(
                 "headline": hl[:180] + ("…" if len(hl) > 180 else ""),
                 "replay_lineage_pointer": str(row.get("replay_lineage_pointer") or ""),
                 "message_snapshot_id": str(row.get("message_snapshot_id") or ""),
+                "registry_entry_id": str(sp.get("registry_entry_id") or ""),
             }
         )
 

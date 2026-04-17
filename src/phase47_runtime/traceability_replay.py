@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import math
 import re
 from datetime import datetime, timezone
@@ -10,6 +11,25 @@ from typing import Any
 
 from phase46.alert_ledger import list_alerts
 from phase46.decision_trace_ledger import list_decisions
+
+logger = logging.getLogger(__name__)
+
+REPLAY_LINEAGE_REQUIRED_FIELDS: tuple[str, ...] = (
+    "registry_entry_id",
+    "message_snapshot_id",
+)
+
+REPLAY_LINEAGE_OPTIONAL_FIELDS: tuple[str, ...] = (
+    "linked_registry_entry_id",
+    "linked_artifact_id",
+    "replay_lineage_pointer",
+    "active_model_family_name",
+)
+
+REPLAY_LINEAGE_ALL_FIELDS: tuple[str, ...] = (
+    *REPLAY_LINEAGE_REQUIRED_FIELDS,
+    *REPLAY_LINEAGE_OPTIONAL_FIELDS,
+)
 
 EVENT_GRAMMAR: list[dict[str, Any]] = [
     {
@@ -156,6 +176,59 @@ def _sanitize_replay_text(text: str, *, max_len: int = 600) -> str:
     return t
 
 
+def normalize_timeline_event_lineage(event: dict[str, Any]) -> dict[str, Any]:
+    """Ensure every timeline event exposes the lineage keys as strings (possibly empty).
+
+    This lets Today/Replay consumers join on fields without key-missing errors and
+    gives ``audit_timeline_events_for_lineage`` a uniform shape to inspect.
+    """
+    for k in REPLAY_LINEAGE_ALL_FIELDS:
+        v = event.get(k)
+        event[k] = "" if v is None else str(v).strip()
+    return event
+
+
+def missing_required_lineage_fields(event: dict[str, Any]) -> list[str]:
+    missing: list[str] = []
+    for k in REPLAY_LINEAGE_REQUIRED_FIELDS:
+        if not str(event.get(k) or "").strip():
+            missing.append(k)
+    return missing
+
+
+def audit_timeline_events_for_lineage(
+    events: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Return counts by lineage completeness across the timeline.
+
+    Keys:
+      * ``total``
+      * ``with_full_required_lineage``  (all required fields present)
+      * ``with_any_required_lineage``
+      * ``missing_required_by_event_type``
+    """
+    total = len(events)
+    full = 0
+    any_ok = 0
+    missing_by_type: dict[str, int] = {}
+    for e in events:
+        missing = missing_required_lineage_fields(e)
+        if not missing:
+            full += 1
+            any_ok += 1
+        else:
+            if len(missing) < len(REPLAY_LINEAGE_REQUIRED_FIELDS):
+                any_ok += 1
+            t = str(e.get("event_type") or "unknown")
+            missing_by_type[t] = missing_by_type.get(t, 0) + 1
+    return {
+        "total": total,
+        "with_full_required_lineage": full,
+        "with_any_required_lineage": any_ok,
+        "missing_required_by_event_type": missing_by_type,
+    }
+
+
 def _decision_card_from_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
     rm = bundle.get("founder_read_model") or {}
     dc = rm.get("decision_card")
@@ -171,8 +244,14 @@ def build_timeline_events(
     bundle: dict[str, Any],
     decisions: list[dict[str, Any]],
     alerts: list[dict[str, Any]],
+    require_lineage: bool = False,
 ) -> tuple[list[dict[str, Any]], str | None]:
-    """Return replay-safe events sorted by time; error string if unparseable anchor."""
+    """Return replay-safe events sorted by time; error string if unparseable anchor.
+
+    When ``require_lineage`` is True (opt-in strict mode), events missing any
+    of ``REPLAY_LINEAGE_REQUIRED_FIELDS`` are dropped from the output and
+    logged as warnings. Default ``False`` keeps legacy events (migration mode).
+    """
     rm = bundle.get("founder_read_model") or {}
     anchor = _parse_ts(str(bundle.get("generated_utc") or ""))
     if anchor is None:
@@ -181,6 +260,12 @@ def build_timeline_events(
     events: list[dict[str, Any]] = []
     dc = _decision_card_from_bundle(bundle)
     primary_asset = str(rm.get("asset_id") or "").strip()
+    bundle_registry_entry_id = str(
+        (rm.get("registry_entry_id") or bundle.get("registry_entry_id") or "")
+    ).strip()
+    bundle_message_snapshot_id = str(
+        (rm.get("message_snapshot_id") or bundle.get("message_snapshot_id") or "")
+    ).strip()
     events.append(
         {
             "event_id": "evt_bundle_authoritative",
@@ -196,6 +281,8 @@ def build_timeline_events(
             "founder_note": "",
             "known_then": "Phase 46 bundle fields as of this `generated_utc` — no later ledger entries implied.",
             "later_outcome_link": None,
+            "registry_entry_id": bundle_registry_entry_id,
+            "message_snapshot_id": bundle_message_snapshot_id,
         }
     )
 
@@ -217,9 +304,17 @@ def build_timeline_events(
                 "known_then": "Ledger fields recorded with this decision row only.",
                 "later_outcome_link": "outcome_placeholder in ledger may be filled later — not shown as ex-ante known.",
                 "replay_lineage_pointer": str(d.get("replay_lineage_pointer") or ""),
-                "message_snapshot_id": str(d.get("message_snapshot_id") or ""),
+                "message_snapshot_id": str(
+                    d.get("message_snapshot_id") or bundle_message_snapshot_id or ""
+                ),
                 "linked_registry_entry_id": str(d.get("linked_registry_entry_id") or ""),
                 "linked_artifact_id": str(d.get("linked_artifact_id") or ""),
+                "registry_entry_id": str(
+                    d.get("registry_entry_id")
+                    or d.get("linked_registry_entry_id")
+                    or bundle_registry_entry_id
+                    or ""
+                ),
             }
         )
 
@@ -242,6 +337,15 @@ def build_timeline_events(
                 "founder_note": "",
                 "known_then": "Alert record as stored; requires attention flag does not imply future path.",
                 "later_outcome_link": None,
+                "registry_entry_id": str(
+                    a.get("registry_entry_id")
+                    or a.get("linked_registry_entry_id")
+                    or bundle_registry_entry_id
+                    or ""
+                ),
+                "message_snapshot_id": str(
+                    a.get("message_snapshot_id") or bundle_message_snapshot_id or ""
+                ),
             }
         )
 
@@ -259,8 +363,30 @@ def build_timeline_events(
             "founder_note": "",
             "known_then": "Separates decision quality (past) from outcome viewing (now).",
             "later_outcome_link": None,
+            "registry_entry_id": bundle_registry_entry_id,
+            "message_snapshot_id": bundle_message_snapshot_id,
         }
     )
+
+    for e in events:
+        normalize_timeline_event_lineage(e)
+
+    if require_lineage:
+        strict: list[dict[str, Any]] = []
+        for e in events:
+            missing = missing_required_lineage_fields(e)
+            if missing:
+                logger.warning(
+                    "replay_event_rejected_missing_lineage",
+                    extra={
+                        "event_id": e.get("event_id"),
+                        "event_type": e.get("event_type"),
+                        "missing_required": missing,
+                    },
+                )
+                continue
+            strict.append(e)
+        events = strict
 
     events.sort(key=lambda e: e["timestamp_utc"])
     return events, None

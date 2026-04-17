@@ -8,7 +8,7 @@ import os
 import sys
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from config import ensure_edgar_local_cache, load_settings
 from logging_utils import configure_logging
@@ -228,19 +228,33 @@ def _cmd_smoke_db(_args: argparse.Namespace) -> int:
 
 def _cmd_extract_facts_single(args: argparse.Namespace) -> int:
     from db.client import get_supabase_client
-    from sec.facts.facts_pipeline import run_facts_extract_for_ticker
+    from sec.facts.facts_pipeline import (
+        run_facts_extract_for_ticker,
+        run_facts_extract_for_ticker_multi,
+    )
 
     settings = load_settings()
     configure_logging()
     client = get_supabase_client(settings)
     forms = tuple(args.forms.split(",")) if args.forms else ("10-Q", "10-K")
-    out = run_facts_extract_for_ticker(
-        client,
-        settings,
-        args.ticker,
-        forms=forms,
-        run_validation_hook=True,
-    )
+    limit = max(1, int(getattr(args, "limit", 1) or 1))
+    if limit > 1:
+        out = run_facts_extract_for_ticker_multi(
+            client,
+            settings,
+            args.ticker,
+            limit=limit,
+            forms=forms,
+            run_validation_hook=True,
+        )
+    else:
+        out = run_facts_extract_for_ticker(
+            client,
+            settings,
+            args.ticker,
+            forms=forms,
+            run_validation_hook=True,
+        )
     print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0 if out.get("ok") else 1
 
@@ -256,11 +270,16 @@ def _cmd_extract_facts_watchlist(args: argparse.Namespace) -> int:
     elif os.getenv("WATCHLIST_PATH"):
         path = Path(os.environ["WATCHLIST_PATH"]).expanduser()
     forms = tuple(args.forms.split(",")) if args.forms else ("10-Q", "10-K")
+    override_per: Optional[int] = None
+    raw_fpi = getattr(args, "filings_per_issuer", None)
+    if raw_fpi is not None:
+        override_per = max(1, int(raw_fpi))
     out = run_facts_watchlist(
         settings,
         watchlist_path=path,
         sleep_seconds=args.sleep,
         forms=forms,
+        filings_per_issuer=override_per,
     )
     print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0 if out.get("status") != "failed" else 1
@@ -286,7 +305,13 @@ def _cmd_compute_factors_single(args: argparse.Namespace) -> int:
     settings = load_settings()
     configure_logging()
     fv = args.factor_version or os.environ.get("FACTOR_VERSION", "v1")
-    out = run_factor_panels_for_ticker(settings, args.ticker, factor_version=fv)
+    out = run_factor_panels_for_ticker(
+        settings,
+        args.ticker,
+        factor_version=fv,
+        refresh_if_stale=not args.no_refresh_stale,
+        force_rebuild=args.force_rebuild,
+    )
     print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0 if out.get("ok") else 1
 
@@ -311,6 +336,8 @@ def _cmd_compute_factors_watchlist(args: argparse.Namespace) -> int:
         tickers=tickers,
         sleep_seconds=args.sleep,
         factor_version=fv,
+        refresh_if_stale=not args.no_refresh_stale,
+        force_rebuild=args.force_rebuild,
     )
     print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
     return 0 if out.get("status") != "failed" else 1
@@ -7562,13 +7589,38 @@ def _cmd_build_metis_brain_bundle_from_factor_validation(args: argparse.Namespac
             artifact_id=str(spec["artifact_id"]),
         )
 
-    merged, report = build_bundle_from_validation_gates(
-        template_bundle=template,
-        gate_specs=specs,
-        fetch_gate=_fetch,
-        client=client,
-        sync_artifact_validation_pointer=sync_ptr,
+    replace_from_validation = bool(config.get("replace_artifacts_from_validation", False)) or bool(
+        getattr(args, "replace_artifacts_from_validation", False)
     )
+    spectrum_max_rows = config.get("spectrum_max_rows_per_horizon")
+    try:
+        spectrum_max_rows_i: int | None = int(spectrum_max_rows) if spectrum_max_rows is not None else None
+    except (TypeError, ValueError):
+        spectrum_max_rows_i = None
+
+    if replace_from_validation:
+        from metis_brain.bundle_full_from_validation_v1 import (
+            build_bundle_full_from_validation_v1,
+            fetch_joined_rows_for_factor_db,
+        )
+
+        merged, report = build_bundle_full_from_validation_v1(
+            template_bundle=template,
+            gate_specs=specs,
+            fetch_gate=_fetch,
+            fetch_joined=fetch_joined_rows_for_factor_db,
+            client=client,
+            sync_artifact_validation_pointer=sync_ptr,
+            spectrum_max_rows_per_horizon=spectrum_max_rows_i,
+        )
+    else:
+        merged, report = build_bundle_from_validation_gates(
+            template_bundle=template,
+            gate_specs=specs,
+            fetch_gate=_fetch,
+            client=client,
+            sync_artifact_validation_pointer=sync_ptr,
+        )
 
     payload: dict[str, object] = {
         "ok": merged is not None,
@@ -8110,6 +8162,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="쉼표 구분, 예: 10-Q,10-K (기본: 10-Q,10-K)",
     )
+    p5.add_argument(
+        "--limit",
+        type=int,
+        default=1,
+        help="최근 N건까지 XBRL 공시 백필 (기본 1). prior-quarter 팩터(accruals 등)용으로 2~8 권장.",
+    )
     p5.set_defaults(func=_cmd_extract_facts_single)
 
     p6 = sub.add_parser("extract-facts-watchlist", help="워치리스트 티커별 facts 추출·적재")
@@ -8120,6 +8178,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=float(os.getenv("INGEST_TICKER_SLEEP_SEC", "0.65")),
     )
     p6.add_argument("--forms", default=None, help="쉼표 구분 form 목록")
+    p6.add_argument(
+        "--filings-per-issuer",
+        type=int,
+        default=None,
+        help="티커당 최근 N건 XBRL 공시 백필 (기본: watchlist.json 값). CIK당 복수 분기 스냅샷 확보용.",
+    )
     p6.set_defaults(func=_cmd_extract_facts_watchlist)
 
     p7 = sub.add_parser(
@@ -8140,6 +8204,16 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="기본 v1 또는 환경변수 FACTOR_VERSION",
     )
+    p9.add_argument(
+        "--force-rebuild",
+        action="store_true",
+        help="이미 패널 행이 있어도 전부 upsert 재적재",
+    )
+    p9.add_argument(
+        "--no-refresh-stale",
+        action="store_true",
+        help="DB에 NULL만 있어도 스냅샷 기준 재갱신 안 함(구 insert-only 스킵 동작에 가깝게)",
+    )
     p9.set_defaults(func=_cmd_compute_factors_single)
 
     p10 = sub.add_parser("compute-factors-watchlist", help="워치리스트 티커별 factor panel 적재")
@@ -8154,6 +8228,16 @@ def build_parser() -> argparse.ArgumentParser:
         default=float(os.getenv("INGEST_TICKER_SLEEP_SEC", "0.65")),
     )
     p10.add_argument("--factor-version", default=None)
+    p10.add_argument(
+        "--force-rebuild",
+        action="store_true",
+        help="이미 패널 행이 있어도 전부 upsert 재적재",
+    )
+    p10.add_argument(
+        "--no-refresh-stale",
+        action="store_true",
+        help="스테일 NULL 갱신 비활성화",
+    )
     p10.set_defaults(func=_cmd_compute_factors_watchlist)
 
     p11 = sub.add_parser(
@@ -8388,6 +8472,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--no-sync-artifact-validation-pointer",
         action="store_true",
         help="병합 후 validation_pointer 동기화 생략",
+    )
+    pmetis_build.add_argument(
+        "--replace-artifacts-from-validation",
+        action="store_true",
+        help=(
+            "Slice B: 템플릿 아티팩트/스펙트럼 행을 validation run 결과로 합성·대체 "
+            "(config.replace_artifacts_from_validation=true 와 동일 효과)"
+        ),
     )
     pmetis_build.set_defaults(func=_cmd_build_metis_brain_bundle_from_factor_validation)
 
@@ -11918,7 +12010,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p47mvp = sub.add_parser(
         "print-mvp-spec-survey",
-        help="Product Spec §10: JSON survey (Q1–Q5 자동 신호). CI는 --fail-on-false",
+        help="Product Spec §10: JSON survey (Q1–Q10 자동 신호). CI는 --fail-on-false",
     )
     p47mvp.add_argument("--repo-root", default="", help="저장소 루트(기본 cwd)")
     p47mvp.add_argument(

@@ -31,6 +31,20 @@ _INSTANT_CANONICALS = frozenset(
     }
 )
 
+# flow-type (duration) canonicals. 10-Q에서 발행사에 따라
+# 분기 3개월 단위가 아니라 YTD(6M/9M) 누적으로만 보고되는 경우가 있어
+# YTD fallback 매칭 대상이 된다 (AAPL/NVDA의 operating_cash_flow 등).
+_FLOW_CANONICALS = frozenset(
+    {
+        "revenue",
+        "net_income",
+        "operating_cash_flow",
+        "research_and_development",
+        "capex",
+        "gross_profit",
+    }
+)
+
 
 def _parse_date(s: Optional[str]) -> Optional[date]:
     if not s:
@@ -104,6 +118,34 @@ def _silver_matches_primary(
     return fp_s.upper() == primary_fp_s.upper()
 
 
+def _silver_is_ytd_fallback(
+    s: dict[str, Any],
+    *,
+    primary_fy: Optional[int],
+) -> bool:
+    """
+    flow-type canonical에 대한 YTD(누적) fact fallback 매칭.
+
+    AAPL/NVDA 등 일부 발행사는 10-Q XBRL에서 `operating_cash_flow`를
+    분기 3개월 단위로 보고하지 않고 6M/9M YTD 누적만 보고한다. 이 경우
+    `fact_period`가 `fiscal_year`만 있고 `fiscal_period`는 비어 있는 형태로
+    실버에 들어온다. 이런 fact를 snapshot에 임시 저장(basis="ytd")하고,
+    factor 계산 단계에서 prior-quarter YTD와의 subtraction으로 QTD를 유도한다.
+    """
+    if primary_fy is None:
+        return False
+    if s.get("fiscal_year") != primary_fy:
+        return False
+    canon = s.get("canonical_concept") or ""
+    if canon not in _FLOW_CANONICALS:
+        return False
+    if canon in _INSTANT_CANONICALS:
+        return False
+    fp = s.get("fiscal_period")
+    fp_s = str(fp).strip() if fp is not None else ""
+    return fp_s == ""
+
+
 def build_snapshot_row(
     *,
     raw_rows: list[dict[str, Any]],
@@ -132,20 +174,46 @@ def build_snapshot_row(
         primary_fp = primary_fp or "UNKNOWN"
     primary_fp = (primary_fp or "").strip() or "UNSPECIFIED"
 
-    matched = [s for s in mapped_silver if _silver_matches_primary(s, primary_fy=primary_fy, primary_fp=primary_fp)]
+    matched = [
+        s
+        for s in mapped_silver
+        if _silver_matches_primary(s, primary_fy=primary_fy, primary_fp=primary_fp)
+    ]
+    ytd_fallback = [
+        s
+        for s in mapped_silver
+        if _silver_is_ytd_fallback(s, primary_fy=primary_fy)
+    ]
 
     by_canon: dict[str, dict[str, Any]] = {}
     for s in matched:
         c = s.get("canonical_concept")
         if not c:
             continue
+        tagged = dict(s)
+        tagged["_period_basis"] = "quarterly"
         prev = by_canon.get(c)
         if prev is None:
-            by_canon[c] = s
+            by_canon[c] = tagged
         else:
             # 동일 canonical 다건: numeric이 있는 행 우선
             if prev.get("numeric_value") is None and s.get("numeric_value") is not None:
-                by_canon[c] = s
+                by_canon[c] = tagged
+
+    # flow canonical에 대해 분기값이 없으면 YTD fact로 대체 저장 (basis="ytd").
+    # factor 엔진이 prior-quarter YTD와의 차분으로 QTD를 유도한다.
+    for s in ytd_fallback:
+        c = s.get("canonical_concept") or ""
+        if not c:
+            continue
+        existing = by_canon.get(c)
+        if existing is not None and existing.get("numeric_value") is not None:
+            continue
+        if s.get("numeric_value") is None:
+            continue
+        tagged = dict(s)
+        tagged["_period_basis"] = "ytd"
+        by_canon[c] = tagged
 
     filled: dict[str, Any] = {}
     missing: list[str] = []
@@ -180,6 +248,7 @@ def build_snapshot_row(
             filled[canon] = {
                 "source_concept": src.get("source_concept"),
                 "fact_period_key": src.get("fact_period_key"),
+                "period_basis": src.get("_period_basis") or "quarterly",
             }
         else:
             missing.append(canon)

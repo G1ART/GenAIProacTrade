@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "contract": "METIS_BUNDLE_FROM_VALIDATION_CONFIG_V0",
+  "template_bundle_path": "data/mvp/metis_brain_bundle_v0.json",
+  "output_bundle_path": "data/mvp/metis_brain_bundle_from_db_v0.json",
+  "sync_artifact_validation_pointer": true,
+  "replace_artifacts_from_validation": true,
+  "spectrum_max_rows_per_horizon": null,
+  "gates": [
+    {
+      "factor_name": "accruals",
+      "universe_name": "sp500_current",
+      "horizon_type": "next_month",
+      "return_basis": "raw",
+      "artifact_id": "art_short_demo_v0"
+    }
+  ]
+}

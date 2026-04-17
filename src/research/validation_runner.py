@@ -14,7 +14,8 @@ from db.records import (
     factor_validation_run_finalize,
     factor_validation_run_insert_started,
     fetch_factor_market_validation_panels_for_symbols,
-    fetch_issuer_quarter_factor_panels_for_ciks,
+    fetch_issuer_quarter_factor_panels_for_accessions,
+    issuer_quarter_factor_panel_join_key,
     insert_factor_coverage_report,
     insert_factor_quantile_result,
     insert_factor_validation_summary,
@@ -79,8 +80,14 @@ def run_factor_validation_research(
     vpanels = fetch_factor_market_validation_panels_for_symbols(
         client, symbols=symbols, limit=panel_limit
     )
-    ciks = sorted({str(p["cik"]) for p in vpanels})
-    fp_map = fetch_issuer_quarter_factor_panels_for_ciks(client, ciks=ciks, limit=panel_limit)
+    accessions = sorted(
+        {str(p["accession_no"]) for p in vpanels if p.get("accession_no")}
+    )
+    fp_map = fetch_issuer_quarter_factor_panels_for_accessions(
+        client,
+        accession_nos=accessions,
+        limit_per_batch=max(panel_limit, 8000),
+    )
 
     meta = {
         "symbol_count": len(symbols),
@@ -107,10 +114,11 @@ def run_factor_validation_research(
     now_iso = datetime.now(timezone.utc).isoformat()
 
     def fp_for(vp: dict[str, Any]) -> Optional[dict[str, Any]]:
-        k = (
-            str(vp["cik"]),
-            str(vp["accession_no"]),
-            str(vp.get("factor_version") or factor_version),
+        k = issuer_quarter_factor_panel_join_key(
+            vp.get("cik"),
+            vp.get("accession_no"),
+            vp.get("factor_version"),
+            default_factor_version=factor_version,
         )
         return fp_map.get(k)
 

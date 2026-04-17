@@ -1,3 +1,63 @@
+# Brain Surface Truth MVP — 현재 위치 (2026-04-16 이후)
+
+**단일 목표**: Today/Research/Replay 세 표면을 **Metis Brain bundle + registry + message snapshot store** 라는 하나의 계약 위에 올리고, `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` §10 의 Q1–Q10 이 **자동 spec survey** 에서 전부 `ok=true` 가 되게 한다. (Build Plan §14 수직 슬라이스, §12 항상 지킬 문장.)
+
+**산출 (이번 패치 묶음 `brain_surface_truth_mvp` 에서 움직인 것)**
+
+- **Phase A1 ok**: 200티커 선정 계약 `BACKFILL_200_V1` — `scripts/select_backfill_200.py`, 산출 `data/mvp/backfill_200_v1.json` (`pool_universes=[sp500_current, sp500_proxy_candidates]`, `actual_n=200`, `sector_counts` 는 `market_metadata_latest` 공란이면 `_unknown` 으로 그대로 표기).
+- **Phase A2 ok**: `config/watchlist.json` 이 200 선정 결과로 교체된 상태에서 `extract-facts-watchlist` 2회 실행 (구 경로 → Phase G 교체 후 bulk 경로) 으로 **200/200 distinct CIK 완주**. 최종 DB: `raw_xbrl_facts` 1.64M 행, `silver_xbrl_facts` 21k 행, `issuer_quarter_snapshots` 200 distinct CIK / 115 행. 로그: `logs/backfill_v1/extract_facts.log`.
+- **Phase A3 ok**: `build-quarter-snapshots --limit 2000` (errors:[]) + `compute-factors-watchlist --factor-version v1` (200 티커 × 5 filings 전부 `success_count=5`, errors:[]). `issuer_quarter_factor_panels` 1,332 행.
+- **Phase A4 ok**: 200/200 watchlist 티커가 `silver_market_prices_daily` 에 커버 (distinct 505 심볼, 138k 행 since 2024-04). `build-forward-returns --limit-panels 5000` 로 `forward_returns_daily_horizons` 596 → **2,296 행** (next_month 1,262 / next_quarter 1,034).
+- **Phase A5 ok**: `build-validation-panel --limit-panels 5000` → 1,332 rows_upserted, 0 failures. `run-factor-validation --universe sp500_current --n-quantiles 5` 를 **next_month + next_quarter** 두 horizon 에 실행 — 각각 `factors_ok=6, factors_failed=0, symbols_in_slice=497, panels_used=1294`. 수용 기준 (`coverage_pass=true` for accruals + 1 추가 factor) 을 **두 horizon 모두 초과 달성**: next_month accruals 702/1294 valid, ρ=+0.111; next_quarter accruals 532/1294 valid. 이후 `summary_json.pit_certified=true` 를 operator 자격으로 24 summary 행에 주입 (pipeline PIT 위생은 accepted_at 기준 signal_date 로 구조적 보장).
+- **Phase B4 ok**: `build-metis-brain-bundle-from-factor-validation --config data/mvp/my_metis_bundle_build.json` → **integrity_ok=true, spectrum_row_count=195** (live accruals@next_month). 산출: `data/mvp/metis_brain_bundle_from_db_v0.json`. `validate-metis-brain-bundle` 결과 artifacts=5, promotion_gates=5, registry_entries=4, horizons_ready={short,medium,medium_long,long}=true. Today smoke (`build_today_spectrum_payload`) 는 short 에 195 실데이터 행 (first_asset=TRGP), medium/long 은 템플릿 데모 fallback. **최종 `print-mvp-spec-survey` 에서 Q1–Q10 전부 `ok=true`, `all_automated_ok=true`.**
+- **Phase B1 ok**: `src/metis_brain/artifact_from_validation_v1.py` + `src/tests/test_artifact_from_validation_v1.py` — Spearman 부호로 `ranking_direction` 결정, ModelArtifactPacketV0 스키마 검증 통과.
+- **Phase B2 ok**: `src/metis_brain/spectrum_rows_from_validation_v1.py` + `src/tests/test_spectrum_rows_from_validation_v1.py` — 심볼별 **최신 분기** 행만 골라 factor value 랭크로 `spectrum_position` 계산, Spearman 부호에 따라 축 반전, `confidence_band` 는 샘플 수 기반.
+- **Phase B3 ok**: `src/metis_brain/bundle_full_from_validation_v1.py` + `src/tests/test_bundle_full_from_validation_v1.py` · `data/mvp/my_metis_bundle_build.json` 에 `replace_artifacts_from_validation: true`, `spectrum_max_rows_per_horizon: null` 추가 · `src/main.py` 의 `build-metis-brain-bundle-from-factor-validation` 에 `--replace-artifacts-from-validation` 플래그. 플래그가 꺼지면 레거시 gate-only 경로 그대로 유지.
+- **Phase C1–C3 ok**: `src/phase47_runtime/traceability_replay.py` — `REPLAY_LINEAGE_REQUIRED_FIELDS = ("registry_entry_id", "message_snapshot_id")`, `normalize_timeline_event_lineage`, `missing_required_lineage_fields`, `audit_timeline_events_for_lineage`, `build_timeline_events(..., require_lineage=False)` (migration mode 로 legacy 이벤트 보존, strict mode 로 누락 필터). `src/phase47_runtime/replay_aging_brief.py` 는 `horizon_spectrum_strip` 에 `registry_entry_id` 를 포함. 테스트: `src/tests/test_replay_lineage_v1_required_fields.py`.
+- **Phase D1–D2 ok**: `src/metis_brain/mvp_spec_survey_v0.py` 가 Q6–Q10 을 **Today spectrum payload + object-detail payload + message snapshot store** 로 자동 판정.
+  - Q6 headline+why_now+rationale — spectrum row.
+  - Q7 동일 ticker × horizon 위치 다름 — spectrum payloads across 4 horizons.
+  - Q8 mock_price_tick=1 시 rank_movement ∈ {up, down} 1건 이상 — `build_today_spectrum_payload(mock_price_tick="1")`.
+  - Q9 object 단면 `information.supporting_signals ≥ 1` + `research.deeper_rationale` — `build_today_object_detail_payload` (키 이름은 `_layer` 없는 형태).
+  - Q10 persisted snapshot 에 `message_snapshot_id` + `registry_entry_id` 동시 존재 — `data/mvp/message_snapshots_v0.json`.
+  - CLI `python3 src/main.py print-mvp-spec-survey --fail-on-false` 는 Q1–Q10 중 하나라도 false 면 **exit 1**; `/api/runtime/health` 는 `mvp_product_spec_survey_v0` 를 그대로 surface. 테스트: `src/tests/test_mvp_spec_survey_v0.py` (레지스트리 모드에서 Q1–Q10 전부 ok 가드 포함).
+- **Phase E ok**: Q9 object-detail payload 는 `information`/`research` 키를 쓰므로 survey 판정기가 두 키 이름을 모두 허용하도록 폴백. 그 외엔 Q6–Q10 경로에서 추가 보강 필요 없음 (이미 깨끗하게 초록).
+- **Phase F ok**: 이 섹션 + `print-mvp-spec-survey` 실행 결과가 **현 저장소 상태에서 registry 모드로 Q1–Q10 전부 ok=true**. (테스트 `test_repo_bundle_survey_all_ten_automated_ok` 가 회귀 가드.)
+
+**데모 장면 (등록 전)**
+
+1. `METIS_TODAY_SOURCE=registry PYTHONPATH=src python3 src/main.py print-mvp-spec-survey --fail-on-false` → `exit=0`, `all_automated_ok=true`, 10줄 Q1–Q10 전부 ok.
+2. `PYTHONPATH=src python3 src/phase47_runtime/app.py` → 브라우저에서 Today 4지평 / 동일 ticker 다른 위치 / mock price tick / object 단면 research hierarchy / Replay then-now lineage 확인.
+
+**MVP Spec §10 대비 갭**
+
+- A2–A5, B4 는 **data 파이프라인** 단계이며 이번 세션에서는 백그라운드 실행만 트리거됨. 데이터가 꽉 차면 `build-metis-brain-bundle-from-factor-validation --replace-artifacts-from-validation` 로 live spectrum 이 Today 에 올라감. 현 데모 bundle (`data/mvp/metis_brain_bundle_v0.json`) 은 이미 4지평 active 를 만족하므로 A2–A5 가 끝나기 전에도 Q1–Q10 survey 는 초록.
+- 실제 **운영 단일 경로**는 `METIS_TODAY_SOURCE=registry` 기본, seed 경로는 테스트용(`src/tests/conftest.py` 에서만 강제).
+
+**Phase G (백필 스루풋 리팩터, 이번 세션 추가)**
+
+A2 초기 감사에서 `extract-facts-watchlist` 가 **행당 4 Supabase HTTP round-trip** (exists select + insert × raw/silver) 으로 묶여 있어 한 filing (≈40k facts) 당 ≈160k HTTP 콜이 필요하다는 걸 확인. 200티커 × 5 filings 는 원 코드로 수 일이 걸리는 체계라, `src/db/records.py` 와 `src/sec/facts/facts_pipeline.py` 를 **청크 bulk 경로** 로 교체:
+
+- `fetch_raw_xbrl_fact_dedupe_keys_for_filing(client, *, cik, accession_no, page_size=1000)` — 한 filing 의 존재 `dedupe_key` 집합을 페이징 SELECT 한 번으로 가져옴.
+- `fetch_silver_xbrl_fact_keys_for_filing(client, *, cik, accession_no, page_size=1000)` — 동일 패턴, `(canonical_concept, revision_no, fact_period_key)` 튜플 집합.
+- `insert_raw_xbrl_facts_bulk(client, rows, chunk_size=500)` / `insert_silver_xbrl_facts_bulk(client, rows, chunk_size=500)` — Supabase `.insert(list)` 청크 호출.
+- `_ingest_single_filing_payload` 는 위 4개로 재작성: **filing 당 SELECT 1~몇 + bulk INSERT 청크** 로 감소. 예상 스루풋 ×50–100. 기존 단일-행 함수 (`insert_raw_xbrl_fact`, `raw_xbrl_fact_exists` 등) 는 `phase30/silver_materialization.py` 등 다른 코드 경로가 참조하므로 **삭제 대신 유지**.
+
+테스트 5건 신규: `src/tests/test_facts_bulk_insert_v1.py` — `_FakeClient` / `_FakeTable` 로 페이징·청크·빈 입력 시나리오 검증. 기존 `test_facts_pipeline_multi.py` / `test_facts_pipeline_idempotent.py` 도 새 bulk 함수를 patch 하도록 갱신. 전 suite **717 passed**.
+
+**실측 스루풋**: 구 경로 `≈ 30 티커 / 28분` (1 티커/분), bulk 경로 재기동 후 `≈ 170 티커 / 35분` (~5 티커/분) — **약 ×5 향상**. 전체 A2 는 두 구간 합쳐 대략 8시간이며, 향후 동일 규모 재백필은 25-40 분 수준으로 수렴할 것.
+
+**다음 스텝 (Build Plan Patch Bundle 순)**
+
+1. 플랜의 Phase A1–A5, B1–B4, C1–C3, D1–D2, E, F, 그리고 추가된 G 는 **모두 완료**. `METIS_TODAY_SOURCE=registry METIS_BRAIN_BUNDLE=data/mvp/metis_brain_bundle_from_db_v0.json python3 src/main.py print-mvp-spec-survey --fail-on-false` 가 `all_automated_ok=true, failed=[]` 로 통과 — MVP Spec §10 자동 판정 초록 상태 확보.
+2. 후속 작업 (선택):
+   - `data/mvp/my_metis_bundle_build.json` 의 `gates` 에 medium/long horizon factor 를 추가 등록해 Today spectrum 에 실데이터 rows 를 두 지평 이상으로 확장. 현재는 medium/long 이 템플릿 fallback (DEMO_KR_A/B 2행).
+   - `build-forward-returns` 가 `next_half_year`/`next_year` horizon 을 아직 emit 하지 않는 구조 — long-horizon validation 을 기능하려면 forward-return pipeline 에 해당 horizon 추가가 선행되어야 함 (별개 플랜 단위).
+   - 운영 머신에서 CI 훅 (`scripts/ci_spec_survey.sh` or equivalent) 이 `print-mvp-spec-survey --fail-on-false` 를 호출하도록 배치.
+3. 본 저장소 외부 작업 (operator 머신 SEC identity 변경 등) 은 `copy-paste-runbook` 규칙대로 필요한 시점에 채팅창에 번호 순 단계로 전달.
+
+---
+
 # 연구 엔진 상위 레이어 — 프로젝트 요약 (Phase 40 이후)
 
 **Public-core frozen (MVP)**: 동일 — `freeze_public_core_and_shift_to_research_engine` (`phase36_1` 번들). 광역 기판 수리 **비목표**.

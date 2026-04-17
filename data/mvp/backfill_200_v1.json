@@ -1,0 +1,1828 @@
+{
+  "contract": "BACKFILL_200_V1",
+  "target_n": 200,
+  "actual_n": 200,
+  "sector_cap": 50,
+  "mag7": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "TSLA"
+  ],
+  "pool_universes": [
+    "sp500_current",
+    "sp500_proxy_candidates_v1"
+  ],
+  "pool_size": 501,
+  "with_market_cap_in_pool": 0,
+  "sector_counts": {
+    "_unknown": 200
+  },
+  "tickers": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "TSLA",
+    "XYZ",
+    "XOM",
+    "WYNN",
+    "WY",
+    "WTW",
+    "WST",
+    "WSM",
+    "WRB",
+    "WMT",
+    "WMB",
+    "WM",
+    "WFC",
+    "WELL",
+    "WEC",
+    "WDC",
+    "WDAY",
+    "WBD",
+    "WAT",
+    "WAB",
+    "VZ",
+    "VTRS",
+    "VTR",
+    "VST",
+    "VRTX",
+    "VRT",
+    "VRSN",
+    "VRSK",
+    "VMC",
+    "VLTO",
+    "VLO",
+    "VICI",
+    "V",
+    "USB",
+    "URI",
+    "UPS",
+    "UNP",
+    "UNH",
+    "ULTA",
+    "UHS",
+    "UDR",
+    "UBER",
+    "UAL",
+    "TYL",
+    "TXT",
+    "TXN",
+    "TTWO",
+    "TTD",
+    "TT",
+    "TSN",
+    "TSCO",
+    "TRV",
+    "TROW",
+    "TRMB",
+    "TRGP",
+    "TPR",
+    "TPL",
+    "TMUS",
+    "TMO",
+    "TKO",
+    "TJX",
+    "TGT",
+    "TFC",
+    "TER",
+    "TEL",
+    "TECH",
+    "TDY",
+    "TDG",
+    "TAP",
+    "T",
+    "SYY",
+    "SYK",
+    "SYF",
+    "SWKS",
+    "SWK",
+    "SW",
+    "STZ",
+    "STX",
+    "STT",
+    "STLD",
+    "STE",
+    "SRE",
+    "SPGI",
+    "SPG",
+    "SOLV",
+    "SO",
+    "SNPS",
+    "SNDK",
+    "SNA",
+    "SMCI",
+    "SLB",
+    "SJM",
+    "SHW",
+    "SCHW",
+    "SBUX",
+    "SBAC",
+    "SATS",
+    "RVTY",
+    "RTX",
+    "RSG",
+    "ROST",
+    "ROP",
+    "ROL",
+    "ROK",
+    "RMD",
+    "RL",
+    "RJF",
+    "RF",
+    "REGN",
+    "REG",
+    "RCL",
+    "QCOM",
+    "Q",
+    "PYPL",
+    "PWR",
+    "PTC",
+    "PSX",
+    "PSKY",
+    "PSA",
+    "PRU",
+    "PPL",
+    "PPG",
+    "POOL",
+    "PODD",
+    "PNW",
+    "PNR",
+    "PNC",
+    "PM",
+    "PLTR",
+    "PLD",
+    "PKG",
+    "PHM",
+    "PH",
+    "PGR",
+    "PG",
+    "PFG",
+    "PFE",
+    "PEP",
+    "PEG",
+    "PCG",
+    "PCAR",
+    "PAYX",
+    "PANW",
+    "OXY",
+    "OTIS",
+    "ORLY",
+    "ORCL",
+    "ON",
+    "OMC",
+    "OKE",
+    "ODFL",
+    "O",
+    "NXPI",
+    "NWSA",
+    "NVR",
+    "NUE",
+    "NTRS",
+    "NTAP",
+    "NSC",
+    "NRG",
+    "NOW",
+    "NOC",
+    "NKE",
+    "NI",
+    "NFLX",
+    "NEM",
+    "NEE",
+    "NDSN",
+    "NDAQ",
+    "NCLH",
+    "MU",
+    "MTD",
+    "MTB",
+    "MSI",
+    "MSCI",
+    "MS",
+    "MRSH",
+    "MRNA",
+    "MRK",
+    "MPWR",
+    "MPC",
+    "MOS",
+    "MO",
+    "MNST",
+    "MMM",
+    "MLM",
+    "MKC",
+    "MGM",
+    "MET",
+    "MDT",
+    "MDLZ",
+    "MCO",
+    "MCK",
+    "MCHP"
+  ],
+  "rows": [
+    {
+      "ticker": "AAPL",
+      "cik": "0000320193",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "mag7_unconditional",
+      "selection_rank": 1
+    },
+    {
+      "ticker": "MSFT",
+      "cik": "0000789019",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "mag7_unconditional",
+      "selection_rank": 2
+    },
+    {
+      "ticker": "NVDA",
+      "cik": "0001045810",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "mag7_unconditional",
+      "selection_rank": 3
+    },
+    {
+      "ticker": "GOOGL",
+      "cik": "0001652044",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "mag7_unconditional",
+      "selection_rank": 4
+    },
+    {
+      "ticker": "AMZN",
+      "cik": "0001018724",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "mag7_unconditional",
+      "selection_rank": 5
+    },
+    {
+      "ticker": "META",
+      "cik": "0001326801",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "mag7_unconditional",
+      "selection_rank": 6
+    },
+    {
+      "ticker": "TSLA",
+      "cik": "0001318605",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "mag7_unconditional",
+      "selection_rank": 7
+    },
+    {
+      "ticker": "XYZ",
+      "cik": "0001512673",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 8
+    },
+    {
+      "ticker": "XOM",
+      "cik": "0000034088",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 9
+    },
+    {
+      "ticker": "WYNN",
+      "cik": "0001174922",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 10
+    },
+    {
+      "ticker": "WY",
+      "cik": "0000106535",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 11
+    },
+    {
+      "ticker": "WTW",
+      "cik": "0001140536",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 12
+    },
+    {
+      "ticker": "WST",
+      "cik": "0000105770",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 13
+    },
+    {
+      "ticker": "WSM",
+      "cik": "0000719955",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 14
+    },
+    {
+      "ticker": "WRB",
+      "cik": "0000011544",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 15
+    },
+    {
+      "ticker": "WMT",
+      "cik": "0000104169",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 16
+    },
+    {
+      "ticker": "WMB",
+      "cik": "0000107263",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 17
+    },
+    {
+      "ticker": "WM",
+      "cik": "0000823768",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 18
+    },
+    {
+      "ticker": "WFC",
+      "cik": "0000072971",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 19
+    },
+    {
+      "ticker": "WELL",
+      "cik": "0000766704",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 20
+    },
+    {
+      "ticker": "WEC",
+      "cik": "0000783325",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 21
+    },
+    {
+      "ticker": "WDC",
+      "cik": "0000106040",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 22
+    },
+    {
+      "ticker": "WDAY",
+      "cik": "0001327811",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 23
+    },
+    {
+      "ticker": "WBD",
+      "cik": "0001437107",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 24
+    },
+    {
+      "ticker": "WAT",
+      "cik": "0001000697",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 25
+    },
+    {
+      "ticker": "WAB",
+      "cik": "0000943452",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 26
+    },
+    {
+      "ticker": "VZ",
+      "cik": "0000732712",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 27
+    },
+    {
+      "ticker": "VTRS",
+      "cik": "0001792044",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 28
+    },
+    {
+      "ticker": "VTR",
+      "cik": "0000740260",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 29
+    },
+    {
+      "ticker": "VST",
+      "cik": "0001692819",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 30
+    },
+    {
+      "ticker": "VRTX",
+      "cik": "0000875320",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 31
+    },
+    {
+      "ticker": "VRT",
+      "cik": "0001674101",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 32
+    },
+    {
+      "ticker": "VRSN",
+      "cik": "0001014473",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 33
+    },
+    {
+      "ticker": "VRSK",
+      "cik": "0001442145",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 34
+    },
+    {
+      "ticker": "VMC",
+      "cik": "0001396009",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 35
+    },
+    {
+      "ticker": "VLTO",
+      "cik": "0001967680",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 36
+    },
+    {
+      "ticker": "VLO",
+      "cik": "0001035002",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 37
+    },
+    {
+      "ticker": "VICI",
+      "cik": "0001705696",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 38
+    },
+    {
+      "ticker": "V",
+      "cik": "0001403161",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 39
+    },
+    {
+      "ticker": "USB",
+      "cik": "0000036104",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 40
+    },
+    {
+      "ticker": "URI",
+      "cik": "0001067701",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 41
+    },
+    {
+      "ticker": "UPS",
+      "cik": "0001090727",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 42
+    },
+    {
+      "ticker": "UNP",
+      "cik": "0000100885",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 43
+    },
+    {
+      "ticker": "UNH",
+      "cik": "0000731766",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 44
+    },
+    {
+      "ticker": "ULTA",
+      "cik": "0001403568",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 45
+    },
+    {
+      "ticker": "UHS",
+      "cik": "0000352915",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 46
+    },
+    {
+      "ticker": "UDR",
+      "cik": "0000074208",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 47
+    },
+    {
+      "ticker": "UBER",
+      "cik": "0001543151",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 48
+    },
+    {
+      "ticker": "UAL",
+      "cik": "0000100517",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 49
+    },
+    {
+      "ticker": "TYL",
+      "cik": "0000860731",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 50
+    },
+    {
+      "ticker": "TXT",
+      "cik": "0000217346",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 51
+    },
+    {
+      "ticker": "TXN",
+      "cik": "0000097476",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 52
+    },
+    {
+      "ticker": "TTWO",
+      "cik": "0000946581",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 53
+    },
+    {
+      "ticker": "TTD",
+      "cik": "0001671933",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 54
+    },
+    {
+      "ticker": "TT",
+      "cik": "0001466258",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 55
+    },
+    {
+      "ticker": "TSN",
+      "cik": "0000100493",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 56
+    },
+    {
+      "ticker": "TSCO",
+      "cik": "0000916365",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 57
+    },
+    {
+      "ticker": "TRV",
+      "cik": "0000086312",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 58
+    },
+    {
+      "ticker": "TROW",
+      "cik": "0001113169",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 59
+    },
+    {
+      "ticker": "TRMB",
+      "cik": "0000864749",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 60
+    },
+    {
+      "ticker": "TRGP",
+      "cik": "0001389170",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 61
+    },
+    {
+      "ticker": "TPR",
+      "cik": "0001116132",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 62
+    },
+    {
+      "ticker": "TPL",
+      "cik": "0001811074",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 63
+    },
+    {
+      "ticker": "TMUS",
+      "cik": "0001283699",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 64
+    },
+    {
+      "ticker": "TMO",
+      "cik": "0000097745",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 65
+    },
+    {
+      "ticker": "TKO",
+      "cik": "0001973266",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 66
+    },
+    {
+      "ticker": "TJX",
+      "cik": "0000109198",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 67
+    },
+    {
+      "ticker": "TGT",
+      "cik": "0000027419",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 68
+    },
+    {
+      "ticker": "TFC",
+      "cik": "0000092230",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 69
+    },
+    {
+      "ticker": "TER",
+      "cik": "0000097210",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 70
+    },
+    {
+      "ticker": "TEL",
+      "cik": "0001385157",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 71
+    },
+    {
+      "ticker": "TECH",
+      "cik": "0000842023",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 72
+    },
+    {
+      "ticker": "TDY",
+      "cik": "0001094285",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 73
+    },
+    {
+      "ticker": "TDG",
+      "cik": "0001260221",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 74
+    },
+    {
+      "ticker": "TAP",
+      "cik": "0000024545",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 75
+    },
+    {
+      "ticker": "T",
+      "cik": "0000732717",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 76
+    },
+    {
+      "ticker": "SYY",
+      "cik": "0000096021",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 77
+    },
+    {
+      "ticker": "SYK",
+      "cik": "0000310764",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 78
+    },
+    {
+      "ticker": "SYF",
+      "cik": "0001601712",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 79
+    },
+    {
+      "ticker": "SWKS",
+      "cik": "0000004127",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 80
+    },
+    {
+      "ticker": "SWK",
+      "cik": "0000093556",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 81
+    },
+    {
+      "ticker": "SW",
+      "cik": "0002005951",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 82
+    },
+    {
+      "ticker": "STZ",
+      "cik": "0000016918",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 83
+    },
+    {
+      "ticker": "STX",
+      "cik": "0001137789",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 84
+    },
+    {
+      "ticker": "STT",
+      "cik": "0000093751",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 85
+    },
+    {
+      "ticker": "STLD",
+      "cik": "0001022671",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 86
+    },
+    {
+      "ticker": "STE",
+      "cik": "0001757898",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 87
+    },
+    {
+      "ticker": "SRE",
+      "cik": "0001032208",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 88
+    },
+    {
+      "ticker": "SPGI",
+      "cik": "0000064040",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 89
+    },
+    {
+      "ticker": "SPG",
+      "cik": "0001063761",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 90
+    },
+    {
+      "ticker": "SOLV",
+      "cik": "0001964738",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 91
+    },
+    {
+      "ticker": "SO",
+      "cik": "0000092122",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 92
+    },
+    {
+      "ticker": "SNPS",
+      "cik": "0000883241",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 93
+    },
+    {
+      "ticker": "SNDK",
+      "cik": "0002023554",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 94
+    },
+    {
+      "ticker": "SNA",
+      "cik": "0000091440",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 95
+    },
+    {
+      "ticker": "SMCI",
+      "cik": "0001375365",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 96
+    },
+    {
+      "ticker": "SLB",
+      "cik": "0000087347",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 97
+    },
+    {
+      "ticker": "SJM",
+      "cik": "0000091419",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 98
+    },
+    {
+      "ticker": "SHW",
+      "cik": "0000089800",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 99
+    },
+    {
+      "ticker": "SCHW",
+      "cik": "0000316709",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 100
+    },
+    {
+      "ticker": "SBUX",
+      "cik": "0000829224",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 101
+    },
+    {
+      "ticker": "SBAC",
+      "cik": "0001034054",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 102
+    },
+    {
+      "ticker": "SATS",
+      "cik": "0001415404",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 103
+    },
+    {
+      "ticker": "RVTY",
+      "cik": "0000031791",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 104
+    },
+    {
+      "ticker": "RTX",
+      "cik": "0000101829",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 105
+    },
+    {
+      "ticker": "RSG",
+      "cik": "0001060391",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 106
+    },
+    {
+      "ticker": "ROST",
+      "cik": "0000745732",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 107
+    },
+    {
+      "ticker": "ROP",
+      "cik": "0000882835",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 108
+    },
+    {
+      "ticker": "ROL",
+      "cik": "0000084839",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 109
+    },
+    {
+      "ticker": "ROK",
+      "cik": "0001024478",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 110
+    },
+    {
+      "ticker": "RMD",
+      "cik": "0000943819",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 111
+    },
+    {
+      "ticker": "RL",
+      "cik": "0001037038",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 112
+    },
+    {
+      "ticker": "RJF",
+      "cik": "0000720005",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 113
+    },
+    {
+      "ticker": "RF",
+      "cik": "0001281761",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 114
+    },
+    {
+      "ticker": "REGN",
+      "cik": "0000872589",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 115
+    },
+    {
+      "ticker": "REG",
+      "cik": "0000910606",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 116
+    },
+    {
+      "ticker": "RCL",
+      "cik": "0000884887",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 117
+    },
+    {
+      "ticker": "QCOM",
+      "cik": "0000804328",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 118
+    },
+    {
+      "ticker": "Q",
+      "cik": "0002058873",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 119
+    },
+    {
+      "ticker": "PYPL",
+      "cik": "0001633917",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 120
+    },
+    {
+      "ticker": "PWR",
+      "cik": "0001050915",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 121
+    },
+    {
+      "ticker": "PTC",
+      "cik": "0000857005",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 122
+    },
+    {
+      "ticker": "PSX",
+      "cik": "0001534701",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 123
+    },
+    {
+      "ticker": "PSKY",
+      "cik": "0002041610",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 124
+    },
+    {
+      "ticker": "PSA",
+      "cik": "0001393311",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 125
+    },
+    {
+      "ticker": "PRU",
+      "cik": "0001137774",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 126
+    },
+    {
+      "ticker": "PPL",
+      "cik": "0000922224",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 127
+    },
+    {
+      "ticker": "PPG",
+      "cik": "0000079879",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 128
+    },
+    {
+      "ticker": "POOL",
+      "cik": "0000945841",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 129
+    },
+    {
+      "ticker": "PODD",
+      "cik": "0001145197",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 130
+    },
+    {
+      "ticker": "PNW",
+      "cik": "0000764622",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 131
+    },
+    {
+      "ticker": "PNR",
+      "cik": "0000077360",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 132
+    },
+    {
+      "ticker": "PNC",
+      "cik": "0000713676",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 133
+    },
+    {
+      "ticker": "PM",
+      "cik": "0001413329",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 134
+    },
+    {
+      "ticker": "PLTR",
+      "cik": "0001321655",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 135
+    },
+    {
+      "ticker": "PLD",
+      "cik": "0001045609",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 136
+    },
+    {
+      "ticker": "PKG",
+      "cik": "0000075677",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 137
+    },
+    {
+      "ticker": "PHM",
+      "cik": "0000822416",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 138
+    },
+    {
+      "ticker": "PH",
+      "cik": "0000076334",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 139
+    },
+    {
+      "ticker": "PGR",
+      "cik": "0000080661",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 140
+    },
+    {
+      "ticker": "PG",
+      "cik": "0000080424",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 141
+    },
+    {
+      "ticker": "PFG",
+      "cik": "0001126328",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 142
+    },
+    {
+      "ticker": "PFE",
+      "cik": "0000078003",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 143
+    },
+    {
+      "ticker": "PEP",
+      "cik": "0000077476",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 144
+    },
+    {
+      "ticker": "PEG",
+      "cik": "0000788784",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 145
+    },
+    {
+      "ticker": "PCG",
+      "cik": "0001004980",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 146
+    },
+    {
+      "ticker": "PCAR",
+      "cik": "0000075362",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 147
+    },
+    {
+      "ticker": "PAYX",
+      "cik": "0000723531",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 148
+    },
+    {
+      "ticker": "PANW",
+      "cik": "0001327567",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 149
+    },
+    {
+      "ticker": "OXY",
+      "cik": "0000797468",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 150
+    },
+    {
+      "ticker": "OTIS",
+      "cik": "0001781335",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 151
+    },
+    {
+      "ticker": "ORLY",
+      "cik": "0000898173",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 152
+    },
+    {
+      "ticker": "ORCL",
+      "cik": "0001341439",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 153
+    },
+    {
+      "ticker": "ON",
+      "cik": "0001097864",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 154
+    },
+    {
+      "ticker": "OMC",
+      "cik": "0000029989",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 155
+    },
+    {
+      "ticker": "OKE",
+      "cik": "0001039684",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 156
+    },
+    {
+      "ticker": "ODFL",
+      "cik": "0000878927",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 157
+    },
+    {
+      "ticker": "O",
+      "cik": "0000726728",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 158
+    },
+    {
+      "ticker": "NXPI",
+      "cik": "0001413447",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 159
+    },
+    {
+      "ticker": "NWSA",
+      "cik": "0001564708",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 160
+    },
+    {
+      "ticker": "NVR",
+      "cik": "0000906163",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 161
+    },
+    {
+      "ticker": "NUE",
+      "cik": "0000073309",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 162
+    },
+    {
+      "ticker": "NTRS",
+      "cik": "0000073124",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 163
+    },
+    {
+      "ticker": "NTAP",
+      "cik": "0001002047",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 164
+    },
+    {
+      "ticker": "NSC",
+      "cik": "0000702165",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 165
+    },
+    {
+      "ticker": "NRG",
+      "cik": "0001013871",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 166
+    },
+    {
+      "ticker": "NOW",
+      "cik": "0001373715",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 167
+    },
+    {
+      "ticker": "NOC",
+      "cik": "0001133421",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 168
+    },
+    {
+      "ticker": "NKE",
+      "cik": "0000320187",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 169
+    },
+    {
+      "ticker": "NI",
+      "cik": "0001111711",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 170
+    },
+    {
+      "ticker": "NFLX",
+      "cik": "0001065280",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 171
+    },
+    {
+      "ticker": "NEM",
+      "cik": "0001164727",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 172
+    },
+    {
+      "ticker": "NEE",
+      "cik": "0000753308",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 173
+    },
+    {
+      "ticker": "NDSN",
+      "cik": "0000072331",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 174
+    },
+    {
+      "ticker": "NDAQ",
+      "cik": "0001120193",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 175
+    },
+    {
+      "ticker": "NCLH",
+      "cik": "0001513761",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 176
+    },
+    {
+      "ticker": "MU",
+      "cik": "0000723125",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 177
+    },
+    {
+      "ticker": "MTD",
+      "cik": "0001037646",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 178
+    },
+    {
+      "ticker": "MTB",
+      "cik": "0000036270",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 179
+    },
+    {
+      "ticker": "MSI",
+      "cik": "0000068505",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 180
+    },
+    {
+      "ticker": "MSCI",
+      "cik": "0001408198",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 181
+    },
+    {
+      "ticker": "MS",
+      "cik": "0000895421",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 182
+    },
+    {
+      "ticker": "MRSH",
+      "cik": "0000062709",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 183
+    },
+    {
+      "ticker": "MRNA",
+      "cik": "0001682852",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 184
+    },
+    {
+      "ticker": "MRK",
+      "cik": "0000310158",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 185
+    },
+    {
+      "ticker": "MPWR",
+      "cik": "0001280452",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 186
+    },
+    {
+      "ticker": "MPC",
+      "cik": "0001510295",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 187
+    },
+    {
+      "ticker": "MOS",
+      "cik": "0001285785",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 188
+    },
+    {
+      "ticker": "MO",
+      "cik": "0000764180",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 189
+    },
+    {
+      "ticker": "MNST",
+      "cik": "0000865752",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 190
+    },
+    {
+      "ticker": "MMM",
+      "cik": "0000066740",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 191
+    },
+    {
+      "ticker": "MLM",
+      "cik": "0000916076",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 192
+    },
+    {
+      "ticker": "MKC",
+      "cik": "0000063754",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 193
+    },
+    {
+      "ticker": "MGM",
+      "cik": "0000789570",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 194
+    },
+    {
+      "ticker": "MET",
+      "cik": "0001099219",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 195
+    },
+    {
+      "ticker": "MDT",
+      "cik": "0001613103",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 196
+    },
+    {
+      "ticker": "MDLZ",
+      "cik": "0001103982",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 197
+    },
+    {
+      "ticker": "MCO",
+      "cik": "0001059556",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 198
+    },
+    {
+      "ticker": "MCK",
+      "cik": "0000927653",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 199
+    },
+    {
+      "ticker": "MCHP",
+      "cik": "0000827054",
+      "sector": "_unknown",
+      "market_cap": null,
+      "rationale": "sp500_plus_proxy_pool_no_metadata",
+      "selection_rank": 200
+    }
+  ]
+}

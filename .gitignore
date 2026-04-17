@@ -23,3 +23,6 @@ docs/research_validation/scorecards/*.md
 
 # Phase 47e: local sandbox run ledger (optional; created on first save)
 data/product_surface/sandbox_runs_ledger_v1.json
+
+# Brain Surface Truth MVP: 로컬 백필/작업 로그 (stdout/stderr 캡처)
+logs/

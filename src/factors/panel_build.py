@@ -11,11 +11,13 @@ from db.client import get_supabase_client
 from db.records import (
     factor_panel_exists,
     fetch_cik_for_ticker,
+    fetch_factor_panel_by_identity,
     fetch_factor_panels_for_cik,
     fetch_issuer_quarter_snapshots_for_cik,
     insert_factor_panel,
     ingest_run_create_started,
     ingest_run_finalize,
+    upsert_factor_panel,
 )
 from factors import DEFAULT_FACTOR_VERSION
 from factors.compute_panel import build_factor_panel_row, sort_snapshots_accounting_order
@@ -23,6 +25,25 @@ from factors.compute_panel import build_factor_panel_row, sort_snapshots_account
 logger = logging.getLogger(__name__)
 
 RUN_TYPE = "sec_factor_panel_build"
+
+_FACTOR_PANEL_SCALAR_KEYS = (
+    "accruals",
+    "gross_profitability",
+    "asset_growth",
+    "capex_intensity",
+    "rnd_intensity",
+    "financial_strength_score",
+)
+
+
+def _factor_panel_needs_refresh(
+    existing: dict[str, Any], computed: dict[str, Any]
+) -> bool:
+    """DB에 NULL로 남은 스칼라 팩터가 재계산으로 채워지면 True."""
+    for k in _FACTOR_PANEL_SCALAR_KEYS:
+        if existing.get(k) is None and computed.get(k) is not None:
+            return True
+    return False
 
 
 def run_factor_panels_for_cik(
@@ -33,9 +54,15 @@ def run_factor_panels_for_cik(
     ticker_hint: Optional[str] = None,
     run_id: Optional[str] = None,
     record_run: bool = True,
+    refresh_if_stale: bool = True,
+    force_rebuild: bool = False,
 ) -> dict[str, Any]:
     """
-    해당 CIK의 모든 분기 스냅샷에 대해 패널 행 생성(이미 있으면 스킵).
+    해당 CIK의 모든 분기 스냅샷에 대해 패널 행 생성.
+
+    기본적으로 행이 있어도, DB 팩터 컬럼이 NULL인데 재계산으로 값이 생기면 upsert로 갱신한다
+    (스냅샷·실버가 나중에 채워진 뒤에도 패널이 영구 스킵되지 않게).
+
     record_run=False 이면 ingest_runs를 만들지 않고 처리만 (배치에서 상위 run 사용).
     """
     snapshots = fetch_issuer_quarter_snapshots_for_cik(client, cik=cik)
@@ -54,25 +81,52 @@ def run_factor_panels_for_cik(
     success_count = 0
     failure_count = 0
     skipped_count = 0
+    refreshed_stale = 0
     errors: list[dict[str, Any]] = []
 
     for snap in ordered:
         try:
-            if factor_panel_exists(
-                client,
-                cik=snap["cik"],
-                fiscal_year=int(snap["fiscal_year"]),
-                fiscal_period=str(snap["fiscal_period"]),
-                accession_no=str(snap["accession_no"]),
-                factor_version=factor_version,
-            ):
-                skipped_count += 1
-                success_count += 1
-                continue
             row = build_factor_panel_row(
                 snap, ordered, factor_version=factor_version
             )
-            insert_factor_panel(client, row)
+            fy = int(snap["fiscal_year"])
+            fp = str(snap["fiscal_period"])
+            acc = str(snap["accession_no"])
+            snap_cik = str(snap["cik"])
+            exists = factor_panel_exists(
+                client,
+                cik=snap_cik,
+                fiscal_year=fy,
+                fiscal_period=fp,
+                accession_no=acc,
+                factor_version=factor_version,
+            )
+            if not exists:
+                insert_factor_panel(client, row)
+                success_count += 1
+                continue
+            if force_rebuild:
+                upsert_factor_panel(client, row)
+                refreshed_stale += 1
+                success_count += 1
+                continue
+            if refresh_if_stale:
+                existing = fetch_factor_panel_by_identity(
+                    client,
+                    cik=snap_cik,
+                    fiscal_year=fy,
+                    fiscal_period=fp,
+                    accession_no=acc,
+                    factor_version=factor_version,
+                )
+                if existing and _factor_panel_needs_refresh(existing, row):
+                    upsert_factor_panel(client, row)
+                    refreshed_stale += 1
+                else:
+                    skipped_count += 1
+                success_count += 1
+                continue
+            skipped_count += 1
             success_count += 1
         except Exception as ex:  # noqa: BLE001
             failure_count += 1
@@ -110,6 +164,7 @@ def run_factor_panels_for_cik(
         "success_count": success_count,
         "failure_count": failure_count,
         "skipped_existing": skipped_count,
+        "refreshed_stale": refreshed_stale,
         "errors": errors,
     }
 
@@ -120,6 +175,8 @@ def run_factor_panels_for_ticker(
     *,
     client: Any | None = None,
     factor_version: str = DEFAULT_FACTOR_VERSION,
+    refresh_if_stale: bool = True,
+    force_rebuild: bool = False,
 ) -> dict[str, Any]:
     if client is None:
         client = get_supabase_client(settings)
@@ -137,6 +194,8 @@ def run_factor_panels_for_ticker(
         factor_version=factor_version,
         ticker_hint=t,
         record_run=True,
+        refresh_if_stale=refresh_if_stale,
+        force_rebuild=force_rebuild,
     )
     out["ok"] = out.get("failure_count", 0) == 0 or out.get("success_count", 0) > 0
     out["ticker"] = t
@@ -150,6 +209,8 @@ def run_factor_panels_watchlist(
     tickers: list[str],
     sleep_seconds: float = 0.65,
     factor_version: str = DEFAULT_FACTOR_VERSION,
+    refresh_if_stale: bool = True,
+    force_rebuild: bool = False,
 ) -> dict[str, Any]:
     import time
 
@@ -180,6 +241,8 @@ def run_factor_panels_watchlist(
             ticker_hint=t.upper().strip(),
             run_id=None,
             record_run=False,
+            refresh_if_stale=refresh_if_stale,
+            force_rebuild=force_rebuild,
         )
         inner["ticker"] = t.upper().strip()
         details.append(inner)

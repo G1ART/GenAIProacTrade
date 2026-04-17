@@ -34,6 +34,23 @@ def prior_fiscal_period(fiscal_year: int, fiscal_period: str) -> Optional[tuple[
     return None
 
 
+def prior_fiscal_period_fallbacks(
+    fiscal_year: int, fiscal_period: str
+) -> list[tuple[int, str]]:
+    """
+    직전 회계 기간 후보 목록 (우선순위대로).
+
+    주로 Q1 의 경우 10-K 가 `fiscal_period="FY"` 로만 저장되고 `Q4` 분기
+    스냅샷이 없는 발행사를 지원한다. FY 의 period-end 는 Q4 period-end 와
+    동일하므로 `total_assets` 같은 instant 값은 FY 스냅샷으로 대체 가능하다.
+    """
+    fp = normalize_fiscal_period(fiscal_period)
+    if fp == "Q1":
+        return [(fiscal_year - 1, "Q4"), (fiscal_year - 1, "FY")]
+    primary = prior_fiscal_period(fiscal_year, fiscal_period)
+    return [primary] if primary else []
+
+
 def _filed_at_sort_key(s: dict[str, Any]) -> str:
     v = s.get("filed_at")
     return str(v or "")
@@ -64,13 +81,19 @@ def find_prior_snapshot(
     current: dict[str, Any],
     snapshots: list[dict[str, Any]],
 ) -> Optional[dict[str, Any]]:
-    """current 스냅샷의 직전 회계 분기에 해당하는 스냅샷 (없으면 None)."""
+    """
+    current 스냅샷의 직전 회계 분기에 해당하는 스냅샷 (없으면 None).
+
+    Q1 에 대해서는 `(fy-1, Q4)` → `(fy-1, FY)` 순서로 후보를 탐색한다. 10-K
+    만 있는 발행사는 Q4 분기 스냅샷 없이 FY 스냅샷만 존재하기 때문.
+    """
     fy = current.get("fiscal_year")
     fp = current.get("fiscal_period")
     if fy is None or fp is None:
         return None
-    prior_key = prior_fiscal_period(int(fy), str(fp))
-    if prior_key is None:
-        return None
     idx = index_snapshots_by_period(snapshots)
-    return idx.get(prior_key)
+    for candidate in prior_fiscal_period_fallbacks(int(fy), str(fp)):
+        hit = idx.get(candidate)
+        if hit is not None:
+            return hit
+    return None
