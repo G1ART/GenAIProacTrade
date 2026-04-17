@@ -33,6 +33,11 @@ class BrainBundleV0(BaseModel):
     promotion_gates: list[PromotionGateRecordV0]
     registry_entries: list[ActiveHorizonRegistryEntryV0]
     spectrum_rows_by_horizon: dict[str, list[dict[str, Any]]]
+    # Optional per-horizon provenance block. Emitted by the DB-derived bundle
+    # builder so Today/Research/Replay can distinguish real-derived artifacts
+    # from template fallbacks without silent carryover. Legacy bundles omit
+    # this field (empty dict = no claim).
+    horizon_provenance: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="before")
     @classmethod

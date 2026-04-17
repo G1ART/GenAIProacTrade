@@ -7377,6 +7377,124 @@ def _cmd_export_metis_gates_from_factor_validation(args: argparse.Namespace) -> 
     return 0 if out.get("ok") else 1
 
 
+def _cmd_report_metis_cohort_integrity(args: argparse.Namespace) -> int:
+    """Operator report: cohort integrity for a fixed ticker list across issuer_master,
+    factor_market_validation_panels, issuer_quarter_factor_panels,
+    factor_validation_summaries.
+
+    Returns exit 1 when ``pass=False`` so an operator can wire this into CI.
+    """
+    import json as json_lib
+    from pathlib import Path as _Path
+
+    from db.client import get_supabase_client
+    from metis_brain.cohort_integrity_v1 import (
+        _cohort_symbols_from_file,
+        compute_cohort_integrity_report,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    cohort_path = _Path(str(getattr(args, "cohort_file", "") or "")).resolve()
+    if not cohort_path.is_file():
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "cohort_file_not_found", "path": str(cohort_path)},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    try:
+        cohort = _cohort_symbols_from_file(cohort_path)
+    except (OSError, ValueError, json_lib.JSONDecodeError) as e:
+        print(
+            json_lib.dumps(
+                {"ok": False, "error": "cohort_file_invalid", "detail": str(e)},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    report = compute_cohort_integrity_report(
+        client,
+        cohort_symbols=cohort,
+        universe=str(getattr(args, "universe", "") or ""),
+        factor_name=str(getattr(args, "factor_name", "") or ""),
+        horizon_type=str(getattr(args, "horizon_type", "") or ""),
+        return_basis=str(getattr(args, "return_basis", "") or "raw"),
+        min_pass_ratio=float(getattr(args, "min_pass_ratio", 0.9) or 0.9),
+    )
+    report["cohort_file"] = str(cohort_path)
+    out_json = str(getattr(args, "out_json", "") or "").strip()
+    if out_json:
+        try:
+            p = _Path(out_json).resolve()
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(
+                json_lib.dumps(report, indent=2, ensure_ascii=False, default=str),
+                encoding="utf-8",
+            )
+            report["written_out_json"] = str(p)
+        except OSError as e:
+            report["written_out_json_error"] = str(e)
+    print(json_lib.dumps(report, indent=2, ensure_ascii=False, default=str))
+    return 0 if bool((report.get("headline") or {}).get("pass")) else 1
+
+
+def _cmd_certify_factor_validation_pit(args: argparse.Namespace) -> int:
+    """Bridge: merge PIT rule id into ``factor_validation_summaries.summary_json`` for past runs.
+
+    Going-forward runs are already written with ``pit_certified=true`` by
+    ``run_factor_validation_research``; this command is the one-shot for runs
+    that predate that wiring. It is idempotent (no-op when the row already
+    carries the same rule, unless ``--force``).
+    """
+    import json as json_lib
+
+    from db.client import get_supabase_client
+    from metis_brain.pit_certification_v1 import (
+        PIT_RULE_ID_V0,
+        PIT_RULE_NOTE_V0,
+        certify_factor_validation_pit_for_runs,
+    )
+
+    settings = load_settings()
+    configure_logging()
+    client = get_supabase_client(settings)
+    universe = str(getattr(args, "universe", "") or "").strip()
+    horizon = str(getattr(args, "horizon_type", "") or "").strip()
+    factor = str(getattr(args, "factor_name", "") or "").strip() or None
+    rule_id = str(getattr(args, "pit_rule", "") or "").strip() or PIT_RULE_ID_V0
+    force = bool(getattr(args, "force", False))
+    if not universe or not horizon:
+        print(
+            json_lib.dumps(
+                {
+                    "ok": False,
+                    "error": "missing_args",
+                    "required": ["--universe", "--horizon-type"],
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    report = certify_factor_validation_pit_for_runs(
+        client,
+        universe_name=universe,
+        horizon_type=horizon,
+        factor_name=factor,
+        rule_id=rule_id,
+        rule_note=PIT_RULE_NOTE_V0,
+        force=force,
+    )
+    report["contract"] = "METIS_PIT_CERTIFICATION_V1"
+    print(json_lib.dumps(report, indent=2, ensure_ascii=False, default=str))
+    return 0 if report.get("ok") else 1
+
+
 def _cmd_merge_metis_gate_into_bundle(args: argparse.Namespace) -> int:
     """P0: merge export-metis-gates-from-factor-validation JSON into metis_brain_bundle (validated)."""
     import json as json_lib
@@ -7604,6 +7722,16 @@ def _cmd_build_metis_brain_bundle_from_factor_validation(args: argparse.Namespac
             fetch_joined_rows_for_factor_db,
         )
 
+        auto_degrade_cfg = config.get("auto_degrade_optional_gates") or []
+        if not isinstance(auto_degrade_cfg, list):
+            auto_degrade_cfg = []
+        fallback_cfg = config.get("horizon_fallback_labels") or {}
+        if not isinstance(fallback_cfg, dict):
+            fallback_cfg = {}
+        aliases_cfg = config.get("display_aliases") or {}
+        if not isinstance(aliases_cfg, dict):
+            aliases_cfg = {}
+
         merged, report = build_bundle_full_from_validation_v1(
             template_bundle=template,
             gate_specs=specs,
@@ -7612,6 +7740,9 @@ def _cmd_build_metis_brain_bundle_from_factor_validation(args: argparse.Namespac
             client=client,
             sync_artifact_validation_pointer=sync_ptr,
             spectrum_max_rows_per_horizon=spectrum_max_rows_i,
+            auto_degrade_optional_gates=list(auto_degrade_cfg),
+            horizon_fallback_labels=dict(fallback_cfg),
+            display_aliases=dict(aliases_cfg),
         )
     else:
         merged, report = build_bundle_from_validation_gates(
@@ -8419,6 +8550,75 @@ def build_parser() -> argparse.ArgumentParser:
         help="Metis bundle artifact_id this gate row will attach to",
     )
     pmetis_gate.set_defaults(func=_cmd_export_metis_gates_from_factor_validation)
+
+    pmetis_pit = sub.add_parser(
+        "certify-factor-validation-pit",
+        help=(
+            "Bridge: inject PIT rule (accepted_at signal_date) into summary_json for past "
+            "factor_validation_summaries rows. Idempotent."
+        ),
+    )
+    pmetis_pit.add_argument("--universe", required=True)
+    pmetis_pit.add_argument(
+        "--horizon-type",
+        required=True,
+        dest="horizon_type",
+        choices=("next_month", "next_quarter"),
+    )
+    pmetis_pit.add_argument(
+        "--factor-name",
+        default="",
+        dest="factor_name",
+        help="limit to one factor; default=all factors for slice",
+    )
+    pmetis_pit.add_argument(
+        "--pit-rule",
+        default="",
+        dest="pit_rule",
+        help="canonical rule id; default=accepted_at_signal_date_pit_rule_v0",
+    )
+    pmetis_pit.add_argument(
+        "--force",
+        action="store_true",
+        help="rewrite summary_json even when it already carries the rule",
+    )
+    pmetis_pit.set_defaults(func=_cmd_certify_factor_validation_pit)
+
+    pcohort = sub.add_parser(
+        "report-metis-cohort-integrity",
+        help=(
+            "Per-stage cohort integrity report for a fixed ticker list (e.g. backfill_200). "
+            "exit 1 when headline.pass=False."
+        ),
+    )
+    pcohort.add_argument(
+        "--cohort-file",
+        required=True,
+        dest="cohort_file",
+        help="JSON file with 'tickers' / 'symbols' / 'selected_symbols' list, or bare list",
+    )
+    pcohort.add_argument("--universe", required=True)
+    pcohort.add_argument("--factor-name", required=True, dest="factor_name")
+    pcohort.add_argument(
+        "--horizon-type",
+        required=True,
+        dest="horizon_type",
+        choices=("next_month", "next_quarter"),
+    )
+    pcohort.add_argument(
+        "--return-basis", default="raw", dest="return_basis", choices=("raw", "excess")
+    )
+    pcohort.add_argument(
+        "--min-pass-ratio",
+        default=0.9,
+        dest="min_pass_ratio",
+        type=float,
+        help="vpanel_ciks / cohort_size threshold; default 0.9",
+    )
+    pcohort.add_argument(
+        "--out-json", default="", dest="out_json", help="optional path to dump report JSON"
+    )
+    pcohort.set_defaults(func=_cmd_report_metis_cohort_integrity)
 
     pmetis_merge = sub.add_parser(
         "merge-metis-gate-into-bundle",

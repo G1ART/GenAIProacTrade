@@ -234,11 +234,16 @@ def test_dispatch_runtime_health_and_oversized_ingest(tmp_path: Path) -> None:
     assert code == 200
     assert obj.get("headline")
     gate = obj.get("mvp_brain_gate") or {}
-    assert gate.get("contract") == "MVP_RUNTIME_BRAIN_GATE_V0"
+    assert gate.get("contract") == "MVP_RUNTIME_BRAIN_GATE_V1"
     assert "registry_bundle_ok" in gate and isinstance(gate.get("bundle_errors"), list)
     hr = gate.get("horizons_ready") or {}
     assert set(hr.keys()) == {"short", "medium", "medium_long", "long"}
     assert all(isinstance(v, bool) for v in hr.values())
+    # Real Bundle Generalization v1 — new fields should be present (may be empty
+    # dict when the test uses a tmp_path with no bundle).
+    assert "bundle_as_of_utc" in gate
+    assert "horizon_provenance" in gate and isinstance(gate["horizon_provenance"], dict)
+    assert "active_artifact_by_horizon" in gate and isinstance(gate["active_artifact_by_horizon"], dict)
 
     big = b'{"x":"' + b"y" * 40000 + b'"}'
     code2, obj2 = dispatch_json(

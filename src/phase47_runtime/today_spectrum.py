@@ -45,6 +45,22 @@ def _registry_surface_v1_from_bundle_entry(bundle: BrainBundleV0, ent: ActiveHor
                 "created_by": ca.created_by,
             }
         )
+    # Founder-facing alias layer (Real Bundle Generalization v1 §F). Prefer the
+    # active artifact's alias, then fall back to the registry entry's alias,
+    # then to the raw model family name. Raw demo id stays exposed under
+    # ``active_artifact_id`` for debugging.
+    display_family_ko = (
+        (getattr(active_art, "display_family_name_ko", "") if active_art else "")
+        or str(getattr(ent, "display_family_name_ko", "") or "")
+    )
+    display_family_en = (
+        (getattr(active_art, "display_family_name_en", "") if active_art else "")
+        or str(getattr(ent, "display_family_name_en", "") or "")
+    )
+    display_id = (
+        (getattr(active_art, "display_id", "") if active_art else "")
+        or str(getattr(ent, "display_id", "") or "")
+    )
     return {
         "contract": "TODAY_REGISTRY_SURFACE_V1",
         "registry_entry_id": ent.registry_entry_id,
@@ -53,6 +69,9 @@ def _registry_surface_v1_from_bundle_entry(bundle: BrainBundleV0, ent: ActiveHor
         "active_model_family_name": ent.active_model_family_name,
         "active_artifact_id": ent.active_artifact_id,
         "active_thesis_family": active_art.thesis_family if active_art else "",
+        "display_id": display_id,
+        "display_family_name_ko": display_family_ko,
+        "display_family_name_en": display_family_en,
         "challenger_artifact_ids": list(ent.challenger_artifact_ids or []),
         "challengers_resolved": ch_resolved,
         "universe": ent.universe,

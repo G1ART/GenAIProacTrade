@@ -77,11 +77,18 @@ def build_metis_gate_summary_from_factor_summary_row(
         monotonicity_pass = sp is not None and abs(sp) >= 0.05
 
     pit_pass = bool(sj.get("pit_certified"))
+    pit_rule = str(sj.get("pit_rule") or "").strip()
 
     rid = str(row.get("run_id") or "")
     fn = str(row.get("factor_name") or "")
     un = str(row.get("universe_name") or "")
     hz = str(row.get("horizon_type") or "")
+    reasons = (
+        f"mapped_from_factor_validation;pit={'certified' if pit_pass else 'not_certified_set_pit_in_summary_json'};"
+        f"spearman={sp};quantile_spread_checked={q_ok is not None}"
+    )
+    if pit_rule:
+        reasons = f"{reasons};pit_rule={pit_rule}"
     return {
         "pit_pass": pit_pass,
         "coverage_pass": coverage_pass,
@@ -90,9 +97,6 @@ def build_metis_gate_summary_from_factor_summary_row(
         "regime_notes": f"universe={un} horizon={hz} return_basis={return_basis}",
         "sector_override_notes": "",
         "challenger_or_active": str(sj.get("metis_challenger_or_active") or "active"),
-        "reasons": (
-            f"mapped_from_factor_validation;pit={'certified' if pit_pass else 'not_certified_set_pit_in_summary_json'};"
-            f"spearman={sp};quantile_spread_checked={q_ok is not None}"
-        ),
+        "reasons": reasons,
         "expiry_or_recheck_rule": "recheck_on_next_factor_validation_run:v0",
     }

@@ -1,0 +1,49 @@
+{
+  "ok": true,
+  "contract": "METIS_COHORT_INTEGRITY_REPORT_V1",
+  "cohort_size": 200,
+  "universe": "sp500_current",
+  "factor_name": "accruals",
+  "horizon_type": "next_month",
+  "return_basis": "raw",
+  "min_pass_ratio": 0.9,
+  "stages": {
+    "issuer_master": {
+      "resolved_symbol_count": 200,
+      "resolved_cik_count": 200,
+      "missing_symbol_count": 0,
+      "missing_symbols_sample": []
+    },
+    "factor_market_validation_panels": {
+      "cik_count": 200,
+      "missing_cik_count": 0,
+      "missing_symbols_sample": [],
+      "accession_count": 1001
+    },
+    "issuer_quarter_factor_panels": {
+      "cik_with_factor_value_count": 195,
+      "missing_cik_count": 5,
+      "missing_symbols_sample": [
+        "NTAP",
+        "NWSA",
+        "PSKY",
+        "Q",
+        "TRMB"
+      ]
+    },
+    "factor_validation_summaries": {
+      "run_id": "228f2af3-516f-448a-9d65-4d522ae71b4d",
+      "sample_count": 1294,
+      "valid_factor_count": 702,
+      "return_basis": "raw"
+    }
+  },
+  "headline": {
+    "pass": true,
+    "pass_ratio": 1.0,
+    "pass_numerator_vpanel_ciks": 200,
+    "pass_denominator_cohort_size": 200,
+    "gate": "vpanel_ciks / cohort_size >= min_pass_ratio"
+  },
+  "cohort_file": "/Users/hyunminkim/GenAIProacTrade/data/mvp/backfill_200_v1.json"
+}

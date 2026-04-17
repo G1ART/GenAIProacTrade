@@ -34,12 +34,51 @@ def build_cockpit_runtime_health_payload(
         if _b is not None
         else {h: False for h in _hz}
     )
+    bundle_as_of_utc = str(getattr(_b, "as_of_utc", "") or "") if _b is not None else ""
+    # horizon_provenance is the canonical real-derived / template_fallback
+    # / degraded truth emitted by build_bundle_full_from_validation_v1.
+    horizon_provenance = (
+        dict(getattr(_b, "horizon_provenance", {}) or {}) if _b is not None else {}
+    )
+    # Founder-facing: active artifact per horizon with display alias when present.
+    active_artifact_by_horizon: dict[str, dict[str, Any]] = {}
+    if _b is not None:
+        art_by_id = {a.artifact_id: a for a in _b.artifacts}
+        for ent in _b.registry_entries:
+            if str(getattr(ent, "status", "") or "") != "active":
+                continue
+            aid = str(getattr(ent, "active_artifact_id", "") or "")
+            art = art_by_id.get(aid)
+            active_artifact_by_horizon[str(ent.horizon)] = {
+                "registry_entry_id": ent.registry_entry_id,
+                "active_artifact_id": aid,
+                "active_model_family_name": ent.active_model_family_name,
+                "display_id": (
+                    (getattr(art, "display_id", "") if art else "")
+                    or getattr(ent, "display_id", "")
+                    or ""
+                ),
+                "display_family_name_ko": (
+                    (getattr(art, "display_family_name_ko", "") if art else "")
+                    or getattr(ent, "display_family_name_ko", "")
+                    or ""
+                ),
+                "display_family_name_en": (
+                    (getattr(art, "display_family_name_en", "") if art else "")
+                    or getattr(ent, "display_family_name_en", "")
+                    or ""
+                ),
+                "challenger_artifact_ids": list(ent.challenger_artifact_ids or []),
+            }
     mvp_brain_gate = {
-        "contract": "MVP_RUNTIME_BRAIN_GATE_V0",
+        "contract": "MVP_RUNTIME_BRAIN_GATE_V1",
         "bundle_path": str(brain_bundle_path(root)),
+        "bundle_as_of_utc": bundle_as_of_utc,
         "registry_bundle_ok": _b is not None,
         "bundle_errors": brain_errs if _b is None else [],
         "horizons_ready": horizons_ready,
+        "horizon_provenance": horizon_provenance,
+        "active_artifact_by_horizon": active_artifact_by_horizon,
     }
     from metis_brain.mvp_spec_survey_v0 import build_mvp_spec_survey_v0
 

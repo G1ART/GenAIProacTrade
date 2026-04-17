@@ -26,6 +26,12 @@ class ModelArtifactPacketV0(BaseModel):
     validation_pointer: str
     replay_eligibility: str
     notes_for_message_layer: str
+    # Optional founder-facing alias layer. Internal ``artifact_id`` stays stable
+    # for schema/join semantics; ``display_*`` fields carry the canonical
+    # non-demo name surfaced to Today/Research/Replay.
+    display_id: str = ""
+    display_family_name_ko: str = ""
+    display_family_name_en: str = ""
 
 
 class PromotionGateRecordV0(BaseModel):
@@ -58,3 +64,7 @@ class ActiveHorizonRegistryEntryV0(BaseModel):
     message_contract_version: str
     replay_lineage_pointer: str
     status: str
+    # Optional founder-facing alias layer — see ``ModelArtifactPacketV0``.
+    display_id: str = ""
+    display_family_name_ko: str = ""
+    display_family_name_en: str = ""

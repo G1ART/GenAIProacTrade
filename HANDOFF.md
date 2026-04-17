@@ -2,6 +2,46 @@
 
 **단일 목표**: Today/Research/Replay 세 표면을 **Metis Brain bundle + registry + message snapshot store** 라는 하나의 계약 위에 올리고, `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` §10 의 Q1–Q10 이 **자동 spec survey** 에서 전부 `ok=true` 가 되게 한다. (Build Plan §14 수직 슬라이스, §12 항상 지킬 문장.)
 
+## 2026-04-17 — Real Bundle Generalization v1 (plan `real-bundle-generalization-v1`)
+
+**단일 목표 (추가)**: default brain bundle 이 진짜 factor_validation 출력 위에 **multi-horizon real-derived / explicit template_fallback / degraded** 라벨을 달고, PIT rule · per-horizon provenance · 200티커 cohort integrity 가 auditable 한 상태.
+
+**Green run 실증 (`data/mvp/metis_brain_bundle_from_db_v0.json`)**
+
+- `as_of_utc`: `2026-04-01T12:00:00+00:00` (bundle 내 고정 타임스탬프).
+- **Real-derived horizons**:
+  - `short` — factor_name=`accruals` × next_month, run `228f2af3-…-71b4d`, spectrum_rows=195, pit/coverage/monotonicity 모두 true, challenger 로 `gross_profitability` × next_month 도 pit/cov/mono 모두 true 통과. `source=real_derived`.
+  - `medium` — factor_name=`accruals` × next_quarter, run `7023235e-…-57971`, spectrum_rows=195, pit/cov/mono 모두 true. challenger `gross_profitability` × next_quarter 는 coverage 미달로 **auto-degrade** (`optional_gate_not_passing:pit=True;coverage=False;mono=True`). 상위 `source=real_derived_with_degraded_challenger`.
+- **Template-fallback horizons (명시적)**:
+  - `medium_long` — `source=template_fallback`, `reason=forward_returns_horizon_not_yet_emitted_for_next_half_year`, display `중장기 (샘플 전용)`.
+  - `long` — `source=template_fallback`, `reason=forward_returns_horizon_not_yet_emitted_for_next_year`, display `장기 (샘플 전용)`.
+- **PIT rule (canonical)**: `accepted_at_signal_date_pit_rule_v0`. `run-factor-validation` 가 `summary_json` 에 `pit_certified=true` + `pit_rule` 을 자동으로 쓰고, 과거 run 은 `certify-factor-validation-pit --universe sp500_current --horizon-type next_month|next_quarter` (28+8 summary 갱신) 로 동일 rule 주입. Gate adapter 는 rule 을 `reasons=...;pit_rule=accepted_at_signal_date_pit_rule_v0` 형태로 promotion_gate 에 전파.
+- **200티커 Cohort integrity headline (accruals × next_month)**:
+  - `cohort_size=200`, `issuer_master.resolved=200/200`, `factor_market_validation_panels.cik_count=200`, `issuer_quarter_factor_panels.cik_with_factor_value=195/200` (missing 5: `NTAP, NWSA, PSKY, Q, TRMB`), `factor_validation_summaries.sample=1294`/`valid=702`. **pass=True @ 0.9 threshold** (ratio=1.0). 동일 형태로 next_quarter 도 pass=True.
+  - 저장물: `data/mvp/evidence/cohort_integrity_accruals_next_month_v1.json`, `data/mvp/evidence/cohort_integrity_accruals_next_quarter_v1.json`, `data/mvp/evidence/real_bundle_generalization_v1_evidence.json`.
+- **Display aliases (alias-only, internal id 불변)**: founder-facing surface 는 `art_short_value_accruals_v1 · 단기 가치 (발생액)`, `art_short_quality_gross_profitability_v1 · 단기 품질 (총이익률)`, `art_medium_value_accruals_v1 · 중기 가치 (발생액)` 등으로 노출. demo id (`art_short_demo_v0`, `reg_short_demo_v0` …) 는 registry/provenance 안에 디버그용으로 그대로 보존.
+- **Runtime health** (`/api/runtime/health → mvp_brain_gate`) 이제 `contract=MVP_RUNTIME_BRAIN_GATE_V1`, `bundle_as_of_utc`, `horizon_provenance`, `active_artifact_by_horizon` (display_id / display_family_name_ko 포함) 을 노출.
+- **MVP spec survey**: `METIS_TODAY_SOURCE=registry METIS_BRAIN_BUNDLE=data/mvp/metis_brain_bundle_from_db_v0.json print-mvp-spec-survey --fail-on-false` → Q1–Q10 전부 `ok=true`, `all_automated_ok=true` 그대로 유지.
+
+**변경 범위 요약 (real-bundle-generalization-v1 패치)**
+
+- Schema: `BrainBundleV0` 에 `horizon_provenance`, `ModelArtifactPacketV0` / `ActiveHorizonRegistryEntryV0` 에 `display_id` + `display_family_name_ko` + `display_family_name_en` 옵션 필드.
+- Bundle builder: `build_bundle_full_from_validation_v1` 에 `auto_degrade_optional_gates`, `horizon_fallback_labels`, `display_aliases` 인자. 첫 gate 만 spectrum 행을 기록하고 challenger 는 provenance 에만 합산. fallback horizon 은 실패 없이 `template_fallback` 로 표기.
+- CLI 신규:
+  - `certify-factor-validation-pit --universe --horizon-type [--factor-name] [--force]`
+  - `report-metis-cohort-integrity --cohort-file --universe --factor-name --horizon-type --return-basis [--min-pass-ratio] [--out-json]`
+- Canonical config 신규: `data/mvp/metis_brain_bundle_build_v1.json` — 4 gate × 2 auto-degrade × 2 fallback × display_aliases.
+- Health surface: `src/phase51_runtime/cockpit_health_surface.py` 에 `bundle_as_of_utc`, `horizon_provenance`, `active_artifact_by_horizon` 추가. Today registry surface (`src/phase47_runtime/today_spectrum.py`) 에 `display_id` / `display_family_name_ko,en` 반영.
+- 테스트 신규: `test_pit_certification_v1`, `test_horizon_provenance_schema`, `test_cohort_integrity_v1`, `test_runtime_health_horizon_provenance`, `test_bundle_full_from_validation_v1` 증강. 기존 `test_phase51_external_trigger_ingest_and_runtime_health` 는 contract V0→V1 로 업데이트.
+
+**직후 권고 (다음 Patch Bundle)**
+
+1. **Forward-returns horizon 확장**: `build-forward-returns` 가 `next_half_year` / `next_year` 를 방출하도록 파이프라인 확장 → medium_long / long 이 template_fallback 에서 real_derived 로 승격 가능.
+2. **Medium challenger coverage 회복**: `gross_profitability × next_quarter` 가 현재 coverage 미달로 auto-degrade 중. factor 패널 커버리지를 올리거나 coverage 임계값을 재평가 → provenance 에서 `degraded_pending_real_derived` 를 지움.
+3. **Operator 대시보드**: cohort integrity report 를 CI 훅 또는 주기적 job 으로 걸어 200티커 set 의 pass ratio 를 시계열로 남김.
+4. (Non-goal 유지) 유니버스 확장 / 브로커 / 백테스트 / 포트폴리오 / IR 덱 / skin polish 는 이번 사이클에서도 MVP 진전이 아니다.
+
+
 **산출 (이번 패치 묶음 `brain_surface_truth_mvp` 에서 움직인 것)**
 
 - **Phase A1 ok**: 200티커 선정 계약 `BACKFILL_200_V1` — `scripts/select_backfill_200.py`, 산출 `data/mvp/backfill_200_v1.json` (`pool_universes=[sp500_current, sp500_proxy_candidates]`, `actual_n=200`, `sector_counts` 는 `market_metadata_latest` 공란이면 `_unknown` 으로 그대로 표기).

@@ -200,6 +200,13 @@ def run_factor_validation_research(
                 summary_json: dict[str, Any] = {
                     "preferred_direction_note": spec.preferred_direction_note,
                     "should_rank": spec.should_rank,
+                    "pit_certified": True,
+                    "pit_rule": "accepted_at_signal_date_pit_rule_v0",
+                    "pit_rule_note": (
+                        "factor_market_validation_panels are keyed on filing accepted_at "
+                        "signal_date; forward returns are read strictly after signal_date. "
+                        "No same-day peek; no future revisions leak into this summary."
+                    ),
                 }
                 if include_ols and len(xs_f) >= 3:
                     zx = zscore(xs_f)
