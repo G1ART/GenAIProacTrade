@@ -1,0 +1,63 @@
+{
+  "contract": "BNCO_V1_OVERALL_EVIDENCE",
+  "north_star": "Non-quant transcript overlays cash out in Today/Research/Replay without drift.",
+  "overlay_family_locked": "A) earnings transcript / guidance language delta (only)",
+  "artifacts": [
+    {
+      "path": "data/mvp/evidence/bounded_nonquant_cashout_v1_spec_survey.json",
+      "sha256": "2c67e21150759c078ba9ec90c006a48d8cf40c9bb7195fad79e3edef6dcf5d14",
+      "bytes": 2842
+    },
+    {
+      "path": "data/mvp/evidence/bounded_nonquant_cashout_v1_runtime_health.json",
+      "sha256": "9f003c84460060c973946b85f6321fee4526c0c9d51d073443dec0744e8e9d68",
+      "bytes": 14461
+    },
+    {
+      "path": "data/mvp/evidence/bounded_nonquant_cashout_v1_today_before_after.json",
+      "sha256": "ebfeff40b37c3c2450c53610b92033d6e5e6f24e306f1c0cad642e0aadb2576c",
+      "bytes": 1153
+    },
+    {
+      "path": "data/mvp/evidence/bounded_nonquant_cashout_v1_research_before_after.json",
+      "sha256": "31ec5f45baa673dd54865d52a69db92e48577ee9ff984859d3b5381b9d5f3322",
+      "bytes": 1310
+    },
+    {
+      "path": "data/mvp/evidence/bounded_nonquant_cashout_v1_replay_before_after.json",
+      "sha256": "3a5da3558edf6c7ee74deec1aef6d49fe416bb9759fe64749916fcd3d206aa18",
+      "bytes": 999
+    },
+    {
+      "path": "data/mvp/evidence/persona_candidates_v1_demo.json",
+      "sha256": "c59660204ae93f7e508262523071f2ea8bea295252ec5dfbc1dc8a32bd7b3eb7",
+      "bytes": 5510
+    }
+  ],
+  "milestones": [
+    {
+      "id": "BNCO-1",
+      "summary": "BrainOverlayV1 extended (expected_direction_hint, what_it_changes, source_artifact_refs_summary) + seed transcript overlays updated + unit tests."
+    },
+    {
+      "id": "BNCO-2",
+      "summary": "TODAY_REGISTRY_SURFACE_V1.brain_overlay_summary with locale short labels only (no free-text)."
+    },
+    {
+      "id": "BNCO-3",
+      "summary": "Research.overlay_explanations strictly seed-sourced, fact_vs_interpretation hard-pinned to interpretation."
+    },
+    {
+      "id": "BNCO-4",
+      "summary": "overlay_decision_aging_v1 + micro_brief_for_event.overlay_aging_lineage (aged_in_line/aged_against/neutral)."
+    },
+    {
+      "id": "BNCO-5",
+      "summary": "PersonaCandidatePacketV1 now carries signal_type/intended_overlay_type/blocking_reasons with controlled vocab."
+    },
+    {
+      "id": "BNCO-6",
+      "summary": "horizon_provenance.source canonicalized to 4 values; cockpit exposes horizon_state_v1 with honesty note."
+    }
+  ]
+}

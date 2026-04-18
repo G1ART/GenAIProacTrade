@@ -1,6 +1,6 @@
 {
   "contract": "METIS_PERSONA_CANDIDATES_REPORT_V1",
-  "generated_at_utc": "2026-04-18T00:18:24.786526+00:00",
+  "generated_at_utc": "2026-04-18T01:21:02.560876+00:00",
   "packet_count": 3,
   "packets": [
     {
@@ -32,8 +32,14 @@
         "validation_run_present": true
       },
       "provenance_summary": "Candidate derived from Milestone A real-derived next_month validation + Milestone B residual score semantics.",
+      "signal_type": "residual_tightening",
+      "intended_overlay_type": "confidence_adjustment",
+      "blocking_reasons": [
+        "requires_pit_rule_certification",
+        "requires_runtime_explainability"
+      ],
       "promotion_doctrine_note": "Candidate only. Not active truth. Must pass PIT + provenance + validation + runtime explainability + explicit promotion before any active registry or overlay entry is created.",
-      "created_at_utc": "2026-04-18T00:18:24.786160+00:00"
+      "created_at_utc": "2026-04-18T01:21:02.560667+00:00"
     },
     {
       "contract": "METIS_PERSONA_CANDIDATE_PACKET_V1",
@@ -58,8 +64,14 @@
         "monotonicity": false
       },
       "provenance_summary": "Candidate references Milestone A opt-in long-horizon plumbing but will remain candidate-only until monotonicity gate passes.",
+      "signal_type": "regime_shift_hypothesis",
+      "intended_overlay_type": "regime_shift",
+      "blocking_reasons": [
+        "requires_monotonicity",
+        "requires_validation_considered"
+      ],
       "promotion_doctrine_note": "Candidate only. Not active truth. Must pass PIT + provenance + validation + runtime explainability + explicit promotion before any active registry or overlay entry is created.",
-      "created_at_utc": "2026-04-18T00:18:24.786434+00:00"
+      "created_at_utc": "2026-04-18T01:21:02.560830+00:00"
     },
     {
       "contract": "METIS_PERSONA_CANDIDATE_PACKET_V1",
@@ -85,8 +97,15 @@
         "runtime_explainable": true
       },
       "provenance_summary": "Non-quant overlay candidate aligned with Milestone C brain_overlays_v1 vocabulary; seed-only, no auto-promotion.",
+      "signal_type": "guidance_language_delta",
+      "intended_overlay_type": "regime_shift",
+      "blocking_reasons": [
+        "requires_pit_rule_certification",
+        "requires_runtime_explainability",
+        "requires_explicit_operator_promotion"
+      ],
       "promotion_doctrine_note": "Candidate only. Not active truth. Must pass PIT + provenance + validation + runtime explainability + explicit promotion before any active registry or overlay entry is created.",
-      "created_at_utc": "2026-04-18T00:18:24.786447+00:00"
+      "created_at_utc": "2026-04-18T01:21:02.560842+00:00"
     }
   ],
   "governance_note": "Persona candidates are diagnostic inputs only. They never short-circuit promotion gates, never write to the active registry, and never update the brain overlays seed file directly."

@@ -426,8 +426,15 @@ def _spectrum_review_context_for_asset(
     horizon: str,
     lang: str,
     mock_price_tick: str | None,
-) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
-    """Resolve REPLAY_LINEAGE_JOIN_V1 row + TODAY_REGISTRY_SURFACE_V1 from one Today spectrum build."""
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None]:
+    """Resolve REPLAY_LINEAGE_JOIN_V1 row + TODAY_REGISTRY_SURFACE_V1 from one Today spectrum build.
+
+    The third tuple element is the internal aging context (``bound_overlays``
+    + ``repo_root``) used by ``_inject_lineage_into_timeline_events`` to
+    compute Bounded Non-Quant Cash-Out v1 overlay aging lineage. It is never
+    surfaced on API payloads.
+    """
+    from metis_brain.bundle import try_load_brain_bundle_v0
     from phase47_runtime.phase47e_user_locale import normalize_lang
     from phase47_runtime.today_spectrum import _normalize_mock_price_tick, build_today_spectrum_payload
 
@@ -436,7 +443,7 @@ def _spectrum_review_context_for_asset(
     mt = _normalize_mock_price_tick(mock_price_tick)
     sp = build_today_spectrum_payload(repo_root=repo_root, horizon=hz, lang=lg, mock_price_tick=mt)
     if not sp.get("ok"):
-        return None, None
+        return None, None, None
     raw_rs = sp.get("registry_surface_v1")
     registry_surface = raw_rs if isinstance(raw_rs, dict) else None
     aid = (asset_id or "").strip()
@@ -453,6 +460,24 @@ def _spectrum_review_context_for_asset(
                 str(x) for x in list(raw_rs.get("brain_overlay_ids") or [])
                 if str(x).strip()
             ]
+        # Bounded Non-Quant Cash-Out v1 — BNCO-4. Surface the current
+        # spectrum_position + the full overlay records bound to this asset
+        # so Replay can compute directional aging lineage without a second
+        # bundle load per event.
+        current_sp = r.get("spectrum_position")
+        bound_overlays: list[dict[str, Any]] = []
+        if rs_overlay_ids:
+            bundle, _errs = try_load_brain_bundle_v0(repo_root)
+            if bundle is not None:
+                overlays_by_id = {
+                    str(ov.get("overlay_id") or ""): ov
+                    for ov in (getattr(bundle, "brain_overlays", []) or [])
+                    if isinstance(ov, dict)
+                }
+                for oid in rs_overlay_ids:
+                    ov = overlays_by_id.get(oid)
+                    if isinstance(ov, dict):
+                        bound_overlays.append(ov)
         join = {
             "contract": "REPLAY_LINEAGE_JOIN_V1",
             "asset_id": aid,
@@ -464,21 +489,104 @@ def _spectrum_review_context_for_asset(
             "linked_registry_entry_id": str(msg.get("linked_registry_entry_id") or ""),
             "linked_artifact_id": str(msg.get("linked_artifact_id") or ""),
             "brain_overlay_ids": rs_overlay_ids,
+            "current_spectrum_position": (
+                float(current_sp) if current_sp is not None else None
+            ),
         }
-        return join, registry_surface
-    return None, registry_surface
+        # Store full overlay records on the injector-only tuple. Never
+        # surface them on the public join.
+        join_aging_ctx = {
+            "bound_overlays": bound_overlays,
+            "repo_root": repo_root,
+        }
+        return join, registry_surface, join_aging_ctx
+    return None, registry_surface, None
+
+
+def _compute_overlay_aging_lineage(
+    *,
+    overlays: list[dict[str, Any]],
+    snapshot_spectrum_position: float | None,
+    current_spectrum_position: float | None,
+) -> list[dict[str, Any]]:
+    from metis_brain.brain_overlays_v1 import overlay_decision_aging_v1
+
+    out: list[dict[str, Any]] = []
+    for ov in overlays or []:
+        if not isinstance(ov, dict):
+            continue
+        label = overlay_decision_aging_v1(
+            ov, snapshot_spectrum_position, current_spectrum_position
+        )
+        out.append(
+            {
+                "overlay_id": str(ov.get("overlay_id") or ""),
+                "overlay_type": str(ov.get("overlay_type") or ""),
+                "expected_direction_hint": str(
+                    ov.get("expected_direction_hint") or ""
+                ),
+                "aging_label": label,
+                "snapshot_spectrum_position": snapshot_spectrum_position,
+                "current_spectrum_position": current_spectrum_position,
+            }
+        )
+    return out
+
+
+def _lookup_snapshot_spectrum_position(
+    repo_root: Path, snapshot_id: str
+) -> float | None:
+    from metis_brain.message_snapshots_store import get_message_snapshot
+
+    if not snapshot_id:
+        return None
+    rec = get_message_snapshot(repo_root, snapshot_id)
+    if not isinstance(rec, dict):
+        return None
+    spec = rec.get("spectrum")
+    if not isinstance(spec, dict):
+        return None
+    v = spec.get("spectrum_position")
+    try:
+        return float(v) if v is not None else None
+    except (TypeError, ValueError):
+        return None
 
 
 def _inject_lineage_into_timeline_events(
     events: list[dict[str, Any]],
     join: dict[str, Any],
     registry_surface: dict[str, Any] | None,
+    aging_context: dict[str, Any] | None = None,
 ) -> None:
-    """Attach Today/registry lineage (+ registry surface) to ledger events for the same asset_id (§6.3)."""
+    """Attach Today/registry lineage (+ registry surface) to ledger events for the same asset_id (§6.3).
+
+    Bounded Non-Quant Cash-Out v1 (BNCO-4): when ``aging_context`` is passed,
+    also attaches ``current_spectrum_position``, ``snapshot_spectrum_position``,
+    and ``overlay_aging_lineage`` on each matching event (decision events
+    and same-asset bundle events). The aging lineage is a pure label —
+    aged_in_line / aged_against / neutral — never a price or recommendation.
+    """
     aid = str(join.get("asset_id") or "").strip()
     if not aid:
         return
     rs_ok = isinstance(registry_surface, dict) and registry_surface.get("contract") == "TODAY_REGISTRY_SURFACE_V1"
+    bound_overlays: list[dict[str, Any]] = []
+    repo_root: Path | None = None
+    if isinstance(aging_context, dict):
+        raw_ov = aging_context.get("bound_overlays")
+        if isinstance(raw_ov, list):
+            bound_overlays = [ov for ov in raw_ov if isinstance(ov, dict)]
+        rr = aging_context.get("repo_root")
+        if isinstance(rr, Path):
+            repo_root = rr
+    current_sp_val = join.get("current_spectrum_position")
+    try:
+        current_sp: float | None = (
+            float(current_sp_val) if current_sp_val is not None else None
+        )
+    except (TypeError, ValueError):
+        current_sp = None
     for e in events:
         if str(e.get("asset_id") or "").strip() != aid:
             continue
@@ -499,6 +607,20 @@ def _inject_lineage_into_timeline_events(
             e["brain_overlay_ids"] = [str(x) for x in overlay_ids if str(x).strip()]
         if rs_ok:
             e["registry_surface_v1"] = registry_surface
+        if bound_overlays and repo_root is not None:
+            evt_snap_id = str(e.get("message_snapshot_id") or "").strip()
+            snap_sp = _lookup_snapshot_spectrum_position(repo_root, evt_snap_id)
+            aging = _compute_overlay_aging_lineage(
+                overlays=bound_overlays,
+                snapshot_spectrum_position=snap_sp,
+                current_spectrum_position=current_sp,
+            )
+            if aging:
+                e["overlay_aging_lineage"] = aging
+                if current_sp is not None:
+                    e["current_spectrum_position"] = current_sp
+                if snap_sp is not None:
+                    e["snapshot_spectrum_position"] = snap_sp
 
 
 def build_plot_series(events: list[dict[str, Any]], *, bundle: dict[str, Any]) -> list[dict[str, Any]]:
@@ -592,6 +714,14 @@ def micro_brief_for_event(events: list[dict[str, Any]], event_id: str) -> dict[s
             rs = e.get("registry_surface_v1")
             if isinstance(rs, dict) and rs.get("contract") == "TODAY_REGISTRY_SURFACE_V1":
                 mb["registry_surface_v1"] = rs
+            # Bounded Non-Quant Cash-Out v1 — BNCO-4.
+            aging = e.get("overlay_aging_lineage")
+            if isinstance(aging, list) and aging:
+                mb["overlay_aging_lineage"] = aging
+            for k in ("current_spectrum_position", "snapshot_spectrum_position"):
+                v = e.get(k)
+                if v is not None:
+                    mb[k] = v
             return mb
     return None
 
@@ -673,8 +803,9 @@ def api_replay_timeline_payload(
         return {"ok": False, "error": err, "mode": "replay"}
     join: dict[str, Any] | None = None
     registry_surface: dict[str, Any] | None = None
+    aging_ctx: dict[str, Any] | None = None
     if repo_root is not None and (timeline_asset_id or "").strip():
-        join, registry_surface = _spectrum_review_context_for_asset(
+        join, registry_surface, aging_ctx = _spectrum_review_context_for_asset(
             repo_root=repo_root,
             asset_id=timeline_asset_id.strip(),
             horizon=horizon or "short",
@@ -682,7 +813,7 @@ def api_replay_timeline_payload(
             mock_price_tick=mock_price_tick,
         )
         if join:
-            _inject_lineage_into_timeline_events(events, join, registry_surface)
+            _inject_lineage_into_timeline_events(events, join, registry_surface, aging_ctx)
     series = build_plot_series(events, bundle=bundle)
     out: dict[str, Any] = {
         "ok": True,

@@ -560,6 +560,22 @@ def build_bundle_full_from_validation_v1(
             "contributing_gates": [],
         }
 
+    # Bounded Non-Quant Cash-Out v1 — BNCO-6. Canonicalize horizon_provenance.source
+    # to one of the 4 canonical values required by runtime honesty surfaces:
+    #   real_derived / real_derived_with_degraded_challenger /
+    #   template_fallback / insufficient_evidence.
+    # The transient label ``degraded_pending_real_derived`` means no real gate
+    # landed AND no template fallback is configured — we project it to
+    # ``insufficient_evidence`` so runtime / health surfaces never imply
+    # confidence that does not exist.
+    for hz_key, prov in list(provenance.items()):
+        if not isinstance(prov, dict):
+            continue
+        src = str(prov.get("source") or "")
+        if src == "degraded_pending_real_derived":
+            prov["source"] = "insufficient_evidence"
+            if "reason" not in prov:
+                prov["reason"] = "no_real_derived_gate_landed_and_no_template_fallback_configured"
     merged["horizon_provenance"] = provenance
 
     integrity_ok, errs = validate_merged_bundle_dict(merged)

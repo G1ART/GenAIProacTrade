@@ -1,0 +1,79 @@
+{
+  "contract": "METIS_MVP_SPEC_SURVEY_V0",
+  "doc_ref": "METIS_MVP_Unified_Product_Spec_KR_v1.md §10",
+  "today_source_mode": "registry",
+  "brain_bundle_path": "/Users/hyunminkim/GenAIProacTrade/data/mvp/metis_brain_bundle_v0.json",
+  "brain_bundle_ok": true,
+  "brain_bundle_errors": [],
+  "horizons_ready": {
+    "short": true,
+    "medium": true,
+    "medium_long": true,
+    "long": true
+  },
+  "questions": [
+    {
+      "id": "Q1_today_registry_only",
+      "spec": "Today가 registry만 읽는가?",
+      "ok": true,
+      "detail": "METIS_TODAY_SOURCE='registry'; bundle_valid=True"
+    },
+    {
+      "id": "Q2_active_family_per_horizon",
+      "spec": "각 시간축에 active family가 존재하는가?",
+      "ok": true,
+      "detail": "active_horizons=['long', 'medium', 'medium_long', 'short']"
+    },
+    {
+      "id": "Q3_challenger_active_distinction",
+      "spec": "challenger/active 구분이 존재하는가?",
+      "ok": true,
+      "detail": "at least one registry entry has challenger_artifact_ids"
+    },
+    {
+      "id": "Q4_artifact_required_for_active",
+      "spec": "artifact packet 없이 모델이 Today에 올라갈 수 없는가?",
+      "ok": true,
+      "detail": "each active_artifact_id resolves in bundle.artifacts"
+    },
+    {
+      "id": "Q5_message_store_path",
+      "spec": "message snapshot 1급 저장 경로 준비",
+      "ok": true,
+      "detail": "/Users/hyunminkim/GenAIProacTrade/data/mvp"
+    },
+    {
+      "id": "Q6_message_headline_why_now_rationale",
+      "spec": "spectrum row가 headline + why_now + rationale_summary 를 모두 채우는가?",
+      "ok": true,
+      "detail": "horizon=short;asset_id=DEMO_KR_B"
+    },
+    {
+      "id": "Q7_same_ticker_different_horizon_position",
+      "spec": "동일 ticker가 horizon별로 다른 spectrum_position 을 갖는가?",
+      "ok": true,
+      "detail": "asset_id=DEMO_KR_B;horizons=['long', 'medium', 'short']"
+    },
+    {
+      "id": "Q8_rank_movement_on_mock_price_tick",
+      "spec": "mock_price_tick=1 실행 시 rank_movement 에 up 또는 down 이 1건 이상 등장하는가?",
+      "ok": true,
+      "detail": "horizon=short;asset_id=DEMO_KR_A;movement=up"
+    },
+    {
+      "id": "Q9_information_and_research_layers_present",
+      "spec": "object 단면에 information.supporting_signals >=1 + research.deeper_rationale 가 존재하는가?",
+      "ok": true,
+      "detail": "horizon=short;asset_id=DEMO_KR_B"
+    },
+    {
+      "id": "Q10_replay_lineage_join_present",
+      "spec": "persisted snapshot에 message_snapshot_id + registry_entry_id 가 동시에 존재하는가?",
+      "ok": true,
+      "detail": "snapshot_id=msg_snap:v1:1d9c061751cb543bc6657378;registry_entry_id=reg_short_demo_v0"
+    }
+  ],
+  "all_automated_ok": true,
+  "manual_or_runtime_proof": [],
+  "failed_question_ids": []
+}

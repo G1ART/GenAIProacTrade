@@ -1,0 +1,36 @@
+{
+  "contract": "BNCO_V1_TODAY_BEFORE_AFTER",
+  "before": {
+    "brain_overlay_ids_only_mode": true,
+    "brain_overlay_ids": [
+      "ovr_short_transcript_guidance_tone_v1"
+    ]
+  },
+  "after": {
+    "brain_overlay_summary": {
+      "contract": "TODAY_BRAIN_OVERLAY_SUMMARY_V1",
+      "total": 1,
+      "count_by_type": {
+        "confidence_adjustment": 1
+      },
+      "labels": [
+        {
+          "overlay_id": "ovr_short_transcript_guidance_tone_v1",
+          "overlay_type": "confidence_adjustment",
+          "short_label_ko": "트랜스크립트 톤 반영",
+          "short_label_en": "Confidence adjusted by transcript",
+          "confidence": 0.45,
+          "expiry_or_recheck_rule": "recheck_at_next_earnings_call_or_2026-07-15",
+          "expected_direction_hint": "position_weakens"
+        }
+      ]
+    },
+    "brain_overlay_ids": [
+      "ovr_short_transcript_guidance_tone_v1"
+    ]
+  },
+  "horizon": "short",
+  "registry_entry_id": "reg_short_demo_v0",
+  "sample_asset_id": "TRGP",
+  "note": "Cash-out: Today surface now exposes short_label_ko/_en + confidence + expected_direction_hint + recheck rule (no buy/sell copy)."
+}

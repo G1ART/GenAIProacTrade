@@ -12,8 +12,10 @@ from pathlib import Path
 
 import pytest
 
+from metis_brain.brain_overlays_v1 import OVERLAY_TYPES
 from metis_brain.persona_candidates_v1 import (
     PERSONA_KINDS,
+    SIGNAL_TYPES,
     PersonaCandidatePacketV1,
     build_persona_candidate_packet,
     deterministic_candidate_id,
@@ -140,6 +142,75 @@ def test_report_writer_never_touches_active_bundle(tmp_path: Path):
 
     assert out.is_file()
     assert json.loads(bundle_path.read_text(encoding="utf-8")) == {"sentinel": "untouched"}
+
+
+# ---------------------------------------------------------------------------
+# Bounded Non-Quant Cash-Out v1 — BNCO-5 additions.
+# ---------------------------------------------------------------------------
+
+
+def test_signal_type_defaults_to_empty_and_accepts_vocabulary():
+    default_pkt = build_persona_candidate_packet(**_min_valid_spec())
+    assert default_pkt.signal_type == ""
+    for s in SIGNAL_TYPES:
+        if s == "":
+            continue
+        pkt = build_persona_candidate_packet(**_min_valid_spec(signal_type=s))
+        assert pkt.signal_type == s
+
+
+def test_signal_type_rejects_unknown_value():
+    with pytest.raises(ValueError):
+        build_persona_candidate_packet(
+            **_min_valid_spec(signal_type="hype_cycle_narrative")
+        )
+
+
+def test_intended_overlay_type_accepts_empty_and_vocabulary():
+    pkt_empty = build_persona_candidate_packet(**_min_valid_spec())
+    assert pkt_empty.intended_overlay_type == ""
+    for t in OVERLAY_TYPES:
+        pkt = build_persona_candidate_packet(
+            **_min_valid_spec(intended_overlay_type=t)
+        )
+        assert pkt.intended_overlay_type == t
+
+
+def test_intended_overlay_type_rejects_unknown_value():
+    with pytest.raises(ValueError):
+        build_persona_candidate_packet(
+            **_min_valid_spec(intended_overlay_type="made_up_overlay")
+        )
+
+
+def test_blocking_reasons_preserves_list_of_strings_and_strips_empties():
+    pkt = build_persona_candidate_packet(
+        **_min_valid_spec(
+            blocking_reasons=[
+                "requires_pit_rule_certification",
+                "  ",  # stripped
+                "requires_runtime_explainability",
+            ]
+        )
+    )
+    assert pkt.blocking_reasons == [
+        "requires_pit_rule_certification",
+        "requires_runtime_explainability",
+    ]
+
+
+def test_promotion_doctrine_note_still_hardcoded_after_new_fields():
+    pkt = build_persona_candidate_packet(
+        **_min_valid_spec(
+            signal_type="residual_tightening",
+            intended_overlay_type="confidence_adjustment",
+            blocking_reasons=["requires_pit_rule_certification"],
+        )
+    )
+    assert "Candidate only" in pkt.promotion_doctrine_note
+    assert pkt.signal_type == "residual_tightening"
+    assert pkt.intended_overlay_type == "confidence_adjustment"
+    assert pkt.blocking_reasons == ["requires_pit_rule_certification"]
 
 
 def test_gate_eligibility_is_diagnostic_only_not_promotion():

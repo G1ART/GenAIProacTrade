@@ -41,6 +41,30 @@ OverlayType = Literal[
     "catalyst_window",
 ]
 
+EXPECTED_DIRECTION_HINTS = (
+    "",
+    "position_weakens",
+    "position_strengthens",
+    "regime_changes",
+    "risk_asymmetry_widens",
+    "event_binary_pending",
+)
+
+ExpectedDirectionHint = Literal[
+    "",
+    "position_weakens",
+    "position_strengthens",
+    "regime_changes",
+    "risk_asymmetry_widens",
+    "event_binary_pending",
+]
+
+# Bounded Non-Quant Cash-Out v1 — Replay directional aging rule.
+# Hard-coded so callers (Replay micro-brief) cannot drift the semantics.
+_DIRECTIONAL_AGING_MIN_DELTA = 0.05
+
+AgingLabel = Literal["aged_in_line", "aged_against", "neutral"]
+
 
 class BrainOverlaySourceArtifactRefV1(BaseModel):
     """Structured pointer to the evidence that produced the overlay."""
@@ -80,12 +104,27 @@ class BrainOverlayV1(BaseModel):
     reasons: list[str] = Field(default_factory=list)
     provenance_summary: str = ""
     expiry_or_recheck_rule: str = ""
+    # Bounded Non-Quant Cash-Out v1 additions. All optional so legacy seed
+    # files stay valid; Replay / Research surfaces treat missing values as
+    # neutral / empty.
+    expected_direction_hint: ExpectedDirectionHint = ""
+    what_it_changes: str = Field(default="", max_length=240)
+    source_artifact_refs_summary: str = Field(default="", max_length=240)
 
     @field_validator("overlay_type")
     @classmethod
     def _overlay_type_in_vocab(cls, v: str) -> str:
         if v not in OVERLAY_TYPES:
             raise ValueError(f"overlay_type must be one of {OVERLAY_TYPES}")
+        return v
+
+    @field_validator("expected_direction_hint")
+    @classmethod
+    def _direction_hint_in_vocab(cls, v: str) -> str:
+        if v not in EXPECTED_DIRECTION_HINTS:
+            raise ValueError(
+                f"expected_direction_hint must be one of {EXPECTED_DIRECTION_HINTS}"
+            )
         return v
 
     def bound_reference(self) -> tuple[str, str]:
@@ -184,6 +223,8 @@ def summarize_overlays_for_runtime(
                 "confidence": d.get("confidence"),
                 "counter_interpretation_present": bool(d.get("counter_interpretation_present")),
                 "expiry_or_recheck_rule": str(d.get("expiry_or_recheck_rule") or ""),
+                "expected_direction_hint": str(d.get("expected_direction_hint") or ""),
+                "what_it_changes": str(d.get("what_it_changes") or ""),
             }
         )
     return {
@@ -216,3 +257,48 @@ def overlay_influence_lookup(
         if r:
             out.setdefault(r, []).append(oid)
     return out
+
+
+def overlay_decision_aging_v1(
+    overlay: dict[str, Any] | BrainOverlayV1,
+    snapshot_position: float | None,
+    current_position: float | None,
+) -> AgingLabel:
+    """Pure, deterministic aging label for one overlay vs. one asset's
+    spectrum_position history.
+
+    Bounded on purpose: no price, no return, no recommendation. Only the
+    spectrum_position delta (a normalized -1..+1 band value) against the
+    overlay's declared ``expected_direction_hint``.
+
+    Returns one of ``aged_in_line`` / ``aged_against`` / ``neutral``.
+    Missing snapshot or missing current position always yields ``neutral``.
+    Unbounded / unsupported hints (``regime_changes``,
+    ``event_binary_pending``, ``risk_asymmetry_widens``, empty) also yield
+    ``neutral`` — spectrum_position cannot prove those claims alone in this
+    MVP, so we refuse to guess.
+    """
+
+    d = overlay.model_dump() if isinstance(overlay, BrainOverlayV1) else dict(overlay or {})
+    hint = str(d.get("expected_direction_hint") or "")
+    if snapshot_position is None or current_position is None:
+        return "neutral"
+    try:
+        snap = float(snapshot_position)
+        cur = float(current_position)
+    except (TypeError, ValueError):
+        return "neutral"
+    delta = cur - snap
+    if hint == "position_weakens":
+        if delta <= -_DIRECTIONAL_AGING_MIN_DELTA:
+            return "aged_in_line"
+        if delta >= _DIRECTIONAL_AGING_MIN_DELTA:
+            return "aged_against"
+        return "neutral"
+    if hint == "position_strengthens":
+        if delta >= _DIRECTIONAL_AGING_MIN_DELTA:
+            return "aged_in_line"
+        if delta <= -_DIRECTIONAL_AGING_MIN_DELTA:
+            return "aged_against"
+        return "neutral"
+    return "neutral"

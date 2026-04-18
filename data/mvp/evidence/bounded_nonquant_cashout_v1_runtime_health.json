@@ -1,0 +1,387 @@
+{
+  "ok": true,
+  "lang": "ko",
+  "headline": "상태가 양호해 보입니다.",
+  "subtext": "감사 요약과 외부 적재는 아래 한눈에 보입니다.",
+  "health_status": "healthy",
+  "plain_lines": [
+    "마지막 감사: 2026-04-14T05:03:19.382786+00:00",
+    "사이클 건너뜀: 아니오",
+    "외부 적재: 총 0 · 대기 0 · 소비 0 · 거절 0 · 중복 0",
+    "서명 인제스트: 구성됨=False · 데드레터 0 · 가드 0",
+    "무인증 적재: 비활성 — authenticated 사용"
+  ],
+  "recent_skips_plain": [],
+  "effective_trigger_types": [
+    "changed_artifact_bundle",
+    "closeout_reopen_candidate",
+    "manual_watchlist",
+    "named_source_signal",
+    "operator_research_signal"
+  ],
+  "mvp_brain_gate": {
+    "contract": "MVP_RUNTIME_BRAIN_GATE_V1",
+    "bundle_path": "data/mvp/metis_brain_bundle_from_db_v0.json",
+    "bundle_as_of_utc": "2026-04-01T12:00:00+00:00",
+    "registry_bundle_ok": true,
+    "bundle_errors": [],
+    "horizons_ready": {
+      "short": true,
+      "medium": true,
+      "medium_long": true,
+      "long": true
+    },
+    "horizon_provenance": {
+      "short": {
+        "source": "real_derived",
+        "factor_name": "accruals",
+        "validation_horizon_type": "next_month",
+        "return_basis": "raw",
+        "run_id": "228f2af3-516f-448a-9d65-4d522ae71b4d",
+        "artifact_id": "art_short_demo_v0",
+        "registry_entry_id": "reg_short_demo_v0",
+        "pit_pass": true,
+        "coverage_pass": true,
+        "monotonicity_pass": true,
+        "pit_rule": "accepted_at_signal_date_pit_rule_v0",
+        "spectrum_row_count": 195,
+        "display_id": "art_short_value_accruals_v1",
+        "display_family_name_ko": "단기 가치 (발생액)",
+        "display_family_name_en": "Short value — accruals",
+        "degraded": false,
+        "contributing_gates": [
+          {
+            "factor_name": "accruals",
+            "validation_horizon_type": "next_month",
+            "return_basis": "raw",
+            "run_id": "228f2af3-516f-448a-9d65-4d522ae71b4d",
+            "artifact_id": "art_short_demo_v0",
+            "registry_entry_id": "reg_short_demo_v0",
+            "pit_pass": true,
+            "coverage_pass": true,
+            "monotonicity_pass": true,
+            "pit_rule": "accepted_at_signal_date_pit_rule_v0",
+            "spectrum_row_count": 195,
+            "display_id": "art_short_value_accruals_v1",
+            "display_family_name_ko": "단기 가치 (발생액)",
+            "display_family_name_en": "Short value — accruals",
+            "degraded": false
+          },
+          {
+            "factor_name": "gross_profitability",
+            "validation_horizon_type": "next_month",
+            "return_basis": "raw",
+            "run_id": "228f2af3-516f-448a-9d65-4d522ae71b4d",
+            "artifact_id": "art_short_challenger_momentum_v0",
+            "registry_entry_id": "reg_short_demo_v0",
+            "pit_pass": true,
+            "coverage_pass": true,
+            "monotonicity_pass": true,
+            "pit_rule": "accepted_at_signal_date_pit_rule_v0",
+            "spectrum_row_count": 74,
+            "display_id": "art_short_quality_gross_profitability_v1",
+            "display_family_name_ko": "단기 품질 (총이익률)",
+            "display_family_name_en": "Short quality — gross profitability",
+            "degraded": false
+          }
+        ]
+      },
+      "medium": {
+        "source": "real_derived_with_degraded_challenger",
+        "factor_name": "accruals",
+        "validation_horizon_type": "next_quarter",
+        "return_basis": "raw",
+        "run_id": "7023235e-d0e6-4501-8f4d-af5b25857971",
+        "artifact_id": "art_medium_demo_v0",
+        "registry_entry_id": "reg_medium_demo_v0",
+        "pit_pass": true,
+        "coverage_pass": true,
+        "monotonicity_pass": true,
+        "pit_rule": "accepted_at_signal_date_pit_rule_v0",
+        "spectrum_row_count": 195,
+        "display_id": "art_medium_value_accruals_v1",
+        "display_family_name_ko": "중기 가치 (발생액)",
+        "display_family_name_en": "Medium value — accruals",
+        "degraded": false,
+        "contributing_gates": [
+          {
+            "factor_name": "accruals",
+            "validation_horizon_type": "next_quarter",
+            "return_basis": "raw",
+            "run_id": "7023235e-d0e6-4501-8f4d-af5b25857971",
+            "artifact_id": "art_medium_demo_v0",
+            "registry_entry_id": "reg_medium_demo_v0",
+            "pit_pass": true,
+            "coverage_pass": true,
+            "monotonicity_pass": true,
+            "pit_rule": "accepted_at_signal_date_pit_rule_v0",
+            "spectrum_row_count": 195,
+            "display_id": "art_medium_value_accruals_v1",
+            "display_family_name_ko": "중기 가치 (발생액)",
+            "display_family_name_en": "Medium value — accruals",
+            "degraded": false
+          },
+          {
+            "factor_name": "gross_profitability",
+            "validation_horizon_type": "next_quarter",
+            "return_basis": "raw",
+            "artifact_id": "art_medium_challenger_gross_profitability_v0",
+            "degraded": true,
+            "degraded_reason": "optional_gate_not_passing:pit=True;coverage=False;mono=True"
+          }
+        ]
+      },
+      "medium_long": {
+        "source": "template_fallback",
+        "reason": "forward_returns_horizon_not_yet_emitted_for_next_half_year",
+        "artifact_id": "art_medium_long_demo_v0",
+        "registry_entry_id": "reg_medium_long_demo_v0",
+        "display_id": "art_medium_long_sample_v1",
+        "display_family_name_ko": "중장기 (샘플 전용)",
+        "display_family_name_en": "Medium-long (sample only)",
+        "contributing_gates": []
+      },
+      "long": {
+        "source": "template_fallback",
+        "reason": "forward_returns_horizon_not_yet_emitted_for_next_year",
+        "artifact_id": "art_long_demo_v0",
+        "registry_entry_id": "reg_long_demo_v0",
+        "display_id": "art_long_sample_v1",
+        "display_family_name_ko": "장기 (샘플 전용)",
+        "display_family_name_en": "Long (sample only)",
+        "contributing_gates": []
+      }
+    },
+    "horizon_state_v1": {
+      "short": "real_derived",
+      "medium": "real_derived_with_degraded_challenger",
+      "medium_long": "template_fallback",
+      "long": "template_fallback"
+    },
+    "active_artifact_by_horizon": {
+      "short": {
+        "registry_entry_id": "reg_short_demo_v0",
+        "active_artifact_id": "art_short_demo_v0",
+        "active_model_family_name": "shallow_value_blend_v0",
+        "display_id": "art_short_value_accruals_v1",
+        "display_family_name_ko": "단기 가치 (발생액)",
+        "display_family_name_en": "Short value — accruals",
+        "challenger_artifact_ids": [
+          "art_short_challenger_momentum_v0"
+        ]
+      },
+      "medium": {
+        "registry_entry_id": "reg_medium_demo_v0",
+        "active_artifact_id": "art_medium_demo_v0",
+        "active_model_family_name": "quality_earnings_bridge_v0",
+        "display_id": "art_medium_value_accruals_v1",
+        "display_family_name_ko": "중기 가치 (발생액)",
+        "display_family_name_en": "Medium value — accruals",
+        "challenger_artifact_ids": []
+      },
+      "medium_long": {
+        "registry_entry_id": "reg_medium_long_demo_v0",
+        "active_artifact_id": "art_medium_long_demo_v0",
+        "active_model_family_name": "cycle_positioning_v0",
+        "display_id": "reg_medium_long_sample_v1",
+        "display_family_name_ko": "중장기 (샘플 전용)",
+        "display_family_name_en": "Medium-long (sample only)",
+        "challenger_artifact_ids": []
+      },
+      "long": {
+        "registry_entry_id": "reg_long_demo_v0",
+        "active_artifact_id": "art_long_demo_v0",
+        "active_model_family_name": "owner_earnings_growth_v0",
+        "display_id": "reg_long_sample_v1",
+        "display_family_name_ko": "장기 (샘플 전용)",
+        "display_family_name_en": "Long (sample only)",
+        "challenger_artifact_ids": []
+      }
+    },
+    "brain_overlays_summary": {
+      "contract": "METIS_BRAIN_OVERLAYS_SUMMARY_V1",
+      "total": 0,
+      "count_by_type": {},
+      "items": []
+    }
+  },
+  "mvp_product_spec_survey_v0": {
+    "contract": "METIS_MVP_SPEC_SURVEY_V0",
+    "doc_ref": "METIS_MVP_Unified_Product_Spec_KR_v1.md §10",
+    "today_source_mode": "registry",
+    "brain_bundle_path": "data/mvp/metis_brain_bundle_from_db_v0.json",
+    "brain_bundle_ok": true,
+    "brain_bundle_errors": [],
+    "horizons_ready": {
+      "short": true,
+      "medium": true,
+      "medium_long": true,
+      "long": true
+    },
+    "questions": [
+      {
+        "id": "Q1_today_registry_only",
+        "spec": "Today가 registry만 읽는가?",
+        "ok": true,
+        "detail": "METIS_TODAY_SOURCE='registry'; bundle_valid=True"
+      },
+      {
+        "id": "Q2_active_family_per_horizon",
+        "spec": "각 시간축에 active family가 존재하는가?",
+        "ok": true,
+        "detail": "active_horizons=['long', 'medium', 'medium_long', 'short']"
+      },
+      {
+        "id": "Q3_challenger_active_distinction",
+        "spec": "challenger/active 구분이 존재하는가?",
+        "ok": true,
+        "detail": "at least one registry entry has challenger_artifact_ids"
+      },
+      {
+        "id": "Q4_artifact_required_for_active",
+        "spec": "artifact packet 없이 모델이 Today에 올라갈 수 없는가?",
+        "ok": true,
+        "detail": "each active_artifact_id resolves in bundle.artifacts"
+      },
+      {
+        "id": "Q5_message_store_path",
+        "spec": "message snapshot 1급 저장 경로 준비",
+        "ok": true,
+        "detail": "data/mvp"
+      },
+      {
+        "id": "Q6_message_headline_why_now_rationale",
+        "spec": "spectrum row가 headline + why_now + rationale_summary 를 모두 채우는가?",
+        "ok": true,
+        "detail": "horizon=short;asset_id=TRGP"
+      },
+      {
+        "id": "Q7_same_ticker_different_horizon_position",
+        "spec": "동일 ticker가 horizon별로 다른 spectrum_position 을 갖는가?",
+        "ok": true,
+        "detail": "asset_id=TRGP;horizons=['medium', 'short']"
+      },
+      {
+        "id": "Q8_rank_movement_on_mock_price_tick",
+        "spec": "mock_price_tick=1 실행 시 rank_movement 에 up 또는 down 이 1건 이상 등장하는가?",
+        "ok": true,
+        "detail": "horizon=short;asset_id=MS;movement=up"
+      },
+      {
+        "id": "Q9_information_and_research_layers_present",
+        "spec": "object 단면에 information.supporting_signals >=1 + research.deeper_rationale 가 존재하는가?",
+        "ok": true,
+        "detail": "horizon=short;asset_id=TRGP"
+      },
+      {
+        "id": "Q10_replay_lineage_join_present",
+        "spec": "persisted snapshot에 message_snapshot_id + registry_entry_id 가 동시에 존재하는가?",
+        "ok": true,
+        "detail": "snapshot_id=msg_snap:v1:1d9c061751cb543bc6657378;registry_entry_id=reg_short_demo_v0"
+      }
+    ],
+    "all_automated_ok": true,
+    "manual_or_runtime_proof": []
+  },
+  "advanced": {
+    "schema_version": 1,
+    "control_plane_excerpt": {
+      "enabled": true,
+      "maintenance_mode": false,
+      "max_cycles_per_window": 120,
+      "window_seconds": 3600
+    },
+    "trigger_controls": {
+      "allowed_trigger_types_effective": [
+        "changed_artifact_bundle",
+        "closeout_reopen_candidate",
+        "manual_watchlist",
+        "named_source_signal",
+        "operator_research_signal"
+      ],
+      "disabled_trigger_types_config": [],
+      "allowed_trigger_types_config": [
+        "changed_artifact_bundle",
+        "operator_research_signal",
+        "closeout_reopen_candidate",
+        "named_source_signal",
+        "manual_watchlist"
+      ]
+    },
+    "last_cycle_audit_excerpt": {
+      "timestamp": "2026-04-14T05:03:19.382786+00:00",
+      "cycle_id": "81395afa-235b-4598-952d-52b973a49358",
+      "skipped": false,
+      "why_stopped": "phase48_completed",
+      "jobs_created": 3,
+      "jobs_executed": 3
+    },
+    "audit_tail_summary": {
+      "total_entries": 9,
+      "tail_count": 9,
+      "skipped_in_tail": 0,
+      "last_entry": {
+        "timestamp": "2026-04-14T05:03:19.382786+00:00",
+        "cycle_id": "81395afa-235b-4598-952d-52b973a49358",
+        "why_cycle_started": "phase52_governed_webhook_smoke",
+        "lease_acquired": true,
+        "controls_applied": {
+          "timing": {
+            "run": true,
+            "reason": "phase52_smoke_bypass_timing",
+            "detail": "governed_webhook",
+            "profile": "manual_debug"
+          },
+          "trigger_controls": {
+            "allowed_trigger_types_effective": [
+              "changed_artifact_bundle",
+              "closeout_reopen_candidate",
+              "manual_watchlist",
+              "named_source_signal",
+              "operator_research_signal"
+            ],
+            "disabled_trigger_types_config": [],
+            "allowed_trigger_types_config": [
+              "changed_artifact_bundle",
+              "operator_research_signal",
+              "closeout_reopen_candidate",
+              "named_source_signal",
+              "manual_watchlist"
+            ]
+          },
+          "external_supplemental_count": 3
+        },
+        "triggers_evaluated_count": 3,
+        "jobs_created_count": 3,
+        "jobs_executed_count": 3,
+        "why_cycle_stopped": "phase48_completed",
+        "cycle_skipped": false,
+        "operator_override": null
+      }
+    },
+    "external_ingest_counts": {
+      "total_entries": 0,
+      "accepted_pending": 0,
+      "consumed": 0,
+      "rejected": 0,
+      "deduped": 0
+    },
+    "last_accepted_trigger": null,
+    "last_rejected_trigger": null,
+    "recent_skip_reasons": [],
+    "health_status": "healthy",
+    "legacy_ingest_status": {
+      "path": "POST /api/runtime/external-ingest",
+      "allowed": false,
+      "note": "Unauthenticated legacy path; disabled by default (control plane)."
+    },
+    "external_ingress_phase53": {
+      "signed_ingress_configured": false,
+      "sources_with_rotation_keys": 0,
+      "dead_letter_total_entries": 0,
+      "dead_letter_by_failure_stage": {},
+      "replay_guard_active_entries": 0,
+      "registry_path_used": "data/research_runtime/external_source_registry_v1.json"
+    }
+  }
+}

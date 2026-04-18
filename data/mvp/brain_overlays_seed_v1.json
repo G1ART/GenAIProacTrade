@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "contract": "METIS_BRAIN_OVERLAYS_SEED_V1",
-  "description": "Pragmatic Brain Absorption v1 — Milestone C bounded seed. Two transcript-language overlays and one catalyst window overlay, each anchored to an existing bundle entity (artifact_id or registry_entry_id). All overlays carry a counter-interpretation flag and an explicit expiry_or_recheck_rule so founders never see unsourced narrative. Extend this file via operator CLI when additional transcripts are processed.",
+  "description": "Bounded Non-Quant Cash-Out v1 (over Pragmatic Brain Absorption v1 seed). Two earnings-transcript / guidance-language overlays now carry expected_direction_hint, what_it_changes, and source_artifact_refs_summary so Today, Research, and Replay can cash out directional aging without any free-text LLM narrative. The policy overlay (catalyst_window) remains an illustrative binding example only — policy/regulation/tech overlay families are out of scope for this patch. Extend this file via operator CLI when additional transcripts are processed.",
   "overlays": [
     {
       "overlay_id": "ovr_short_transcript_guidance_tone_v1",
@@ -26,7 +26,10 @@
         "residual_macro_uncertainty_still_present"
       ],
       "provenance_summary": "seed_transcript_overlay_v1:short_guidance_tone",
-      "expiry_or_recheck_rule": "recheck_at_next_earnings_call_or_2026-07-15"
+      "expiry_or_recheck_rule": "recheck_at_next_earnings_call_or_2026-07-15",
+      "expected_direction_hint": "position_weakens",
+      "what_it_changes": "단기 가치 포지션에 대한 확신도를 transcript 톤 변화만큼만 조정합니다 (가격 추천 아님).",
+      "source_artifact_refs_summary": "경영진 가이던스 어조가 직전 콜 대비 제한 적으로 보수화됨 (bounded seed)."
     },
     {
       "overlay_id": "ovr_medium_transcript_regime_shift_v1",
@@ -51,7 +54,10 @@
         "bookings_still_not_reflected_in_reported_revenue"
       ],
       "provenance_summary": "seed_transcript_overlay_v1:medium_capex_regime_shift",
-      "expiry_or_recheck_rule": "recheck_after_next_capex_disclosure_or_2026-08-01"
+      "expiry_or_recheck_rule": "recheck_after_next_capex_disclosure_or_2026-08-01",
+      "expected_direction_hint": "regime_changes",
+      "what_it_changes": "중기 등록부 항목의 레짐 가정 자체를 재검토 대상으로 표시합니다 (aging 판정은 중립 고정).",
+      "source_artifact_refs_summary": "두 분기 연속 capex 재개 언어 등장, 보고 매출에는 아직 미반영 (bounded seed)."
     },
     {
       "overlay_id": "ovr_short_catalyst_window_demo_v1",
@@ -76,7 +82,10 @@
         "outcome_still_binary_and_unproven"
       ],
       "provenance_summary": "seed_policy_overlay_v1:short_catalyst_window",
-      "expiry_or_recheck_rule": "expires_at_2026-05-10"
+      "expiry_or_recheck_rule": "expires_at_2026-05-10",
+      "expected_direction_hint": "event_binary_pending",
+      "what_it_changes": "정책 계열 오버레이는 이번 패치의 직접 cash-out 대상이 아닙니다 — 바인딩 예시로만 유지합니다.",
+      "source_artifact_refs_summary": "정책/규제 계열 오버레이 도입은 다음 사이클 범위입니다 (이번 패치 비목표)."
     }
   ]
 }

@@ -23,6 +23,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from metis_brain.brain_overlays_v1 import OVERLAY_TYPES
+
 
 PERSONA_KINDS = (
     "quant_residual_analyst",
@@ -38,6 +40,29 @@ PersonaKind = Literal[
     "non_quant_regime_tracker",
     "growth_durability_analyst",
     "capital_allocation_analyst",
+]
+
+# Bounded Non-Quant Cash-Out v1 — BNCO-5. Controlled vocabulary for the
+# signal the persona believes it is emitting. Intentionally bounded — no
+# free-form text category (no "hype_cycle", no "narrative_check", etc).
+SIGNAL_TYPES = (
+    "",
+    "residual_tightening",
+    "residual_widening",
+    "guidance_language_delta",
+    "regime_shift_hypothesis",
+    "catalyst_pending",
+    "invalidation_risk",
+)
+
+SignalType = Literal[
+    "",
+    "residual_tightening",
+    "residual_widening",
+    "guidance_language_delta",
+    "regime_shift_hypothesis",
+    "catalyst_pending",
+    "invalidation_risk",
 ]
 
 
@@ -76,6 +101,11 @@ class PersonaCandidatePacketV1(BaseModel):
     countercase: str = ""
     gate_eligibility: dict[str, bool] = Field(default_factory=dict)
     provenance_summary: str = ""
+    # Bounded Non-Quant Cash-Out v1 — BNCO-5. All three default to empty to
+    # stay backward-compatible with existing persona packets.
+    signal_type: SignalType = ""
+    intended_overlay_type: str = ""
+    blocking_reasons: list[str] = Field(default_factory=list)
     promotion_doctrine_note: str = (
         "Candidate only. Not active truth. Must pass PIT + provenance + "
         "validation + runtime explainability + explicit promotion before any "
@@ -89,6 +119,37 @@ class PersonaCandidatePacketV1(BaseModel):
         if v not in PERSONA_KINDS:
             raise ValueError(f"persona must be one of {PERSONA_KINDS}")
         return v
+
+    @field_validator("signal_type")
+    @classmethod
+    def _signal_in_vocab(cls, v: str) -> str:
+        if v not in SIGNAL_TYPES:
+            raise ValueError(f"signal_type must be one of {SIGNAL_TYPES}")
+        return v
+
+    @field_validator("intended_overlay_type")
+    @classmethod
+    def _intended_overlay_in_vocab(cls, v: str) -> str:
+        v = str(v or "").strip()
+        if v == "":
+            return v
+        if v not in OVERLAY_TYPES:
+            raise ValueError(
+                f"intended_overlay_type must be '' or one of {OVERLAY_TYPES}"
+            )
+        return v
+
+    @field_validator("blocking_reasons")
+    @classmethod
+    def _blocking_reasons_are_strings(cls, v: list[str]) -> list[str]:
+        if not isinstance(v, list):
+            raise ValueError("blocking_reasons must be a list of strings")
+        out: list[str] = []
+        for item in v:
+            s = str(item or "").strip()
+            if s:
+                out.append(s)
+        return out
 
     @model_validator(mode="after")
     def _stamp_created_at(self) -> "PersonaCandidatePacketV1":
@@ -120,6 +181,9 @@ def build_persona_candidate_packet(
     countercase: str = "",
     gate_eligibility: dict[str, bool] | None = None,
     provenance_summary: str = "",
+    signal_type: str = "",
+    intended_overlay_type: str = "",
+    blocking_reasons: list[str] | None = None,
 ) -> PersonaCandidatePacketV1:
     cid = deterministic_candidate_id(
         persona=persona,
@@ -140,6 +204,9 @@ def build_persona_candidate_packet(
             "countercase": countercase,
             "gate_eligibility": dict(gate_eligibility or {}),
             "provenance_summary": provenance_summary,
+            "signal_type": signal_type,
+            "intended_overlay_type": intended_overlay_type,
+            "blocking_reasons": list(blocking_reasons or []),
         }
     )
 

@@ -2,6 +2,55 @@
 
 **단일 목표**: Today/Research/Replay 세 표면을 **Metis Brain bundle + registry + message snapshot store** 라는 하나의 계약 위에 올리고, `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` §10 의 Q1–Q10 이 **자동 spec survey** 에서 전부 `ok=true` 가 되게 한다. (Build Plan §14 수직 슬라이스, §12 항상 지킬 문장.)
 
+## 2026-04-17 — Bounded Non-Quant Cash-Out v1 (plan `bounded-non-quant-cash-out-v1`)
+
+**단일 목표 (추가)**: 작업지시서 `METIS_PlanMode_Workorder_Post_Audit_bfdb191_v5` 를 받아, Pragmatic Brain Absorption v1 이 심어둔 `brain_overlays_v1` / `persona_candidates_v1` / `horizon_provenance` 를 **registry truth 규율을 해치지 않고** Today·Research·Replay 표면에서 “실제로 보이는” 형태로 cash-out 하는 것. 한 가족(earnings transcript / guidance language delta)만 정해서 끝까지 끌고 간다 — LLM 자유 서술, price/return/추천 언어, 정책·규제·기술 overlays 는 이번 패치 범위 밖이다.
+
+**Green run 실증**
+
+- **BNCO-1 — Overlay schema + seed 확장**. `BrainOverlayV1` 에 optional `expected_direction_hint` (controlled vocabulary: `""`, `position_weakens`, `position_strengthens`, `regime_changes`, `risk_asymmetry_widens`, `event_binary_pending`), `what_it_changes` (≤240자 seed-sourced), `source_artifact_refs_summary` (≤240자) 세 필드를 추가. 순수 함수 `overlay_decision_aging_v1(hint, snapshot_position, current_position)` 를 공개해 `aged_in_line / aged_against / neutral` 세 라벨만 결정적으로 내도록 만듬. 시드 `data/mvp/brain_overlays_seed_v1.json` 의 두 transcript overlay (`ovr_short_transcript_guidance_tone_v1`, `ovr_medium_transcript_regime_shift_v1`) 에 새 필드 채움. `summarize_overlays_for_runtime` 이 필드를 같이 방출. 테스트: `src/tests/test_brain_overlays_v1.py` 에 7개 케이스 추가 (vocabulary / 길이 cap / 시드 필드 / aging rules). 증거: `data/mvp/evidence/bounded_nonquant_cashout_v1_overall_evidence.json` 의 BNCO-1 항.
+- **BNCO-2 — Today cash-out (compact overlay summary)**. `src/phase47_runtime/today_spectrum.py` 가 `TODAY_REGISTRY_SURFACE_V1` 에 `brain_overlay_summary = { total, count_by_type, labels[] }` 를 emit. `labels` 는 `{overlay_id, short_label_ko, short_label_en, overlay_type, confidence, expected_direction_hint, expiry_or_recheck_rule}` 만 담고 — **모든 한/영 문구는 `phase47e_user_locale.py` 의 controlled string** (`overlay.short.regime_shift` 등 5개) 에서만 온다. `brain_overlay_ids` 는 하위 호환을 위해 유지. 테스트: 새 모듈 `src/tests/test_bounded_nonquant_cashout_v1.py` 의 today 케이스 3건. 증거: `bounded_nonquant_cashout_v1_today_before_after.json`.
+- **BNCO-3 — Research cash-out (bounded explanation)**. `build_today_object_detail_payload.research` 에 `overlay_explanations[]` 추가. 각 항목은 `{overlay_id, overlay_type, confidence, why_it_matters=what_it_changes, recheck_rule=expiry_or_recheck_rule, pit_window, source_refs=source_artifact_refs_summary, counter_interpretation_present, fact_vs_interpretation="interpretation"}` 로 **전부 seed 원문에서만 복사** — 어떤 LLM 서술도 만들지 않는다. 테스트: `test_research_surface_emits_bounded_overlay_explanations`, `test_research_overlay_explanations_match_seed_sources`. 증거: `bounded_nonquant_cashout_v1_research_before_after.json`.
+- **BNCO-4 — Replay directional aging + micro-brief 확장**. `src/phase47_runtime/traceability_replay.py` 의 `_spectrum_review_context_for_asset` 이 현재 `spectrum_position` 과 bound overlay 레코드 전부를 내부 `aging_context` 로 회수. `_inject_lineage_into_timeline_events` 가 각 decision/alert 이벤트의 `message_snapshot_id` 를 들고 snapshot store 에서 당시 `spectrum_position` 을 복원한 뒤 `overlay_decision_aging_v1` 를 태워 `overlay_aging_lineage=[{overlay_id, overlay_type, expected_direction_hint, aging_label, snapshot_spectrum_position, current_spectrum_position}]` 를 붙임. `micro_brief_for_event` 는 이 라벨만 노출 (가격·수익률·매매 언어 금지). 테스트: `test_inject_overlay_aging_lineage_into_decision_event`, `test_inject_overlay_aging_neutral_when_snapshot_missing`, `test_inject_no_aging_when_no_overlays_bound`. 증거: `bounded_nonquant_cashout_v1_replay_before_after.json`.
+- **BNCO-5 — Persona candidate packet 품질**. `PersonaCandidatePacketV1` 에 optional `signal_type` (controlled vocab 7값, 예 `guidance_language_delta`, `residual_tightening`, `regime_shift_hypothesis`, `invalidation_risk` …), `intended_overlay_type` (reuse `OVERLAY_TYPES`), `blocking_reasons: list[str]` 추가. `build_persona_candidate_packet` / `emit-persona-candidates` CLI 이 세 필드를 통과시키되 `promotion_doctrine_note` 는 여전히 하드코딩 고정. 테스트: `src/tests/test_persona_candidates_v1.py` 에 6건 추가, demo 리포트 `data/mvp/evidence/persona_candidates_v1_demo.json` 재생성 (3 persona 전부 새 필드 담김).
+- **BNCO-6 — Long-horizon honesty + runtime provenance**. `src/metis_brain/bundle_full_from_validation_v1.py` 가 번들 생성 직후 `horizon_provenance` 를 후처리해 전이 상태 `degraded_pending_real_derived` 를 canonical `insufficient_evidence` 로 투영 (이유 hint 를 `metis_brain_bundle_build_v2.json` 의 `horizon_fallback_labels.*.insufficient_evidence_reason_hint` 에서 복사). `cockpit_health_surface.build_cockpit_runtime_health_payload` 가 `mvp_brain_gate.horizon_state_v1` 를 canonical 4값 (`real_derived`, `real_derived_with_degraded_challenger`, `template_fallback`, `insufficient_evidence`) 로 방출, 로케일 honesty note 를 `phase47e_user_locale.py` 에 등록. 테스트: 새 모듈 `src/tests/test_horizon_honesty_v1.py` 6건. 증거: `bounded_nonquant_cashout_v1_runtime_health.json`.
+
+**변경 범위 요약 (bounded-non-quant-cash-out-v1 패치)**
+
+- 확장 스키마: `BrainOverlayV1` (+3 optional), `PersonaCandidatePacketV1` (+3 optional), 공개 순수 함수 `overlay_decision_aging_v1`.
+- 확장 모듈: `src/metis_brain/brain_overlays_v1.py`, `src/metis_brain/persona_candidates_v1.py`, `src/metis_brain/bundle_full_from_validation_v1.py`, `src/phase47_runtime/today_spectrum.py`, `src/phase47_runtime/traceability_replay.py`, `src/phase47_runtime/phase47e_user_locale.py`, `src/phase51_runtime/cockpit_health_surface.py`, `src/main.py` (persona CLI 통로).
+- 신규 locale key 5 overlay short label + horizon honesty note 4 (ko/en 병행).
+- 확장 시드/config: `data/mvp/brain_overlays_seed_v1.json` (transcript overlay 2건), `data/mvp/metis_brain_bundle_build_v2.json` (`insufficient_evidence_reason_hint`).
+- 신규 tests: `src/tests/test_bounded_nonquant_cashout_v1.py`, `src/tests/test_horizon_honesty_v1.py`, 기존 `test_brain_overlays_v1.py` / `test_persona_candidates_v1.py` 보강.
+- 증거 패킷 (BNCO-E): `data/mvp/evidence/bounded_nonquant_cashout_v1_overall_evidence.json`, `…_spec_survey.json`, `…_runtime_health.json`, `…_today_before_after.json`, `…_research_before_after.json`, `…_replay_before_after.json`, `persona_candidates_v1_demo.json` (재생성).
+
+**회귀 확인**
+
+- `python3 src/main.py print-mvp-spec-survey --fail-on-false` → Q1–Q10 모두 `ok=true`, `all_automated_ok=true`.
+- `python3 -m pytest src/tests -q --deselect src/tests/test_phase39_hypothesis_family.py::test_phase39_orchestrator_writes_artifacts` → **818 passed, 1 deselected**. Deselect 된 phase 39 orchestrator 는 이 브랜치 이전부터 실패하던 이슈로 BNCOv1 범위 밖.
+
+**Anti-drift 점검 (작업지시서 §4·§8 대비)**
+
+- Today/Research/Replay 의 overlay 문구는 모두 seed JSON + `phase47e_user_locale.py` controlled string 에서만 온다 — LLM 자유 서술 **없음**.
+- `fact_vs_interpretation` 는 overlay 레이어에서 항상 `"interpretation"` 로 하드핀.
+- 가격·수익률·"buy/sell/guaranteed/recommend" 단어는 Today/Research/Replay 어느 payload 에도 등장하지 않음 (`_assert_no_forbidden_copy` regression).
+- Overlay 가족은 earnings transcript / guidance language 한 가족으로만 제한 — policy / 규제 / 기술 overlay 는 시드에서 "out of scope for this patch" 로 표기만 유지.
+- Persona / overlay 승격은 여전히 금지 — 이번 패치는 `signal_type` / `blocking_reasons` / `expected_direction_hint` 같은 **관측 가능성** 만 넓힘.
+
+**MVP Spec §10 대비 갭 (BNCOv1 이후)**
+
+- Q1–Q10 은 survey 기준 전부 ok. `horizon_state_v1` 이 runtime 에서 canonical 4값만 방출하도록 닫혀 있어, Q7/Q8 의 "honest surfacing" 면도 한 단계 더 조여짐.
+- Overlay cash-out 은 transcript / guidance language 한 가족으로만 검증됨. 다른 가족 (policy, 기술, 사건) 은 여전히 candidate-first.
+- Replay aging 은 "당시 vs 현재 `spectrum_position`" 단순 비교에 기반 — 시간 가중, 기대 지평 단위 정규화는 미래 패치 후보.
+
+**직후 권고 (다음 Patch Bundle)**
+
+1. **Snapshot time-alignment**: 현 aging 은 event-time snapshot 을 사용하지만, 여러 decision 이 동일 snapshot 을 공유할 때 `aged_against` 가 과대해질 수 있다. event 사이의 snapshot 중복 탐지 → honesty badge 추가.
+2. **Overlay seed governance v2**: transcript seed 의 `source_artifact_refs_summary` 를 실제 artifact 파일 경로와 연결하는 lineage job.
+3. **Persona promotion 파이프라인 스케치**: `emit-persona-candidates` 출력을 `promote-persona-candidate` (PIT + provenance + validation + runtime explainability) 로 받는 4-step gate 를 Patch Bundle D+ 에서 설계 (Pragmatic Brain Absorption v1 에서 이월된 권고를 유지).
+4. (Non-goal 유지) 포트폴리오 / 브로커 / 백테스트 / IR 덱 / skin polish 는 이번 사이클에서도 MVP 진전이 아니다.
+
+
 ## 2026-04-17 — Pragmatic Brain Absorption v1 (plan `pragmatic-brain-absorption-v1`)
 
 **단일 목표 (추가)**: 작업지시서 `METIS_PlanMode_Workorder_Pragmatic_Brain_Absorption_v1` 의 5개 subtrack 을 Unified Product Spec / Build Plan 에 맞춰 **레인 A→B→C→D→E 순** 으로 쪼개, "거버넌스·추적 가능성·제품 표면 cash-out" 이 있는 최소 증분으로 닫는다. 한 번에 "완성된 뇌" 가 아니라 **default brain 이 진짜로 조금 더 진짜가 되고, 그게 Today/Replay 표면에서 보이게** 하는 것.

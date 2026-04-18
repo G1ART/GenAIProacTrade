@@ -8,6 +8,37 @@ from phase47_runtime.phase47e_user_locale import cockpit_health_public_text, nor
 from phase51_runtime.runtime_health import build_runtime_health_summary
 
 
+# Bounded Non-Quant Cash-Out v1 — BNCO-6. Canonical 4-value vocabulary for
+# horizon state exposed on mvp_brain_gate.horizon_state_v1.
+HORIZON_STATE_V1_VALUES = (
+    "real_derived",
+    "real_derived_with_degraded_challenger",
+    "template_fallback",
+    "insufficient_evidence",
+)
+
+
+def _horizon_state_v1_from_provenance(
+    horizon_provenance: dict[str, Any],
+    horizons: tuple[str, ...],
+) -> dict[str, str]:
+    """Project ``horizon_provenance.source`` into the canonical 4-value state.
+
+    Any horizon not present in provenance, or carrying an unexpected source
+    label, is degraded to ``insufficient_evidence`` — we refuse to let
+    runtime surface confidence that provenance cannot justify.
+    """
+    out: dict[str, str] = {}
+    for hz in horizons:
+        prov = horizon_provenance.get(hz) if isinstance(horizon_provenance, dict) else None
+        src = str((prov or {}).get("source") or "") if isinstance(prov, dict) else ""
+        if src in HORIZON_STATE_V1_VALUES:
+            out[hz] = src
+        else:
+            out[hz] = "insufficient_evidence"
+    return out
+
+
 def build_cockpit_runtime_health_payload(
     *,
     repo_root,
@@ -78,6 +109,10 @@ def build_cockpit_runtime_health_payload(
     brain_overlays_summary = summarize_overlays_for_runtime(
         list(getattr(_b, "brain_overlays", []) or []) if _b is not None else []
     )
+    # Bounded Non-Quant Cash-Out v1 — BNCO-6. horizon_state_v1 is the
+    # canonical 4-value projection of ``horizon_provenance`` that runtime
+    # surfaces + health gates can rely on without parsing nested gates.
+    horizon_state_v1 = _horizon_state_v1_from_provenance(horizon_provenance, _hz)
     mvp_brain_gate = {
         "contract": "MVP_RUNTIME_BRAIN_GATE_V1",
         "bundle_path": str(brain_bundle_path(root)),
@@ -86,6 +121,7 @@ def build_cockpit_runtime_health_payload(
         "bundle_errors": brain_errs if _b is None else [],
         "horizons_ready": horizons_ready,
         "horizon_provenance": horizon_provenance,
+        "horizon_state_v1": horizon_state_v1,
         "active_artifact_by_horizon": active_artifact_by_horizon,
         "brain_overlays_summary": brain_overlays_summary,
     }

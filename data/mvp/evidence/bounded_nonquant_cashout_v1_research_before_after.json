@@ -1,0 +1,32 @@
+{
+  "contract": "BNCO_V1_RESEARCH_BEFORE_AFTER",
+  "before": {
+    "overlay_ids_only": [
+      "ovr_short_transcript_guidance_tone_v1"
+    ]
+  },
+  "after": {
+    "overlay_explanations": [
+      {
+        "overlay_id": "ovr_short_transcript_guidance_tone_v1",
+        "overlay_type": "confidence_adjustment",
+        "why_exists": "guidance_language_tightened; residual_macro_uncertainty_still_present",
+        "source_artifact_ref_summary": "경영진 가이던스 어조가 직전 콜 대비 제한 적으로 보수화됨 (bounded seed).",
+        "what_it_changes": "단기 가치 포지션에 대한 확신도를 transcript 톤 변화만큼만 조정합니다 (가격 추천 아님).",
+        "recheck_rule": "recheck_at_next_earnings_call_or_2026-07-15",
+        "confidence": 0.45,
+        "counter_interpretation_present": true,
+        "expected_direction_hint": "position_weakens",
+        "pit_window": {
+          "starts_at": "2026-01-15T00:00:00Z",
+          "ends_at": "2026-04-15T00:00:00Z"
+        },
+        "fact_vs_interpretation": "interpretation"
+      }
+    ],
+    "fact_vs_interpretation_constant": "interpretation"
+  },
+  "horizon": "short",
+  "asset_id": "TRGP",
+  "note": "Research cash-out: overlay_explanations strictly sourced from seed (what_it_changes, recheck, pit_window)."
+}

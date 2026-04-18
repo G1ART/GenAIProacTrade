@@ -7894,6 +7894,12 @@ def _default_persona_candidate_demo() -> list[dict[str, object]]:
                 "Candidate derived from Milestone A real-derived next_month validation + "
                 "Milestone B residual score semantics."
             ),
+            "signal_type": "residual_tightening",
+            "intended_overlay_type": "confidence_adjustment",
+            "blocking_reasons": [
+                "requires_pit_rule_certification",
+                "requires_runtime_explainability",
+            ],
         },
         {
             "persona": "value_reversion_analyst",
@@ -7922,6 +7928,12 @@ def _default_persona_candidate_demo() -> list[dict[str, object]]:
                 "Candidate references Milestone A opt-in long-horizon plumbing but will "
                 "remain candidate-only until monotonicity gate passes."
             ),
+            "signal_type": "regime_shift_hypothesis",
+            "intended_overlay_type": "regime_shift",
+            "blocking_reasons": [
+                "requires_monotonicity",
+                "requires_validation_considered",
+            ],
         },
         {
             "persona": "non_quant_regime_tracker",
@@ -7954,6 +7966,13 @@ def _default_persona_candidate_demo() -> list[dict[str, object]]:
                 "Non-quant overlay candidate aligned with Milestone C brain_overlays_v1 "
                 "vocabulary; seed-only, no auto-promotion."
             ),
+            "signal_type": "guidance_language_delta",
+            "intended_overlay_type": "regime_shift",
+            "blocking_reasons": [
+                "requires_pit_rule_certification",
+                "requires_runtime_explainability",
+                "requires_explicit_operator_promotion",
+            ],
         },
     ]
 
@@ -8027,6 +8046,9 @@ def _cmd_emit_persona_candidates(args: argparse.Namespace) -> int:
                 countercase=str(spec.get("countercase", "")),
                 gate_eligibility=dict(spec.get("gate_eligibility") or {}),
                 provenance_summary=str(spec.get("provenance_summary", "")),
+                signal_type=str(spec.get("signal_type", "") or ""),
+                intended_overlay_type=str(spec.get("intended_overlay_type", "") or ""),
+                blocking_reasons=list(spec.get("blocking_reasons") or []),
             )
             packets.append(pkt)
         except (TypeError, ValueError) as e:

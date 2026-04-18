@@ -17,7 +17,9 @@ from pydantic import ValidationError
 from metis_brain.brain_overlays_v1 import (
     BrainOverlaySeedFileV1,
     BrainOverlayV1,
+    EXPECTED_DIRECTION_HINTS,
     load_brain_overlays_seed,
+    overlay_decision_aging_v1,
     overlay_influence_lookup,
     summarize_overlays_for_runtime,
     validate_overlays_against_bundle,
@@ -167,6 +169,104 @@ def test_cockpit_health_exposes_overlay_summary() -> None:
     assert summary["contract"] == "METIS_BRAIN_OVERLAYS_SUMMARY_V1"
     assert summary["total"] == 1
     assert summary["items"][0]["overlay_id"] == "ovr_test_v1"
+
+
+# ---------------------------------------------------------------------------
+# Bounded Non-Quant Cash-Out v1 — BNCO-1 additions.
+# ---------------------------------------------------------------------------
+
+
+def test_overlay_rejects_unknown_expected_direction_hint() -> None:
+    with pytest.raises(ValidationError):
+        BrainOverlayV1.model_validate(
+            _minimal_overlay(expected_direction_hint="moon_landing")
+        )
+
+
+def test_overlay_accepts_empty_and_known_hints() -> None:
+    # Empty default stays valid.
+    ov_default = BrainOverlayV1.model_validate(_minimal_overlay())
+    assert ov_default.expected_direction_hint == ""
+    # Every known hint must be accepted.
+    for h in EXPECTED_DIRECTION_HINTS:
+        if h == "":
+            continue
+        ov = BrainOverlayV1.model_validate(
+            _minimal_overlay(expected_direction_hint=h)
+        )
+        assert ov.expected_direction_hint == h
+
+
+def test_overlay_what_it_changes_length_cap() -> None:
+    too_long = "x" * 300
+    with pytest.raises(ValidationError):
+        BrainOverlayV1.model_validate(_minimal_overlay(what_it_changes=too_long))
+    with pytest.raises(ValidationError):
+        BrainOverlayV1.model_validate(
+            _minimal_overlay(source_artifact_refs_summary=too_long)
+        )
+
+
+def test_summary_now_includes_direction_and_what_it_changes() -> None:
+    ov = BrainOverlayV1.model_validate(
+        _minimal_overlay(
+            expected_direction_hint="position_weakens",
+            what_it_changes="톤 반영 (가격 아님)",
+        )
+    )
+    summary = summarize_overlays_for_runtime([ov])
+    item = summary["items"][0]
+    assert item["expected_direction_hint"] == "position_weakens"
+    assert item["what_it_changes"] == "톤 반영 (가격 아님)"
+
+
+def test_seed_transcript_overlays_carry_new_fields() -> None:
+    overlays, errors = load_brain_overlays_seed(REPO_ROOT)
+    assert errors == []
+    by_id = {o.overlay_id: o for o in overlays}
+    assert "ovr_short_transcript_guidance_tone_v1" in by_id
+    assert "ovr_medium_transcript_regime_shift_v1" in by_id
+    short_ov = by_id["ovr_short_transcript_guidance_tone_v1"]
+    assert short_ov.expected_direction_hint == "position_weakens"
+    assert short_ov.what_it_changes
+    assert short_ov.source_artifact_refs_summary
+    medium_ov = by_id["ovr_medium_transcript_regime_shift_v1"]
+    assert medium_ov.expected_direction_hint == "regime_changes"
+    assert medium_ov.what_it_changes
+    assert medium_ov.source_artifact_refs_summary
+
+
+@pytest.mark.parametrize(
+    "hint,snap,cur,expected",
+    [
+        # position_weakens — aging in line when current falls below snapshot.
+        ("position_weakens", 0.40, 0.30, "aged_in_line"),
+        ("position_weakens", 0.40, 0.50, "aged_against"),
+        ("position_weakens", 0.40, 0.42, "neutral"),
+        # position_strengthens — opposite direction.
+        ("position_strengthens", 0.20, 0.40, "aged_in_line"),
+        ("position_strengthens", 0.20, 0.10, "aged_against"),
+        ("position_strengthens", 0.20, 0.22, "neutral"),
+        # regime_changes / event_binary_pending / risk_asymmetry_widens / ""
+        # → always neutral (not measurable via spectrum_position alone).
+        ("regime_changes", 0.10, 0.90, "neutral"),
+        ("event_binary_pending", 0.10, 0.90, "neutral"),
+        ("risk_asymmetry_widens", 0.10, 0.90, "neutral"),
+        ("", 0.10, 0.90, "neutral"),
+    ],
+)
+def test_overlay_decision_aging_v1_rules(
+    hint: str, snap: float, cur: float, expected: str
+) -> None:
+    ov = _minimal_overlay(expected_direction_hint=hint)
+    assert overlay_decision_aging_v1(ov, snap, cur) == expected
+
+
+def test_overlay_decision_aging_v1_missing_position_is_neutral() -> None:
+    ov = _minimal_overlay(expected_direction_hint="position_weakens")
+    assert overlay_decision_aging_v1(ov, None, 0.5) == "neutral"
+    assert overlay_decision_aging_v1(ov, 0.5, None) == "neutral"
+    assert overlay_decision_aging_v1(ov, None, None) == "neutral"
 
 
 def test_today_registry_surface_carries_overlay_ids() -> None:

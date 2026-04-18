@@ -811,6 +811,15 @@ SECTION_PAYLOAD: dict[str, dict[str, str]] = {
         "brief.label_action": "지금 할 일",
         "brief.label_evidence": "근거 상태",
         "brief.evidence_fallback": "근거 탭 참고",
+        # Bounded Non-Quant Cash-Out v1 — overlay short labels (Today compact).
+        # Fixed copy, no recommendation/buy/sell/guarantee wording.
+        "overlay.short.regime_shift": "레짐 변화 관찰 중",
+        "overlay.short.confidence_adjustment": "트랜스크립트 톤 반영",
+        "overlay.short.invalidation_warning": "무효화 신호 감시",
+        "overlay.short.catalyst_window": "이벤트 창 열림",
+        "overlay.short.hazard_modifier": "하방 비대칭 확대",
+        "horizon.state.template_fallback_note": "장기 지평은 아직 샘플 템플릿입니다 — 실-파생 전환 전까지 참고용입니다.",
+        "horizon.state.insufficient_evidence_note": "아직 충분한 근거가 쌓이지 않은 지평입니다 — 과장된 확신을 만들지 않습니다.",
     },
     "en": {
         "why_now.intro": "This object is on screen because it is part of your governed cockpit loadout and has a defined research stance. Recent changes below are from the latest authoritative bundle.",
@@ -823,6 +832,13 @@ SECTION_PAYLOAD: dict[str, dict[str, str]] = {
         "brief.label_action": "What to do now",
         "brief.label_evidence": "Evidence state",
         "brief.evidence_fallback": "See Evidence tab",
+        "overlay.short.regime_shift": "Regime shift watch",
+        "overlay.short.confidence_adjustment": "Confidence adjusted by transcript",
+        "overlay.short.invalidation_warning": "Potential invalidation risk",
+        "overlay.short.catalyst_window": "Catalyst window active",
+        "overlay.short.hazard_modifier": "Downside asymmetry widened",
+        "horizon.state.template_fallback_note": "Long horizons are still on a sample template — reference use only until real-derived lands.",
+        "horizon.state.insufficient_evidence_note": "This horizon has not accumulated enough evidence yet — we refuse to manufacture confidence.",
     },
 }
 

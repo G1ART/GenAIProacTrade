@@ -66,6 +66,7 @@ def _registry_surface_v1_from_bundle_entry(bundle: BrainBundleV0, ent: ActiveHor
     # ids (not free narrative) so founders can trace non-quant adjustments.
     overlays_raw = list(getattr(bundle, "brain_overlays", []) or [])
     brain_overlay_ids: list[str] = []
+    bound_overlays: list[dict[str, Any]] = []
     for ov in overlays_raw:
         if not isinstance(ov, dict):
             continue
@@ -77,6 +78,8 @@ def _registry_surface_v1_from_bundle_entry(bundle: BrainBundleV0, ent: ActiveHor
             oid = str(ov.get("overlay_id") or "")
             if oid:
                 brain_overlay_ids.append(oid)
+                bound_overlays.append(ov)
+    brain_overlay_summary = _build_today_overlay_summary(bound_overlays)
     return {
         "contract": "TODAY_REGISTRY_SURFACE_V1",
         "registry_entry_id": ent.registry_entry_id,
@@ -94,6 +97,49 @@ def _registry_surface_v1_from_bundle_entry(bundle: BrainBundleV0, ent: ActiveHor
         "scoring_endpoint_contract": ent.scoring_endpoint_contract,
         "replay_lineage_pointer": str(ent.replay_lineage_pointer or ""),
         "brain_overlay_ids": brain_overlay_ids,
+        "brain_overlay_summary": brain_overlay_summary,
+    }
+
+
+# Bounded Non-Quant Cash-Out v1 — BNCO-2. Compact, card-ready summary emitted
+# alongside ``brain_overlay_ids``. Labels come from the locale dictionary and
+# never include recommendation / buy / sell wording.
+_OVERLAY_SHORT_LABEL_KEYS: dict[str, str] = {
+    "regime_shift": "overlay.short.regime_shift",
+    "confidence_adjustment": "overlay.short.confidence_adjustment",
+    "invalidation_warning": "overlay.short.invalidation_warning",
+    "catalyst_window": "overlay.short.catalyst_window",
+    "hazard_modifier": "overlay.short.hazard_modifier",
+}
+
+
+def _build_today_overlay_summary(
+    bound_overlays: list[dict[str, Any]],
+) -> dict[str, Any]:
+    labels: list[dict[str, Any]] = []
+    by_type: dict[str, int] = {}
+    for ov in bound_overlays or []:
+        otype = str(ov.get("overlay_type") or "")
+        by_type[otype] = by_type.get(otype, 0) + 1
+        key = _OVERLAY_SHORT_LABEL_KEYS.get(otype, "")
+        short_ko = t("ko", key) if key else ""
+        short_en = t("en", key) if key else ""
+        labels.append(
+            {
+                "overlay_id": str(ov.get("overlay_id") or ""),
+                "overlay_type": otype,
+                "short_label_ko": short_ko,
+                "short_label_en": short_en,
+                "confidence": ov.get("confidence"),
+                "expiry_or_recheck_rule": str(ov.get("expiry_or_recheck_rule") or ""),
+                "expected_direction_hint": str(ov.get("expected_direction_hint") or ""),
+            }
+        )
+    return {
+        "contract": "TODAY_BRAIN_OVERLAY_SUMMARY_V1",
+        "total": len(labels),
+        "count_by_type": by_type,
+        "labels": labels,
     }
 
 
@@ -689,6 +735,76 @@ def _information_from_seed_or_fallback(
     }
 
 
+def _overlay_explanations_for_surface(
+    *,
+    repo_root: Path,
+    registry_surface: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Bounded Non-Quant Cash-Out v1 — BNCO-3.
+
+    Emit per-asset overlay explanations by pulling full overlay records from
+    the current bundle and filtering to the ids surfaced on
+    ``registry_surface_v1.brain_overlay_ids``. Every string is sourced from
+    the bundled overlay record (or its direct seed fields) — we never
+    synthesize free-text here. ``fact_vs_interpretation`` is hard-pinned to
+    ``"interpretation"`` so UI treats the block as opinion, never as fact.
+    """
+
+    overlay_ids = [str(x) for x in (registry_surface.get("brain_overlay_ids") or []) if x]
+    if not overlay_ids:
+        return []
+    bundle, _errs = try_load_brain_bundle_v0(repo_root)
+    if bundle is None:
+        return []
+    by_id: dict[str, dict[str, Any]] = {}
+    for ov in getattr(bundle, "brain_overlays", []) or []:
+        if not isinstance(ov, dict):
+            continue
+        oid = str(ov.get("overlay_id") or "")
+        if oid:
+            by_id[oid] = ov
+    out: list[dict[str, Any]] = []
+    for oid in overlay_ids:
+        ov = by_id.get(oid)
+        if not ov:
+            continue
+        refs = ov.get("source_artifact_refs") or []
+        first_ref_summary = ""
+        if isinstance(refs, list) and refs:
+            first = refs[0]
+            if isinstance(first, dict):
+                first_ref_summary = str(first.get("summary") or "")
+        source_summary = (
+            str(ov.get("source_artifact_refs_summary") or "") or first_ref_summary
+        )
+        reasons = ov.get("reasons") or []
+        reasons_text = "; ".join(str(r) for r in reasons if isinstance(r, str)) if reasons else ""
+        pit = ov.get("pit_timestamp_window") or {}
+        out.append(
+            {
+                "overlay_id": oid,
+                "overlay_type": str(ov.get("overlay_type") or ""),
+                "why_exists": reasons_text,
+                "source_artifact_ref_summary": source_summary,
+                "what_it_changes": str(ov.get("what_it_changes") or ""),
+                "recheck_rule": str(ov.get("expiry_or_recheck_rule") or ""),
+                "confidence": ov.get("confidence"),
+                "counter_interpretation_present": bool(
+                    ov.get("counter_interpretation_present")
+                ),
+                "expected_direction_hint": str(
+                    ov.get("expected_direction_hint") or ""
+                ),
+                "pit_window": {
+                    "starts_at": str(pit.get("starts_at") or "") if isinstance(pit, dict) else "",
+                    "ends_at": str(pit.get("ends_at") or "") if isinstance(pit, dict) else "",
+                },
+                "fact_vs_interpretation": "interpretation",
+            }
+        )
+    return out
+
+
 def _research_from_seed_or_fallback(
     raw_row: dict[str, Any] | None,
     spectrum_row: dict[str, Any],
@@ -779,6 +895,10 @@ def build_today_object_detail_payload(
                 lang=lg,
             )
         },
+        "overlay_explanations": _overlay_explanations_for_surface(
+            repo_root=repo_root,
+            registry_surface=sp.get("registry_surface_v1") or {},
+        ),
     }
 
     rj = {

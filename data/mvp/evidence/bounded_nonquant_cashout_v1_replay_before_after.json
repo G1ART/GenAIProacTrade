@@ -1,0 +1,31 @@
+{
+  "contract": "BNCO_V1_REPLAY_BEFORE_AFTER",
+  "asset_id": "TRGP",
+  "event_id": "evt_decision_0_defer",
+  "before": {
+    "lineage_fields_only": {
+      "brain_overlay_ids": [
+        "ovr_short_transcript_guidance_tone_v1"
+      ],
+      "brain_overlay_ids_at_decision": [
+        "ovr_short_transcript_guidance_tone_v1"
+      ],
+      "message_snapshot_id": "msg_snap:v1:1d9c061751cb543bc6657378"
+    }
+  },
+  "after": {
+    "current_spectrum_position": 0.997436,
+    "snapshot_spectrum_position": 0.997436,
+    "overlay_aging_lineage": [
+      {
+        "overlay_id": "ovr_short_transcript_guidance_tone_v1",
+        "overlay_type": "confidence_adjustment",
+        "expected_direction_hint": "position_weakens",
+        "aging_label": "neutral",
+        "snapshot_spectrum_position": 0.997436,
+        "current_spectrum_position": 0.997436
+      }
+    ]
+  },
+  "note": "Replay micro-brief now exposes directional aging (aged_in_line / aged_against / neutral). No prices or recommendations."
+}

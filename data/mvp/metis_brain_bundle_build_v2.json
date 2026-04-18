@@ -62,12 +62,14 @@
     "medium_long": {
       "reason": "forward_returns_horizon_not_yet_emitted_for_next_half_year",
       "display_family_name_ko": "중장기 (샘플 전용)",
-      "display_family_name_en": "Medium-long (sample only)"
+      "display_family_name_en": "Medium-long (sample only)",
+      "insufficient_evidence_reason_hint": "next_half_year real-derived data not yet backfilled; operators should consult horizon.state.template_fallback_note locale copy before adding founder-facing confidence."
     },
     "long": {
       "reason": "forward_returns_horizon_not_yet_emitted_for_next_year",
       "display_family_name_ko": "장기 (샘플 전용)",
-      "display_family_name_en": "Long (sample only)"
+      "display_family_name_en": "Long (sample only)",
+      "insufficient_evidence_reason_hint": "next_year real-derived data not yet backfilled; operators should consult horizon.state.template_fallback_note locale copy before adding founder-facing confidence."
     }
   },
   "display_aliases": {
