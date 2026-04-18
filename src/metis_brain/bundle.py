@@ -38,6 +38,11 @@ class BrainBundleV0(BaseModel):
     # from template fallbacks without silent carryover. Legacy bundles omit
     # this field (empty dict = no claim).
     horizon_provenance: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    # Pragmatic Brain Absorption v1 — Milestone C. Optional bounded non-quant
+    # adjustments; each item is a ``BrainOverlayV1`` packet bound to either an
+    # artifact_id or registry_entry_id in this bundle. Legacy bundles omit
+    # this field entirely (empty list = no overlays).
+    brain_overlays: list[dict[str, Any]] = Field(default_factory=list)
 
     @model_validator(mode="before")
     @classmethod
@@ -150,6 +155,32 @@ def validate_active_registry_integrity(bundle: BrainBundleV0) -> list[str]:
     for hz, ids in active_by_h.items():
         if len(ids) > 1:
             errors.append(f"multiple active registry entries for horizon {hz!r}: {ids}")
+
+    # Pragmatic Brain Absorption v1 — Milestone C. Overlays must bind to an
+    # existing artifact_id or registry_entry_id so they never become
+    # free-floating narrative.
+    if bundle.brain_overlays:
+        from metis_brain.brain_overlays_v1 import (
+            BrainOverlayV1,
+            validate_overlays_against_bundle,
+        )
+
+        artifact_ids = {a.artifact_id for a in bundle.artifacts}
+        registry_entry_ids = {e.registry_entry_id for e in bundle.registry_entries}
+        parsed: list[BrainOverlayV1] = []
+        for i, raw in enumerate(bundle.brain_overlays):
+            try:
+                parsed.append(BrainOverlayV1.model_validate(raw))
+            except Exception as e:  # noqa: BLE001
+                errors.append(f"brain_overlays[{i}] invalid: {e}")
+        if parsed:
+            errors.extend(
+                validate_overlays_against_bundle(
+                    parsed,
+                    artifact_ids=artifact_ids,
+                    registry_entry_ids=registry_entry_ids,
+                )
+            )
 
     return errors
 

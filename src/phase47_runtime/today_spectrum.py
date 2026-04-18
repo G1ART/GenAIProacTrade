@@ -61,6 +61,22 @@ def _registry_surface_v1_from_bundle_entry(bundle: BrainBundleV0, ent: ActiveHor
         (getattr(active_art, "display_id", "") if active_art else "")
         or str(getattr(ent, "display_id", "") or "")
     )
+    # Pragmatic Brain Absorption v1 — Milestone C. Bounded overlay influence
+    # for this registry entry + its active artifact. Today surfaces overlay
+    # ids (not free narrative) so founders can trace non-quant adjustments.
+    overlays_raw = list(getattr(bundle, "brain_overlays", []) or [])
+    brain_overlay_ids: list[str] = []
+    for ov in overlays_raw:
+        if not isinstance(ov, dict):
+            continue
+        ov_art = str(ov.get("artifact_id") or "")
+        ov_reg = str(ov.get("registry_entry_id") or "")
+        if ov_reg == ent.registry_entry_id or (
+            ov_art and ov_art == ent.active_artifact_id
+        ):
+            oid = str(ov.get("overlay_id") or "")
+            if oid:
+                brain_overlay_ids.append(oid)
     return {
         "contract": "TODAY_REGISTRY_SURFACE_V1",
         "registry_entry_id": ent.registry_entry_id,
@@ -77,6 +93,7 @@ def _registry_surface_v1_from_bundle_entry(bundle: BrainBundleV0, ent: ActiveHor
         "universe": ent.universe,
         "scoring_endpoint_contract": ent.scoring_endpoint_contract,
         "replay_lineage_pointer": str(ent.replay_lineage_pointer or ""),
+        "brain_overlay_ids": brain_overlay_ids,
     }
 
 

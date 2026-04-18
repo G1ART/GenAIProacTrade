@@ -42,6 +42,8 @@ RUN_TYPE_DEFAULT = "factor_validation_research"
 HORIZON_RETURN_KEYS = {
     "next_month": ("raw_return_1m", "excess_return_1m"),
     "next_quarter": ("raw_return_1q", "excess_return_1q"),
+    "next_half_year": ("raw_return_6m", "excess_return_6m"),
+    "next_year": ("raw_return_1y", "excess_return_1y"),
 }
 
 

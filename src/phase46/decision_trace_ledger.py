@@ -50,6 +50,8 @@ def append_decision(
     message_snapshot_id: str | None = None,
     linked_registry_entry_id: str | None = None,
     linked_artifact_id: str | None = None,
+    brain_overlay_ids_at_decision: list[str] | None = None,
+    persona_candidate_ids_at_decision: list[str] | None = None,
 ) -> dict[str, Any]:
     if decision_type not in DECISION_TYPES:
         raise ValueError(f"invalid decision_type: {decision_type}")
@@ -73,6 +75,14 @@ def append_decision(
         entry["linked_registry_entry_id"] = str(linked_registry_entry_id)[:2000]
     if linked_artifact_id is not None:
         entry["linked_artifact_id"] = str(linked_artifact_id)[:2000]
+    if brain_overlay_ids_at_decision is not None:
+        entry["brain_overlay_ids_at_decision"] = [
+            str(x) for x in list(brain_overlay_ids_at_decision or []) if str(x).strip()
+        ]
+    if persona_candidate_ids_at_decision is not None:
+        entry["persona_candidate_ids_at_decision"] = [
+            str(x) for x in list(persona_candidate_ids_at_decision or []) if str(x).strip()
+        ]
     decs.append(entry)
     ledger["decisions"] = decs
     save_decision_ledger(path, ledger)
@@ -100,5 +110,13 @@ def decision_trace_ledger_schema() -> dict[str, Any]:
             "message_snapshot_id": "optional — deterministic message row snapshot id (Patch Bundle C)",
             "linked_registry_entry_id": "optional — Active Horizon Registry entry id at decision time",
             "linked_artifact_id": "optional — active artifact id at decision time",
+            "brain_overlay_ids_at_decision": (
+                "optional list[str] — brain_overlays_v1 ids influencing the active "
+                "registry entry at decision time (Pragmatic Brain Absorption v1 §8.3)"
+            ),
+            "persona_candidate_ids_at_decision": (
+                "optional list[str] — PersonaCandidatePacketV1 ids considered at "
+                "decision time. Candidate-only; presence never implies promotion."
+            ),
         },
     }

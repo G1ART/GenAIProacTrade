@@ -70,6 +70,14 @@ def build_cockpit_runtime_health_payload(
                 ),
                 "challenger_artifact_ids": list(ent.challenger_artifact_ids or []),
             }
+    # Pragmatic Brain Absorption v1 — Milestone C cash-out. Surfacing the
+    # bounded brain_overlays list lets Today / Research / Replay flag overlay
+    # influence without duplicating the full overlay payload per row.
+    from metis_brain.brain_overlays_v1 import summarize_overlays_for_runtime
+
+    brain_overlays_summary = summarize_overlays_for_runtime(
+        list(getattr(_b, "brain_overlays", []) or []) if _b is not None else []
+    )
     mvp_brain_gate = {
         "contract": "MVP_RUNTIME_BRAIN_GATE_V1",
         "bundle_path": str(brain_bundle_path(root)),
@@ -79,6 +87,7 @@ def build_cockpit_runtime_health_payload(
         "horizons_ready": horizons_ready,
         "horizon_provenance": horizon_provenance,
         "active_artifact_by_horizon": active_artifact_by_horizon,
+        "brain_overlays_summary": brain_overlays_summary,
     }
     from metis_brain.mvp_spec_survey_v0 import build_mvp_spec_survey_v0
 

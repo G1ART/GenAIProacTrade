@@ -1,4 +1,4 @@
-"""factor panel / 스냅샷 기준 선행 수익률(next_month, next_quarter)."""
+"""factor panel / 스냅샷 기준 선행 수익률(next_month, next_quarter, next_half_year, next_year)."""
 
 from __future__ import annotations
 
@@ -30,8 +30,20 @@ logger = logging.getLogger(__name__)
 
 H_NEXT_MONTH = "next_month"
 H_NEXT_QUARTER = "next_quarter"
+H_NEXT_HALF_YEAR = "next_half_year"
+H_NEXT_YEAR = "next_year"
 TRADING_DAYS_1M = 21
 TRADING_DAYS_1Q = 63
+TRADING_DAYS_6M = 126
+TRADING_DAYS_1Y = 252
+
+FORWARD_HORIZON_SPECS: tuple[tuple[str, int], ...] = (
+    (H_NEXT_MONTH, TRADING_DAYS_1M),
+    (H_NEXT_QUARTER, TRADING_DAYS_1Q),
+    (H_NEXT_HALF_YEAR, TRADING_DAYS_6M),
+    (H_NEXT_YEAR, TRADING_DAYS_1Y),
+)
+DEFAULT_PRICE_LOOKAHEAD_DAYS = 520
 
 
 def run_forward_returns_build_from_rows(
@@ -39,7 +51,7 @@ def run_forward_returns_build_from_rows(
     *,
     panels: list[dict[str, Any]],
     metadata_json: dict[str, Any] | None = None,
-    price_lookahead_days: int = 400,
+    price_lookahead_days: int = DEFAULT_PRICE_LOOKAHEAD_DAYS,
 ) -> dict[str, Any]:
     """issuer_quarter_factor_panels 행만 대상으로 선행 수익률 갱신(Phase 25 타깃 백필)."""
     client = get_supabase_client(settings)
@@ -60,7 +72,7 @@ def run_forward_returns_build(
     settings: Any,
     *,
     limit_panels: int = 2000,
-    price_lookahead_days: int = 400,
+    price_lookahead_days: int = DEFAULT_PRICE_LOOKAHEAD_DAYS,
 ) -> dict[str, Any]:
     client = get_supabase_client(settings)
     panels = fetch_factor_panels_all(client, limit=limit_panels)
@@ -118,7 +130,7 @@ def _forward_returns_build_loop(
             source_name=SOURCE_NAME,
         )
         rates = [float(r["annualized_rate"]) for r in rf_rows if r.get("annualized_rate") is not None]
-        for htype, off in ((H_NEXT_MONTH, TRADING_DAYS_1M), (H_NEXT_QUARTER, TRADING_DAYS_1Q)):
+        for htype, off in FORWARD_HORIZON_SPECS:
             fr = forward_return_over_trading_days(series, sig, off)
             if not fr:
                 fail += 1

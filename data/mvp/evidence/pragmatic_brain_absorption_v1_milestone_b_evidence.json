@@ -1,0 +1,28 @@
+{
+  "bundle_name": "pragmatic_brain_absorption_v1_milestone_b",
+  "phase_in_plan": "Milestone B — Residual Score Semantics v1 (contract + optional fields)",
+  "contract_doc": "docs/plan/METIS_Residual_Score_Semantics_v1.md",
+  "changes": {
+    "spectrum_rows_builder": {
+      "path": "src/metis_brain/spectrum_rows_from_validation_v1.py",
+      "summary": "Adds RESIDUAL_SCORE_SEMANTICS_VERSION constant, deterministic invalidation_hint selector with fixed vocabulary {factor_validation_pit_fail, confidence_band_drops_to_low, spectrum_position_crosses_midline, horizon_returns_reverse_sign}, and bundle-horizon → recheck_cadence map. Each spectrum row now carries residual_score_semantics_version / invalidation_hint / recheck_cadence."
+    },
+    "message_object_v1": {
+      "path": "src/metis_brain/message_object_v1.py",
+      "summary": "MessageObjectV1 gains three optional residual-semantics string fields defaulting to empty. build_message_object_v1_for_today_row forwards them from the spectrum row (or nested message override) so Today / Replay can surface them without disturbing Product Spec §6.4 required fields."
+    },
+    "tests_added": {
+      "path": "src/tests/test_residual_score_semantics_v1.py",
+      "summary": "Eight unit tests locking the invalidation-hint priority order, recheck cadence coverage, spectrum row integration, and MessageObjectV1 forwarding + defaults."
+    }
+  },
+  "regression_gates": {
+    "pytest_full_suite_minus_pre_existing_phase39_failure": "753 passed.",
+    "print_mvp_spec_survey_all_automated_ok": true
+  },
+  "non_goals_explicitly_declined": [
+    "statistical residual model (bayesian or otherwise)",
+    "AI-generated free-form rationale in the invalidation hint string",
+    "making the new fields required (they remain optional so Q1–Q10 survey stays green)"
+  ]
+}

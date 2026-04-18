@@ -1,0 +1,43 @@
+{
+  "bundle_name": "pragmatic_brain_absorption_v1_milestone_c",
+  "phase_in_plan": "Milestone C — brain_overlays_v1 bounded non-quant overlay layer",
+  "anti_drift_guard": "All overlays are structured packets (overlay_type vocabulary = regime_shift / hazard_modifier / invalidation_warning / confidence_adjustment / catalyst_window) with confidence ∈ [0, 1], counter_interpretation_present required to be explicit, and an expiry_or_recheck_rule — no free-narrative AI text.",
+  "changes": {
+    "brain_overlays_v1_module": {
+      "path": "src/metis_brain/brain_overlays_v1.py",
+      "summary": "Defines BrainOverlayV1 / BrainOverlaySeedFileV1 Pydantic models, OVERLAY_TYPES vocabulary, exclusive-or artifact/registry binding check, validate_overlays_against_bundle, summarize_overlays_for_runtime, overlay_influence_lookup, and load_brain_overlays_seed."
+    },
+    "bundle_schema": {
+      "path": "src/metis_brain/bundle.py",
+      "summary": "BrainBundleV0 gains optional brain_overlays list; validate_active_registry_integrity now rejects overlays whose artifact_id / registry_entry_id does not match any bundle entity."
+    },
+    "bundle_builder_cli": {
+      "path": "src/main.py",
+      "summary": "build-metis-brain-bundle-from-factor-validation merges overlays from config.overlays_seed_path (default data/mvp/brain_overlays_seed_v1.json) into the merged bundle, validates bindings, and records per-build overlay report (overlays_seed_found, loaded_count, rejected ids, merged_count)."
+    },
+    "cockpit_health_cash_out": {
+      "path": "src/phase51_runtime/cockpit_health_surface.py",
+      "summary": "mvp_brain_gate payload gains brain_overlays_summary (METIS_BRAIN_OVERLAYS_SUMMARY_V1) with total / count_by_type / bounded items list."
+    },
+    "today_registry_surface_cash_out": {
+      "path": "src/phase47_runtime/today_spectrum.py",
+      "summary": "TODAY_REGISTRY_SURFACE_V1 now carries brain_overlay_ids: list[str] so Today cards can show which overlays influence each horizon."
+    },
+    "seed": {
+      "path": "data/mvp/brain_overlays_seed_v1.json",
+      "summary": "Three bounded overlays (confidence_adjustment, regime_shift, catalyst_window) bound to existing short / medium bundle entities. All have counter_interpretation_present=true and explicit expiry_or_recheck_rule."
+    },
+    "bundle_build_v2_reference": {
+      "path": "data/mvp/metis_brain_bundle_build_v2.json",
+      "summary": "Adds overlays_seed_path reference so the opt-in v2 build merges the seed overlays automatically."
+    },
+    "tests_added": {
+      "path": "src/tests/test_brain_overlays_v1.py",
+      "summary": "Ten unit tests covering vocabulary enforcement, confidence bounds, exclusive-or binding, validate_overlays_against_bundle, summary + influence lookup, bundle integrity acceptance vs rejection, seed file binding against the live bundle, and cash-out in cockpit health + Today registry surface."
+    }
+  },
+  "regression_gates": {
+    "pytest_full_suite_minus_pre_existing_phase39_failure": "763 passed.",
+    "print_mvp_spec_survey_all_automated_ok": true
+  }
+}

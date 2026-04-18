@@ -1,0 +1,51 @@
+{
+  "bundle_name": "pragmatic_brain_absorption_v1_milestone_a",
+  "generated_by": "plan file /Users/hyunminkim/.cursor/plans/pragmatic_brain_absorption_v1_60ccd4d0.plan.md",
+  "phase_in_plan": "Milestone A — Real horizon closure (next_half_year, next_year)",
+  "changes": {
+    "forward_returns_run_py": {
+      "path": "src/market/forward_returns_run.py",
+      "summary": "Added H_NEXT_HALF_YEAR / H_NEXT_YEAR constants (126 / 252 trading days), FORWARD_HORIZON_SPECS tuple, bumped DEFAULT_PRICE_LOOKAHEAD_DAYS to 520 so 1y returns are resolvable from silver prices."
+    },
+    "validation_panel_run_py": {
+      "path": "src/market/validation_panel_run.py",
+      "summary": "Fetches next_half_year / next_year from forward_returns_daily_horizons, writes raw_return_6m / excess_return_6m / raw_return_1y / excess_return_1y, and appends missing_forward_return_6m / 1y quality flags when absent."
+    },
+    "validation_runner_py": {
+      "path": "src/research/validation_runner.py",
+      "summary": "HORIZON_RETURN_KEYS now maps next_half_year → (raw_return_6m, excess_return_6m) and next_year → (raw_return_1y, excess_return_1y); factor validation can now produce summaries / quantiles for the two new horizons."
+    },
+    "validation_registry_py": {
+      "path": "src/research/validation_registry.py",
+      "summary": "All VALIDATION_FACTORS_V1 opt into SUPPORTED_HORIZONS_V1 = (next_month, next_quarter, next_half_year, next_year)."
+    },
+    "supabase_migration": {
+      "path": "supabase/migrations/20260417100000_forward_returns_long_horizons_v1.sql",
+      "summary": "Adds raw_return_6m / excess_return_6m / raw_return_1y / excess_return_1y columns (nullable) to factor_market_validation_panels. Backwards compatible: existing rows remain valid with NULL on the new columns."
+    },
+    "bundle_build_v2": {
+      "path": "data/mvp/metis_brain_bundle_build_v2.json",
+      "summary": "Opt-in config that extends v1 with accruals × next_half_year / next_year gates marked auto_degrade_optional_gates until data lands; horizon_fallback_labels remain for medium_long / long until real_derived entries appear."
+    },
+    "schema_notes": {
+      "path": "src/db/schema_notes.md",
+      "summary": "Documents the horizon_type extension and the new panel columns."
+    },
+    "tests_added": {
+      "path": "src/tests/test_forward_long_horizons_v1.py",
+      "summary": "Five unit tests covering FORWARD_HORIZON_SPECS coverage, long-horizon forward_return_over_trading_days compatibility, HORIZON_RETURN_KEYS wiring, validation factor registry opt-in, and validation-panel upsert row shape."
+    }
+  },
+  "regression_gates": {
+    "pytest_full_suite_minus_pre_existing_phase39_failure": "745 passed (pre-existing phase39_hypothesis_family failure excluded per HANDOFF).",
+    "print_mvp_spec_survey_all_automated_ok": true,
+    "bundle_integrity_env": "METIS_TODAY_SOURCE=registry METIS_BRAIN_BUNDLE=data/mvp/metis_brain_bundle_from_db_v0.json (current green baseline)"
+  },
+  "operator_follow_up_required": [
+    "Apply supabase migration 20260417100000_forward_returns_long_horizons_v1.sql to add the four long-horizon columns.",
+    "Re-run build-forward-returns so H_NEXT_HALF_YEAR / H_NEXT_YEAR rows appear in forward_returns_daily_horizons.",
+    "Re-run build-validation-panel so the new columns get populated for filings with enough forward price history.",
+    "Re-run run-factor-validation for horizon_type=next_half_year / next_year (accruals / gross_profitability) and certify-factor-validation-pit afterwards.",
+    "Optionally switch the bundle builder to data/mvp/metis_brain_bundle_build_v2.json to attempt real_derived medium_long / long; optional gates auto-degrade until data is ready."
+  ]
+}

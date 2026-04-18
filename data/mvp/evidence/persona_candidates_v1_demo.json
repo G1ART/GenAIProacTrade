@@ -1,0 +1,93 @@
+{
+  "contract": "METIS_PERSONA_CANDIDATES_REPORT_V1",
+  "generated_at_utc": "2026-04-18T00:18:24.786526+00:00",
+  "packet_count": 3,
+  "packets": [
+    {
+      "contract": "METIS_PERSONA_CANDIDATE_PACKET_V1",
+      "candidate_id": "pcand_ec7025583b2f3e525e484b78",
+      "persona": "quant_residual_analyst",
+      "thesis_family": "accruals residual tightening on large-cap next_month",
+      "targeted_horizon": "short",
+      "targeted_universe": "combined_largecap_research_v1",
+      "evidence_refs": [
+        {
+          "kind": "factor_validation_run",
+          "pointer": "factor_validation_run:accruals:next_month:combined_largecap_research_v1",
+          "summary": "Residual decile monotonicity + PIT pass observed in Milestone A wiring."
+        },
+        {
+          "kind": "spectrum_row",
+          "pointer": "spectrum:accruals:next_month:decile_1_vs_10",
+          "summary": "Decile-spread residual widened vs. last re-run window."
+        }
+      ],
+      "overlay_recommendation": "",
+      "confidence": 0.55,
+      "countercase": "May be crowding-driven; residual widening could revert if systematic quant flows reduce positioning.",
+      "gate_eligibility": {
+        "pit": true,
+        "coverage": true,
+        "monotonicity": true,
+        "validation_run_present": true
+      },
+      "provenance_summary": "Candidate derived from Milestone A real-derived next_month validation + Milestone B residual score semantics.",
+      "promotion_doctrine_note": "Candidate only. Not active truth. Must pass PIT + provenance + validation + runtime explainability + explicit promotion before any active registry or overlay entry is created.",
+      "created_at_utc": "2026-04-18T00:18:24.786160+00:00"
+    },
+    {
+      "contract": "METIS_PERSONA_CANDIDATE_PACKET_V1",
+      "candidate_id": "pcand_22d5298339beb2aebb6ec0dd",
+      "persona": "value_reversion_analyst",
+      "thesis_family": "gross profitability reversion on medium horizon",
+      "targeted_horizon": "medium",
+      "targeted_universe": "combined_largecap_research_v1",
+      "evidence_refs": [
+        {
+          "kind": "factor_validation_run",
+          "pointer": "factor_validation_run:gross_profitability:next_quarter:combined_largecap_research_v1",
+          "summary": "Top-quartile GP names show abnormal excess-return drift over next_quarter."
+        }
+      ],
+      "overlay_recommendation": "confidence_adjustment (non-binding; promotion required)",
+      "confidence": 0.4,
+      "countercase": "GP signal may have already been priced in by systematic value funds; longer horizon needed to confirm durability.",
+      "gate_eligibility": {
+        "pit": true,
+        "coverage": true,
+        "monotonicity": false
+      },
+      "provenance_summary": "Candidate references Milestone A opt-in long-horizon plumbing but will remain candidate-only until monotonicity gate passes.",
+      "promotion_doctrine_note": "Candidate only. Not active truth. Must pass PIT + provenance + validation + runtime explainability + explicit promotion before any active registry or overlay entry is created.",
+      "created_at_utc": "2026-04-18T00:18:24.786434+00:00"
+    },
+    {
+      "contract": "METIS_PERSONA_CANDIDATE_PACKET_V1",
+      "candidate_id": "pcand_9ad597f9dcc936aad503f4a0",
+      "persona": "non_quant_regime_tracker",
+      "thesis_family": "earnings guidance language regime shift",
+      "targeted_horizon": "short",
+      "targeted_universe": "combined_largecap_research_v1",
+      "evidence_refs": [
+        {
+          "kind": "transcript_ref",
+          "pointer": "transcripts_v0:regime_language:q1_2026",
+          "summary": "Qualitative signal only; bounded overlay seed captures a regime shift hypothesis on large-cap forward guidance tone."
+        }
+      ],
+      "overlay_recommendation": "regime_shift (bounded; non-quant overlay v1)",
+      "confidence": 0.35,
+      "countercase": "Language-regime classification is inherently interpretive; must not override quant residual without explicit promotion.",
+      "gate_eligibility": {
+        "pit": false,
+        "coverage": false,
+        "monotonicity": false,
+        "runtime_explainable": true
+      },
+      "provenance_summary": "Non-quant overlay candidate aligned with Milestone C brain_overlays_v1 vocabulary; seed-only, no auto-promotion.",
+      "promotion_doctrine_note": "Candidate only. Not active truth. Must pass PIT + provenance + validation + runtime explainability + explicit promotion before any active registry or overlay entry is created.",
+      "created_at_utc": "2026-04-18T00:18:24.786447+00:00"
+    }
+  ],
+  "governance_note": "Persona candidates are diagnostic inputs only. They never short-circuit promotion gates, never write to the active registry, and never update the brain overlays seed file directly."
+}

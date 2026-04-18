@@ -103,10 +103,16 @@ def _validation_panel_build_loop(
         fwd = _fetch_forward_map(client, symbol=sym, signal_date=sig_s) if (sym and sig_s) else {}
         m1 = fwd.get("next_month") or {}
         m1q = fwd.get("next_quarter") or {}
+        m6 = fwd.get("next_half_year") or {}
+        m1y = fwd.get("next_year") or {}
         if not m1:
             panel_json.setdefault("quality_flags", []).append("missing_forward_return_1m")
         if not m1q:
             panel_json.setdefault("quality_flags", []).append("missing_forward_return_1q")
+        if not m6:
+            panel_json.setdefault("quality_flags", []).append("missing_forward_return_6m")
+        if not m1y:
+            panel_json.setdefault("quality_flags", []).append("missing_forward_return_1y")
         if not fm:
             panel_json.setdefault("quality_flags", []).append("missing_market_metadata")
         liquidity = {}
@@ -132,6 +138,10 @@ def _validation_panel_build_loop(
                     "excess_return_1m": m1.get("excess_forward_return"),
                     "raw_return_1q": m1q.get("raw_forward_return"),
                     "excess_return_1q": m1q.get("excess_forward_return"),
+                    "raw_return_6m": m6.get("raw_forward_return"),
+                    "excess_return_6m": m6.get("excess_forward_return"),
+                    "raw_return_1y": m1y.get("raw_forward_return"),
+                    "excess_return_1y": m1y.get("excess_forward_return"),
                     "panel_json": panel_json,
                     "created_at": datetime.now(timezone.utc).isoformat(),
                 },

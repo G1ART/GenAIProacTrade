@@ -19,8 +19,8 @@
 | `silver_market_prices_daily` | **정규화 일봉**. `(symbol, trade_date)` 유니크, upsert. `daily_return`은 전일 대비(조정종가 우선). |
 | `market_metadata_latest` | **메타 스냅샷**(MVP). `(symbol, source_name)` 유니크 upsert. Yahoo chart-only 프로바이더는 빈 적재 가능. |
 | `risk_free_rates_daily` | **무위험 연율(%)**. FRED DTB3 graph CSV 등. `(rate_date, source_name)` 유니크. |
-| `forward_returns_daily_horizons` | **선행 수익률**. `(symbol, signal_date, horizon_type)` 유니크 upsert. `horizon_type`: `next_month` \| `next_quarter`. |
-| `factor_market_validation_panels` | **팩터–시장 검증 조인**. `(cik, accession_no, factor_version)` 유니크 upsert. 랭킹·백테스트 없음. |
+| `forward_returns_daily_horizons` | **선행 수익률**. `(symbol, signal_date, horizon_type)` 유니크 upsert. `horizon_type`: `next_month` \| `next_quarter` \| `next_half_year` \| `next_year` (Pragmatic Brain v1 Milestone A로 126/252 거래일 지평 추가; 컬럼은 text, CHECK 없음). |
+| `factor_market_validation_panels` | **팩터–시장 검증 조인**. `(cik, accession_no, factor_version)` 유니크 upsert. 랭킹·백테스트 없음. Pragmatic Brain v1 Milestone A 마이그레이션(`20260417100000_forward_returns_long_horizons_v1.sql`)으로 `raw_return_6m` / `excess_return_6m` / `raw_return_1y` / `excess_return_1y` 컬럼 추가(nullable). |
 | `factor_validation_runs` | Phase 5 검증 **실행** 메타. `run_type` 기본 `factor_validation_research`. `ingest_runs`와 별도. |
 | `factor_validation_summaries` | 팩터×지평×유니버스×`return_basis(raw\|excess)` 기술 요약(상관·평균 등). 전략 아님. |
 | `factor_quantile_results` | 분위별 기술 통계. `(run_id, factor_name, horizon_type, universe_name, quantile_index, return_basis)` 유니크. |

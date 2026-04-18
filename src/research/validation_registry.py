@@ -21,11 +21,19 @@ class ValidationFactorSpec:
     include_in_quantiles: bool
 
 
+SUPPORTED_HORIZONS_V1: Tuple[str, ...] = (
+    "next_month",
+    "next_quarter",
+    "next_half_year",
+    "next_year",
+)
+
+
 VALIDATION_FACTORS_V1: tuple[ValidationFactorSpec, ...] = (
     ValidationFactorSpec(
         factor_name="accruals",
         panel_column="accruals",
-        supported_horizons=("next_month", "next_quarter"),
+        supported_horizons=SUPPORTED_HORIZONS_V1,
         preferred_direction_note="empirical only; literature often treats lower accruals as quality signal",
         requires_prior_snapshot=False,
         should_rank=True,
@@ -34,7 +42,7 @@ VALIDATION_FACTORS_V1: tuple[ValidationFactorSpec, ...] = (
     ValidationFactorSpec(
         factor_name="gross_profitability",
         panel_column="gross_profitability",
-        supported_horizons=("next_month", "next_quarter"),
+        supported_horizons=SUPPORTED_HORIZONS_V1,
         preferred_direction_note="higher may associate with stronger operating economics (descriptive only)",
         requires_prior_snapshot=False,
         should_rank=True,
@@ -43,7 +51,7 @@ VALIDATION_FACTORS_V1: tuple[ValidationFactorSpec, ...] = (
     ValidationFactorSpec(
         factor_name="asset_growth",
         panel_column="asset_growth",
-        supported_horizons=("next_month", "next_quarter"),
+        supported_horizons=SUPPORTED_HORIZONS_V1,
         preferred_direction_note="empirical only; growth vs returns context-dependent",
         requires_prior_snapshot=True,
         should_rank=True,
@@ -52,7 +60,7 @@ VALIDATION_FACTORS_V1: tuple[ValidationFactorSpec, ...] = (
     ValidationFactorSpec(
         factor_name="capex_intensity",
         panel_column="capex_intensity",
-        supported_horizons=("next_month", "next_quarter"),
+        supported_horizons=SUPPORTED_HORIZONS_V1,
         preferred_direction_note="empirical only",
         requires_prior_snapshot=False,
         should_rank=True,
@@ -61,7 +69,7 @@ VALIDATION_FACTORS_V1: tuple[ValidationFactorSpec, ...] = (
     ValidationFactorSpec(
         factor_name="rnd_intensity",
         panel_column="rnd_intensity",
-        supported_horizons=("next_month", "next_quarter"),
+        supported_horizons=SUPPORTED_HORIZONS_V1,
         preferred_direction_note="empirical only",
         requires_prior_snapshot=False,
         should_rank=True,
@@ -70,7 +78,7 @@ VALIDATION_FACTORS_V1: tuple[ValidationFactorSpec, ...] = (
     ValidationFactorSpec(
         factor_name="financial_strength_score_v1",
         panel_column="financial_strength_score",
-        supported_horizons=("next_month", "next_quarter"),
+        supported_horizons=SUPPORTED_HORIZONS_V1,
         preferred_direction_note="higher = more binary quality flags satisfied (not Piotroski F-Score)",
         requires_prior_snapshot=True,
         should_rank=True,

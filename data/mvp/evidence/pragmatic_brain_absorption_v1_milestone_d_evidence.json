@@ -1,0 +1,120 @@
+{
+  "contract": "METIS_PRAGMATIC_BRAIN_ABSORPTION_V1_MILESTONE_D_EVIDENCE",
+  "milestone": "D",
+  "title": "Research Persona Harness v1 (Candidate-only)",
+  "scope": {
+    "intent": "Introduce a bounded, governed persona harness that emits PersonaCandidatePacketV1 objects as *candidates only*. No active registry entry, brain overlay, validation summary, or artifact is promoted by this harness.",
+    "anti_drift_rule": "Persona output is a candidate artifact-like packet; it is NEVER active truth. Promotion still requires PIT + provenance + validation + runtime explainability + explicit promotion gate."
+  },
+  "changes": {
+    "new_modules": [
+      "src/metis_brain/persona_candidates_v1.py"
+    ],
+    "new_cli_commands": [
+      {
+        "name": "emit-persona-candidates",
+        "description": "Emit governed PersonaCandidatePacketV1 objects to stdout or --out-json. Built-in bounded demo set exists when --config is omitted.",
+        "never_writes_to": [
+          "active brain bundle JSON",
+          "factor_validation_* tables",
+          "brain_overlays seed/path",
+          "registry entries"
+        ]
+      }
+    ],
+    "new_tests": [
+      "src/tests/test_persona_candidates_v1.py"
+    ],
+    "new_demo_evidence": [
+      "data/mvp/evidence/persona_candidates_v1_demo.json"
+    ],
+    "modified_files": [
+      "src/main.py (added emit-persona-candidates subparser and _cmd_emit_persona_candidates)"
+    ]
+  },
+  "contract_surface": {
+    "PersonaCandidatePacketV1": {
+      "required_fields": [
+        "candidate_id",
+        "persona",
+        "thesis_family",
+        "targeted_horizon",
+        "targeted_universe",
+        "confidence"
+      ],
+      "controlled_vocabularies": {
+        "persona": [
+          "quant_residual_analyst",
+          "value_reversion_analyst",
+          "non_quant_regime_tracker",
+          "growth_durability_analyst",
+          "capital_allocation_analyst"
+        ],
+        "targeted_horizon": [
+          "short",
+          "medium",
+          "medium_long",
+          "long"
+        ]
+      },
+      "guardrails": {
+        "confidence_range": "[0.0, 1.0]",
+        "promotion_doctrine_note": "hard-coded on every packet and reminds operators that candidates are not active truth",
+        "gate_eligibility": "diagnostic-only; never short-circuits promotion gates",
+        "candidate_id": "deterministic sha256 of (persona, thesis_family, targeted_horizon, targeted_universe) — idempotent replays"
+      }
+    },
+    "PersonaCandidatesReportV1": {
+      "contract_id": "METIS_PERSONA_CANDIDATES_REPORT_V1",
+      "shape": "{contract, generated_at_utc, packet_count, packets[], governance_note}"
+    }
+  },
+  "cli_proof": {
+    "emit_default_demo": {
+      "command": "python3 src/main.py emit-persona-candidates",
+      "ok": true,
+      "packet_count": 3,
+      "rejected_count": 0,
+      "touched_active_state": false
+    },
+    "emit_to_file": {
+      "command": "python3 src/main.py emit-persona-candidates --out-json data/mvp/evidence/persona_candidates_v1_demo.json",
+      "ok": true,
+      "report_path": "data/mvp/evidence/persona_candidates_v1_demo.json"
+    }
+  },
+  "tests": {
+    "file": "src/tests/test_persona_candidates_v1.py",
+    "test_count": 9,
+    "coverage": [
+      "persona vocabulary fixed",
+      "happy-path packet creation + promotion_doctrine_note wording",
+      "deterministic candidate_id across replays",
+      "rejects unknown persona / out-of-range confidence / unknown horizon",
+      "report writer emits contract JSON on disk",
+      "report writer never mutates any bundle file in data/mvp",
+      "gate_eligibility true flags still keep packet as candidate-only"
+    ],
+    "result": "9 passed in 0.04s"
+  },
+  "regression": {
+    "mvp_spec_survey": {
+      "command": "python3 src/main.py print-mvp-spec-survey --fail-on-false",
+      "all_automated_ok": true,
+      "failed_question_ids": []
+    },
+    "full_test_suite": {
+      "command": "python3 -m pytest src/tests/ -q --ignore=src/tests/test_phase51_external_trigger_ingest_and_runtime_health.py",
+      "passed": 761,
+      "pre_existing_failures": [
+        "src/tests/test_phase39_hypothesis_family.py::test_phase39_orchestrator_writes_artifacts (unrelated to Pragmatic Brain Absorption v1; predates this branch)"
+      ]
+    }
+  },
+  "non_goals_confirmed": [
+    "No active registry / artifact is created by personas",
+    "No overlays are auto-attached by personas",
+    "No factor_validation_* row is inserted or modified",
+    "No Replay / Today surface changes in this milestone — cash-out is Milestone E"
+  ]
+}

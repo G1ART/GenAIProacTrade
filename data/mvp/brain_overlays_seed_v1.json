@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "contract": "METIS_BRAIN_OVERLAYS_SEED_V1",
+  "description": "Pragmatic Brain Absorption v1 — Milestone C bounded seed. Two transcript-language overlays and one catalyst window overlay, each anchored to an existing bundle entity (artifact_id or registry_entry_id). All overlays carry a counter-interpretation flag and an explicit expiry_or_recheck_rule so founders never see unsourced narrative. Extend this file via operator CLI when additional transcripts are processed.",
+  "overlays": [
+    {
+      "overlay_id": "ovr_short_transcript_guidance_tone_v1",
+      "overlay_type": "confidence_adjustment",
+      "artifact_id": "art_short_demo_v0",
+      "source_artifact_refs": [
+        {
+          "kind": "earnings_transcript",
+          "pointer": "seed:transcript:demo_short:q_guidance_tone_v1",
+          "summary": "Management guidance language tightened versus prior call (bounded seed sample, not an LLM narrative)."
+        }
+      ],
+      "pit_timestamp_window": {
+        "starts_at": "2026-01-15T00:00:00Z",
+        "ends_at": "2026-04-15T00:00:00Z"
+      },
+      "awareness_lag_rule": "only_applied_after_transcript_publication_date",
+      "confidence": 0.45,
+      "counter_interpretation_present": true,
+      "reasons": [
+        "guidance_language_tightened",
+        "residual_macro_uncertainty_still_present"
+      ],
+      "provenance_summary": "seed_transcript_overlay_v1:short_guidance_tone",
+      "expiry_or_recheck_rule": "recheck_at_next_earnings_call_or_2026-07-15"
+    },
+    {
+      "overlay_id": "ovr_medium_transcript_regime_shift_v1",
+      "overlay_type": "regime_shift",
+      "registry_entry_id": "reg_medium_demo_v0",
+      "source_artifact_refs": [
+        {
+          "kind": "earnings_transcript",
+          "pointer": "seed:transcript:demo_medium:q_capex_restart_v1",
+          "summary": "Capex restart language appears across two quarters; bounded seed, no free narrative."
+        }
+      ],
+      "pit_timestamp_window": {
+        "starts_at": "2026-02-01T00:00:00Z",
+        "ends_at": "2026-05-01T00:00:00Z"
+      },
+      "awareness_lag_rule": "only_applied_after_transcript_publication_date",
+      "confidence": 0.55,
+      "counter_interpretation_present": true,
+      "reasons": [
+        "capex_restart_language_recurrent",
+        "bookings_still_not_reflected_in_reported_revenue"
+      ],
+      "provenance_summary": "seed_transcript_overlay_v1:medium_capex_regime_shift",
+      "expiry_or_recheck_rule": "recheck_after_next_capex_disclosure_or_2026-08-01"
+    },
+    {
+      "overlay_id": "ovr_short_catalyst_window_demo_v1",
+      "overlay_type": "catalyst_window",
+      "artifact_id": "art_short_challenger_momentum_v0",
+      "source_artifact_refs": [
+        {
+          "kind": "policy_memo",
+          "pointer": "seed:policy:demo_sector_review_v1",
+          "summary": "Scheduled sector review window — bounded catalyst, not a buy/sell recommendation."
+        }
+      ],
+      "pit_timestamp_window": {
+        "starts_at": "2026-03-10T00:00:00Z",
+        "ends_at": "2026-05-10T00:00:00Z"
+      },
+      "awareness_lag_rule": "window_applies_only_within_pit_timestamp_window",
+      "confidence": 0.3,
+      "counter_interpretation_present": true,
+      "reasons": [
+        "scheduled_policy_review",
+        "outcome_still_binary_and_unproven"
+      ],
+      "provenance_summary": "seed_policy_overlay_v1:short_catalyst_window",
+      "expiry_or_recheck_rule": "expires_at_2026-05-10"
+    }
+  ]
+}

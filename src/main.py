@@ -7753,6 +7753,63 @@ def _cmd_build_metis_brain_bundle_from_factor_validation(args: argparse.Namespac
             sync_artifact_validation_pointer=sync_ptr,
         )
 
+    # Pragmatic Brain Absorption v1 — Milestone C. Merge bounded brain overlays
+    # (seed JSON or bundle-adjunct path) into the output bundle so runtime
+    # surfaces can cash out overlay influence without free-narrative drift.
+    if merged is not None:
+        overlay_seed_rel = str(config.get("overlays_seed_path") or "").strip()
+        overlay_seed_path = (
+            resolve_repo_path(root, overlay_seed_rel)
+            if overlay_seed_rel
+            else (root / "data" / "mvp" / "brain_overlays_seed_v1.json")
+        )
+        overlays_report: dict[str, object] = {
+            "overlays_seed_path": str(overlay_seed_path),
+            "overlays_seed_found": overlay_seed_path.is_file(),
+            "overlays_loaded_count": 0,
+            "overlays_rejected": [],
+            "overlays_merged_count": 0,
+        }
+        if overlay_seed_path.is_file():
+            try:
+                from metis_brain.brain_overlays_v1 import (
+                    BrainOverlaySeedFileV1,
+                    validate_overlays_against_bundle,
+                )
+
+                seed_raw = json_lib.loads(overlay_seed_path.read_text(encoding="utf-8"))
+                seed_obj = BrainOverlaySeedFileV1.model_validate(seed_raw)
+                overlays_report["overlays_loaded_count"] = len(seed_obj.overlays)
+                art_ids = {a.get("artifact_id") for a in (merged.get("artifacts") or [])}
+                reg_ids = {
+                    e.get("registry_entry_id")
+                    for e in (merged.get("registry_entries") or [])
+                }
+                binding_errors = validate_overlays_against_bundle(
+                    seed_obj.overlays,
+                    artifact_ids={a for a in art_ids if a},
+                    registry_entry_ids={r for r in reg_ids if r},
+                )
+                kept: list[dict[str, object]] = []
+                if binding_errors:
+                    overlays_report["overlays_rejected"] = list(binding_errors)
+                    bad_ids = {
+                        e.split("'")[1]
+                        for e in binding_errors
+                        if "'" in e
+                    }
+                    for ov in seed_obj.overlays:
+                        if ov.overlay_id not in bad_ids:
+                            kept.append(ov.model_dump())
+                else:
+                    kept = [ov.model_dump() for ov in seed_obj.overlays]
+                merged["brain_overlays"] = kept
+                overlays_report["overlays_merged_count"] = len(kept)
+            except Exception as e:  # noqa: BLE001
+                overlays_report["overlays_error"] = str(e)
+        report = dict(report or {})
+        report["brain_overlays"] = overlays_report
+
     payload: dict[str, object] = {
         "ok": merged is not None,
         "contract": "METIS_BUILD_BRAIN_BUNDLE_FROM_FACTOR_VALIDATION_V0",
@@ -7792,6 +7849,222 @@ def _cmd_build_metis_brain_bundle_from_factor_validation(args: argparse.Namespac
         )
         return 1
     return 0
+
+
+def _default_persona_candidate_demo() -> list[dict[str, object]]:
+    """Built-in, bounded persona demo set.
+
+    Intentionally small and governance-friendly. Each packet points at an
+    already-existing bundle family (accruals / gross_profitability family
+    thesis) and declares that it is a *candidate only*. No active registry
+    / overlay / validation table is touched.
+    """
+
+    return [
+        {
+            "persona": "quant_residual_analyst",
+            "thesis_family": "accruals residual tightening on large-cap next_month",
+            "targeted_horizon": "short",
+            "targeted_universe": "combined_largecap_research_v1",
+            "evidence_refs": [
+                {
+                    "kind": "factor_validation_run",
+                    "pointer": "factor_validation_run:accruals:next_month:combined_largecap_research_v1",
+                    "summary": "Residual decile monotonicity + PIT pass observed in Milestone A wiring.",
+                },
+                {
+                    "kind": "spectrum_row",
+                    "pointer": "spectrum:accruals:next_month:decile_1_vs_10",
+                    "summary": "Decile-spread residual widened vs. last re-run window.",
+                },
+            ],
+            "overlay_recommendation": "",
+            "confidence": 0.55,
+            "countercase": (
+                "May be crowding-driven; residual widening could revert if systematic "
+                "quant flows reduce positioning."
+            ),
+            "gate_eligibility": {
+                "pit": True,
+                "coverage": True,
+                "monotonicity": True,
+                "validation_run_present": True,
+            },
+            "provenance_summary": (
+                "Candidate derived from Milestone A real-derived next_month validation + "
+                "Milestone B residual score semantics."
+            ),
+        },
+        {
+            "persona": "value_reversion_analyst",
+            "thesis_family": "gross profitability reversion on medium horizon",
+            "targeted_horizon": "medium",
+            "targeted_universe": "combined_largecap_research_v1",
+            "evidence_refs": [
+                {
+                    "kind": "factor_validation_run",
+                    "pointer": "factor_validation_run:gross_profitability:next_quarter:combined_largecap_research_v1",
+                    "summary": "Top-quartile GP names show abnormal excess-return drift over next_quarter.",
+                }
+            ],
+            "overlay_recommendation": "confidence_adjustment (non-binding; promotion required)",
+            "confidence": 0.4,
+            "countercase": (
+                "GP signal may have already been priced in by systematic value funds; "
+                "longer horizon needed to confirm durability."
+            ),
+            "gate_eligibility": {
+                "pit": True,
+                "coverage": True,
+                "monotonicity": False,
+            },
+            "provenance_summary": (
+                "Candidate references Milestone A opt-in long-horizon plumbing but will "
+                "remain candidate-only until monotonicity gate passes."
+            ),
+        },
+        {
+            "persona": "non_quant_regime_tracker",
+            "thesis_family": "earnings guidance language regime shift",
+            "targeted_horizon": "short",
+            "targeted_universe": "combined_largecap_research_v1",
+            "evidence_refs": [
+                {
+                    "kind": "transcript_ref",
+                    "pointer": "transcripts_v0:regime_language:q1_2026",
+                    "summary": (
+                        "Qualitative signal only; bounded overlay seed captures a regime "
+                        "shift hypothesis on large-cap forward guidance tone."
+                    ),
+                }
+            ],
+            "overlay_recommendation": "regime_shift (bounded; non-quant overlay v1)",
+            "confidence": 0.35,
+            "countercase": (
+                "Language-regime classification is inherently interpretive; must not "
+                "override quant residual without explicit promotion."
+            ),
+            "gate_eligibility": {
+                "pit": False,
+                "coverage": False,
+                "monotonicity": False,
+                "runtime_explainable": True,
+            },
+            "provenance_summary": (
+                "Non-quant overlay candidate aligned with Milestone C brain_overlays_v1 "
+                "vocabulary; seed-only, no auto-promotion."
+            ),
+        },
+    ]
+
+
+def _cmd_emit_persona_candidates(args: argparse.Namespace) -> int:
+    """Pragmatic Brain Absorption v1 — Milestone D CLI entry point.
+
+    Emits governed PersonaCandidatePacketV1 objects to stdout or --out-json.
+    Never writes active registry / overlay / validation state. The operator
+    (or a later promotion pipeline) is responsible for turning candidates
+    into active truth through the full promotion doctrine.
+    """
+
+    import json as json_lib
+    from pathlib import Path
+
+    from metis_brain.persona_candidates_v1 import (
+        build_persona_candidate_packet,
+        write_persona_candidate_report,
+    )
+
+    configure_logging()
+    rr = str(getattr(args, "repo_root", "") or "").strip()
+    root = Path(rr).resolve() if rr else Path.cwd().resolve()
+    cfg_rel = str(getattr(args, "config", "") or "").strip()
+    out_rel = str(getattr(args, "out_json", "") or "").strip()
+
+    if cfg_rel:
+        cfg_path = Path(cfg_rel)
+        if not cfg_path.is_absolute():
+            cfg_path = (root / cfg_path).resolve()
+        try:
+            raw = json_lib.loads(cfg_path.read_text(encoding="utf-8"))
+        except (OSError, json_lib.JSONDecodeError) as e:
+            print(
+                json_lib.dumps(
+                    {"ok": False, "error": "config_read_failed", "detail": str(e)},
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 1
+        inputs = raw.get("personas") if isinstance(raw, dict) else raw
+        if not isinstance(inputs, list):
+            print(
+                json_lib.dumps(
+                    {"ok": False, "error": "config_must_be_list_or_personas_field"},
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 1
+    else:
+        inputs = _default_persona_candidate_demo()
+
+    packets = []
+    rejected: list[dict[str, object]] = []
+    for idx, spec in enumerate(inputs):
+        if not isinstance(spec, dict):
+            rejected.append({"index": idx, "error": "not_an_object"})
+            continue
+        try:
+            pkt = build_persona_candidate_packet(
+                persona=str(spec.get("persona", "")),
+                thesis_family=str(spec.get("thesis_family", "")),
+                targeted_horizon=str(spec.get("targeted_horizon", "")),
+                targeted_universe=str(spec.get("targeted_universe", "")),
+                evidence_refs=list(spec.get("evidence_refs") or []),
+                confidence=float(spec.get("confidence", 0.0)),
+                overlay_recommendation=str(spec.get("overlay_recommendation", "")),
+                countercase=str(spec.get("countercase", "")),
+                gate_eligibility=dict(spec.get("gate_eligibility") or {}),
+                provenance_summary=str(spec.get("provenance_summary", "")),
+            )
+            packets.append(pkt)
+        except (TypeError, ValueError) as e:
+            rejected.append({"index": idx, "error": str(e)})
+
+    summary: dict[str, object] = {
+        "ok": len(packets) > 0,
+        "contract": "METIS_PERSONA_CANDIDATES_CLI_V1",
+        "packet_count": len(packets),
+        "rejected_count": len(rejected),
+        "rejected": rejected,
+        "governance_note": (
+            "Persona candidates are diagnostic inputs only. Active registry / "
+            "overlay promotion must still pass PIT + provenance + validation + "
+            "runtime explainability + explicit promotion."
+        ),
+    }
+
+    if out_rel:
+        out_path = Path(out_rel)
+        if not out_path.is_absolute():
+            out_path = (root / out_path).resolve()
+        write_persona_candidate_report(packets, out_path=out_path)
+        summary["report_path"] = str(out_path)
+    else:
+        summary["packets_preview"] = [
+            {
+                "candidate_id": p.candidate_id,
+                "persona": p.persona,
+                "thesis_family": p.thesis_family,
+                "targeted_horizon": p.targeted_horizon,
+                "confidence": p.confidence,
+            }
+            for p in packets
+        ]
+
+    print(json_lib.dumps(summary, indent=2, ensure_ascii=False, default=str))
+    return 0 if packets else 1
 
 
 def _cmd_run_phase48_proactive_research_runtime(
@@ -8682,6 +8955,34 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     pmetis_build.set_defaults(func=_cmd_build_metis_brain_bundle_from_factor_validation)
+
+    ppersona = sub.add_parser(
+        "emit-persona-candidates",
+        help=(
+            "Pragmatic Brain Absorption v1 - Milestone D: emit governed persona "
+            "candidate packets. Candidates only; no active registry/overlay writes."
+        ),
+    )
+    ppersona.add_argument(
+        "--config",
+        default="",
+        help=(
+            "Optional JSON file with {\"personas\": [PersonaCandidatePacketV1 input,...]}. "
+            "If omitted, emits the built-in bounded demo harness."
+        ),
+    )
+    ppersona.add_argument(
+        "--out-json",
+        default="",
+        dest="out_json",
+        help="Write report JSON here. If omitted, prints summary to stdout.",
+    )
+    ppersona.add_argument(
+        "--repo-root",
+        default="",
+        help="Repository root for resolving relative --config / --out-json paths.",
+    )
+    ppersona.set_defaults(func=_cmd_emit_persona_candidates)
 
     srr = sub.add_parser(
         "smoke-research",

@@ -27,6 +27,40 @@ from phase47_runtime.message_layer_v1 import (
     spectrum_quintile_from_position,
 )
 
+# Residual Score Semantics v1 — see docs/plan/METIS_Residual_Score_Semantics_v1.md.
+RESIDUAL_SCORE_SEMANTICS_VERSION = "residual_semantics_v1"
+
+_RECHECK_CADENCE_BY_BUNDLE_HORIZON = {
+    "short": "monthly_after_new_filing_or_21_trading_days",
+    "medium": "quarterly_after_new_filing_or_63_trading_days",
+    "medium_long": "semi_annually_after_new_filing_or_126_trading_days",
+    "long": "annually_after_new_filing_or_252_trading_days",
+}
+
+
+def _invalidation_hint_for_row(
+    *,
+    pit_pass: bool | None,
+    confidence_band: str,
+    spectrum_position: float,
+) -> str:
+    """Deterministic string chosen from a fixed vocabulary (no free narrative)."""
+    if pit_pass is False:
+        return "factor_validation_pit_fail"
+    if str(confidence_band or "").lower() == "low":
+        return "confidence_band_drops_to_low"
+    # Midline-crossing is the most informative default when position is near 0.5.
+    if 0.35 <= spectrum_position <= 0.65:
+        return "spectrum_position_crosses_midline"
+    return "horizon_returns_reverse_sign"
+
+
+def _recheck_cadence_for_bundle_horizon(bundle_horizon: str) -> str:
+    return _RECHECK_CADENCE_BY_BUNDLE_HORIZON.get(
+        str(bundle_horizon or "").strip(),
+        "monthly_after_new_filing_or_21_trading_days",
+    )
+
 
 def _as_float(x: Any) -> float | None:
     if x is None:
@@ -141,6 +175,10 @@ def build_spectrum_rows_from_validation(
     valid = int(summary_row.get("valid_factor_count") or 0)
     sample = int(summary_row.get("sample_count") or 0)
     confidence = _confidence_band_from_sample(valid_factor_count=valid, sample_count=sample)
+    pit_pass_raw = summary_row.get("pit_pass")
+    pit_pass: bool | None
+    pit_pass = bool(pit_pass_raw) if pit_pass_raw is not None else None
+    recheck_cadence = _recheck_cadence_for_bundle_horizon(bundle_horizon)
 
     rows: list[dict[str, Any]] = []
     for i, (sym, fv, src) in enumerate(pairs):
@@ -148,6 +186,11 @@ def build_spectrum_rows_from_validation(
         position = (1.0 - rank_pct) if higher_is_quality else rank_pct
         position = max(0.0, min(1.0, position))
         tension = _valuation_tension_from_position(position)
+        invalidation_hint = _invalidation_hint_for_row(
+            pit_pass=pit_pass,
+            confidence_band=confidence,
+            spectrum_position=position,
+        )
         row = {
             "asset_id": sym,
             "spectrum_position": round(position, 6),
@@ -155,6 +198,9 @@ def build_spectrum_rows_from_validation(
             "spectrum_quintile": spectrum_quintile_from_position(position),
             "valuation_tension": tension,
             "confidence_band": confidence,
+            "residual_score_semantics_version": RESIDUAL_SCORE_SEMANTICS_VERSION,
+            "invalidation_hint": invalidation_hint,
+            "recheck_cadence": recheck_cadence,
             "rationale_summary": _rationale_summary(
                 factor_name=factor,
                 position=position,

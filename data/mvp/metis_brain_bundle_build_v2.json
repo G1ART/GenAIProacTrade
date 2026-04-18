@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "contract": "METIS_BUNDLE_FROM_VALIDATION_CONFIG_V2",
+  "description": "Pragmatic Brain Absorption v1 — Milestone A opt-in. Extends v1 with medium_long/long gate specs (accruals × next_half_year / next_year). All long-horizon gates are marked auto-degrade so the bundle build keeps succeeding while the forward-returns pipeline and factor_market_validation_panels migration (20260417100000_forward_returns_long_horizons_v1.sql) are being backfilled. Once live data lands, the same config promotes medium_long/long from degraded_pending_real_derived / template_fallback to real_derived without config churn.",
+  "template_bundle_path": "data/mvp/metis_brain_bundle_v0.json",
+  "output_bundle_path": "data/mvp/metis_brain_bundle_from_db_v0.json",
+  "sync_artifact_validation_pointer": true,
+  "replace_artifacts_from_validation": true,
+  "spectrum_max_rows_per_horizon": null,
+  "gates": [
+    {
+      "factor_name": "accruals",
+      "universe_name": "sp500_current",
+      "horizon_type": "next_month",
+      "return_basis": "raw",
+      "artifact_id": "art_short_demo_v0"
+    },
+    {
+      "factor_name": "gross_profitability",
+      "universe_name": "sp500_current",
+      "horizon_type": "next_month",
+      "return_basis": "raw",
+      "artifact_id": "art_short_challenger_momentum_v0"
+    },
+    {
+      "factor_name": "accruals",
+      "universe_name": "sp500_current",
+      "horizon_type": "next_quarter",
+      "return_basis": "raw",
+      "artifact_id": "art_medium_demo_v0"
+    },
+    {
+      "factor_name": "gross_profitability",
+      "universe_name": "sp500_current",
+      "horizon_type": "next_quarter",
+      "return_basis": "raw",
+      "artifact_id": "art_medium_challenger_gross_profitability_v0"
+    },
+    {
+      "factor_name": "accruals",
+      "universe_name": "sp500_current",
+      "horizon_type": "next_half_year",
+      "return_basis": "raw",
+      "artifact_id": "art_medium_long_demo_v0"
+    },
+    {
+      "factor_name": "accruals",
+      "universe_name": "sp500_current",
+      "horizon_type": "next_year",
+      "return_basis": "raw",
+      "artifact_id": "art_long_demo_v0"
+    }
+  ],
+  "overlays_seed_path": "data/mvp/brain_overlays_seed_v1.json",
+  "auto_degrade_optional_gates": [
+    "gross_profitability:next_month",
+    "gross_profitability:next_quarter",
+    "accruals:next_half_year",
+    "accruals:next_year"
+  ],
+  "horizon_fallback_labels": {
+    "medium_long": {
+      "reason": "forward_returns_horizon_not_yet_emitted_for_next_half_year",
+      "display_family_name_ko": "중장기 (샘플 전용)",
+      "display_family_name_en": "Medium-long (sample only)"
+    },
+    "long": {
+      "reason": "forward_returns_horizon_not_yet_emitted_for_next_year",
+      "display_family_name_ko": "장기 (샘플 전용)",
+      "display_family_name_en": "Long (sample only)"
+    }
+  },
+  "display_aliases": {
+    "artifacts": {
+      "art_short_demo_v0": {
+        "display_id": "art_short_value_accruals_v1",
+        "display_family_name_ko": "단기 가치 (발생액)",
+        "display_family_name_en": "Short value — accruals"
+      },
+      "art_short_challenger_momentum_v0": {
+        "display_id": "art_short_quality_gross_profitability_v1",
+        "display_family_name_ko": "단기 품질 (총이익률)",
+        "display_family_name_en": "Short quality — gross profitability"
+      },
+      "art_medium_challenger_gross_profitability_v0": {
+        "display_id": "art_medium_quality_gross_profitability_v1",
+        "display_family_name_ko": "중기 품질 (총이익률)",
+        "display_family_name_en": "Medium quality — gross profitability"
+      },
+      "art_medium_demo_v0": {
+        "display_id": "art_medium_value_accruals_v1",
+        "display_family_name_ko": "중기 가치 (발생액)",
+        "display_family_name_en": "Medium value — accruals"
+      },
+      "art_medium_long_demo_v0": {
+        "display_id": "art_medium_long_value_accruals_v1",
+        "display_family_name_ko": "중장기 가치 (발생액)",
+        "display_family_name_en": "Medium-long value — accruals"
+      },
+      "art_long_demo_v0": {
+        "display_id": "art_long_value_accruals_v1",
+        "display_family_name_ko": "장기 가치 (발생액)",
+        "display_family_name_en": "Long value — accruals"
+      }
+    },
+    "registry_entries": {
+      "reg_short_demo_v0": {
+        "display_id": "reg_short_value_v1",
+        "display_family_name_ko": "단기 가치",
+        "display_family_name_en": "Short value"
+      },
+      "reg_medium_demo_v0": {
+        "display_id": "reg_medium_value_v1",
+        "display_family_name_ko": "중기 가치",
+        "display_family_name_en": "Medium value"
+      },
+      "reg_medium_long_demo_v0": {
+        "display_id": "reg_medium_long_value_v1",
+        "display_family_name_ko": "중장기 가치",
+        "display_family_name_en": "Medium-long value"
+      },
+      "reg_long_demo_v0": {
+        "display_id": "reg_long_value_v1",
+        "display_family_name_ko": "장기 가치",
+        "display_family_name_en": "Long value"
+      }
+    }
+  }
+}

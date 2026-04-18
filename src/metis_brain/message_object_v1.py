@@ -20,7 +20,13 @@ class LinkedEvidenceItemV1(BaseModel):
 
 
 class MessageObjectV1(BaseModel):
-    """Product Spec §6.4 — all required fields as resolved single-language strings."""
+    """Product Spec §6.4 — all required fields as resolved single-language strings.
+
+    Pragmatic Brain Absorption v1 — Milestone B adds optional residual-score-
+    semantics fields (see docs/plan/METIS_Residual_Score_Semantics_v1.md). They
+    default to empty strings so survey Q1–Q10 remain green and persisted
+    snapshots stay backwards compatible.
+    """
 
     headline: str = Field(min_length=1)
     why_now: str
@@ -32,6 +38,9 @@ class MessageObjectV1(BaseModel):
     linked_evidence: list[LinkedEvidenceItemV1]
     linked_registry_entry_id: str = Field(min_length=1)
     linked_artifact_id: str = Field(min_length=1)
+    residual_score_semantics_version: str = ""
+    invalidation_hint: str = ""
+    recheck_cadence: str = ""
 
 
 def rationale_summary_contract_v1(*, text: str, max_chars: int = 520) -> str:
@@ -130,6 +139,18 @@ def build_message_object_v1_for_today_row(
 
     ev = _linked_evidence_from_row(row=row, horizon=horizon, lang=lang, rationale_summary=rationale_summary)
 
+    residual_version = str(
+        m.get("residual_score_semantics_version")
+        or row.get("residual_score_semantics_version")
+        or ""
+    ).strip()
+    invalidation_hint = str(
+        m.get("invalidation_hint") or row.get("invalidation_hint") or ""
+    ).strip()
+    recheck_cadence = str(
+        m.get("recheck_cadence") or row.get("recheck_cadence") or ""
+    ).strip()
+
     return MessageObjectV1(
         headline=headline or "—",
         why_now=why_now,
@@ -141,4 +162,7 @@ def build_message_object_v1_for_today_row(
         linked_evidence=ev,
         linked_registry_entry_id=linked_registry_entry_id,
         linked_artifact_id=linked_artifact_id,
+        residual_score_semantics_version=residual_version,
+        invalidation_hint=invalidation_hint,
+        recheck_cadence=recheck_cadence,
     )

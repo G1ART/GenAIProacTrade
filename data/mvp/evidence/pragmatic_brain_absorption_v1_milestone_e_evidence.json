@@ -1,0 +1,81 @@
+{
+  "contract": "METIS_PRAGMATIC_BRAIN_ABSORPTION_V1_MILESTONE_E_EVIDENCE",
+  "milestone": "E",
+  "title": "Replay Lineage — overlay + persona-candidate cash-out (Q10 preserved)",
+  "scope": {
+    "intent": "Make brain_overlays_v1 influence and PersonaCandidatePacketV1 consideration visible in the Replay timeline so reviewers can reconstruct which non-quant adjustments and which candidate hypotheses were in play at decision time.",
+    "anti_drift_rule": "Replay remains a governance surface. Overlay ids and persona candidate ids are preserved as traceable metadata, never treated as active truth or auto-promoted."
+  },
+  "changes": {
+    "modified_files": [
+      "src/phase46/decision_trace_ledger.py (two optional list fields: brain_overlay_ids_at_decision, persona_candidate_ids_at_decision + schema doc)",
+      "src/phase47_runtime/traceability_replay.py (REPLAY_LINEAGE_OPTIONAL_FIELDS extended; list-valued lineage normalization; decision events carry overlay/persona ids; join payload and same-asset injection propagate overlay ids from TODAY_REGISTRY_SURFACE_V1; micro brief surfaces list lineage fields)"
+    ],
+    "new_tests": [
+      "src/tests/test_replay_lineage_overlay_persona_v1.py"
+    ]
+  },
+  "contract_surface": {
+    "decision_trace_ledger_v1": {
+      "new_optional_fields": [
+        "brain_overlay_ids_at_decision: list[str] — brain_overlays_v1 ids influencing the active registry entry at decision time",
+        "persona_candidate_ids_at_decision: list[str] — PersonaCandidatePacketV1 ids considered at decision time (candidate-only)"
+      ]
+    },
+    "REPLAY_LINEAGE_JOIN_V1": {
+      "new_field": "brain_overlay_ids: list[str] — overlay ids from TODAY_REGISTRY_SURFACE_V1 for the asset's active horizon registry entry",
+      "existing_fields_preserved": [
+        "registry_entry_id",
+        "message_snapshot_id",
+        "replay_lineage_pointer",
+        "linked_registry_entry_id",
+        "linked_artifact_id",
+        "active_model_family_name"
+      ]
+    },
+    "timeline_events": {
+      "list_valued_lineage_fields": [
+        "brain_overlay_ids",
+        "persona_candidate_ids_at_decision"
+      ],
+      "normalization": "list-valued lineage fields are normalized into list[str]; scalar lineage fields remain strings"
+    },
+    "micro_brief_for_event": {
+      "surfaces_overlay_and_persona_list_fields": true
+    }
+  },
+  "tests": {
+    "new_file": "src/tests/test_replay_lineage_overlay_persona_v1.py",
+    "test_count": 7,
+    "coverage": [
+      "REPLAY_LINEAGE_OPTIONAL_FIELDS includes brain_overlay_ids and persona_candidate_ids_at_decision",
+      "decision ledger schema documents the two new optional list fields",
+      "append_decision persists both new optional list fields",
+      "timeline decision event carries both new optional list fields",
+      "lineage injection propagates brain_overlay_ids from registry_surface to same-asset events, without overwriting pre-existing decision-level lists",
+      "micro brief surfaces overlay and persona list lineage fields",
+      "Q10 contract preserved — at least one persisted snapshot still carries message_snapshot_id + registry_entry_id simultaneously"
+    ],
+    "result": "7 passed"
+  },
+  "regression": {
+    "mvp_spec_survey": {
+      "command": "python3 src/main.py print-mvp-spec-survey --fail-on-false",
+      "all_automated_ok": true,
+      "failed_question_ids": []
+    },
+    "full_test_suite": {
+      "command": "python3 -m pytest src/tests/ -q --deselect src/tests/test_phase39_hypothesis_family.py::test_phase39_orchestrator_writes_artifacts --ignore=src/tests/test_phase51_external_trigger_ingest_and_runtime_health.py",
+      "passed": 768,
+      "deselected_pre_existing": [
+        "src/tests/test_phase39_hypothesis_family.py::test_phase39_orchestrator_writes_artifacts (unrelated; predates this branch)"
+      ]
+    }
+  },
+  "non_goals_confirmed": [
+    "No active registry is mutated by the Replay surface",
+    "No overlay is promoted or demoted — only its id is displayed in lineage",
+    "No persona candidate is promoted — ids appear only where the operator explicitly passed them on append_decision",
+    "No Q10 field renames or required-field removals; the new fields are additive-only"
+  ]
+}

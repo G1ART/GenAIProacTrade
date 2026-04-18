@@ -24,6 +24,8 @@ REPLAY_LINEAGE_OPTIONAL_FIELDS: tuple[str, ...] = (
     "linked_artifact_id",
     "replay_lineage_pointer",
     "active_model_family_name",
+    "brain_overlay_ids",
+    "persona_candidate_ids_at_decision",
 )
 
 REPLAY_LINEAGE_ALL_FIELDS: tuple[str, ...] = (
@@ -176,13 +178,30 @@ def _sanitize_replay_text(text: str, *, max_len: int = 600) -> str:
     return t
 
 
-def normalize_timeline_event_lineage(event: dict[str, Any]) -> dict[str, Any]:
-    """Ensure every timeline event exposes the lineage keys as strings (possibly empty).
+_LIST_VALUED_LINEAGE_FIELDS: tuple[str, ...] = (
+    "brain_overlay_ids",
+    "persona_candidate_ids_at_decision",
+)
 
-    This lets Today/Replay consumers join on fields without key-missing errors and
-    gives ``audit_timeline_events_for_lineage`` a uniform shape to inspect.
+
+def normalize_timeline_event_lineage(event: dict[str, Any]) -> dict[str, Any]:
+    """Ensure every timeline event exposes the lineage keys in a predictable shape.
+
+    Scalar lineage fields become strings (possibly empty). List-valued lineage
+    fields introduced by Pragmatic Brain Absorption v1 (brain_overlay_ids,
+    persona_candidate_ids_at_decision) are normalized into a list[str] so
+    consumers can iterate them without key-missing errors.
     """
     for k in REPLAY_LINEAGE_ALL_FIELDS:
+        if k in _LIST_VALUED_LINEAGE_FIELDS:
+            v = event.get(k)
+            if v is None:
+                event[k] = []
+            elif isinstance(v, list):
+                event[k] = [str(x) for x in v if str(x).strip()]
+            else:
+                event[k] = [str(v).strip()] if str(v).strip() else []
+            continue
         v = event.get(k)
         event[k] = "" if v is None else str(v).strip()
     return event
@@ -315,6 +334,14 @@ def build_timeline_events(
                     or bundle_registry_entry_id
                     or ""
                 ),
+                "brain_overlay_ids_at_decision": [
+                    str(x) for x in list(d.get("brain_overlay_ids_at_decision") or [])
+                    if str(x).strip()
+                ],
+                "persona_candidate_ids_at_decision": [
+                    str(x) for x in list(d.get("persona_candidate_ids_at_decision") or [])
+                    if str(x).strip()
+                ],
             }
         )
 
@@ -420,6 +447,12 @@ def _spectrum_review_context_for_asset(
             continue
         msg = r.get("message") if isinstance(r.get("message"), dict) else {}
         fam = str(sp.get("active_model_family") or "")
+        rs_overlay_ids: list[str] = []
+        if isinstance(raw_rs, dict):
+            rs_overlay_ids = [
+                str(x) for x in list(raw_rs.get("brain_overlay_ids") or [])
+                if str(x).strip()
+            ]
         join = {
             "contract": "REPLAY_LINEAGE_JOIN_V1",
             "asset_id": aid,
@@ -430,6 +463,7 @@ def _spectrum_review_context_for_asset(
             "message_snapshot_id": str(r.get("message_snapshot_id") or ""),
             "linked_registry_entry_id": str(msg.get("linked_registry_entry_id") or ""),
             "linked_artifact_id": str(msg.get("linked_artifact_id") or ""),
+            "brain_overlay_ids": rs_overlay_ids,
         }
         return join, registry_surface
     return None, registry_surface
@@ -460,6 +494,9 @@ def _inject_lineage_into_timeline_events(
             e["linked_artifact_id"] = join["linked_artifact_id"]
         if str(join.get("registry_entry_id") or "").strip():
             e["registry_entry_id"] = join["registry_entry_id"]
+        overlay_ids = list(join.get("brain_overlay_ids") or [])
+        if overlay_ids and not e.get("brain_overlay_ids"):
+            e["brain_overlay_ids"] = [str(x) for x in overlay_ids if str(x).strip()]
         if rs_ok:
             e["registry_surface_v1"] = registry_surface
 
@@ -543,6 +580,15 @@ def micro_brief_for_event(events: list[dict[str, Any]], event_id: str) -> dict[s
                     v = e.get(k)
                     if v is not None and str(v).strip():
                         mb[k] = v
+            list_lineage_keys = (
+                "brain_overlay_ids",
+                "brain_overlay_ids_at_decision",
+                "persona_candidate_ids_at_decision",
+            )
+            for k in list_lineage_keys:
+                v = e.get(k)
+                if isinstance(v, list) and v:
+                    mb[k] = [str(x) for x in v if str(x).strip()]
             rs = e.get("registry_surface_v1")
             if isinstance(rs, dict) and rs.get("contract") == "TODAY_REGISTRY_SURFACE_V1":
                 mb["registry_surface_v1"] = rs

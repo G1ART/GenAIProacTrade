@@ -1,0 +1,65 @@
+{
+  "contract": "METIS_PRAGMATIC_BRAIN_ABSORPTION_V1_OVERALL_EVIDENCE",
+  "plan": "pragmatic-brain-absorption-v1",
+  "workorder_source_path": "/Users/hyunminkim/Downloads/METIS_PlanMode_Workorder_Pragmatic_Brain_Absorption_v1.md",
+  "canonical_spec_paths": [
+    "docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md",
+    "docs/plan/METIS_MVP_Unified_Build_Plan_KR_v1.md",
+    "docs/plan/METIS_Residual_Score_Semantics_v1.md"
+  ],
+  "milestones": [
+    {
+      "id": "A",
+      "title": "Real Horizon Closure (next_half_year / next_year opt-in real-derived)",
+      "evidence_path": "data/mvp/evidence/pragmatic_brain_absorption_v1_milestone_a_evidence.json"
+    },
+    {
+      "id": "B",
+      "title": "Residual Score Semantics v1",
+      "evidence_path": "data/mvp/evidence/pragmatic_brain_absorption_v1_milestone_b_evidence.json"
+    },
+    {
+      "id": "C",
+      "title": "brain_overlays_v1 (bounded non-quant overlay) + Today/health cash-out",
+      "evidence_path": "data/mvp/evidence/pragmatic_brain_absorption_v1_milestone_c_evidence.json"
+    },
+    {
+      "id": "D",
+      "title": "Research Persona Harness v1 (candidate only)",
+      "evidence_path": "data/mvp/evidence/pragmatic_brain_absorption_v1_milestone_d_evidence.json",
+      "demo_report_path": "data/mvp/evidence/persona_candidates_v1_demo.json"
+    },
+    {
+      "id": "E",
+      "title": "Replay Lineage — overlay + persona-candidate cash-out (Q10 preserved)",
+      "evidence_path": "data/mvp/evidence/pragmatic_brain_absorption_v1_milestone_e_evidence.json"
+    }
+  ],
+  "regression": {
+    "mvp_spec_survey": {
+      "command": "python3 src/main.py print-mvp-spec-survey --fail-on-false",
+      "all_automated_ok": true,
+      "failed_question_ids": []
+    },
+    "full_test_suite": {
+      "command": "python3 -m pytest src/tests/ -q --deselect src/tests/test_phase39_hypothesis_family.py::test_phase39_orchestrator_writes_artifacts --ignore=src/tests/test_phase51_external_trigger_ingest_and_runtime_health.py",
+      "passed": 768,
+      "deselected_pre_existing_unrelated": [
+        "src/tests/test_phase39_hypothesis_family.py::test_phase39_orchestrator_writes_artifacts"
+      ]
+    }
+  },
+  "governance_guards": [
+    "No factor_validation_* table or row is mutated by personas or overlays.",
+    "No active registry entry or active artifact is promoted by personas or overlays.",
+    "brain_overlays_v1 enforces controlled vocabulary + single-entity binding + expiry_or_recheck_rule.",
+    "PersonaCandidatePacketV1 hard-codes the promotion doctrine note on every packet.",
+    "Replay lineage only displays overlay_ids / persona_candidate_ids — it never auto-promotes."
+  ],
+  "non_goals_confirmed": [
+    "No free-narrative AI memo is part of the active bundle.",
+    "No portfolio / broker / position / PnL surface is introduced.",
+    "No universe expansion beyond combined_largecap_research_v1.",
+    "No skin polish or IR deck work."
+  ]
+}

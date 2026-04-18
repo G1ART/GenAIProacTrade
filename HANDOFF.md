@@ -2,6 +2,57 @@
 
 **단일 목표**: Today/Research/Replay 세 표면을 **Metis Brain bundle + registry + message snapshot store** 라는 하나의 계약 위에 올리고, `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` §10 의 Q1–Q10 이 **자동 spec survey** 에서 전부 `ok=true` 가 되게 한다. (Build Plan §14 수직 슬라이스, §12 항상 지킬 문장.)
 
+## 2026-04-17 — Pragmatic Brain Absorption v1 (plan `pragmatic-brain-absorption-v1`)
+
+**단일 목표 (추가)**: 작업지시서 `METIS_PlanMode_Workorder_Pragmatic_Brain_Absorption_v1` 의 5개 subtrack 을 Unified Product Spec / Build Plan 에 맞춰 **레인 A→B→C→D→E 순** 으로 쪼개, "거버넌스·추적 가능성·제품 표면 cash-out" 이 있는 최소 증분으로 닫는다. 한 번에 "완성된 뇌" 가 아니라 **default brain 이 진짜로 조금 더 진짜가 되고, 그게 Today/Replay 표면에서 보이게** 하는 것.
+
+**Green run 실증**
+
+- **Milestone A — Real Horizon Closure (real-derived next_half_year / next_year 준비)**. `src/market/forward_returns_run.py` 가 `FORWARD_HORIZON_SPECS = (next_month, next_quarter, next_half_year, next_year)` 4개 지평을 emit, `DEFAULT_PRICE_LOOKAHEAD_DAYS = 520` 로 확장. 마이그레이션 `supabase/migrations/20260417100000_forward_returns_long_horizons_v1.sql` 가 `factor_market_validation_panels` 에 `raw_return_6m / excess_return_6m / raw_return_1y / excess_return_1y` 를 추가. `src/market/validation_panel_run.py` 가 네 지평을 모두 upsert, `src/research/validation_runner.py` / `validation_registry.py` 가 4-horizon opt-in 으로 확장. Opt-in config `data/mvp/metis_brain_bundle_build_v2.json` 에 `auto_degrade_optional_gates=[accruals:next_half_year, accruals:next_year]` — DB 가 backfill 되기 전에는 자동 degraded, backfill 후 자동 real_derived 로 승격. `src/db/schema_notes.md` 갱신. 증거: `data/mvp/evidence/pragmatic_brain_absorption_v1_milestone_a_evidence.json`.
+- **Milestone B — Residual Score Semantics v1 (계약 문서화 + optional 필드)**. 새 계약 문서 `docs/plan/METIS_Residual_Score_Semantics_v1.md`. `src/metis_brain/spectrum_rows_from_validation_v1.py` 가 deterministic 규칙으로 `residual_score_semantics_version`, `invalidation_hint`, `recheck_cadence` 를 매 row 에 부여 (PIT fail > low confidence > midline cross > default priority). `src/metis_brain/message_object_v1.py` 가 세 필드를 optional 로 전달. Q6–Q10 survey 는 그대로 초록. 증거: `data/mvp/evidence/pragmatic_brain_absorption_v1_milestone_b_evidence.json`.
+- **Milestone C — brain_overlays_v1 (bounded non-quant overlay)**. 새 모듈 `src/metis_brain/brain_overlays_v1.py` — `BrainOverlayV1` Pydantic (overlay_type 는 controlled vocabulary, artifact_id OR registry_entry_id 단일 bind, `counter_interpretation_present`, `expiry_or_recheck_rule` 필수). `BrainBundleV0` 에 optional `brain_overlays` 추가, `validate_active_registry_integrity` 가 binding 유효성 enforce (free-floating narrative 거절). 시드 `data/mvp/brain_overlays_seed_v1.json` 3건 (confidence_adjustment / regime_shift / catalyst_window). `src/main.py` 의 번들 빌드가 config 의 `overlays_seed_path` 혹은 기본 시드를 로드·binding 검증 후 merge. Cash-out 지점: `src/phase51_runtime/cockpit_health_surface.py` 의 `mvp_brain_gate.brain_overlays_summary`, `src/phase47_runtime/today_spectrum.py` 의 `TODAY_REGISTRY_SURFACE_V1.brain_overlay_ids`. 증거: `data/mvp/evidence/pragmatic_brain_absorption_v1_milestone_c_evidence.json`.
+- **Milestone D — Research Persona Harness v1 (candidate only)**. 새 모듈 `src/metis_brain/persona_candidates_v1.py` — `PersonaCandidatePacketV1` (persona / thesis_family / targeted_horizon / targeted_universe / evidence_refs / confidence / countercase / gate_eligibility + 하드코딩된 `promotion_doctrine_note`). 새 CLI `python3 src/main.py emit-persona-candidates [--config …] [--out-json …]` 가 기본 3-persona demo 혹은 JSON config 로 `METIS_PERSONA_CANDIDATES_REPORT_V1` 리포트를 stdout / 파일로만 내보냄. **active registry / overlay / factor_validation_\* 에는 어떤 경우에도 쓰지 않음.** 증거: `data/mvp/evidence/pragmatic_brain_absorption_v1_milestone_d_evidence.json`, demo 리포트 `data/mvp/evidence/persona_candidates_v1_demo.json`.
+- **Milestone E — Replay Lineage overlay + persona cash-out (Q10 유지)**. `src/phase46/decision_trace_ledger.py` 에 optional `brain_overlay_ids_at_decision`, `persona_candidate_ids_at_decision` (list[str]). `src/phase47_runtime/traceability_replay.py` 의 `REPLAY_LINEAGE_JOIN_V1` 이 `TODAY_REGISTRY_SURFACE_V1.brain_overlay_ids` 를 join 필드로 승격하고, 동일 asset timeline 이벤트에 전파 (기존 decision-level overlay 는 덮어쓰지 않음). `normalize_timeline_event_lineage` 는 list-valued 필드를 `list[str]` 로, scalar 는 기존대로 string 으로 구분 정규화. `micro_brief_for_event` 가 overlay / persona 리스트를 노출. Q10 (persisted snapshot 에 `message_snapshot_id + registry_entry_id` 동시 존재) 는 추가-only 이므로 regression 없음. 증거: `data/mvp/evidence/pragmatic_brain_absorption_v1_milestone_e_evidence.json`.
+
+**변경 범위 요약 (pragmatic-brain-absorption-v1 패치)**
+
+- 신규 스키마/계약: `BrainOverlayV1`, `PersonaCandidatePacketV1`, `METIS_PERSONA_CANDIDATES_REPORT_V1`, `METIS_Residual_Score_Semantics_v1` (markdown 계약).
+- 신규 모듈: `src/metis_brain/brain_overlays_v1.py`, `src/metis_brain/persona_candidates_v1.py`.
+- 확장 모듈: `src/market/forward_returns_run.py`, `src/market/validation_panel_run.py`, `src/research/validation_runner.py`, `src/research/validation_registry.py`, `src/metis_brain/spectrum_rows_from_validation_v1.py`, `src/metis_brain/message_object_v1.py`, `src/metis_brain/bundle.py`, `src/phase46/decision_trace_ledger.py`, `src/phase47_runtime/traceability_replay.py`, `src/phase47_runtime/today_spectrum.py`, `src/phase51_runtime/cockpit_health_surface.py`, `src/main.py` (번들 빌드 오버레이 merge + `emit-persona-candidates` subparser + handler).
+- 신규 CLI: `emit-persona-candidates`.
+- 신규 마이그레이션: `supabase/migrations/20260417100000_forward_returns_long_horizons_v1.sql`.
+- 신규 config / 시드: `data/mvp/metis_brain_bundle_build_v2.json`, `data/mvp/brain_overlays_seed_v1.json`.
+- 신규 docs (계약): `docs/plan/METIS_Residual_Score_Semantics_v1.md`.
+- 신규 tests: `src/tests/test_forward_long_horizons_v1.py`, `src/tests/test_residual_score_semantics_v1.py`, `src/tests/test_brain_overlays_v1.py`, `src/tests/test_persona_candidates_v1.py`, `src/tests/test_replay_lineage_overlay_persona_v1.py`.
+- 증거 패킷: Milestone A / B / C / D / E 별 `data/mvp/evidence/pragmatic_brain_absorption_v1_milestone_*_evidence.json`, 데모 리포트 `data/mvp/evidence/persona_candidates_v1_demo.json`.
+
+**회귀 확인**
+
+- `python3 src/main.py print-mvp-spec-survey --fail-on-false` → Q1–Q10 전부 `ok=true`, `all_automated_ok=true`. 
+- `python3 -m pytest src/tests/ -q --deselect src/tests/test_phase39_hypothesis_family.py::test_phase39_orchestrator_writes_artifacts --ignore=src/tests/test_phase51_external_trigger_ingest_and_runtime_health.py` → **768 passed**. Deselect 된 `test_phase39_orchestrator_writes_artifacts` 은 이 브랜치 이전부터 실패하던 phase 39 관련 이슈로, Pragmatic Brain Absorption v1 범위 밖.
+
+**Design Note 및 근거 문서 입수 경로 (이번 사이클)**
+
+- 작업지시서 원문: `/Users/hyunminkim/Downloads/METIS_PlanMode_Workorder_Pragmatic_Brain_Absorption_v1.md` (로컬 사용자 다운로드).
+- Canonical MVP 계약: `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md`, `docs/plan/METIS_MVP_Unified_Build_Plan_KR_v1.md`.
+- 이번 사이클 신규 계약: `docs/plan/METIS_Residual_Score_Semantics_v1.md`.
+- 이전 pre-canonical 문서는 `docs/plan/archive/pre_metis_canonical_2026-04-16/` 아래에만 유지.
+
+**MVP Spec §10 대비 갭 (Pragmatic Brain Absorption v1 이후)**
+
+- Q1–Q10 은 survey 기준 전부 ok. 
+- Real horizon closure 는 **opt-in v2 config + auto-degrade** 로 열렸다. 운영자가 `metis_brain_bundle_build_v2.json` 으로 빌드하면 real 데이터가 도착하는 즉시 medium_long / long 이 `template_fallback` 에서 `real_derived` 로 자동 승격 (추가 코드 변경 없이).
+- Non-quant overlays 는 시드 3건까지만 들어간 상태 (earnings guidance / regime / catalyst). 실 데이터 기반 bounded overlay 는 여전히 candidate-first: 운영자가 overlay seed 를 갱신하거나 persona candidate 를 승격 doctrine 으로 통과시킨 뒤에야 active.
+- Replay 는 overlay / persona id 를 lineage 로 보존할 뿐, 어떤 경우에도 자동 승격하지 않는다 — 이는 작업지시서 §8.4 promotion doctrine 과 anti-drift §4 를 그대로 지키기 위해 의도된 제약.
+
+**직후 권고 (다음 Patch Bundle)**
+
+1. **Forward-returns 백필**: medium_long / long 이 opt-in 상태이므로, 백필 이후 `metis_brain_bundle_build_v2.json` 을 default config 로 전환하고 `auto_degrade_optional_gates` 를 제거하는 migration step.
+2. **Persona candidate → 승격 파이프라인 스케치**: `emit-persona-candidates` 출력을 입력으로 하는 `promote-persona-candidate` (PIT + provenance + validation + runtime explainability 네 단계 check 후 artifact / overlay 생성) 을 Patch Bundle D+ 에서 설계.
+3. **Overlay seed governance**: overlay seed 파일을 `brain_overlays_*_v2.json` 으로 분리하고, `build-metis-brain-bundle-from-factor-validation` 이 시드 파일의 hash 를 provenance 에 기록하도록 확장.
+4. (Non-goal 유지) 유니버스 확장 / 브로커 / 백테스트 / 포트폴리오 / IR 덱 / skin polish 는 이번 사이클에서도 MVP 진전이 아니다.
+
+
 ## 2026-04-17 — Real Bundle Generalization v1 (plan `real-bundle-generalization-v1`)
 
 **단일 목표 (추가)**: default brain bundle 이 진짜 factor_validation 출력 위에 **multi-horizon real-derived / explicit template_fallback / degraded** 라벨을 달고, PIT rule · per-horizon provenance · 200티커 cohort integrity 가 auditable 한 상태.
