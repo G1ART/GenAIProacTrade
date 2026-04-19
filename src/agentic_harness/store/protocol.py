@@ -71,8 +71,14 @@ class HarnessStoreProtocol(Protocol):
         result_json: Optional[dict[str, Any]] = None,
         last_error: str = "",
         increment_attempts: bool = False,
+        next_not_before_utc: Optional[str] = None,
     ) -> None:
-        ...
+        """Update a job row.
+
+        ``next_not_before_utc`` is honored only when ``status == 'enqueued'``
+        so that re-queued jobs observe a scheduler-imposed backoff window.
+        For any other status the argument is ignored.
+        """
 
     def get_job(self, job_id: str) -> Optional[dict[str, Any]]:
         ...

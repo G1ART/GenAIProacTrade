@@ -1,0 +1,180 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_12_layer1_live_fetch",
+  "milestone": "AGH v1 Patch 1 — Layer 1 live ingest closure (fetcher + retryable-aware backoff)",
+  "scope": "Close the Layer 1 stale -> fetch -> artifact loop by wrapping run_fmp_sample_ingest in an env-gated transcript fetcher, classifying FMP outcomes into ok/empty/retryable/fail-fast, and making the scheduler retryable-aware with exponential backoff. No direct registry / Brain bundle write; live call is gated behind two env flags (METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH + FMP_API_KEY). Fixture store path stays hermetic. 'empty' outcome persists a SourceArtifactPacketV1 so honest absence is recorded instead of fabricated success.",
+  "files_created": [
+    "src/agentic_harness/adapters/layer1_transcript_fetcher.py",
+    "src/tests/test_agentic_layer1_transcript_fetcher_v1.py",
+    "src/tests/test_agentic_layer1_live_fetch_bootstrap_v1.py"
+  ],
+  "files_modified": [
+    "src/agentic_harness/agents/layer1_ingest.py",
+    "src/agentic_harness/scheduler/tick.py",
+    "src/agentic_harness/store/protocol.py",
+    "src/agentic_harness/store/fixture_store.py",
+    "src/agentic_harness/store/supabase_store.py",
+    "src/agentic_harness/runtime.py",
+    "src/tests/test_agentic_layer1_ingest_v1.py",
+    "src/tests/test_agentic_scheduler_tick_v1.py",
+    "src/tests/test_agentic_packet_store_v1.py"
+  ],
+  "env_flags": {
+    "METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH": {
+      "accepted_values": ["1", "true", "yes"],
+      "default": "OFF",
+      "behavior": "Gates live FMP fetch bootstrap. When OFF, Layer 1 worker uses the existing fallback fetcher ('transcript_fetcher_not_configured' -> scheduler DLQs after max_attempts)."
+    },
+    "FMP_API_KEY": {
+      "required_when": "METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH is ON",
+      "on_missing": "Bootstrap logs a WARNING and leaves the fallback fetcher in place; queued jobs surface the config problem honestly rather than pretending to fetch."
+    },
+    "METIS_HARNESS_L1_FISCAL_TARGET": {
+      "format": "YYYY-Q<n>",
+      "default": "auto (heuristic _infer_target_fiscal_quarter: month<=3 -> prev-year Q4, etc.)",
+      "purpose": "Optional operational override for the fiscal quarter targeted by the fetcher. Useful for AAPL-style out-of-band smokes without modifying the inference heuristic."
+    }
+  },
+  "retry_policy": {
+    "retryable_true_triggers": [
+      "HTTP 429 (fmp_rate_limited:429)",
+      "HTTP 5xx (fmp_server_error:<code>)",
+      "RuntimeError('fmp_network_error:...') (URL / DNS / socket error)",
+      "Any other non-enumerated non-200 HTTP code (defensive)"
+    ],
+    "retryable_false_triggers_failfast_to_dlq": [
+      "HTTP 401 / 402 / 403 (fmp_auth_failed:<code>)",
+      "HTTP 200 with FMP error-body (fmp_auth_failed:error_body)",
+      "FMP_API_KEY missing (fmp_api_key_missing)",
+      "transcripts_provider != 'fmp' (transcripts_provider_not_fmp)",
+      "Unexpected worker fetch_outcome value (unexpected_fetch_outcome:<value>)",
+      "Missing asset_id on job (fetcher_missing_asset_id)"
+    ],
+    "backoff_schedule_seconds": {
+      "formula": "min(3600, 300 * 2^(attempts_so_far - 1))",
+      "table": {
+        "attempt_1_fail": 300,
+        "attempt_2_fail": 600,
+        "attempt_3_fail": 1200,
+        "attempt_4_fail": 2400,
+        "attempt_5_fail_and_beyond": 3600
+      },
+      "applied_via": "store.mark_job_result(status='enqueued', next_not_before_utc=...) (status='dlq' never sets a future not_before_utc)"
+    }
+  },
+  "fetch_outcome_matrix": {
+    "http_200_with_transcript_content": {
+      "worker_ok": true,
+      "fetch_outcome": "ok",
+      "confidence_default": 0.9,
+      "packet_emitted": "SourceArtifactPacketV1(payload.fetch_outcome='ok')"
+    },
+    "http_200_empty_list_or_unexpected_shape": {
+      "worker_ok": true,
+      "fetch_outcome": "empty",
+      "confidence_default": 0.5,
+      "blocking_reasons": [
+        "transcript_payload_empty_list",
+        "transcript_payload_unexpected_shape"
+      ],
+      "packet_emitted": "SourceArtifactPacketV1(payload.fetch_outcome='empty') — honest absence"
+    },
+    "http_404": {
+      "worker_ok": true,
+      "fetch_outcome": "empty",
+      "blocking_reasons": ["transcript_not_available_for_quarter"],
+      "packet_emitted": "SourceArtifactPacketV1(payload.fetch_outcome='empty')"
+    },
+    "http_401_402_403_or_200_error_body": {
+      "worker_ok": false,
+      "retryable": false,
+      "packet_emitted": "none (job goes to DLQ on first failure)"
+    },
+    "http_429_or_5xx_or_network_error": {
+      "worker_ok": false,
+      "retryable": true,
+      "packet_emitted": "none (job re-enqueued with exponential backoff)"
+    }
+  },
+  "provenance_refs_added_on_success_or_empty": [
+    "supabase://transcript_ingest_runs/<ingest_run_id>",
+    "supabase://raw_transcript_payloads_fmp/<raw_payload_fmp_id> (when present)",
+    "fmp://earning_call_transcript/<SYMBOL>/<YEAR>/Q<Q>",
+    "packet:<alert_packet_id>"
+  ],
+  "source_artifact_payload_extensions": {
+    "new_fields": ["http_status", "probe_status"],
+    "rationale": "Surface the concrete FMP HTTP status and classify label so L5 / operators can answer 'why is this empty?' without re-running the call."
+  },
+  "tests": {
+    "new_files": [
+      "src/tests/test_agentic_layer1_transcript_fetcher_v1.py",
+      "src/tests/test_agentic_layer1_live_fetch_bootstrap_v1.py"
+    ],
+    "new_or_extended_cases": [
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_infer_target_fiscal_quarter_covers_all_months",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_parse_fiscal_target_override",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_classify_200_available_ok",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_classify_200_partial_empty_is_honest_empty",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_classify_200_with_error_body_is_auth_failfast",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_classify_200_unverified_shape_is_honest_empty",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_classify_404_is_honest_empty_not_retryable",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_classify_auth_codes_fail_fast",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_classify_429_is_retryable",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_classify_5xx_is_retryable",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_classify_other_status_is_retryable_defensive",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_build_fetcher_success_returns_ok_with_provenance",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_build_fetcher_404_reports_empty_with_blocking_reasons",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_build_fetcher_auth_failfast",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_build_fetcher_429_is_retryable",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_build_fetcher_5xx_is_retryable",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_build_fetcher_network_runtime_error_is_retryable",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_build_fetcher_missing_api_key_failfast",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_build_fetcher_force_target_override",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_build_fetcher_env_fiscal_override",
+      "test_agentic_layer1_transcript_fetcher_v1.py::test_build_fetcher_missing_asset_id_failfast",
+      "test_agentic_layer1_live_fetch_bootstrap_v1.py::test_bootstrap_noop_when_flag_off",
+      "test_agentic_layer1_live_fetch_bootstrap_v1.py::test_bootstrap_noop_for_fixture_store",
+      "test_agentic_layer1_live_fetch_bootstrap_v1.py::test_bootstrap_warns_and_skips_when_key_missing",
+      "test_agentic_layer1_live_fetch_bootstrap_v1.py::test_bootstrap_wires_transcript_fetcher_when_flag_and_key_present",
+      "test_agentic_layer1_ingest_v1.py::test_ingest_queue_worker_honors_retryable_false_from_fetcher",
+      "test_agentic_layer1_ingest_v1.py::test_ingest_queue_worker_empty_outcome_still_emits_source_artifact",
+      "test_agentic_layer1_ingest_v1.py::test_ingest_queue_worker_rejects_unexpected_outcome_failfast",
+      "test_agentic_scheduler_tick_v1.py::test_worker_retryable_false_is_dlq_on_first_failure",
+      "test_agentic_scheduler_tick_v1.py::test_worker_retryable_true_gets_exponential_backoff",
+      "test_agentic_scheduler_tick_v1.py::test_worker_retryable_true_respects_1h_cap",
+      "test_agentic_packet_store_v1.py::test_mark_job_result_enqueued_applies_next_not_before_utc",
+      "test_agentic_packet_store_v1.py::test_mark_job_result_ignores_next_not_before_utc_for_non_enqueued_status"
+    ],
+    "regression": "All 158 tests in src/tests/test_agentic_*.py pass (up from 102 pre-patch, +56 via fetcher/bootstrap/backoff coverage including existing worker + scheduler + store suites re-verified).",
+    "command": "PYTHONPATH=src python3 -m pytest src/tests/test_agentic_*.py -q"
+  },
+  "safety_gates_preserved": [
+    "Direct registry / Brain bundle / factor_validation_* write: 0 (adapter reuses run_fmp_sample_ingest which only touches source tables + overlay availability, and only when live env flag is ON).",
+    "Live FMP fetch requires BOTH METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH and FMP_API_KEY; fixture store bootstrap quietly skips.",
+    "Auth/config errors fail-fast to DLQ on first failure — operators surface the problem via transcript_ingest_runs + packet evidence without burning retry budget.",
+    "fetch_outcome='empty' is persisted as SourceArtifactPacketV1 with blocking_reasons + http_status so L5 can answer 'why empty' honestly (no fabricated artifact_ref).",
+    "Brain bundle universe unchanged (Patch 1 out of scope §2)."
+  ],
+  "live_smoke": {
+    "status": "deferred — fetcher ready, awaiting FMP_API_KEY",
+    "reason": "FMP_API_KEY is not provisioned in the current environment at patch submission time. All fetcher / bootstrap / scheduler paths are covered by unit tests that mock run_fmp_sample_ingest and the bootstrap import surface, so the live call path is fully exercised except for the final HTTP round-trip.",
+    "runbook_when_key_available": {
+      "honest_negative_demo_kr": [
+        "1. `export METIS_HARNESS_L1_WIRE_PRODUCTION=1 METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH=1 FMP_API_KEY=<key>` in a non-fixture shell.",
+        "2. `PYTHONPATH=src python3 -m src.main harness-tick --max-jobs 5` (or trigger propose_layer1_cadence directly).",
+        "3. Verify 3 SourceArtifactPacketV1 rows with payload.fetch_outcome='empty' for DEMO_KR_{A,B,C}, each pointing to a supabase://transcript_ingest_runs/<id> row.",
+        "4. Record packet_id <-> ingest_run_id <-> http_status mapping in the follow-up evidence extension."
+      ],
+      "out_of_band_positive_aapl": [
+        "1. `export METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH=1 FMP_API_KEY=<key>`.",
+        "2. Inline Python: instantiate `build_transcript_fetcher(client_factory=..., settings=load_settings())` and call with `{'asset_id':'AAPL','source_family':'earnings_transcript','alert_packet_id':'pkt_smoke_aapl_q2_2025','_force_target':{'year':2025,'quarter':2}}`.",
+        "3. Expect {'ok': True, 'fetch_outcome': 'ok', 'http_status': 200, 'artifact_ref': '<raw_payload_fmp_id>'} and a real row in raw_transcript_payloads_fmp.",
+        "4. Do NOT mutate the Brain bundle — the AAPL row stands on its own as a positive artifact."
+      ],
+      "l5_regression": [
+        "`PYTHONPATH=src python3 -m src.main harness-ask --asset DEMO_KR_A --provider openai \"최근에 어떤 source 가 들어왔어?\"` — expect the bundle to include both IngestAlertPacketV1 and SourceArtifactPacketV1 (empty), cited_packet_ids only those two, no 'Today active state changed' language."
+      ]
+    }
+  },
+  "next_patch_hint": "Patch 2 candidate: Promotion Bridge Closure — Layer 4 governance_queue now emits RegistryUpdateProposalV1 but no code path actually mutates registry_entries; closing that loop under proposal-only governance is the next product-visible step toward Stage 3 autonomy."
+}

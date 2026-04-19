@@ -150,33 +150,39 @@ def test_worker_failure_retries_until_dlq():
     store = FixtureHarnessStore()
     pkt = _packet()
     store.upsert_packet(pkt.model_dump())
+    now1 = datetime(2026, 4, 17, 12, 0, tzinfo=timezone.utc)
     job = QueueJobV1.model_validate(
         {
             "job_id": deterministic_job_id(queue_class="ingest_queue", packet_id=pkt.packet_id),
             "queue_class": "ingest_queue",
             "packet_id": pkt.packet_id,
             "max_attempts": 2,
+            "not_before_utc": now1.isoformat(),
         }
     )
     store.enqueue_job(job.model_dump())
 
     def bad_worker(s, j):
+        # Legacy worker: no `retryable` flag -> scheduler treats as retryable.
         return {"ok": False, "error": "boom"}
 
-    # 1st tick: attempt=1 -> back to enqueued
+    # 1st tick: attempt=1 -> back to enqueued with a 5m backoff.
     run_one_tick(
         store=store,
         layer_cadences=[],
         queue_specs=[QueueSpec(queue_class="ingest_queue", worker_fn=bad_worker)],
+        now=now1,
     )
     row = store.get_job(job.job_id)
     assert row["status"] == "enqueued"
     assert row["attempts"] == 1
-    # 2nd tick: attempt=2 and since attempts_so_far==max_attempts, DLQ
+    # 2nd tick: advance past backoff so claim_next_jobs sees the job again.
+    now2 = now1 + timedelta(minutes=6)
     run_one_tick(
         store=store,
         layer_cadences=[],
         queue_specs=[QueueSpec(queue_class="ingest_queue", worker_fn=bad_worker)],
+        now=now2,
     )
     row = store.get_job(job.job_id)
     assert row["status"] == "dlq"
@@ -187,12 +193,14 @@ def test_worker_exception_treated_as_failure():
     store = FixtureHarnessStore()
     pkt = _packet()
     store.upsert_packet(pkt.model_dump())
+    now = datetime(2026, 4, 17, 12, 0, tzinfo=timezone.utc)
     job = QueueJobV1.model_validate(
         {
             "job_id": deterministic_job_id(queue_class="ingest_queue", packet_id=pkt.packet_id),
             "queue_class": "ingest_queue",
             "packet_id": pkt.packet_id,
             "max_attempts": 1,
+            "not_before_utc": now.isoformat(),
         }
     )
     store.enqueue_job(job.model_dump())
@@ -204,9 +212,124 @@ def test_worker_exception_treated_as_failure():
         store=store,
         layer_cadences=[],
         queue_specs=[QueueSpec(queue_class="ingest_queue", worker_fn=raising_worker)],
+        now=now,
     )
     # attempts_so_far==1 and max_attempts==1 -> dlq
     assert store.get_job(job.job_id)["status"] == "dlq"
+
+
+def test_worker_retryable_false_is_dlq_on_first_failure():
+    store = FixtureHarnessStore()
+    pkt = _packet()
+    store.upsert_packet(pkt.model_dump())
+    now = datetime(2026, 4, 17, 12, 0, tzinfo=timezone.utc)
+    job = QueueJobV1.model_validate(
+        {
+            "job_id": deterministic_job_id(queue_class="ingest_queue", packet_id=pkt.packet_id),
+            "queue_class": "ingest_queue",
+            "packet_id": pkt.packet_id,
+            "max_attempts": 3,
+            "not_before_utc": now.isoformat(),
+        }
+    )
+    store.enqueue_job(job.model_dump())
+
+    def auth_worker(s, j):
+        return {"ok": False, "error": "fmp_auth_failed:401", "retryable": False}
+
+    run_one_tick(
+        store=store,
+        layer_cadences=[],
+        queue_specs=[QueueSpec(queue_class="ingest_queue", worker_fn=auth_worker)],
+        now=now,
+    )
+    row = store.get_job(job.job_id)
+    assert row["status"] == "dlq"
+    assert row["attempts"] == 1
+    assert row["last_error"].startswith("fmp_auth_failed")
+
+
+def test_worker_retryable_true_gets_exponential_backoff():
+    store = FixtureHarnessStore()
+    pkt = _packet()
+    store.upsert_packet(pkt.model_dump())
+    now1 = datetime(2026, 4, 17, 12, 0, tzinfo=timezone.utc)
+    job = QueueJobV1.model_validate(
+        {
+            "job_id": deterministic_job_id(queue_class="ingest_queue", packet_id=pkt.packet_id),
+            "queue_class": "ingest_queue",
+            "packet_id": pkt.packet_id,
+            "max_attempts": 5,
+            "not_before_utc": now1.isoformat(),
+        }
+    )
+    store.enqueue_job(job.model_dump())
+
+    def rate_worker(s, j):
+        return {"ok": False, "error": "fmp_rate_limited:429", "retryable": True}
+
+    run_one_tick(
+        store=store,
+        layer_cadences=[],
+        queue_specs=[QueueSpec(queue_class="ingest_queue", worker_fn=rate_worker)],
+        now=now1,
+    )
+    row = store.get_job(job.job_id)
+    assert row["status"] == "enqueued"
+    # First retry: 5min backoff (300s).
+    nbf = datetime.fromisoformat(row["not_before_utc"].replace("Z", "+00:00"))
+    delta = (nbf - now1).total_seconds()
+    assert 299 <= delta <= 301
+
+    # Claim requires now >= not_before_utc; simulate +6min.
+    now2 = now1 + timedelta(minutes=6)
+    run_one_tick(
+        store=store,
+        layer_cadences=[],
+        queue_specs=[QueueSpec(queue_class="ingest_queue", worker_fn=rate_worker)],
+        now=now2,
+    )
+    row = store.get_job(job.job_id)
+    assert row["status"] == "enqueued"
+    nbf2 = datetime.fromisoformat(row["not_before_utc"].replace("Z", "+00:00"))
+    delta2 = (nbf2 - now2).total_seconds()
+    # Second retry: 10min backoff.
+    assert 599 <= delta2 <= 601
+
+
+def test_worker_retryable_true_respects_1h_cap():
+    store = FixtureHarnessStore()
+    pkt = _packet()
+    store.upsert_packet(pkt.model_dump())
+    now = datetime(2026, 4, 17, 12, 0, tzinfo=timezone.utc)
+    job_dict = QueueJobV1.model_validate(
+        {
+            "job_id": deterministic_job_id(queue_class="ingest_queue", packet_id=pkt.packet_id),
+            "queue_class": "ingest_queue",
+            "packet_id": pkt.packet_id,
+            "max_attempts": 10,
+            "not_before_utc": now.isoformat(),
+        }
+    ).model_dump()
+    # Seed attempts=5 directly so the next claim bumps to 6 and backoff
+    # formula (300 * 2^(6-1) = 9600s) exceeds the 1h cap.
+    job_dict["attempts"] = 5
+    store.enqueue_job(job_dict)
+
+    def rate_worker(s, j):
+        return {"ok": False, "error": "fmp_rate_limited:429", "retryable": True}
+
+    run_one_tick(
+        store=store,
+        layer_cadences=[],
+        queue_specs=[QueueSpec(queue_class="ingest_queue", worker_fn=rate_worker)],
+        now=now,
+    )
+    row = store.get_job(job_dict["job_id"])
+    assert row["status"] == "enqueued"
+    nbf = datetime.fromisoformat(row["not_before_utc"].replace("Z", "+00:00"))
+    delta = (nbf - now).total_seconds()
+    assert 3599 <= delta <= 3601
 
 
 def test_run_one_tick_skips_queue_when_no_worker_registered():

@@ -137,6 +137,7 @@ class FixtureHarnessStore(HarnessStoreProtocol):
         result_json: Optional[dict[str, Any]] = None,
         last_error: str = "",
         increment_attempts: bool = False,
+        next_not_before_utc: Optional[str] = None,
     ) -> None:
         j = self._jobs.get(job_id)
         if j is None:
@@ -148,6 +149,8 @@ class FixtureHarnessStore(HarnessStoreProtocol):
             j["last_error"] = str(last_error)
         if increment_attempts:
             j["attempts"] = int(j.get("attempts") or 0) + 1
+        if status == "enqueued" and next_not_before_utc:
+            j["not_before_utc"] = str(next_not_before_utc)
 
     def get_job(self, job_id: str) -> Optional[dict[str, Any]]:
         j = self._jobs.get(job_id)

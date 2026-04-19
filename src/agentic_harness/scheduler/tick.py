@@ -16,7 +16,7 @@ this module never branches on packet_type / layer semantics.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any, Callable, Optional
 
 from agentic_harness.contracts.queues_v1 import QUEUE_CLASSES
@@ -66,6 +66,22 @@ def _utc_iso(dt: Optional[datetime]) -> str:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
     return dt.isoformat()
+
+
+def _compute_next_not_before(now_iso: str, backoff_s: int) -> str:
+    """Return an ISO-8601 timestamp ``backoff_s`` seconds after ``now_iso``.
+
+    Falls back to "now + backoff" from wall-clock if ``now_iso`` can't be
+    parsed (shouldn't happen in practice but keeps the scheduler robust).
+    """
+
+    try:
+        base = datetime.fromisoformat(str(now_iso).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        base = datetime.now(timezone.utc)
+    if base.tzinfo is None:
+        base = base.replace(tzinfo=timezone.utc)
+    return (base + timedelta(seconds=max(0, int(backoff_s)))).isoformat()
 
 
 def run_one_tick(
@@ -136,9 +152,15 @@ def run_one_tick(
                     qsum["done"] += 1
                 else:
                     err = str(result.get("error") or "unknown")
+                    # Workers that don't return `retryable` (legacy path)
+                    # default to retryable-true so `max_attempts` still
+                    # governs final DLQ decisions.  The live FMP adapter
+                    # sets this flag explicitly so auth/config errors
+                    # fail-fast without burning retry budget.
+                    retryable = bool(result.get("retryable", True))
                     attempts_so_far = int(job.get("attempts") or 0)
                     max_attempts = int(job.get("max_attempts") or 3)
-                    if attempts_so_far >= max_attempts:
+                    if (not retryable) or attempts_so_far >= max_attempts:
                         store.mark_job_result(
                             job_id=jid,
                             status="dlq",
@@ -147,11 +169,19 @@ def run_one_tick(
                         )
                         qsum["dlq"] += 1
                     else:
+                        # Exponential backoff: 5m, 10m, 20m, 40m, …, cap 1h.
+                        backoff_s = min(
+                            3600, 300 * (2 ** max(0, attempts_so_far - 1))
+                        )
+                        next_not_before = _compute_next_not_before(
+                            now_iso, backoff_s
+                        )
                         store.mark_job_result(
                             job_id=jid,
                             status="enqueued",
                             result_json=dict(result),
                             last_error=err,
+                            next_not_before_utc=next_not_before,
                         )
                     qsum["errors"].append({"job_id": jid, "error": err})
             summary.queue_runs[qc] = qsum

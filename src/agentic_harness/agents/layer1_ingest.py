@@ -267,11 +267,31 @@ def ingest_queue_worker(
     except Exception as e:
         return {"ok": False, "error": f"fetcher_exception: {e}"}
     if not isinstance(res, dict):
-        return {"ok": False, "error": "fetcher_result_not_dict"}
+        return {"ok": False, "error": "fetcher_result_not_dict", "retryable": False}
     if not res.get("ok", False):
-        return {"ok": False, "error": str(res.get("error") or "fetch_failed")}
+        # Default retryable to True for backward compatibility with
+        # fetchers that do not return a retryable flag (scheduler will
+        # still DLQ after max_attempts).  The live adapter sets this
+        # explicitly to False for auth/config errors so the scheduler
+        # can fail-fast.
+        return {
+            "ok": False,
+            "error": str(res.get("error") or "fetch_failed"),
+            "retryable": bool(res.get("retryable", True)),
+        }
 
-    # Record a SourceArtifactPacketV1 as evidence the fetch succeeded.
+    # Source artifact outcome honesty: 'ok' means we got transcript text;
+    # 'empty' means we reached FMP but the quarter has no transcript yet.
+    # Anything else from the fetcher is unexpected and we refuse rather
+    # than fabricate an outcome.
+    outcome = str(res.get("fetch_outcome") or "ok")
+    if outcome not in ("ok", "empty"):
+        return {
+            "ok": False,
+            "error": f"unexpected_fetch_outcome:{outcome}",
+            "retryable": False,
+        }
+
     sa = SourceArtifactPacketV1.model_validate(
         {
             "packet_id": deterministic_packet_id(
@@ -286,15 +306,22 @@ def ingest_queue_worker(
                 "asset_id": asset_id,
                 "alert_packet_id": alert_packet_id,
             },
-            "provenance_refs": list(res.get("provenance_refs") or [f"packet:{alert_packet_id}"]),
-            "confidence": float(res.get("confidence", 0.9)),
+            "provenance_refs": list(
+                res.get("provenance_refs") or [f"packet:{alert_packet_id}"]
+            ),
+            "confidence": float(
+                res.get("confidence", 0.9 if outcome == "ok" else 0.5)
+            ),
+            "blocking_reasons": list(res.get("blocking_reasons") or []),
             "status": "done",
             "payload": {
                 "source_family": payload.get("source_family") or SOURCE_FAMILY_TRANSCRIPTS,
                 "artifact_kind": str(res.get("artifact_kind") or "transcript_text"),
-                "fetch_outcome": "ok",
+                "fetch_outcome": outcome,
                 "artifact_ref": str(res.get("artifact_ref") or ""),
                 "fetched_at_utc": str(res.get("fetched_at_utc") or ""),
+                "http_status": int(res.get("http_status") or 0),
+                "probe_status": str(res.get("probe_status") or ""),
             },
         }
     )
@@ -304,4 +331,5 @@ def ingest_queue_worker(
         "ok": True,
         "source_artifact_packet_id": sa.packet_id,
         "asset_id": asset_id,
+        "fetch_outcome": outcome,
     }

@@ -175,6 +175,82 @@ def test_ingest_queue_worker_failure_propagates_for_dlq():
     res = ingest_queue_worker(store, claimed[0])
     assert res["ok"] is False
     assert "http_503" in res["error"]
+    # Default: missing retryable flag -> True (backward compat for legacy fetchers).
+    assert res.get("retryable") is True
+
+
+def test_ingest_queue_worker_honors_retryable_false_from_fetcher():
+    store = FixtureHarnessStore()
+
+    def provider(s, now_iso):
+        return [{"asset_id": "TRGP", "last_fetched_at_utc": "", "expected_freshness_hours": 72}]
+
+    def auth_error(job_meta):
+        return {"ok": False, "error": "fmp_auth_failed:401", "retryable": False}
+
+    set_stale_asset_provider(provider)
+    set_transcript_fetcher(auth_error)
+    propose_layer1_cadence(store, now_utc_iso())
+    claimed = store.claim_next_jobs(queue_class="ingest_queue", now_utc=now_utc_iso())
+    res = ingest_queue_worker(store, claimed[0])
+    assert res["ok"] is False
+    assert res["retryable"] is False
+    assert res["error"].startswith("fmp_auth_failed")
+
+
+def test_ingest_queue_worker_empty_outcome_still_emits_source_artifact():
+    store = FixtureHarnessStore()
+
+    def provider(s, now_iso):
+        return [{"asset_id": "TRGP", "last_fetched_at_utc": "", "expected_freshness_hours": 72}]
+
+    def empty_fetch(job_meta):
+        return {
+            "ok": True,
+            "fetch_outcome": "empty",
+            "artifact_ref": "TRGP:2026-Q1",
+            "fetched_at_utc": "2026-04-17T12:00:00+00:00",
+            "provenance_refs": [
+                "supabase://transcript_ingest_runs/run-empty",
+                "fmp://earning_call_transcript/TRGP/2026/Q1",
+                f"packet:{job_meta['alert_packet_id']}",
+            ],
+            "confidence": 0.5,
+            "blocking_reasons": ["transcript_not_available_for_quarter"],
+            "http_status": 404,
+            "probe_status": "partial",
+        }
+
+    set_stale_asset_provider(provider)
+    set_transcript_fetcher(empty_fetch)
+    propose_layer1_cadence(store, now_utc_iso())
+    claimed = store.claim_next_jobs(queue_class="ingest_queue", now_utc=now_utc_iso())
+    res = ingest_queue_worker(store, claimed[0])
+    assert res["ok"] is True
+    assert res["fetch_outcome"] == "empty"
+    sa = store.get_packet(res["source_artifact_packet_id"])
+    assert sa["payload"]["fetch_outcome"] == "empty"
+    assert sa["payload"]["http_status"] == 404
+    assert sa["blocking_reasons"] == ["transcript_not_available_for_quarter"]
+
+
+def test_ingest_queue_worker_rejects_unexpected_outcome_failfast():
+    store = FixtureHarnessStore()
+
+    def provider(s, now_iso):
+        return [{"asset_id": "TRGP", "last_fetched_at_utc": "", "expected_freshness_hours": 72}]
+
+    def weird_fetch(job_meta):
+        return {"ok": True, "fetch_outcome": "partial"}
+
+    set_stale_asset_provider(provider)
+    set_transcript_fetcher(weird_fetch)
+    propose_layer1_cadence(store, now_utc_iso())
+    claimed = store.claim_next_jobs(queue_class="ingest_queue", now_utc=now_utc_iso())
+    res = ingest_queue_worker(store, claimed[0])
+    assert res["ok"] is False
+    assert res["retryable"] is False
+    assert "unexpected_fetch_outcome" in res["error"]
 
 
 def test_full_vertical_path_through_scheduler_tick():

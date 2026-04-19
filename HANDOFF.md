@@ -2,6 +2,50 @@
 
 **단일 목표**: Today/Research/Replay 세 표면을 **Metis Brain bundle + registry + message snapshot store** 라는 하나의 계약 위에 올리고, `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` §10 의 Q1–Q10 이 **자동 spec survey** 에서 전부 `ok=true` 가 되게 한다. (Build Plan §14 수직 슬라이스, §12 항상 지킬 문장.)
 
+## 2026-04-18 — AGH v1 Patch 1: Layer 1 live ingest closure (plan `agh_v1_patch_1_live_ingest`)
+
+**단일 목표 (추가)**: 작업지시서 `METIS_Patch_1_Workorder_Live_Ingest_Closure_2026-04-18.md` 를 받아, Layer 1 을 "stale detection visible loop" 에서 "실제 live source ingest 가 product-visible autonomy 루프를 닫는" 단계로 끌어올린다. 직전 patch 2 까지는 stale 후보 → `IngestAlertPacketV1` 까지만 발행되고 worker 는 의도적으로 DLQ 로 떨어지는 구조였으나, 이 patch 로는 **두 env flag (`METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH` + `FMP_API_KEY`)** 가 둘 다 켜진 환경에서만 실제 FMP earning-call API 까지 호출하고, 결과를 `transcript_ingest_runs` + `raw_transcript_payloads_fmp` + `SourceArtifactPacketV1` 에 정직하게 기록한다. Brain bundle / registry / factor_validation_* 는 **한 줄도** 쓰지 않는다 (§2 Out of Scope 준수, §3.1 Safety).
+
+**Green run 실증 (Patch 1)**
+
+- **A1 — Live FMP fetcher adapter**. 신규 `src/agentic_harness/adapters/layer1_transcript_fetcher.py` 가 `run_fmp_sample_ingest` 를 얇게 감싸 `TranscriptFetcher` 계약을 구현한다. `_infer_target_fiscal_quarter(now)` 가 월별로 직전 완료·공개 분기를 추정하고 (Jan–Mar → prev-year Q4, Apr–Jun → Q1, Jul–Sep → Q2, Oct–Dec → Q3), `METIS_HARNESS_L1_FISCAL_TARGET=YYYY-Q<n>` 또는 job_meta 의 `_force_target` 으로 override 가능. `classify_fmp_result(http_status, probe_status, payload)` 는 FMP 결과를 6 가지 `FetchClassification` 으로 쪼갠다: HTTP 200 + content → `ok`, 200 + 빈 리스트/이상 shape → `empty (honest)`, 404 → `empty (transcript_not_available_for_quarter)`, 401/402/403 또는 200+error-body → **fail-fast** (`fmp_auth_failed:*`, `retryable=False`), 429 / 5xx / `RuntimeError('fmp_network_error:...')` → **retryable** (`retryable=True`). 성공/empty 경로 모두 `supabase://transcript_ingest_runs/<id>`, `supabase://raw_transcript_payloads_fmp/<id>` (있을 때), `fmp://earning_call_transcript/<SYM>/<Y>/Q<Q>`, `packet:<alert_packet_id>` 4종 provenance ref 를 붙인다.
+- **A2 — Worker fetch_outcome pass-through**. `src/agentic_harness/agents/layer1_ingest.py::ingest_queue_worker` 가 fetcher 반환값의 `fetch_outcome in {ok, empty}` 을 그대로 받아 `SourceArtifactPacketV1.payload.fetch_outcome` 에 전달한다. `empty` 도 packet schema 차원에서 유효 — **정직한 부재 기록**. 패킷 payload 에 `http_status` + `probe_status` 가 추가돼 L5 가 "왜 empty 인지" 재호출 없이 설명 가능. fetcher 가 `retryable` 을 주면 worker result 에 그대로 포함되고, 미지정 시 legacy-compat 으로 `retryable=True` 가 기본. `ok=True` 인데 `fetch_outcome` 이 `ok/empty` 가 아니면 `retryable=False` 로 **즉시 DLQ** (fabricated 경로 차단).
+- **A3 — Scheduler retryable-aware + exponential backoff**. `src/agentic_harness/scheduler/tick.py::run_one_tick` 이 worker 실패 시 `result.get('retryable', True)` 를 본다. `retryable=False` 또는 `attempts_so_far >= max_attempts` → `status=dlq`. 그렇지 않으면 `status=enqueued` 로 되돌리되, `next_not_before_utc = now + min(3600, 300 * 2^(attempts_so_far - 1))` 로 **지수 백오프** (5m → 10m → 20m → 40m → cap 1h). 새 헬퍼 `_compute_next_not_before(now_iso, backoff_s)` 가 timezone 을 normalize. `status != 'enqueued'` 일 때 `next_not_before_utc` 는 무시된다 (DLQ 가 미래 시각을 설정하는 일 없음).
+- **A4 — Store `next_not_before_utc` 지원**. `HarnessStoreProtocol.mark_job_result(..., next_not_before_utc: Optional[str] = None)` 인자 추가. `FixtureHarnessStore` 와 `SupabaseHarnessStore` 둘 다 `status=='enqueued'` 일 때만 `not_before_utc` 컬럼/필드를 업데이트 — backward compatible (기존 호출은 그대로 작동). Supabase 스키마는 이미 `not_before_utc timestamptz not null default now()` 로 존재했고 write 경로만 확장됨.
+- **A5 — Runtime env-gated live bootstrap**. `src/agentic_harness/runtime.py::_maybe_bootstrap_layer1_live_fetch` 가 **두 조건** (`METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH ∈ {1,true,yes}` AND `FMP_API_KEY` 실제 설정됨) 이 모두 충족돼야 `set_transcript_fetcher(build_transcript_fetcher(...))` 를 호출. flag 가 켜졌는데 key 가 비면 `WARNING` 로그만 남기고 fallback 을 유지해 **config 문제를 은폐하지 않음**. fixture store 는 항상 skip, 한 프로세스당 1회 (idempotent). `perform_tick` 에서 `_maybe_bootstrap_layer1_production` 과 나란히 호출되어 두 bootstrap 이 각자 독립적으로 켜질 수 있다.
+- **회귀 확인 (B)**. `PYTHONPATH=src python3 -m pytest src/tests/test_agentic_*.py -q` → **158 passed** (이전 102 + 신규 fetcher/backoff/bootstrap/store 56건). 새 테스트 파일 2종: `src/tests/test_agentic_layer1_transcript_fetcher_v1.py` (21건 — 12개월 fiscal 테이블 + classify 브랜치 + success/empty/auth/rate/server/network/no-key + force-target override + missing asset_id), `src/tests/test_agentic_layer1_live_fetch_bootstrap_v1.py` (4건 — flag off / fixture skip / key missing warning / key+flag 성공 & idempotent). 기존 `test_agentic_layer1_ingest_v1.py` 에 empty-outcome 유지 + retryable-False 전파 + unexpected-outcome 거절 3건 추가. `test_agentic_scheduler_tick_v1.py` 에 retryable-false 즉시 DLQ + exp backoff 2 단계 + 1h cap 3건 추가 (기존 retry 테스트는 명시적 `now` 주입 + 6분 advance 패턴으로 업데이트). `test_agentic_packet_store_v1.py` 에 `next_not_before_utc` enqueued-only 반영 + 비-enqueued 무시 2건 추가.
+
+**환경 변수 (Patch 1 에서 추가)**
+
+| 변수 | 의미 | 기본값 | 비고 |
+| --- | --- | --- | --- |
+| `METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH` | 실제 FMP earning-call fetch ON | (없음 = OFF) | `1 / true / yes` 만 활성. Fixture store 는 언제나 무시. |
+| `FMP_API_KEY` | FMP 키 | (없음) | flag=ON + 키 비어있으면 bootstrap 이 WARNING 남기고 fallback 유지. |
+| `METIS_HARNESS_L1_FISCAL_TARGET` | fiscal 분기 강제 override | (없음 = auto) | `YYYY-Q<n>` 형식. AAPL/2025 Q2 같은 out-of-band 스모크 용. |
+
+**Retry 정책 스냅샷**
+
+| attempts_so_far 후 실패 | 재시도 간격 | 누적 대기 |
+| --- | --- | --- |
+| 1 | 300s (5m) | 5m |
+| 2 | 600s (10m) | 15m |
+| 3 | 1200s (20m) | 35m |
+| 4 | 2400s (40m) | 1h 15m |
+| 5+ | **3600s cap (1h)** | 선형 증가 |
+
+auth/config 오류 (`fmp_auth_failed:*`, `fmp_api_key_missing`, `transcripts_provider_not_fmp`) 는 backoff 없이 **첫 실패에 DLQ**.
+
+**라이브 스모크 (이월)**
+
+- 현재 실행 환경에 `FMP_API_KEY` 가 프로비저닝돼 있지 않아, "DEMO_KR_{A,B,C} honest-empty 3건 + AAPL/2025 Q2 out-of-band positive 1건 + harness-ask 재확인" 정식 증거는 키 확보 후 실행. Unit test 가 `run_fmp_sample_ingest` 를 mock 하여 fetcher/bootstrap/scheduler 경로는 전부 커버됐고, live HTTP 라운드 트립만 대기 중.
+- 운영 시 절차는 `data/mvp/evidence/agentic_operating_harness_v1_milestone_12_layer1_live_fetch_evidence.json` 의 `live_smoke.runbook_when_key_available` 에 step-by-step 기록.
+
+**다음 이월 (next patch 후보)**
+
+1. **Promotion Bridge Closure** — Layer 4 governance_queue 가 `RegistryUpdateProposalV1` 을 발행하지만 실제 registry_entries 를 mutate 하는 코드 경로가 아직 없음. proposal-only 거버넌스를 유지하면서 "승인 → patch" 다리를 제품 안에 닫으면 Stage 3 autonomy 에 가까워짐.
+2. **Live smoke 증거 확정** — FMP_API_KEY 확보 즉시 runbook 실행 후 evidence 확장. (Brain bundle universe 는 건드리지 않음 — DEMO_KR 3건 + AAPL 1건 out-of-band)
+3. **Event-anchored freshness** — earnings calendar 앵커가 추가되면 `90d 기본 × 이벤트 ±72h 수축` 하이브리드로 freshness 기준을 진화.
+
 ## 2026-04-17 (patch 2) — AGH v1 Layer 1 stale wiring + L5 scope (plan `agh_v1_b+c_—_l1_real_stale_wiring_+_l5_scope`)
 
 **단일 목표 (추가)**: 사용자 진행 권고 (A smoke gate 1회 → 메인 패치 B+C) 를 그대로 집행해, Stage 2.5+ 로의 실질적 전진을 닫는다. **B** 는 Layer 1 의 `StaleAssetProvider` 를 실제 Brain bundle universe × 실제 transcript ingest 기록에 연결하지만 **live FMP fetch 는 의도적으로 이월** (worker-side fallback 유지), **C** 는 L5 state_reader 가 asset-neutral research/overlay 까지 bundle 에 담도록 범위를 넓히고 system prompt 에 "Today active state 단정 금지" 가드를 추가해 `why_changed` 흐름의 surface 신뢰를 닫는다.

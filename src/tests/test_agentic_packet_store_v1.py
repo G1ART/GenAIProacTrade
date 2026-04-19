@@ -227,6 +227,54 @@ def test_queue_depth_only_counts_enqueued():
     assert s.queue_depth()["ingest_queue"] == 0
 
 
+def test_mark_job_result_enqueued_applies_next_not_before_utc():
+    s = FixtureHarnessStore()
+    pkt = _build_ingest_packet()
+    s.upsert_packet(pkt.model_dump())
+    job = QueueJobV1.model_validate(
+        {
+            "job_id": deterministic_job_id(queue_class="ingest_queue", packet_id=pkt.packet_id),
+            "queue_class": "ingest_queue",
+            "packet_id": pkt.packet_id,
+        }
+    )
+    s.enqueue_job(job.model_dump())
+    s.mark_job_result(
+        job_id=job.job_id,
+        status="enqueued",
+        last_error="fmp_rate_limited:429",
+        next_not_before_utc="2099-01-01T00:00:00+00:00",
+    )
+    row = s.get_job(job.job_id)
+    assert row["status"] == "enqueued"
+    assert row["not_before_utc"] == "2099-01-01T00:00:00+00:00"
+
+
+def test_mark_job_result_ignores_next_not_before_utc_for_non_enqueued_status():
+    s = FixtureHarnessStore()
+    pkt = _build_ingest_packet()
+    s.upsert_packet(pkt.model_dump())
+    job = QueueJobV1.model_validate(
+        {
+            "job_id": deterministic_job_id(queue_class="ingest_queue", packet_id=pkt.packet_id),
+            "queue_class": "ingest_queue",
+            "packet_id": pkt.packet_id,
+        }
+    )
+    s.enqueue_job(job.model_dump())
+    original_nbf = s.get_job(job.job_id)["not_before_utc"]
+    s.mark_job_result(
+        job_id=job.job_id,
+        status="dlq",
+        last_error="auth",
+        next_not_before_utc="2099-01-01T00:00:00+00:00",
+    )
+    row = s.get_job(job.job_id)
+    assert row["status"] == "dlq"
+    # not_before_utc should be unchanged because status != 'enqueued'.
+    assert row["not_before_utc"] == original_nbf
+
+
 def test_log_tick_and_last_tick_of_kind():
     s = FixtureHarnessStore()
     t = s.log_tick(tick_kind="harness_tick", summary={"jobs_run": 3})

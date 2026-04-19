@@ -8,6 +8,7 @@ directly. It is the single place where the agent topology is wired up.
 from __future__ import annotations
 
 import json
+import logging
 import os
 from typing import Any, Optional
 
@@ -24,6 +25,9 @@ from agentic_harness.store import FixtureHarnessStore, HarnessStoreProtocol
 _FIXTURE_STORE: Optional[FixtureHarnessStore] = None
 
 _LAYER1_PRODUCTION_BOOTSTRAPPED = False
+_LAYER1_LIVE_FETCH_BOOTSTRAPPED = False
+
+log = logging.getLogger(__name__)
 
 
 def _get_fixture_store() -> FixtureHarnessStore:
@@ -182,6 +186,62 @@ def _maybe_bootstrap_layer1_production(
     _LAYER1_PRODUCTION_BOOTSTRAPPED = True
 
 
+def _maybe_bootstrap_layer1_live_fetch(
+    store: HarnessStoreProtocol, *, use_fixture: bool
+) -> None:
+    """Env-gated hook: wire Layer 1's transcript fetcher to the real FMP
+    ingest pipeline (``run_fmp_sample_ingest``).
+
+    Activation requires **both**:
+
+    * ``METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH`` in {``1``, ``true``, ``yes``}
+    * ``FMP_API_KEY`` configured (via env / ``.env``)
+
+    If the flag is on but the key is missing, we log a warning and leave
+    the fallback fetcher in place so queued jobs surface the config
+    problem honestly rather than pretending to fetch.  The hook is
+    skipped for fixture stores so pytest / ``--use-fixture`` smoke runs
+    remain hermetic.  Idempotent across process lifetime.
+    """
+
+    global _LAYER1_LIVE_FETCH_BOOTSTRAPPED
+    if _LAYER1_LIVE_FETCH_BOOTSTRAPPED:
+        return
+    flag = (os.getenv("METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH") or "").strip().lower()
+    if flag not in {"1", "true", "yes"}:
+        return
+    if use_fixture:
+        return
+    try:
+        from agentic_harness.adapters.layer1_transcript_fetcher import (
+            build_transcript_fetcher,
+        )
+        from agentic_harness.agents.layer1_ingest import set_transcript_fetcher
+        from config import load_settings
+        from db.client import get_supabase_client
+    except ImportError:
+        return
+
+    settings = load_settings()
+    if not (getattr(settings, "fmp_api_key", "") or "").strip():
+        log.warning(
+            "METIS_HARNESS_L1_LIVE_TRANSCRIPT_FETCH=1 but FMP_API_KEY missing; "
+            "leaving Layer 1 on fallback transcript fetcher"
+        )
+        return
+
+    def _client_factory() -> Any:
+        return get_supabase_client(settings)
+
+    set_transcript_fetcher(
+        build_transcript_fetcher(
+            client_factory=_client_factory,
+            settings=settings,
+        )
+    )
+    _LAYER1_LIVE_FETCH_BOOTSTRAPPED = True
+
+
 def perform_tick(
     *,
     use_fixture: bool = False,
@@ -191,6 +251,7 @@ def perform_tick(
 ) -> dict[str, Any]:
     s = store if store is not None else build_store(use_fixture=use_fixture)
     _maybe_bootstrap_layer1_production(s, use_fixture=use_fixture)
+    _maybe_bootstrap_layer1_live_fetch(s, use_fixture=use_fixture)
     return run_one_tick(
         store=s,
         layer_cadences=build_layer_cadences(),

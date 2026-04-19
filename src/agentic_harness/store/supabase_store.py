@@ -216,6 +216,7 @@ class SupabaseHarnessStore(HarnessStoreProtocol):
         result_json: Optional[dict[str, Any]] = None,
         last_error: str = "",
         increment_attempts: bool = False,
+        next_not_before_utc: Optional[str] = None,
     ) -> None:
         upd: dict[str, Any] = {"status": status}
         if result_json is not None:
@@ -225,6 +226,8 @@ class SupabaseHarnessStore(HarnessStoreProtocol):
         if increment_attempts:
             existing = self.get_job(job_id)
             upd["attempts"] = int((existing or {}).get("attempts") or 0) + 1
+        if status == "enqueued" and next_not_before_utc:
+            upd["not_before_utc"] = str(next_not_before_utc)
         self._c.table(_JOBS).update(upd).eq("job_id", job_id).execute()
 
     def get_job(self, job_id: str) -> Optional[dict[str, Any]]:
