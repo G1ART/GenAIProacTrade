@@ -272,6 +272,78 @@ def test_system_prompt_forbids_today_active_state_claims():
         )
 
 
+def test_system_prompt_teaches_artifact_promotion_vocabulary():
+    """Patch 3 vocabulary must be present so the LLM can describe an
+    active/challenger swap and cite the spectrum-refresh audit packet."""
+
+    for phrase in (
+        "registry_entry_artifact_promotion",
+        "SpectrumRefreshRecordV1",
+        "needs_db_rebuild",
+    ):
+        assert phrase in _SYSTEM_PROMPT, (
+            f"system prompt missing Patch 3 vocabulary: {phrase!r}"
+        )
+
+
+def _insert_spectrum_refresh_record(
+    store: FixtureHarnessStore, *, horizon: str = "short"
+) -> str:
+    pid = deterministic_packet_id(
+        packet_type="SpectrumRefreshRecordV1",
+        created_by_agent="registry_patch_executor",
+        target_scope={"applied_packet_id": "pkt_applied_demo_v0"},
+        salt=f"refresh-{horizon}",
+    )
+    row = {
+        "packet_id": pid,
+        "packet_type": "SpectrumRefreshRecordV1",
+        "target_layer": "layer4_governance",
+        "created_by_agent": "registry_patch_executor",
+        "created_at_utc": now_utc_iso(),
+        "target_scope": {"applied_packet_id": "pkt_applied_demo_v0"},
+        "provenance_refs": ["packet:pkt_applied_demo_v0"],
+        "confidence": 1.0,
+        "status": "done",
+        "payload": {
+            "horizon": horizon,
+            "registry_entry_id": f"reg_{horizon}_demo_v0",
+            "outcome": "carry_over_fixture_fallback",
+            "refresh_mode": "fixture_fallback",
+            "needs_db_rebuild": True,
+            "cited_applied_packet_id": "pkt_applied_demo_v0",
+            "cited_proposal_packet_id": "pkt_proposal_demo_v0",
+            "cited_decision_packet_id": "pkt_decision_demo_v0",
+            "refreshed_at_utc": now_utc_iso(),
+            "bundle_path": "/tmp/bundle.json",
+            "before_row_count": 3,
+            "after_row_count": 3,
+            "before_row_asset_ids_sample": ["A", "B", "C"],
+            "after_row_asset_ids_sample": ["A", "B", "C"],
+            "blocking_reasons": ["supabase_client_missing_or_fixture_mode"],
+        },
+    }
+    store.upsert_packet(row)
+    return pid
+
+
+def test_state_reader_why_changed_includes_spectrum_refresh_record():
+    """SpectrumRefreshRecordV1 is asset-neutral but must reach the why_changed
+    bundle so the LLM can mention that a governed apply just refreshed the
+    horizon and whether the new rows are carried-over (DB rebuild pending)."""
+
+    store, _ = _store_with_one_asset_packet()
+    refresh_id = _insert_spectrum_refresh_record(store, horizon="short")
+    bundle = state_reader_agent(
+        store=store, asset_id="TRGP", routed_kind="why_changed"
+    )
+    ids = {str(p.get("packet_id")) for p in bundle["relevant_packets"]}
+    assert refresh_id in ids, (
+        "SpectrumRefreshRecordV1 must be surfaced in why_changed bundle as a "
+        "governance-lineage signal, regardless of asset scope"
+    )
+
+
 def test_contract_rejects_fact_map_with_unknown_key():
     with pytest.raises(Exception):
         LLMResponseContractV1.model_validate(

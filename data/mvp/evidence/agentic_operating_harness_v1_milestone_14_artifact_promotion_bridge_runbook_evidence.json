@@ -1,0 +1,334 @@
+{
+  "contract": "METIS_AGH_V1_PATCH_3_ARTIFACT_PROMOTION_BRIDGE_RUNBOOK_V1",
+  "captured_at_utc": "2026-04-19T19:02:01.433507+00:00",
+  "target_scope": {
+    "registry_entry_id": "reg_short_demo_v0",
+    "horizon": "short",
+    "from_active_artifact_id": "art_active_v0",
+    "to_active_artifact_id": "art_challenger_v0"
+  },
+  "scenarios": [
+    {
+      "scenario": "approve_carry_over",
+      "expectation": "active/challenger swap; spectrum rows carry-over with stale_after_active_swap=True; recent_governed_applies += 1; SpectrumRefreshRecordV1.outcome=carry_over_fixture_fallback; needs_db_rebuild=True; proposal.status=applied",
+      "proposal_id": "pkt_6191072253208593cabc13",
+      "decision_result": {
+        "ok": true,
+        "action": "approve",
+        "proposal_id": "pkt_6191072253208593cabc13",
+        "decision_packet_id": "pkt_5ed438e81f124b6ef2ae49",
+        "apply_job_id": "job_fa091a14c7c51d4488667c",
+        "proposal_status": "escalated"
+      },
+      "tick_summary_registry_apply_queue": {
+        "claimed": 1,
+        "done": 1,
+        "dlq": 0,
+        "errors": []
+      },
+      "before_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": [
+          "art_challenger_v0"
+        ],
+        "last_governed_proposal_packet_id": null,
+        "last_governed_decision_packet_id": null,
+        "last_governed_apply_at_utc": null
+      },
+      "after_registry_entry": {
+        "active_artifact_id": "art_challenger_v0",
+        "challenger_artifact_ids": [
+          "art_active_v0"
+        ],
+        "last_governed_proposal_packet_id": "pkt_6191072253208593cabc13",
+        "last_governed_decision_packet_id": "pkt_5ed438e81f124b6ef2ae49",
+        "last_governed_apply_at_utc": null
+      },
+      "before_spectrum": {
+        "row_count": 3,
+        "asset_ids": [
+          "AAA",
+          "BBB",
+          "CCC"
+        ],
+        "stale_after_active_swap_count": 0
+      },
+      "after_spectrum": {
+        "row_count": 3,
+        "asset_ids": [
+          "AAA",
+          "BBB",
+          "CCC"
+        ],
+        "stale_after_active_swap_count": 3
+      },
+      "before_recent_governed_applies": [],
+      "after_recent_governed_applies": [
+        {
+          "proposal_packet_id": "pkt_6191072253208593cabc13",
+          "applied_packet_id": null,
+          "from_active_artifact_id": "art_active_v0",
+          "to_active_artifact_id": "art_challenger_v0",
+          "spectrum_refresh_outcome": "carry_over_fixture_fallback",
+          "spectrum_refresh_needs_db_rebuild": true
+        }
+      ],
+      "applied_packet_outcome": "applied",
+      "refresh_packet_outcome": "carry_over_fixture_fallback",
+      "refresh_packet_needs_db_rebuild": true,
+      "proposal_status_after": "applied"
+    },
+    {
+      "scenario": "approve_recompute",
+      "expectation": "active/challenger swap; spectrum rows fully recomputed (no stale_after_active_swap flags); SpectrumRefreshRecordV1.outcome=recomputed; needs_db_rebuild=False; proposal.status=applied",
+      "proposal_id": "pkt_cb8f01d3a7a57482f6bc82",
+      "decision_result": {
+        "ok": true,
+        "action": "approve",
+        "proposal_id": "pkt_cb8f01d3a7a57482f6bc82",
+        "decision_packet_id": "pkt_1cdc2fb6467535f5c4b171",
+        "apply_job_id": "job_052620f6544c648f6a583a",
+        "proposal_status": "escalated"
+      },
+      "tick_summary_registry_apply_queue": {
+        "claimed": 1,
+        "done": 1,
+        "dlq": 0,
+        "errors": []
+      },
+      "before_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": [
+          "art_challenger_v0"
+        ],
+        "last_governed_proposal_packet_id": null,
+        "last_governed_decision_packet_id": null,
+        "last_governed_apply_at_utc": null
+      },
+      "after_registry_entry": {
+        "active_artifact_id": "art_challenger_v0",
+        "challenger_artifact_ids": [
+          "art_active_v0"
+        ],
+        "last_governed_proposal_packet_id": "pkt_cb8f01d3a7a57482f6bc82",
+        "last_governed_decision_packet_id": "pkt_1cdc2fb6467535f5c4b171",
+        "last_governed_apply_at_utc": null
+      },
+      "before_spectrum": {
+        "row_count": 3,
+        "asset_ids": [
+          "AAA",
+          "BBB",
+          "CCC"
+        ],
+        "stale_after_active_swap_count": 0
+      },
+      "after_spectrum": {
+        "row_count": 3,
+        "asset_ids": [
+          "NEW_A",
+          "NEW_B",
+          "NEW_C"
+        ],
+        "stale_after_active_swap_count": 0
+      },
+      "before_recent_governed_applies": [],
+      "after_recent_governed_applies": [
+        {
+          "proposal_packet_id": "pkt_cb8f01d3a7a57482f6bc82",
+          "applied_packet_id": null,
+          "from_active_artifact_id": "art_active_v0",
+          "to_active_artifact_id": "art_challenger_v0",
+          "spectrum_refresh_outcome": "recomputed",
+          "spectrum_refresh_needs_db_rebuild": false
+        }
+      ],
+      "applied_packet_outcome": "applied",
+      "refresh_packet_outcome": "recomputed",
+      "refresh_packet_needs_db_rebuild": false,
+      "proposal_status_after": "applied"
+    },
+    {
+      "scenario": "reject",
+      "expectation": "bundle untouched; no apply job enqueued; proposal.status=rejected; no SpectrumRefreshRecordV1 emitted; recent_governed_applies unchanged",
+      "proposal_id": "pkt_3f3f9227264d5fd67ca5c1",
+      "decision_result": {
+        "ok": true,
+        "action": "reject",
+        "proposal_id": "pkt_3f3f9227264d5fd67ca5c1",
+        "decision_packet_id": "pkt_658c2a1c4ae5065039c3da",
+        "apply_job_id": null,
+        "proposal_status": "rejected"
+      },
+      "queue_depth_registry_apply_queue": 0,
+      "before_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": [
+          "art_challenger_v0"
+        ],
+        "last_governed_proposal_packet_id": null,
+        "last_governed_decision_packet_id": null,
+        "last_governed_apply_at_utc": null
+      },
+      "after_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": [
+          "art_challenger_v0"
+        ],
+        "last_governed_proposal_packet_id": null,
+        "last_governed_decision_packet_id": null,
+        "last_governed_apply_at_utc": null
+      },
+      "before_spectrum": {
+        "row_count": 3,
+        "asset_ids": [
+          "AAA",
+          "BBB",
+          "CCC"
+        ],
+        "stale_after_active_swap_count": 0
+      },
+      "after_spectrum": {
+        "row_count": 3,
+        "asset_ids": [
+          "AAA",
+          "BBB",
+          "CCC"
+        ],
+        "stale_after_active_swap_count": 0
+      },
+      "before_recent_governed_applies": [],
+      "after_recent_governed_applies": [],
+      "applied_packet_count": 0,
+      "refresh_packet_count": 0,
+      "proposal_status_after": "rejected"
+    },
+    {
+      "scenario": "defer",
+      "expectation": "bundle untouched; proposal.status=deferred; decision packet carries next_revisit_hint_utc; no SpectrumRefreshRecordV1 emitted",
+      "proposal_id": "pkt_cc7990fc7436674eec1d1d",
+      "decision_result": {
+        "ok": true,
+        "action": "defer",
+        "proposal_id": "pkt_cc7990fc7436674eec1d1d",
+        "decision_packet_id": "pkt_c6b35d87299f0bd3f0a29a",
+        "apply_job_id": null,
+        "proposal_status": "deferred"
+      },
+      "queue_depth_registry_apply_queue": 0,
+      "before_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": [
+          "art_challenger_v0"
+        ],
+        "last_governed_proposal_packet_id": null,
+        "last_governed_decision_packet_id": null,
+        "last_governed_apply_at_utc": null
+      },
+      "after_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": [
+          "art_challenger_v0"
+        ],
+        "last_governed_proposal_packet_id": null,
+        "last_governed_decision_packet_id": null,
+        "last_governed_apply_at_utc": null
+      },
+      "before_spectrum": {
+        "row_count": 3,
+        "asset_ids": [
+          "AAA",
+          "BBB",
+          "CCC"
+        ],
+        "stale_after_active_swap_count": 0
+      },
+      "after_spectrum": {
+        "row_count": 3,
+        "asset_ids": [
+          "AAA",
+          "BBB",
+          "CCC"
+        ],
+        "stale_after_active_swap_count": 0
+      },
+      "before_recent_governed_applies": [],
+      "after_recent_governed_applies": [],
+      "proposal_status_after": "deferred",
+      "decision_next_revisit_hint_utc": "2026-04-26T00:00:00+00:00"
+    },
+    {
+      "scenario": "conflict_skip",
+      "expectation": "from_active_artifact_id mismatch; bundle untouched; applied packet records outcome=conflict_skip with blocking_reason active_mismatch:<id>; no SpectrumRefreshRecordV1; proposal.status=deferred",
+      "proposal_id": "pkt_b4d7feabb74286647b6e2d",
+      "decision_result": {
+        "ok": true,
+        "action": "approve",
+        "proposal_id": "pkt_b4d7feabb74286647b6e2d",
+        "decision_packet_id": "pkt_ea9f2aaa216ae06ff12d9e",
+        "apply_job_id": "job_467fcf9b0c6971506c4d1e",
+        "proposal_status": "escalated"
+      },
+      "tick_summary_registry_apply_queue": {
+        "claimed": 1,
+        "done": 1,
+        "dlq": 0,
+        "errors": []
+      },
+      "before_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": [
+          "art_challenger_v0"
+        ],
+        "last_governed_proposal_packet_id": null,
+        "last_governed_decision_packet_id": null,
+        "last_governed_apply_at_utc": null
+      },
+      "after_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": [
+          "art_challenger_v0"
+        ],
+        "last_governed_proposal_packet_id": null,
+        "last_governed_decision_packet_id": null,
+        "last_governed_apply_at_utc": null
+      },
+      "before_spectrum": {
+        "row_count": 3,
+        "asset_ids": [
+          "AAA",
+          "BBB",
+          "CCC"
+        ],
+        "stale_after_active_swap_count": 0
+      },
+      "after_spectrum": {
+        "row_count": 3,
+        "asset_ids": [
+          "AAA",
+          "BBB",
+          "CCC"
+        ],
+        "stale_after_active_swap_count": 0
+      },
+      "before_recent_governed_applies": [],
+      "after_recent_governed_applies": [],
+      "applied_packet_outcome": "conflict_skip",
+      "applied_packet_blocking_reasons": [
+        "active_mismatch:expected=art_unrelated_v0 actual=art_active_v0",
+        "challenger_mismatch:expected=[] actual=['art_challenger_v0']"
+      ],
+      "refresh_packet_count": 0,
+      "proposal_status_after": "deferred"
+    }
+  ],
+  "invariants_exercised": [
+    "approve(carry-over): active/challenger swap + spectrum rows carry-over with stale flags + needs_db_rebuild=True",
+    "approve(recompute): active/challenger swap + spectrum rows fully recomputed + needs_db_rebuild=False",
+    "reject: bundle unchanged + proposal.status=rejected + no apply job",
+    "defer: bundle unchanged + proposal.status=deferred + next_revisit_hint_utc recorded",
+    "conflict_skip: from_active_artifact_id mismatch -> bundle unchanged + applied.outcome=conflict_skip + proposal.status=deferred",
+    "recent_governed_applies FIFO grows only on outcome=applied; reject/defer/conflict_skip never append",
+    "SpectrumRefreshRecordV1 is emitted only on outcome=applied and always carries cited_proposal/decision/applied packet ids"
+  ]
+}

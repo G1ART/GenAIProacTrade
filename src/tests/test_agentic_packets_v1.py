@@ -63,6 +63,9 @@ def _base_kwargs(**over) -> dict:
 def test_packet_types_vocabulary_is_stable():
     assert "IngestAlertPacketV1" in PACKET_TYPES
     assert "UserQueryActionPacketV1" in PACKET_TYPES
+    # AGH v1 Patch 3: SpectrumRefreshRecordV1 joins the global vocab.
+    assert "SpectrumRefreshRecordV1" in PACKET_TYPES
+    assert "SpectrumRefreshRecordV1" in PACKET_TYPE_TO_CLASS
     assert len(set(PACKET_TYPES)) == len(PACKET_TYPES)
 
 

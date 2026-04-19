@@ -858,3 +858,161 @@ def phase47c_bundle_core(*, design_paths: list[str]) -> dict[str, Any]:
             "focus": "Numeric simulation for branches, live/benchmark series, attribution wiring — still governance-bound.",
         },
     }
+
+
+# -----------------------------------------------------------------------------
+# AGH v1 Patch 3 — Governance lineage replay API.
+#
+# Reconstructs the four-link chain (proposal -> decision -> applied -> refresh)
+# for a given registry_entry_id + horizon so Replay / Research /L5 citation
+# flows can explain *why* the active artifact changed and whether the
+# spectrum rationale rows are consistent.
+#
+# Intentionally does NOT touch ``phase46/decision_trace_ledger`` (out of scope
+# per Patch 2 + Patch 3 work orders; ledger integration is a future patch).
+# -----------------------------------------------------------------------------
+
+
+def api_governance_lineage_for_registry_entry(
+    store: Any,
+    *,
+    registry_entry_id: str,
+    horizon: str,
+    limit: int = 200,
+) -> dict[str, Any]:
+    """Return a governance lineage chain for ``registry_entry_id`` / ``horizon``.
+
+    Output shape::
+
+        {
+            "ok": True,
+            "registry_entry_id": str,
+            "horizon": str,
+            "chain": [
+                {
+                    "proposal": {...packet row...},
+                    "decision": {...} | None,
+                    "applied":  {...} | None,
+                    "spectrum_refresh": {...} | None,
+                }, ...
+            ],
+            "summary": {
+                "total_proposals": int,
+                "total_applied": int,
+                "total_spectrum_refreshed": int,
+                "latest_applied_packet_id": str | "",
+                "latest_applied_needs_db_rebuild": bool | None,
+            },
+        }
+
+    The chain is ordered newest-first by proposal ``created_at_utc`` when
+    present (falling back to packet order).
+    """
+
+    rid = str(registry_entry_id or "").strip()
+    hz = str(horizon or "").strip()
+    if not rid:
+        return {"ok": False, "error": "registry_entry_id required"}
+
+    def _list(packet_type: str) -> list[dict[str, Any]]:
+        try:
+            return list(
+                store.list_packets(packet_type=packet_type, limit=limit) or []
+            )
+        except Exception:  # noqa: BLE001
+            return []
+
+    proposals = _list("RegistryUpdateProposalV1")
+    decisions = _list("RegistryDecisionPacketV1")
+    applied = _list("RegistryPatchAppliedPacketV1")
+    refreshes = _list("SpectrumRefreshRecordV1")
+
+    def _proposal_matches(pkt: dict[str, Any]) -> bool:
+        payload = pkt.get("payload") or {}
+        if str(payload.get("target") or "") == "registry_entry_artifact_promotion":
+            if str(payload.get("registry_entry_id") or "") != rid:
+                return False
+            if hz and str(payload.get("horizon") or "") != hz:
+                return False
+            return True
+        if str(payload.get("target") or "") == "horizon_provenance":
+            if hz and str(payload.get("horizon") or "") != hz:
+                return False
+            scope = pkt.get("target_scope") or {}
+            scope_rid = str(scope.get("registry_entry_id") or "")
+            return scope_rid == rid or scope_rid == ""
+        return False
+
+    matched_proposals = [p for p in proposals if _proposal_matches(p)]
+    matched_proposals.sort(
+        key=lambda p: str(p.get("created_at_utc") or ""), reverse=True
+    )
+
+    def _by_cited_proposal(
+        rows: list[dict[str, Any]], proposal_id: str
+    ) -> dict[str, Any] | None:
+        for r in rows:
+            payload = r.get("payload") or {}
+            if (
+                str(payload.get("cited_proposal_packet_id") or "")
+                == proposal_id
+            ):
+                return r
+        return None
+
+    def _refresh_by_applied(applied_id: str) -> dict[str, Any] | None:
+        if not applied_id:
+            return None
+        for r in refreshes:
+            payload = r.get("payload") or {}
+            if str(payload.get("cited_applied_packet_id") or "") == applied_id:
+                return r
+        return None
+
+    chain: list[dict[str, Any]] = []
+    total_applied = 0
+    total_refreshed = 0
+    latest_applied_packet_id = ""
+    latest_applied_needs_db_rebuild: bool | None = None
+
+    for prop in matched_proposals:
+        pid = str(prop.get("packet_id") or "")
+        dec = _by_cited_proposal(decisions, pid)
+        app = _by_cited_proposal(applied, pid)
+        ref = (
+            _refresh_by_applied(str((app or {}).get("packet_id") or ""))
+            if app
+            else None
+        )
+        if app and str((app.get("payload") or {}).get("outcome") or "") == "applied":
+            total_applied += 1
+            if not latest_applied_packet_id:
+                latest_applied_packet_id = str(app.get("packet_id") or "")
+                if ref is not None:
+                    latest_applied_needs_db_rebuild = bool(
+                        (ref.get("payload") or {}).get("needs_db_rebuild")
+                    )
+        if ref:
+            total_refreshed += 1
+        chain.append(
+            {
+                "proposal": prop,
+                "decision": dec,
+                "applied": app,
+                "spectrum_refresh": ref,
+            }
+        )
+
+    return {
+        "ok": True,
+        "registry_entry_id": rid,
+        "horizon": hz,
+        "chain": chain,
+        "summary": {
+            "total_proposals": len(chain),
+            "total_applied": total_applied,
+            "total_spectrum_refreshed": total_refreshed,
+            "latest_applied_packet_id": latest_applied_packet_id,
+            "latest_applied_needs_db_rebuild": latest_applied_needs_db_rebuild,
+        },
+    }

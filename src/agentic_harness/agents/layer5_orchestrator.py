@@ -164,6 +164,14 @@ def state_reader_agent(
         _collect(
             "RegistryPatchAppliedPacketV1", None, allow_asset_neutral=True
         )
+        # AGH v1 Patch 3: every registry_entry_artifact_promotion apply emits
+        # a paired SpectrumRefreshRecordV1 whose payload explains whether the
+        # spectrum rows were really recomputed or still reflect the prior
+        # artifact (carry_over_*). The LLM needs this to decide whether the
+        # rationale row copy is still valid.
+        _collect(
+            "SpectrumRefreshRecordV1", None, allow_asset_neutral=True
+        )
         _collect("ReplayLearningPacketV1", None, allow_asset_neutral=True)
     elif routed_kind == "research_pending":
         # Research candidates are often universe-scoped (factor / gate /
@@ -224,7 +232,21 @@ _SYSTEM_PROMPT = (
     "— never as accomplished facts about the Today surface. "
     "The Today active state is only updated by the promotion gate + "
     "governed registry patch (RegistryPatchAppliedPacketV1), which is the "
-    "sole authoritative signal of an applied change."
+    "sole authoritative signal of an applied change. "
+    # AGH v1 Patch 3 — artifact promotion + spectrum refresh vocabulary.
+    "RegistryUpdateProposalV1 and RegistryPatchAppliedPacketV1 can target "
+    "two things: (a) 'horizon_provenance' state transitions, or (b) "
+    "'registry_entry_artifact_promotion' — an active/challenger artifact "
+    "swap on a registry_entry. When payload.target == "
+    "'registry_entry_artifact_promotion' and payload.outcome == 'applied', "
+    "you may state that the active model family / active artifact for that "
+    "horizon has changed. However, you MUST also check the tightly-linked "
+    "SpectrumRefreshRecordV1 (cited_applied_packet_id == the applied packet "
+    "id): if its payload.needs_db_rebuild is true or its payload.outcome "
+    "begins with 'carry_over_', the spectrum rationale rows still reflect "
+    "the prior artifact and must be described as pending a full rebuild — "
+    "do not claim the rationale text has already updated to the new "
+    "artifact."
 )
 
 

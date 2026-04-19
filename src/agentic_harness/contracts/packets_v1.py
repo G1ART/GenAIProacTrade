@@ -98,6 +98,10 @@ PACKET_TYPES = (
     # AGH v1 Patch 2: operator-gated promotion bridge closure.
     "RegistryDecisionPacketV1",
     "RegistryPatchAppliedPacketV1",
+    # AGH v1 Patch 3: artifact promotion bridge closure (per-horizon spectrum
+    # refresh audit recorded alongside the registry_entry active/challenger
+    # swap performed by registry_patch_executor).
+    "SpectrumRefreshRecordV1",
 )
 
 
@@ -437,6 +441,21 @@ HORIZON_STATE_VALUES = (
 
 GATE_OUTCOMES = ("pass", "fail", "deferred")
 
+# AGH v1 Patch 3: controlled vocabulary for the ``payload.target`` field of
+# ``RegistryUpdateProposalV1`` and ``RegistryPatchAppliedPacketV1``. Patch 2
+# only supported ``horizon_provenance``; Patch 3 adds
+# ``registry_entry_artifact_promotion`` so the governed apply path can swap
+# ``registry_entries[*].active_artifact_id`` / ``challenger_artifact_ids``.
+REGISTRY_PROPOSAL_TARGETS = (
+    "horizon_provenance",
+    "registry_entry_artifact_promotion",
+)
+
+# AGH v1 Patch 3: bundle-allowed brain bundle horizon buckets. Mirrors
+# ``metis_brain.bundle._HORIZON_BUCKETS`` normalization keys; kept duplicated
+# here to avoid a circular import (packets <- metis_brain.bundle <- packets).
+REGISTRY_BUNDLE_HORIZONS = ("short", "medium", "medium_long", "long")
+
 
 class EvaluationPacketV1(AgenticPacketBaseV1):
     packet_type: str = "EvaluationPacketV1"
@@ -485,15 +504,69 @@ class RegistryUpdateProposalV1(AgenticPacketBaseV1):
     def _required_payload_fields(cls, v: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(v, dict):
             raise ValueError("payload must be a dict")
-        for k in ("target", "from_state", "to_state", "evidence_refs"):
-            if k not in v:
-                raise ValueError(f"RegistryUpdateProposalV1.payload requires '{k}'")
-        if v["target"] == "horizon_provenance":
+        if "target" not in v:
+            raise ValueError("RegistryUpdateProposalV1.payload requires 'target'")
+        target = v["target"]
+        if target not in REGISTRY_PROPOSAL_TARGETS:
+            raise ValueError(
+                f"RegistryUpdateProposalV1 target must be one of "
+                f"{REGISTRY_PROPOSAL_TARGETS}"
+            )
+        if target == "horizon_provenance":
+            for k in ("from_state", "to_state", "evidence_refs"):
+                if k not in v:
+                    raise ValueError(
+                        f"RegistryUpdateProposalV1.payload requires '{k}'"
+                    )
             for s in (v["from_state"], v["to_state"]):
                 if s not in HORIZON_STATE_VALUES:
                     raise ValueError(
                         f"horizon_provenance state must be one of {HORIZON_STATE_VALUES}"
                     )
+        elif target == "registry_entry_artifact_promotion":
+            # Patch 3: controlled vocabulary for artifact-level promotion.
+            # No free-form mutation payload; explicit before/after pointer
+            # fields the executor can verify against the current bundle.
+            required_keys = (
+                "registry_entry_id",
+                "horizon",
+                "from_active_artifact_id",
+                "to_active_artifact_id",
+                "from_challenger_artifact_ids",
+                "to_challenger_artifact_ids",
+                "evidence_refs",
+            )
+            for k in required_keys:
+                if k not in v:
+                    raise ValueError(
+                        f"RegistryUpdateProposalV1(registry_entry_artifact_promotion)"
+                        f".payload requires '{k}'"
+                    )
+            if not str(v["registry_entry_id"]).strip():
+                raise ValueError("registry_entry_id must be non-empty")
+            if v["horizon"] not in REGISTRY_BUNDLE_HORIZONS:
+                raise ValueError(
+                    f"horizon must be one of {REGISTRY_BUNDLE_HORIZONS}"
+                )
+            if not str(v["from_active_artifact_id"]).strip():
+                raise ValueError("from_active_artifact_id must be non-empty")
+            if not str(v["to_active_artifact_id"]).strip():
+                raise ValueError("to_active_artifact_id must be non-empty")
+            if v["from_active_artifact_id"] == v["to_active_artifact_id"]:
+                raise ValueError(
+                    "from_active_artifact_id and to_active_artifact_id must differ"
+                )
+            for k in ("from_challenger_artifact_ids", "to_challenger_artifact_ids"):
+                val = v[k]
+                if not isinstance(val, list):
+                    raise ValueError(f"{k} must be a list")
+                if len(set(val)) != len(val):
+                    raise ValueError(f"{k} entries must be unique")
+                for entry in val:
+                    if not isinstance(entry, str) or not entry.strip():
+                        raise ValueError(
+                            f"{k} entries must be non-empty strings"
+                        )
         if not isinstance(v["evidence_refs"], list) or not v["evidence_refs"]:
             raise ValueError("evidence_refs must be a non-empty list")
         # Proposal-only invariant: never include a raw registry row here.
@@ -579,8 +652,6 @@ class RegistryPatchAppliedPacketV1(AgenticPacketBaseV1):
             "outcome",
             "target",
             "horizon",
-            "from_state",
-            "to_state",
             "cited_proposal_packet_id",
             "cited_decision_packet_id",
             "applied_at_utc",
@@ -594,12 +665,36 @@ class RegistryPatchAppliedPacketV1(AgenticPacketBaseV1):
                 "RegistryPatchAppliedPacketV1 outcome must be one of "
                 f"{REGISTRY_PATCH_OUTCOMES}"
             )
-        if v["target"] == "horizon_provenance":
+        target = v["target"]
+        if target not in REGISTRY_PROPOSAL_TARGETS:
+            raise ValueError(
+                f"RegistryPatchAppliedPacketV1 target must be one of "
+                f"{REGISTRY_PROPOSAL_TARGETS}"
+            )
+        if target == "horizon_provenance":
+            for k in ("from_state", "to_state"):
+                if k not in v:
+                    raise ValueError(
+                        f"RegistryPatchAppliedPacketV1(horizon_provenance)"
+                        f".payload requires '{k}'"
+                    )
             for s in (v["from_state"], v["to_state"]):
                 if s not in HORIZON_STATE_VALUES:
                     raise ValueError(
                         f"horizon_provenance state must be one of {HORIZON_STATE_VALUES}"
                     )
+        elif target == "registry_entry_artifact_promotion":
+            if "registry_entry_id" not in v or not str(
+                v["registry_entry_id"]
+            ).strip():
+                raise ValueError(
+                    "RegistryPatchAppliedPacketV1(registry_entry_artifact_promotion)"
+                    ".payload requires non-empty 'registry_entry_id'"
+                )
+            if v["horizon"] not in REGISTRY_BUNDLE_HORIZONS:
+                raise ValueError(
+                    f"horizon must be one of {REGISTRY_BUNDLE_HORIZONS}"
+                )
         if not str(v["cited_proposal_packet_id"]).strip():
             raise ValueError("cited_proposal_packet_id must be non-empty")
         if not str(v["cited_decision_packet_id"]).strip():
@@ -615,6 +710,97 @@ class RegistryPatchAppliedPacketV1(AgenticPacketBaseV1):
             raise ValueError(
                 "RegistryPatchAppliedPacketV1 must not carry raw active_registry_mutation; "
                 "the applied diff lives in before_snapshot / after_snapshot only."
+            )
+        return dict(v)
+
+
+# -----------------------------------------------------------------------------
+# AGH v1 Patch 3 (Artifact Promotion Bridge Closure) - per-horizon spectrum
+# refresh audit. Emitted by ``registry_patch_executor`` after an
+# ``registry_entry_artifact_promotion`` apply so Today/L5/Replay can cite the
+# exact refresh outcome (full recompute vs. carry-over) alongside the
+# RegistryPatchAppliedPacketV1.
+# -----------------------------------------------------------------------------
+
+
+SPECTRUM_REFRESH_OUTCOMES = (
+    "recomputed",
+    "carry_over_fixture_fallback",
+    "carry_over_db_unavailable",
+)
+
+SPECTRUM_REFRESH_MODES = (
+    "full_recompute_from_validation",
+    "fixture_fallback",
+)
+
+
+class SpectrumRefreshRecordV1(AgenticPacketBaseV1):
+    packet_type: str = "SpectrumRefreshRecordV1"
+    target_layer: TargetLayer = "layer4_governance"
+
+    @field_validator("payload")
+    @classmethod
+    def _required_payload_fields(cls, v: dict[str, Any]) -> dict[str, Any]:
+        if not isinstance(v, dict):
+            raise ValueError("payload must be a dict")
+        for k in (
+            "outcome",
+            "refresh_mode",
+            "needs_db_rebuild",
+            "cited_applied_packet_id",
+            "cited_proposal_packet_id",
+            "cited_decision_packet_id",
+            "horizon",
+            "registry_entry_id",
+            "before_row_count",
+            "after_row_count",
+            "refreshed_at_utc",
+            "bundle_path",
+        ):
+            if k not in v:
+                raise ValueError(f"SpectrumRefreshRecordV1.payload requires '{k}'")
+        if v["outcome"] not in SPECTRUM_REFRESH_OUTCOMES:
+            raise ValueError(
+                f"SpectrumRefreshRecordV1 outcome must be one of "
+                f"{SPECTRUM_REFRESH_OUTCOMES}"
+            )
+        if v["refresh_mode"] not in SPECTRUM_REFRESH_MODES:
+            raise ValueError(
+                f"SpectrumRefreshRecordV1 refresh_mode must be one of "
+                f"{SPECTRUM_REFRESH_MODES}"
+            )
+        if not isinstance(v["needs_db_rebuild"], bool):
+            raise ValueError("needs_db_rebuild must be a bool")
+        if v["horizon"] not in REGISTRY_BUNDLE_HORIZONS:
+            raise ValueError(
+                f"horizon must be one of {REGISTRY_BUNDLE_HORIZONS}"
+            )
+        for k in (
+            "cited_applied_packet_id",
+            "cited_proposal_packet_id",
+            "cited_decision_packet_id",
+            "registry_entry_id",
+            "bundle_path",
+        ):
+            if not str(v[k]).strip():
+                raise ValueError(f"{k} must be non-empty")
+        for k in ("before_row_count", "after_row_count"):
+            if not isinstance(v[k], int) or v[k] < 0:
+                raise ValueError(f"{k} must be a non-negative int")
+        # Optional sample fields, capped at 10 each if present.
+        for k in ("before_row_asset_ids_sample", "after_row_asset_ids_sample"):
+            if k in v:
+                if not isinstance(v[k], list):
+                    raise ValueError(f"{k} must be a list")
+                if len(v[k]) > 10:
+                    raise ValueError(f"{k} must have at most 10 entries")
+        if "blocking_reasons" in v and not isinstance(v["blocking_reasons"], list):
+            raise ValueError("blocking_reasons must be a list")
+        if "active_registry_mutation" in v:
+            raise ValueError(
+                "SpectrumRefreshRecordV1 must not carry raw active_registry_mutation; "
+                "row replacement lives inline inside the bundle atomic write."
             )
         return dict(v)
 
@@ -696,6 +882,7 @@ PACKET_TYPE_TO_CLASS: dict[str, type[AgenticPacketBaseV1]] = {
     "UserQueryActionPacketV1": UserQueryActionPacketV1,
     "RegistryDecisionPacketV1": RegistryDecisionPacketV1,
     "RegistryPatchAppliedPacketV1": RegistryPatchAppliedPacketV1,
+    "SpectrumRefreshRecordV1": SpectrumRefreshRecordV1,
 }
 
 

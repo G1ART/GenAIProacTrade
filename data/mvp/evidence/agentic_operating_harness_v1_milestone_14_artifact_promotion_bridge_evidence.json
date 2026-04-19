@@ -1,0 +1,197 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_14_artifact_promotion_bridge",
+  "milestone": "AGH v1 Patch 3 — artifact-promotion bridge closure (governed active/challenger swap + deterministic spectrum refresh + product-visible surface reflection)",
+  "scope": "Extend Patch 2's operator-gated horizon_provenance bridge to the registry_entries layer. A RegistryUpdateProposalV1 with target='registry_entry_artifact_promotion' can now be approved by an operator; on the next harness-tick, registry_patch_executor atomically (1) swaps active_artifact_id and challenger_artifact_ids on the target registry entry, (2) refreshes spectrum_rows_by_horizon[horizon] via the canonical build_spectrum_rows_from_validation path (full recompute) OR carries the prior rows over with a stale_after_active_swap=True marker (fixture/DB-unavailable fallback), (3) appends a bounded FIFO entry to bundle.recent_governed_applies so Today can render a governed-apply badge without a new worker. A new SpectrumRefreshRecordV1 packet audits the refresh outcome and cites the full proposal → decision → applied chain. The LLM orchestrator (L5) gains vocabulary for the new target but cannot trigger any apply.",
+  "user_decisions": {
+    "q_spectrum_refresh": "A — Full recompute from validation via canonical fetch_joined + build_spectrum_rows_from_validation. When the live Supabase client / validation data are unavailable (fixture runs), the helper must NOT silently skip: it carries over the prior rows with stale_after_active_swap=True + stale_since_utc and records outcome='carry_over_fixture_fallback' / 'carry_over_db_unavailable' with needs_db_rebuild=True.",
+    "q_surface_path": "Y — No new worker and no new packet stream for surface visibility. registry_patch_executor writes a bounded FIFO bundle.recent_governed_applies entry in the same atomic write as the swap; Today reads that field directly (capped to 5 per horizon)."
+  },
+  "files_created": [
+    "src/agentic_harness/agents/layer4_spectrum_refresh_v1.py",
+    "src/tests/test_agentic_registry_artifact_promotion_packet_v1.py",
+    "src/tests/test_agentic_artifact_promotion_executor_v1.py",
+    "src/tests/test_agentic_layer4_spectrum_refresh_v1.py",
+    "src/tests/test_today_spectrum_recent_governed_applies_v1.py",
+    "src/tests/test_traceability_governance_lineage_v1.py",
+    "scripts/agh_v1_patch_3_artifact_promotion_bridge_runbook.py",
+    "supabase/migrations/20260419100000_agh_v1_patch_3_artifact_promotion_bridge.sql",
+    "data/mvp/evidence/agentic_operating_harness_v1_milestone_14_artifact_promotion_bridge_runbook_evidence.json"
+  ],
+  "files_modified": [
+    "src/agentic_harness/contracts/packets_v1.py",
+    "src/agentic_harness/agents/layer4_registry_patch_executor.py",
+    "src/agentic_harness/agents/layer5_orchestrator.py",
+    "src/metis_brain/bundle.py",
+    "src/phase47_runtime/today_spectrum.py",
+    "src/phase47_runtime/traceability_replay.py",
+    "src/tests/test_agentic_packets_v1.py",
+    "src/tests/test_agentic_layer5_orchestrator_v1.py"
+  ],
+  "new_contracts": {
+    "RegistryUpdateProposalV1.payload.target": {
+      "extension": "REGISTRY_PROPOSAL_TARGETS now = ('horizon_provenance', 'registry_entry_artifact_promotion')",
+      "new_target_required_fields": [
+        "registry_entry_id (non-empty)",
+        "horizon ∈ REGISTRY_BUNDLE_HORIZONS = (short, medium, medium_long, long)",
+        "from_active_artifact_id (non-empty)",
+        "to_active_artifact_id (non-empty, MUST differ from from_active_artifact_id)",
+        "from_challenger_artifact_ids (list[str], unique, may be empty)",
+        "to_challenger_artifact_ids (list[str], unique, may be empty)",
+        "evidence_refs (non-empty)"
+      ]
+    },
+    "RegistryPatchAppliedPacketV1.payload.target": {
+      "extension": "Dispatches on target. For 'registry_entry_artifact_promotion': requires registry_entry_id + horizon; before_snapshot / after_snapshot are registry-entry shaped (active_artifact_id + challenger_artifact_ids); after_snapshot may be empty iff outcome='conflict_skip'."
+    },
+    "SpectrumRefreshRecordV1": {
+      "purpose": "Audit packet emitted by registry_patch_executor on every outcome='applied' for target='registry_entry_artifact_promotion'. Ties the spectrum_rows_by_horizon mutation to the governed apply and makes 'needs_db_rebuild' visible for operator / L5.",
+      "payload_keys": [
+        "horizon (∈ REGISTRY_BUNDLE_HORIZONS)",
+        "registry_entry_id",
+        "outcome ∈ (recomputed, carry_over_fixture_fallback, carry_over_db_unavailable)",
+        "refresh_mode ∈ (full_recompute_from_validation, fixture_fallback)",
+        "needs_db_rebuild (bool; True iff rows were carried over unchanged)",
+        "cited_applied_packet_id",
+        "cited_proposal_packet_id",
+        "cited_decision_packet_id",
+        "refreshed_at_utc",
+        "bundle_path",
+        "before_row_count / after_row_count",
+        "before_row_asset_ids_sample / after_row_asset_ids_sample (capped at 10)",
+        "blocking_reasons (list[str])"
+      ],
+      "invariants": [
+        "No raw active_registry_mutation field permitted.",
+        "cited_applied_packet_id non-empty (executor upserts the record AFTER the applied packet).",
+        "outcome='recomputed' ⇒ needs_db_rebuild is False; carry_over_* ⇒ True.",
+        "target_layer fixed at layer4_governance."
+      ]
+    },
+    "BrainBundleV0.recent_governed_applies": {
+      "shape": "list[dict] (optional, default [])",
+      "cap": "20 most-recent FIFO entries (oldest evicted on apply)",
+      "written_by": "registry_patch_executor ONLY on outcome='applied'; never on conflict_skip / reject / defer.",
+      "per_entry_keys": [
+        "target, horizon, registry_entry_id",
+        "proposal_packet_id, decision_packet_id, applied_packet_id",
+        "from_active_artifact_id, to_active_artifact_id",
+        "applied_at_utc",
+        "spectrum_refresh_outcome, spectrum_refresh_needs_db_rebuild"
+      ]
+    }
+  },
+  "canonical_write_path": {
+    "target": "data/mvp/metis_brain_bundle_v0.json (brain_bundle_path(repo_root))",
+    "write_chain_for_artifact_promotion": [
+      "load_bundle_json",
+      "deepcopy",
+      "find registry_entries[i] by registry_entry_id",
+      "from-state validation: active_artifact_id / challenger_artifact_ids / horizon MUST match proposal.payload.from_*; mismatch short-circuits to outcome='conflict_skip' with blocking_reasons.",
+      "to-state validation: to_active_artifact_id + every to_challenger_artifact_id MUST be present in bundle.artifacts and share the registry entry horizon; otherwise retryable=False DLQ.",
+      "mutate registry_entries[i].active_artifact_id / challenger_artifact_ids + last_governed_* timestamps",
+      "refresh_spectrum_rows_for_horizon (in-place mutation of bundle_dict['spectrum_rows_by_horizon'][horizon])",
+      "append a bounded FIFO entry to bundle_dict['recent_governed_applies'] (cap=20)",
+      "validate_merged_bundle_dict (integrity gate)",
+      "write_bundle_json_atomic (tempfile + os.replace)",
+      "upsert RegistryPatchAppliedPacketV1 + SpectrumRefreshRecordV1; update proposal.status=applied"
+    ],
+    "non_goals": [
+      "No SQL writes to any registry table.",
+      "No new worker for surface visibility — Today reads bundle.recent_governed_applies directly.",
+      "No change to LLM-derived copy path; L5 only gains vocabulary."
+    ]
+  },
+  "layer5_orchestrator_updates": {
+    "state_reader": "state_reader_agent._collect(routed_kind='why_changed') now includes SpectrumRefreshRecordV1 (asset-neutral signal, surfaces carry-over flag).",
+    "system_prompt_vocab": "Adds registry_entry_artifact_promotion / SpectrumRefreshRecordV1 / needs_db_rebuild. The LLM must describe carry-over refreshes as 'spectrum rows carried over from the prior active artifact — a DB rebuild is pending' rather than as a completed recomputation."
+  },
+  "today_surface_visibility": {
+    "new_payload_field": "recent_governed_applies_for_horizon (list[dict], capped at 5)",
+    "source": "BrainBundleV0.recent_governed_applies, filtered by horizon, sorted by applied_at_utc desc.",
+    "attached_in": "build_today_spectrum_payload (registry mode).",
+    "per_entry_shape": "target, horizon, registry_entry_id, proposal_packet_id, decision_packet_id, applied_packet_id, from_active_artifact_id, to_active_artifact_id, applied_at_utc, spectrum_refresh_outcome, spectrum_refresh_needs_db_rebuild.",
+    "honesty_guard": "If no governed apply has landed for this horizon, the field is an empty list — not missing — so the UI can stably render the placeholder without inventing activity."
+  },
+  "replay_lineage_api": {
+    "new_api": "phase47_runtime.traceability_replay.api_governance_lineage_for_registry_entry(store, registry_entry_id, horizon, limit=200) -> dict",
+    "chain_shape": "list of {proposal, decision, applied, spectrum_refresh} blocks, newest-first by proposal.created_at_utc.",
+    "summary_keys": [
+      "total_proposals",
+      "total_applied",
+      "total_spectrum_refreshed",
+      "latest_applied_packet_id",
+      "latest_applied_needs_db_rebuild"
+    ],
+    "backcompat": "Also surfaces horizon_provenance proposals whose target_scope.registry_entry_id matches (Patch 2 interop)."
+  },
+  "supabase_migration": {
+    "file": "supabase/migrations/20260419100000_agh_v1_patch_3_artifact_promotion_bridge.sql",
+    "effect": [
+      "Extends agentic_harness_packets_v1_packet_type_ck to include 'SpectrumRefreshRecordV1'.",
+      "No other schema change — canonical write continues in the brain bundle JSON, not SQL."
+    ],
+    "non_goals_sql": [
+      "No new tables.",
+      "No RLS changes.",
+      "No column additions."
+    ]
+  },
+  "test_coverage": {
+    "new_tests": {
+      "test_agentic_registry_artifact_promotion_packet_v1.py": "23 tests — packet contract surface. REGISTRY_PROPOSAL_TARGETS / REGISTRY_BUNDLE_HORIZONS / SPECTRUM_REFRESH_OUTCOMES vocabulary stability. RegistryUpdateProposalV1 validation for the new target (identical from/to reject, duplicate-challenger reject, empty evidence_refs reject, unknown horizon reject, non-list challenger reject). RegistryPatchAppliedPacketV1 snapshot shape for artifact promotion. SpectrumRefreshRecordV1 schema (outcome literals, needs_db_rebuild, cited ids, row counts, sample cap, active_registry_mutation rejection).",
+      "test_agentic_artifact_promotion_executor_v1.py": "8 tests — approve(carry-over) happy path (swap + stale carry-over + recent_governed_applies append + applied packet + refresh packet + proposal → applied). approve(recompute) happy path via monkey-patched fetch_joined + build_spectrum_rows (rows replaced, needs_db_rebuild=False). active_artifact mismatch → conflict_skip (bundle unchanged). challenger set mismatch → conflict_skip. to_active_artifact missing in bundle → retryable=False DLQ. to_active horizon mismatch → retryable=False DLQ. recent_governed_applies FIFO cap enforced (21st apply evicts oldest). bundle_integrity_failed → retryable=False DLQ, no write, no applied/refresh packet.",
+      "test_agentic_layer4_spectrum_refresh_v1.py": "6 tests — supabase_client=None → carry_over_fixture_fallback with stale flags. Unparseable artifact spec (no factor: prefix) → carry_over_fixture_fallback. fetch_joined raises → carry_over_db_unavailable with blocking_reasons. fetch_joined ok=False → carry_over_db_unavailable. fetch_joined ok but build_spectrum_rows returns zero rows → carry_over_db_unavailable. Happy path full recompute → rows replaced, stale flags cleared, needs_db_rebuild=False.",
+      "test_today_spectrum_recent_governed_applies_v1.py": "3 tests — recent_governed_applies_for_horizon exposed on Today payload and filtered by horizon. Per-horizon cap=5 enforced when bundle has more than 5 applies. Missing bundle field defaults to empty list (not missing).",
+      "test_traceability_governance_lineage_v1.py": "4 tests — full chain constructed newest-first. horizon filter + registry_entry_id filter both honored. horizon_provenance proposals still surface (Patch 2 interop). missing registry_entry_id → ok=False."
+    },
+    "extended_tests": {
+      "test_agentic_packets_v1.py": "Asserts SpectrumRefreshRecordV1 joins PACKET_TYPES and PACKET_TYPE_TO_CLASS.",
+      "test_agentic_layer5_orchestrator_v1.py": "Two new tests — (1) _SYSTEM_PROMPT teaches registry_entry_artifact_promotion / SpectrumRefreshRecordV1 / needs_db_rebuild vocabulary. (2) state_reader_agent.why_changed includes SpectrumRefreshRecordV1 as an asset-neutral governance-lineage signal."
+    },
+    "full_suite_green": "303 agentic+today+traceability+metis_brain+replay tests pass. 1055 non-agentic+full-repo tests pass (excluding the pre-existing phase39 hypothesis-family failure known since Patch 2)."
+  },
+  "runbook_evidence": {
+    "script": "scripts/agh_v1_patch_3_artifact_promotion_bridge_runbook.py",
+    "output": "data/mvp/evidence/agentic_operating_harness_v1_milestone_14_artifact_promotion_bridge_runbook_evidence.json",
+    "five_scenarios_captured": [
+      {
+        "scenario": "approve(carry-over)",
+        "observed": "active_artifact_id swapped art_active_v0 → art_challenger_v0 atomically; spectrum rows carried over (AAA/BBB/CCC) with stale_after_active_swap=True on all 3; SpectrumRefreshRecordV1.outcome=carry_over_fixture_fallback, needs_db_rebuild=True; recent_governed_applies length=1; proposal.status=applied."
+      },
+      {
+        "scenario": "approve(recompute)",
+        "observed": "active_artifact_id swapped; spectrum rows fully replaced (AAA/BBB/CCC → NEW_A/NEW_B/NEW_C) with no stale flags; SpectrumRefreshRecordV1.outcome=recomputed, refresh_mode=full_recompute_from_validation, needs_db_rebuild=False; recent_governed_applies length=1; proposal.status=applied."
+      },
+      {
+        "scenario": "reject",
+        "observed": "bundle unchanged (active still art_active_v0); 0 apply jobs; 0 RegistryPatchAppliedPacketV1; 0 SpectrumRefreshRecordV1; recent_governed_applies empty; proposal.status=rejected."
+      },
+      {
+        "scenario": "defer",
+        "observed": "bundle unchanged; RegistryDecisionPacketV1 carries next_revisit_hint_utc=2026-04-26T00:00:00+00:00; 0 applied/refresh packets; recent_governed_applies empty; proposal.status=deferred."
+      },
+      {
+        "scenario": "conflict_skip",
+        "observed": "proposal claimed from_active=art_unrelated_v0 but bundle active is art_active_v0; applied packet outcome=conflict_skip with blocking_reasons=['active_mismatch:...']; bundle unchanged; 0 SpectrumRefreshRecordV1; recent_governed_applies empty; proposal.status=deferred."
+      }
+    ]
+  },
+  "safety_gates_honored": {
+    "no_direct_brain_bundle_writes": "Only registry_patch_executor writes the bundle, only via validate_merged_bundle_dict + write_bundle_json_atomic, only on outcome='applied'.",
+    "no_silent_refresh_skip": "When Supabase is unavailable, rows are carried over with stale_after_active_swap=True and needs_db_rebuild=True — Today and L5 both surface the flag.",
+    "no_llm_derived_registry_writes": "record_registry_decision + registry_patch_executor + refresh_spectrum_rows_for_horizon are deterministic and LLM-free.",
+    "recent_governed_applies_bounded": "Hard cap=20 enforced by executor; per-horizon cap=5 enforced by Today surface.",
+    "no_active_registry_mutation_field": "SpectrumRefreshRecordV1 joins RegistryUpdateProposalV1 / RegistryDecisionPacketV1 / RegistryPatchAppliedPacketV1 in rejecting raw 'active_registry_mutation' payloads.",
+    "today_surface_honesty": "recent_governed_applies_for_horizon always present (possibly empty); stale rows still carry stale_after_active_swap markers so copy cannot claim a recomputed rationale."
+  },
+  "deferred_scope_for_future_patches": {
+    "live_supabase_recompute_verification": "Unit tests exercise the fake-DB path. An end-to-end live run with a real Supabase client + validation data remains to be captured (deferred per Patch 1 FMP decision shape).",
+    "surface_action_queue_worker": "Still unregistered — follow-up candidate if we ever want push-style notification on a new proposal or apply.",
+    "multi_horizon_batched_refresh": "Current executor refreshes only the horizon named by the proposal. Batched cross-horizon governed applies are out of scope."
+  },
+  "acceptance_matrix_work_order_alignment": {
+    "§3_non_negotiables": "All honored — no direct bundle writes outside the executor; no LLM-derived writes; operator approval required; spectrum refresh is deterministic or explicitly marked stale; honesty preserved; single source of truth.",
+    "§5_patch_plan_A_to_F": "A (packet + bundle schema + migration), B (spectrum helper + executor target dispatch + artifact promotion path), C (L5 state reader + prompt), D (Today surface field), E (replay lineage API), F (tests + runbook + evidence + handoff) — all closed.",
+    "§6_out_of_scope_respected": "No SQL registry tables touched; no schema migrations beyond the CHECK constraint; no new worker for surface visibility; no LLM in the apply path."
+  }
+}

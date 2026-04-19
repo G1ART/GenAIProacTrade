@@ -27,6 +27,50 @@ from phase47_runtime.phase47e_user_locale import normalize_lang, t
 
 _ALLOWED = frozenset({"short", "medium", "medium_long", "long"})
 
+# AGH v1 Patch 3 — bounded FIFO surfaced to Today for governed-apply badges.
+# Today reads the bundle's ``recent_governed_applies`` (written atomically by
+# ``registry_patch_executor``) and exposes the last N slice relevant to this
+# horizon so the surface can render "a governed apply landed" badges without
+# needing a new worker or a new packet stream.
+_RECENT_GOVERNED_APPLIES_PER_HORIZON_CAP = 5
+
+
+def _recent_governed_applies_for_horizon(
+    bundle: BrainBundleV0, *, horizon: str
+) -> list[dict[str, Any]]:
+    raw = list(getattr(bundle, "recent_governed_applies", None) or [])
+    out: list[dict[str, Any]] = []
+    for ev in raw:
+        if not isinstance(ev, dict):
+            continue
+        if str(ev.get("horizon") or "") != horizon:
+            continue
+        out.append(
+            {
+                "target": str(ev.get("target") or ""),
+                "horizon": str(ev.get("horizon") or ""),
+                "registry_entry_id": str(ev.get("registry_entry_id") or ""),
+                "proposal_packet_id": str(ev.get("proposal_packet_id") or ""),
+                "decision_packet_id": str(ev.get("decision_packet_id") or ""),
+                "applied_packet_id": str(ev.get("applied_packet_id") or ""),
+                "from_active_artifact_id": str(
+                    ev.get("from_active_artifact_id") or ""
+                ),
+                "to_active_artifact_id": str(
+                    ev.get("to_active_artifact_id") or ""
+                ),
+                "applied_at_utc": str(ev.get("applied_at_utc") or ""),
+                "spectrum_refresh_outcome": str(
+                    ev.get("spectrum_refresh_outcome") or ""
+                ),
+                "spectrum_refresh_needs_db_rebuild": bool(
+                    ev.get("spectrum_refresh_needs_db_rebuild")
+                ),
+            }
+        )
+    out.sort(key=lambda e: e.get("applied_at_utc") or "", reverse=True)
+    return out[:_RECENT_GOVERNED_APPLIES_PER_HORIZON_CAP]
+
 
 def _registry_surface_v1_from_bundle_entry(bundle: BrainBundleV0, ent: ActiveHorizonRegistryEntryV0) -> dict[str, Any]:
     """Product Spec §6.3 — active vs challenger artifacts surfaced for Today / Research (read-only)."""
@@ -565,6 +609,9 @@ def build_today_spectrum_payload(
                     "replay_lineage_pointer": ent.replay_lineage_pointer,
                     "scoring_endpoint_contract": ent.scoring_endpoint_contract,
                     "registry_surface_v1": _registry_surface_v1_from_bundle_entry(bundle, ent),
+                    "recent_governed_applies_for_horizon": (
+                        _recent_governed_applies_for_horizon(bundle, horizon=hz)
+                    ),
                 },
             )
             persist_message_snapshots_for_spectrum_payload(repo_root, out)

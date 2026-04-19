@@ -43,6 +43,19 @@ class BrainBundleV0(BaseModel):
     # artifact_id or registry_entry_id in this bundle. Legacy bundles omit
     # this field entirely (empty list = no overlays).
     brain_overlays: list[dict[str, Any]] = Field(default_factory=list)
+    # AGH v1 Patch 3 (Artifact Promotion Bridge Closure). Bounded FIFO trail
+    # (<=20) of recent governed operator-approved apply events. Written
+    # atomically by ``registry_patch_executor`` and consumed by Today to
+    # surface horizon-scoped "governed apply" badges without adding a new
+    # worker/queue. The list element shape is intentionally loose so that
+    # future target vocab extensions remain backward compatible; the element
+    # keys emitted today are:
+    #   ``target``, ``horizon``, ``registry_entry_id``, ``proposal_packet_id``,
+    #   ``decision_packet_id``, ``applied_packet_id``,
+    #   ``from_active_artifact_id`` (optional), ``to_active_artifact_id``
+    #   (optional), ``applied_at_utc``, ``spectrum_refresh_needs_db_rebuild``
+    #   (bool, optional).
+    recent_governed_applies: list[dict[str, Any]] = Field(default_factory=list)
 
     @model_validator(mode="before")
     @classmethod
