@@ -1,0 +1,103 @@
+{
+  "contract": "METIS_AGENTIC_OPERATING_HARNESS_V1_OVERALL_EVIDENCE",
+  "plan": "agentic-operating-harness-v1",
+  "workorder_source_path": "/Users/hyunminkim/Downloads/METIS_Agentic_Operating_Harness_v1.md",
+  "canonical_spec_paths": [
+    "docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md",
+    "docs/plan/METIS_MVP_Unified_Build_Plan_KR_v1.md"
+  ],
+  "architectural_decisions": [
+    {
+      "id": "q_infra_depth",
+      "choice": "C",
+      "summary": "Hybrid \u2014 in-process CLI tick scheduler; packets/queue/tick state persisted to Supabase tables for operator-grade replay."
+    },
+    {
+      "id": "q_layer5_llm",
+      "choice": "B",
+      "summary": "Bounded LLM wrapper \u2014 real LLM API calls allowed (OpenAI/Anthropic) behind a strict JSON schema, forbidden-copy regex, cited-id whitelist, and deterministic template fallback. Default provider is FixtureProvider (network-free)."
+    }
+  ],
+  "milestones": [
+    {
+      "id": "AGH-1",
+      "title": "Packet contracts + queue class registry (Pydantic)",
+      "evidence_path": "data/mvp/evidence/agentic_operating_harness_v1_milestone_1_evidence.json"
+    },
+    {
+      "id": "AGH-2",
+      "title": "Supabase packet/queue store + migration",
+      "evidence_path": "data/mvp/evidence/agentic_operating_harness_v1_milestone_2_evidence.json"
+    },
+    {
+      "id": "AGH-3",
+      "title": "Scheduler tick + cadence + CLI (harness-tick/status/ask)",
+      "evidence_path": "data/mvp/evidence/agentic_operating_harness_v1_milestone_3_evidence.json"
+    },
+    {
+      "id": "AGH-4",
+      "title": "Layer 1 proactive transcript ingest",
+      "evidence_path": "data/mvp/evidence/agentic_operating_harness_v1_milestone_4_evidence.json"
+    },
+    {
+      "id": "AGH-5",
+      "title": "Layer 2 library integrity triage",
+      "evidence_path": "data/mvp/evidence/agentic_operating_harness_v1_milestone_5_evidence.json"
+    },
+    {
+      "id": "AGH-6",
+      "title": "Layer 3 periodic challenger cycle",
+      "evidence_path": "data/mvp/evidence/agentic_operating_harness_v1_milestone_6_evidence.json"
+    },
+    {
+      "id": "AGH-7",
+      "title": "Layer 4 validation \u2192 RegistryUpdateProposal (proposal-only)",
+      "evidence_path": "data/mvp/evidence/agentic_operating_harness_v1_milestone_7_evidence.json"
+    },
+    {
+      "id": "AGH-8",
+      "title": "Layer 5 bounded LLM user-surface orchestrator",
+      "evidence_path": "data/mvp/evidence/agentic_operating_harness_v1_milestone_8_evidence.json"
+    },
+    {
+      "id": "AGH-9",
+      "title": "End-to-end vertical slice + Q1\u2013Q10 smoke survey + full regression",
+      "evidence_path": "data/mvp/evidence/agentic_operating_harness_v1_milestone_9_evidence.json"
+    }
+  ],
+  "governance_guards": [
+    "Layer 1 never mutates the active Today registry; its side-effects are packets + queue jobs only.",
+    "Layer 2 high-severity findings escalate the packet (status=escalated) and enqueue a quality_queue job; no data is auto-repaired.",
+    "Layer 3 reuses the bounded persona_candidates_v1 harness, rate-limited to 3 candidates per cycle. No registry or factor_validation writes.",
+    "Layer 4 operates in proposal mode only: PromotionGatePacketV1 + RegistryUpdateProposalV1. Final registry write stays with the governed build-metis-brain-bundle-from-factor-validation CLI run by a human operator.",
+    "Layer 5 enforces forbidden-copy on answers, requires JSON-schema conformance, and rejects any cited packet id that is not in the state bundle \u2014 on any violation it falls back to a deterministic template and records llm_fallback=True.",
+    "UserQueryActionPacketV1 payloads are redacted (redact_mapping) so forbidden tokens never leak back into stored packet bodies."
+  ],
+  "smoke_commands_fixed": [
+    "PYTHONPATH=src python3 src/main.py harness-tick --dry-run",
+    "PYTHONPATH=src python3 src/main.py harness-status",
+    "PYTHONPATH=src python3 src/main.py harness-ask --asset TRGP --question \"\uc624\ub298 \uc65c \uc774 \uc885\ubaa9\uc774 \uc6c0\uc9c1\uc600\uc9c0?\"",
+    "PYTHONPATH=src python3 -m pytest src/tests/test_agentic_*.py -q"
+  ],
+  "regression": {
+    "agentic_harness_tests": {
+      "command": "PYTHONPATH=src python3 -m pytest src/tests/test_agentic_*.py -q",
+      "passed": 93
+    },
+    "full_suite": {
+      "command": "PYTHONPATH=src python3 -m pytest -q",
+      "passed": 911,
+      "failed_pre_existing": [
+        "src/tests/test_phase39_hypothesis_family.py::test_phase39_orchestrator_writes_artifacts"
+      ],
+      "note": "Pre-existing failure unrelated to AGH v1 (documented in HANDOFF). AGH v1 introduces zero new regressions."
+    }
+  },
+  "non_goals_confirmed": [
+    "No free-narrative AI memo is part of the active bundle.",
+    "No portfolio / broker / position / PnL surface is introduced.",
+    "No universe expansion.",
+    "No skin polish or IR deck work.",
+    "No direct registry write from any harness layer."
+  ]
+}

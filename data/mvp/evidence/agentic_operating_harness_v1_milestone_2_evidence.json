@@ -1,0 +1,35 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_2",
+  "milestone": "AGH-2 Packet/queue store + Supabase migration",
+  "scope": "Hybrid infra (chosen via q_infra_depth=C): in-process default + Supabase tables for persistence.",
+  "files_added": [
+    "supabase/migrations/20260417120000_agentic_harness_v1.sql",
+    "src/agentic_harness/store/__init__.py",
+    "src/agentic_harness/store/protocol.py",
+    "src/agentic_harness/store/fixture_store.py",
+    "src/agentic_harness/store/supabase_store.py"
+  ],
+  "tables_created": [
+    "agentic_harness_packets_v1",
+    "agentic_harness_queue_jobs_v1",
+    "agentic_harness_scheduler_ticks_v1"
+  ],
+  "idempotency_guarantees": [
+    "packets: PRIMARY KEY(packet_id) + upsert_packet on conflict preserves status.",
+    "queue_jobs: partial unique index (queue_class, packet_id) WHERE status IN ('enqueued','running') so the same packet cannot be enqueued twice while active.",
+    "scheduler_ticks: append-only log keyed by tick_id."
+  ],
+  "tests_added": {
+    "path": "src/tests/test_agentic_packet_store_v1.py",
+    "count": 13,
+    "coverage": [
+      "packet upsert preserves created_at_utc",
+      "packet status transitions (enqueued \u2192 running \u2192 done)",
+      "queue enqueue deduplication raises StoreError",
+      "claim_next_jobs respects not_before_utc + FIFO",
+      "mark_job_result records attempts + last_error",
+      "list_ticks returns most recent first"
+    ]
+  },
+  "protocol_interchangeability": "FixtureHarnessStore and SupabaseHarnessStore both satisfy HarnessStoreProtocol; tests use fixture store, production CLI uses Supabase."
+}

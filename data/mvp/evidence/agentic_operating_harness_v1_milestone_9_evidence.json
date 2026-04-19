@@ -1,0 +1,37 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_9",
+  "milestone": "AGH-9 End-to-End Vertical Slice + Q1\u2013Q10 Survey",
+  "scope": "L1 \u2192 L3 \u2192 L4 \u2192 L5 full path under FixtureHarnessStore, with Q1\u2013Q10 smoke survey inline.",
+  "files_added": [
+    "src/tests/test_agentic_harness_e2e_v1.py"
+  ],
+  "vertical_slice_proof": {
+    "layers_exercised": ["layer1_ingest", "layer3_research", "layer4_governance", "layer5_surface"],
+    "packets_produced": [
+      "IngestAlertPacketV1 (L1)",
+      "SourceArtifactPacketV1 (L1 worker)",
+      "ResearchCandidatePacketV1 (L3)",
+      "PromotionGatePacketV1 (L4 gate fail case)",
+      "RegistryUpdateProposalV1 (L4 honest fallback)",
+      "UserQueryActionPacketV1 (L5)"
+    ],
+    "network_free": true,
+    "llm_provider": "FixtureProvider"
+  },
+  "survey_q1_q10_inline_asserts": {
+    "Q1": "Layer 1 produced \u2265 1 ingest alert.",
+    "Q2": "Layer 3 produced \u2265 1 research candidate.",
+    "Q3": "Layer 4 produced \u2265 1 governance packet.",
+    "Q4": "Layer 5 produced exactly 1 user-query action packet.",
+    "Q5": "Every Layer 4 packet is a PromotionGatePacketV1 / RegistryUpdateProposalV1 / EvaluationPacketV1 (proposal-only doctrine).",
+    "Q6": "ingest_queue and research_queue both drained to depth 0 after lifecycle.",
+    "Q7": "surface_action_queue carries the one L5 action we emitted (depth == 1).",
+    "Q8": "L5 UserQueryActionPacketV1 provenance_refs include a concrete packet reference (not only 'bundle:' stubs).",
+    "Q9": "guardrail_violations() scan over every persisted packet returns []. (word-bounded regex; 'recommendation'/'buying-pattern' allowed, 'recommend'/'buy' standalone not.)",
+    "Q10": "Layer 4 honest-fallback proposal target_state \u2208 {real_derived_with_degraded_challenger, template_fallback, insufficient_evidence}."
+  },
+  "regression": {
+    "agentic_harness_tests": "93 passed (26 + 13 + 9 + 8 + 6 + 8 + 8 + 14 + 1).",
+    "full_suite": "911 passed, 1 failed (pre-existing test_phase39_hypothesis_family.py::test_phase39_orchestrator_writes_artifacts, unrelated to AGH v1 - see HANDOFF note)."
+  }
+}

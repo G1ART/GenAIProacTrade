@@ -1,0 +1,40 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_4",
+  "milestone": "AGH-4 Layer 1 Proactive Data Collection",
+  "scope": "Source Scout / Event Trigger / Ingest Coordinator deterministic agents + transcripts_adapter worker wrapper.",
+  "files_added": [
+    "src/agentic_harness/agents/__init__.py",
+    "src/agentic_harness/agents/layer1_ingest.py"
+  ],
+  "agents": [
+    {
+      "name": "source_scout_agent",
+      "behavior": "Detects stale assets via expected_freshness_hours; returns candidate list."
+    },
+    {
+      "name": "event_trigger_agent",
+      "behavior": "Wraps each stale candidate in an EventTriggerPacketV1."
+    },
+    {
+      "name": "ingest_coordinator_agent",
+      "behavior": "Emits an IngestAlertPacketV1 + enqueues an ingest_queue job."
+    },
+    {
+      "name": "ingest_queue_worker",
+      "behavior": "Delegates actual transcript fetch to an injectable TranscriptFetcher callable; writes a SourceArtifactPacketV1 on success."
+    }
+  ],
+  "no_active_registry_writes": true,
+  "tests_added": {
+    "path": "src/tests/test_agentic_layer1_ingest_v1.py",
+    "count": 8,
+    "coverage": [
+      "stale detection with / without last_fetched_at_utc",
+      "missing provider defaults to empty list",
+      "packet type + target_scope correctness",
+      "idempotent queue enqueue (dedupe under re-run)",
+      "worker success path writes SourceArtifactPacketV1 and marks alert done",
+      "worker failure path returns ok=False and leaves alert enqueued"
+    ]
+  }
+}

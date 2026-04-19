@@ -1,0 +1,44 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_1",
+  "milestone": "AGH-1 Packet contracts + queue class registry",
+  "generated_by": "plan file /Users/hyunminkim/.cursor/plans/agentic_operating_harness_v1_ebf526cb.plan.md",
+  "workorder_source_path": "/Users/hyunminkim/Downloads/METIS_Agentic_Operating_Harness_v1.md",
+  "scope": "Pydantic base + 10 sub-class packets, QUEUE_CLASSES vocabulary, QueueJobV1, forbidden-copy regex validator.",
+  "files_added": [
+    "src/agentic_harness/__init__.py",
+    "src/agentic_harness/contracts/__init__.py",
+    "src/agentic_harness/contracts/packets_v1.py",
+    "src/agentic_harness/contracts/queues_v1.py"
+  ],
+  "tests_added": {
+    "path": "src/tests/test_agentic_packets_v1.py",
+    "count": 26
+  },
+  "contract_surface": {
+    "base_packet": "AgenticPacketBaseV1",
+    "packet_types": [
+      "EventTriggerPacketV1",
+      "IngestAlertPacketV1",
+      "SourceArtifactPacketV1",
+      "LibraryIntegrityPacketV1",
+      "CoverageGapPacketV1",
+      "ResearchCandidatePacketV1",
+      "EvaluationPacketV1",
+      "PromotionGatePacketV1",
+      "RegistryUpdateProposalV1",
+      "UserQueryActionPacketV1"
+    ],
+    "queue_classes": [
+      "ingest_queue",
+      "quality_queue",
+      "research_queue",
+      "governance_queue",
+      "surface_action_queue",
+      "replay_recompute_queue"
+    ]
+  },
+  "anti_drift_guards": [
+    "Every packet body is scanned for forbidden copy: \\bbuy\\b, \\bsell\\b, \\bguaranteed\\b, \\brecommend\\b (word-bounded), 'will definitely', '\ubc18\ub4dc\uc2dc \uc624\ub978/\ub0b4\ub9b0', '\ubb34\uc870\uac74 \uc624\ub978/\ub0b4\ub9b0'.",
+    "queue_class, packet_type, target_layer, status enums are closed enumerations rejected by Pydantic validator."
+  ]
+}

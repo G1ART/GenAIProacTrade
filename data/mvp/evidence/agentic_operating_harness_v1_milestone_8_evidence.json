@@ -1,0 +1,42 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_8",
+  "milestone": "AGH-8 Layer 5 Bounded LLM User-Surface Orchestrator",
+  "scope": "Action Router + State Reader + LLM provider(Fixture/OpenAI/Anthropic) + JSON schema contract + forbidden-copy guardrails + deterministic fallback template.",
+  "decision": "q_layer5_llm=B (bounded LLM wrapper) \u2014 real LLM API calls are allowed with a strict JSON schema, forbidden-copy enforcement, cited-id whitelist, and deterministic fallback.",
+  "files_added": [
+    "src/agentic_harness/llm/__init__.py",
+    "src/agentic_harness/llm/contract.py",
+    "src/agentic_harness/llm/guardrails.py",
+    "src/agentic_harness/llm/provider.py",
+    "src/agentic_harness/agents/layer5_orchestrator.py"
+  ],
+  "llm_contract": "LLMResponseContractV1 enforces answer_ko/en length caps, cited_packet_ids \u2265 1, fact_vs_interpretation_map keys \u2286 cited_packet_ids, recheck_rule, blocking_reasons.",
+  "guardrail_layers": [
+    "1. Packet-level forbidden-copy regex (packets_v1)",
+    "2. LLM output forbidden-copy regex (guardrails.py)",
+    "3. Cited packet id subset of allowed state-bundle packet ids",
+    "4. JSON schema validation via LLMResponseContractV1",
+    "5. Deterministic template fallback on any failure, marked llm_fallback=True with categorical fallback_reason"
+  ],
+  "provider_selection": {
+    "env_var": "METIS_HARNESS_LLM_PROVIDER",
+    "values": ["fixture", "openai", "anthropic"],
+    "default": "fixture",
+    "network_free_by_default": true
+  },
+  "redaction_policy": "UserQueryActionPacketV1 payload passes through redact_mapping() so forbidden tokens never leak back into the packet body (count-only reasons are preserved).",
+  "tests_added": {
+    "path": "src/tests/test_agentic_layer5_orchestrator_v1.py",
+    "count": 14,
+    "coverage": [
+      "action router classifies three kinds (why_changed, system_status, research_pending) + default fallback",
+      "state reader scopes packets by asset_id",
+      "orchestrator happy path uses FixtureProvider, guardrail passes, UserQueryActionPacketV1 persisted",
+      "forbidden token in answer triggers fallback with fallback_reason forbidden_copy:count=N",
+      "hallucinated cited_packet_ids trigger fallback",
+      "schema violation triggers fallback",
+      "run_layer5_ask defaults to fixture provider when no env vars set (no network)",
+      "contract rejects fact_vs_interpretation_map with unknown key"
+    ]
+  }
+}

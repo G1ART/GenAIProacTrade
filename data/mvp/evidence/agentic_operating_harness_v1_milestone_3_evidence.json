@@ -1,0 +1,37 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_3",
+  "milestone": "AGH-3 Scheduler tick + cadence + CLI",
+  "scope": "In-process run_one_tick pure function; cadences per layer; three CLI commands plumbed through src/main.py.",
+  "files_added": [
+    "src/agentic_harness/scheduler/__init__.py",
+    "src/agentic_harness/scheduler/cadences.py",
+    "src/agentic_harness/scheduler/tick.py",
+    "src/agentic_harness/runtime.py"
+  ],
+  "files_modified": [
+    "src/main.py (added _cmd_harness_tick / _cmd_harness_status / _cmd_harness_ask subcommands)"
+  ],
+  "cli_commands": [
+    "python3 src/main.py harness-tick --dry-run",
+    "python3 src/main.py harness-status",
+    "python3 src/main.py harness-ask --asset TRGP --question \"\uc65c \uc774 \uc885\ubaa9\uc774 \uc624\ub298 \uc6c0\uc9c1\uc600\uc5b4?\""
+  ],
+  "default_cadences": {
+    "layer1_ingest": "PT6H",
+    "layer2_library": "PT2H",
+    "layer3_research": "P1D",
+    "layer4_governance": "PT4H",
+    "layer5_surface": "on_demand"
+  },
+  "tests_added": {
+    "path": "src/tests/test_agentic_scheduler_tick_v1.py",
+    "count": 9,
+    "coverage": [
+      "cadence skip when now - last_tick < cadence",
+      "dry-run writes no packets/queue jobs",
+      "enqueued \u2192 running \u2192 done lifecycle on success",
+      "retry + DLQ transition after max_attempts on failure",
+      "tick summary persisted via log_tick"
+    ]
+  }
+}

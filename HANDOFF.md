@@ -2,6 +2,78 @@
 
 **단일 목표**: Today/Research/Replay 세 표면을 **Metis Brain bundle + registry + message snapshot store** 라는 하나의 계약 위에 올리고, `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` §10 의 Q1–Q10 이 **자동 spec survey** 에서 전부 `ok=true` 가 되게 한다. (Build Plan §14 수직 슬라이스, §12 항상 지킬 문장.)
 
+## 2026-04-17 — Agentic Operating Harness v1 (plan `agentic-operating-harness-v1`)
+
+**단일 목표 (추가)**: 작업지시서 `METIS_Agentic_Operating_Harness_v1.md` 를 받아, 사람이 CLI 를 **수동으로 찍어야 움직이던** Metis 를 — registry truth 규율을 하나도 깨지 않은 채로 — **packet/queue/scheduler 기반의 에이전트 운영체제** 로 올린다. 목표 지점은 "Stage 2.5: 제품 표면에 드러나는 부분 자율성". 다섯 레이어 (Proactive Data Collection / Library Integrity / Research Automation / Model Governance / User-Surface Orchestrator) 전체를 **정지 없이** 한 번의 tick 으로 L1→L3→L4→L5 항로로 관통시키는 수직 슬라이스까지 닫는 것이 합격선.
+
+**Green run 실증**
+
+- **AGH-1 — Packet + queue vocabulary**. `src/agentic_harness/contracts/packets_v1.py` 에 `AgenticPacketBaseV1` + 10개 sub-class packet (Event/IngestAlert/SourceArtifact/LibraryIntegrity/CoverageGap/ResearchCandidate/Evaluation/PromotionGate/RegistryUpdateProposal/UserQueryAction) 추가. `queues_v1.py` 에 `QUEUE_CLASSES = {ingest_queue, quality_queue, research_queue, governance_queue, surface_action_queue, replay_recompute_queue}` + `QueueJobV1`. 모든 패킷 본문은 `buy / sell / guaranteed / recommend(단어 경계) / will definitely / 반드시 오른|내린 / 무조건 오른|내린` 정규식 validator 를 통과해야 생성됨. 테스트 `src/tests/test_agentic_packets_v1.py` 26개. 증거: `data/mvp/evidence/agentic_operating_harness_v1_milestone_1_evidence.json`.
+- **AGH-2 — Store + migration (`q_infra_depth=C`, hybrid)**. `supabase/migrations/20260417120000_agentic_harness_v1.sql` 가 세 테이블 (`agentic_harness_packets_v1`, `agentic_harness_queue_jobs_v1`, `agentic_harness_scheduler_ticks_v1`) 를 만들고, queue 에는 `(queue_class, packet_id) WHERE status IN ('enqueued','running')` 부분 유니크 인덱스로 더블 인큐를 차단. `HarnessStoreProtocol` 한 인터페이스 아래 `FixtureHarnessStore` (in-memory, 테스트용) 와 `SupabaseHarnessStore` (프로덕션) 가 교체 가능. 테스트 `src/tests/test_agentic_packet_store_v1.py` 13개. 증거: `agentic_operating_harness_v1_milestone_2_evidence.json`.
+- **AGH-3 — Scheduler + CLI**. `src/agentic_harness/scheduler/tick.py` 의 순수 함수 `run_one_tick(store, layer_cadences, queue_specs, now_iso, dry_run)` 이 cadence skip / 큐 잡 claim / 결과 저장 / DLQ 이행 을 전부 결정적으로 처리. `src/main.py` 에 세 서브커맨드 추가: `harness-tick` (기본 `PT6H`/`PT2H`/`P1D`/`PT4H` cadence), `harness-status`, `harness-ask`. 테스트 `src/tests/test_agentic_scheduler_tick_v1.py` 9개. 증거: `agentic_operating_harness_v1_milestone_3_evidence.json`.
+- **AGH-4 — Layer 1 Proactive Ingest**. `source_scout_agent` → `event_trigger_agent` → `ingest_coordinator_agent` 세 단계 + `ingest_queue_worker` 가 injectable `TranscriptFetcher` 로 네트워크 없이 전체 항로를 태움. Active Today 레지스트리는 **절대** 건드리지 않음 — side-effect 는 오직 `IngestAlertPacketV1` + queue job + 성공 시 `SourceArtifactPacketV1`. 테스트 `src/tests/test_agentic_layer1_ingest_v1.py` 8개. 증거: `agentic_operating_harness_v1_milestone_4_evidence.json`.
+- **AGH-5 — Layer 2 Library Integrity**. `integrity_sentinel_agent` (PIT 위반 / stale panel / schema drift), `coverage_curator_agent` (코호트·유니버스 구멍), `artifact_librarian_agent` (severity 에 따라 quality_queue 인큐 + high 는 `status=escalated` 로 차단). 테스트 `src/tests/test_agentic_layer2_library_v1.py` 6개. 증거: `agentic_operating_harness_v1_milestone_5_evidence.json`.
+- **AGH-6 — Layer 3 Periodic Challenger**. `persona_challenger_agents` 가 `build_persona_candidate_packet` 를 그대로 재사용해 신규 어휘를 만들지 않음. `skeptic_falsification_analyst_agent` 가 countercase 없을 때 `no_counter_interpretation` blocking reason 주입. `meta_governor_agent` 가 `(persona, horizon, universe, intended_overlay_type)` 로 dedupe 후 cycle 당 최대 3건만 `ResearchCandidatePacketV1` 로 감싸 `research_queue` 에 enqueue. 테스트 `src/tests/test_agentic_layer3_research_v1.py` 8개. 증거: `agentic_operating_harness_v1_milestone_6_evidence.json`.
+- **AGH-7 — Layer 4 Governance (proposal-only)**. `validation_referee_agent` / `promotion_arbiter_agent` / `fallback_honesty_agent` / `regression_watcher_agent`. 4-gate (PIT / monotonicity / coverage / runtime_explainability) 중 하나라도 실패하면 `_honest_fallback_state` 테이블대로 `real_derived → real_derived_with_degraded_challenger → template_fallback → insufficient_evidence` 로 **정직하게** 내려가는 `RegistryUpdateProposalV1` 을 만든다. 레지스트리·번들·factor_validation 테이블은 **한 줄도 쓰지 않음** — 최종 write 는 기존 `build-metis-brain-bundle-from-factor-validation` CLI 와 사람 오퍼레이터에게 남김. 테스트 `src/tests/test_agentic_layer4_governance_v1.py` 8개. 증거: `agentic_operating_harness_v1_milestone_7_evidence.json`.
+- **AGH-8 — Layer 5 Bounded LLM Orchestrator (`q_layer5_llm=B`)**. `action_router_agent` 는 `why_changed / system_status / research_pending` 세 유형으로만 라우팅, `state_reader_agent` 는 패킷/큐 깊이/last tick 을 결정적으로 모아 `METIS_AGENTIC_HARNESS_STATE_BUNDLE_V1` 하나로 묶는다. `founder_user_orchestrator_agent` 는 `LLMProviderProtocol` (Fixture/OpenAI/Anthropic) 를 통해 실제 LLM 을 호출하되, 응답은 `LLMResponseContractV1` (JSON schema + `cited_packet_ids ⊆ state_bundle` + forbidden-copy regex) 를 전부 통과해야만 받아들인다. 실패 시 결정적 템플릿 fallback + `llm_fallback=True` + `fallback_reason` 카테고리만 기록. `UserQueryActionPacketV1` payload 는 `redact_mapping()` 으로 한 번 더 클리닝해 금지어가 패킷 본문으로 새지 못하게 함. 기본 provider 는 `fixture` → **환경변수 없으면 네트워크 0**. 테스트 `src/tests/test_agentic_layer5_orchestrator_v1.py` 14개. 증거: `agentic_operating_harness_v1_milestone_8_evidence.json`.
+- **AGH-9 — End-to-end vertical slice + Q1–Q10 smoke**. `src/tests/test_agentic_harness_e2e_v1.py` 한 테스트가 `FixtureHarnessStore` 위에서 L1 (stale 감지 → IngestAlert → SourceArtifact) → L3 (persona candidate → ResearchCandidate) → L4 (gate fail → honest fallback RegistryUpdateProposal) → L5 (FixtureProvider 로 UserQueryActionPacketV1) 항로를 한 번에 태우고, 결과 스토어 위에 Q1–Q10 smoke 그리드 (레이어별 packet counts, 큐 깊이, proposal-only 도리, provenance 비공백, 금지어 zero-leak 을 `guardrail_violations()` 로 검증, honest fallback target_state enum) 를 인라인으로 assert. 증거: `agentic_operating_harness_v1_milestone_9_evidence.json`.
+
+**변경 범위 요약 (agentic-operating-harness-v1 패치)**
+
+- 신규 패키지: `src/agentic_harness/` (contracts / store / scheduler / agents / llm / runtime).
+- 신규 CLI 3종: `harness-tick`, `harness-status`, `harness-ask` (모두 `src/main.py`).
+- 신규 마이그레이션: `supabase/migrations/20260417120000_agentic_harness_v1.sql`.
+- 신규 테스트 9 파일 / 총 93 케이스.
+- 신규 증거 패킷 9 milestone + overall: `data/mvp/evidence/agentic_operating_harness_v1_*_evidence.json`.
+
+**회귀 확인**
+
+- `PYTHONPATH=src python3 -m pytest src/tests/test_agentic_*.py -q` → **93 passed**.
+- `PYTHONPATH=src python3 -m pytest -q` → **911 passed, 1 failed**. 실패는 패치 이전부터 있던 `src/tests/test_phase39_hypothesis_family.py::test_phase39_orchestrator_writes_artifacts` (HANDOFF 기존 주석 참조). AGH v1 에서 **신규 회귀 0건**.
+
+**Anti-drift 점검 (작업지시서 §4·§8·§12 대비)**
+
+- 어떤 레이어도 active registry / active brain bundle / `factor_validation_*` 테이블에 직접 write 하지 않음 (Layer 4 는 오직 `RegistryUpdateProposalV1`).
+- 모든 패킷 본문에 forbidden-copy 정규식이 걸려 있어, "buy / sell / guaranteed / recommend / will definitely / 반드시 오른|내린 / 무조건 오른|내린" 은 persisted packet 한 줄에도 남지 않음 (Q9 가 E2E 에서 `guardrail_violations()` 로 재검증).
+- Layer 5 응답은 JSON schema + cited-id whitelist + 금지어 regex 세 겹을 통과해야만 사용자 응답으로 나가며, 하나라도 실패하면 결정적 템플릿 fallback + `llm_fallback=True`.
+- Default LLM provider 는 `fixture` — `METIS_HARNESS_LLM_PROVIDER=openai|anthropic` 를 명시하고 API key 가 설정되어야만 실제 네트워크가 열림. CI / 테스트는 항상 네트워크 0.
+- Layer 3 의 persona 후보 생성은 cycle 당 3건 하드 캡, 기존 `persona_candidates_v1` 어휘만 재사용 — 신규 "연구 용어" 를 만들지 않음.
+
+**오퍼레이터가 돌려야 하는 순서** (Copy-Paste Runbook)
+
+1. **`SQL` (Supabase → SQL Editor)** — Agentic Harness 테이블 3개 생성. `supabase/migrations/20260417120000_agentic_harness_v1.sql` 의 전체 내용을 SQL Editor 에 그대로 붙여 실행.
+2. **`터미널`** — 로컬에서 스케줄러/상태/질의가 동작하는지 smoke.
+
+```bash
+PYTHONPATH=src python3 src/main.py harness-tick --dry-run
+PYTHONPATH=src python3 src/main.py harness-status
+PYTHONPATH=src python3 src/main.py harness-ask --asset TRGP --question "오늘 왜 이 종목이 움직였지?"
+PYTHONPATH=src python3 -m pytest src/tests/test_agentic_*.py -q
+```
+
+3. **`터미널` (옵션, 실제 LLM 연결 시)** — 키가 있을 때만. 없으면 생략하고 fixture provider 그대로 유지.
+
+```bash
+export METIS_HARNESS_LLM_PROVIDER=openai   # 또는 anthropic
+export OPENAI_API_KEY=sk-...                # 또는 ANTHROPIC_API_KEY
+PYTHONPATH=src python3 src/main.py harness-ask --asset TRGP --question "system status?"
+```
+
+**MVP Spec §10 대비 갭 (AGHv1 이후)**
+
+- Q1–Q10 survey 는 이전 패치에서 이미 ok — AGH v1 은 survey 를 **깨지 않고** 운영 레이어만 덧씌움.
+- Today 표면 자체는 여전히 registry-only. 이번 패치가 Today 의 문구·숫자를 바꾸지 않음.
+- Layer 1 의 `TranscriptFetcher` / Layer 2 의 gap provider / Layer 4 의 gate decision provider 는 모두 injectable — 실제 운영 소스와 배선하는 것은 다음 patch bundle 에서 `src/sources/*` 와 연결하는 작은 wiring PR 로 처리 권고.
+- Layer 5 의 `state_reader_agent` 는 현재 "최근 패킷 N개 + 큐 깊이" 수준. `why_changed` 에 대해 실제 bundle 의 residual score / horizon state 를 같이 묶어 넘기는 것은 후속 과제.
+
+**직후 권고 (다음 Patch Bundle)**
+
+1. **Layer 1 실제 배선**: `set_transcript_fetcher` 를 `src/sources/transcripts_ingest.run_fmp_sample_ingest` 로 묶는 얇은 adapter + env-gated smoke.
+2. **Layer 4 gate provider 실제 배선**: 최신 `factor_market_validation_panels` 스냅샷을 읽어 PIT/monotonicity/coverage bool 을 산출하는 `GateDecisionProvider` 구현.
+3. **Layer 5 state_reader 확장**: `why_changed` 에 해당 asset 의 활성 overlay + horizon_state_v1 + 최근 RegistryUpdateProposal 을 함께 묶기.
+4. (Non-goal 유지) 자동 registry write / 포트폴리오 / 브로커 / skin polish 는 이번 사이클에서도 진전이 아님.
+
+
 ## 2026-04-17 — Bounded Non-Quant Cash-Out v1 (plan `bounded-non-quant-cash-out-v1`)
 
 **단일 목표 (추가)**: 작업지시서 `METIS_PlanMode_Workorder_Post_Audit_bfdb191_v5` 를 받아, Pragmatic Brain Absorption v1 이 심어둔 `brain_overlays_v1` / `persona_candidates_v1` / `horizon_provenance` 를 **registry truth 규율을 해치지 않고** Today·Research·Replay 표면에서 “실제로 보이는” 형태로 cash-out 하는 것. 한 가족(earnings transcript / guidance language delta)만 정해서 끝까지 끌고 간다 — LLM 자유 서술, price/return/추천 언어, 정책·규제·기술 overlays 는 이번 패치 범위 밖이다.

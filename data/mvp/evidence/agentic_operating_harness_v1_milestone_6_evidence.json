@@ -1,0 +1,38 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_6",
+  "milestone": "AGH-6 Layer 3 Periodic Challenger Cycle",
+  "scope": "Reuse persona_candidates_v1 harness, wrap into ResearchCandidatePacketV1, Skeptic + Meta-Governor gating, research_queue enqueue.",
+  "files_added": [
+    "src/agentic_harness/agents/layer3_research.py"
+  ],
+  "agents": [
+    {
+      "name": "persona_challenger_agents",
+      "behavior": "Calls build_persona_candidate_packet for each persona spec; never invents new research vocabulary."
+    },
+    {
+      "name": "skeptic_falsification_analyst_agent",
+      "behavior": "Adds blocking_reason 'no_counter_interpretation' if countercase is empty."
+    },
+    {
+      "name": "meta_governor_agent",
+      "behavior": "Dedupes on (persona, horizon, universe, intended_overlay_type); rate-limits to 3 per cycle; wraps into ResearchCandidatePacketV1 and enqueues research_queue."
+    }
+  ],
+  "no_active_registry_writes": true,
+  "rate_limit_per_cycle": 3,
+  "tests_added": {
+    "path": "src/tests/test_agentic_layer3_research_v1.py",
+    "count": 8,
+    "coverage": [
+      "persona challenger builds valid PersonaCandidatePacketV1",
+      "skeptic adds blocking_reason when countercase empty, leaves alone otherwise",
+      "meta-governor dedupes same target_scope",
+      "meta-governor caps enqueued count at max_per_cycle",
+      "research_queue worker marks packet done",
+      "cadence skip respected",
+      "research packet retains persona packet inside payload",
+      "blocking_reasons propagate from persona to research packet"
+    ]
+  }
+}

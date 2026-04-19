@@ -8553,6 +8553,81 @@ def _cmd_smoke_facts(_args: argparse.Namespace) -> int:
     return 0 if ex.get("ok") else 1
 
 
+def _cmd_harness_tick(args: argparse.Namespace) -> int:
+    """Agentic Operating Harness v1 - single in-process scheduler tick.
+
+    Runs cadence-based seeding for all wired layers, then drains each queue
+    up to ``--max-jobs`` jobs, writing a tick summary row. With ``--dry-run``
+    no packets / jobs are written.
+    """
+
+    from agentic_harness.runtime import perform_tick
+
+    configure_logging()
+    try:
+        summary = perform_tick(
+            use_fixture=bool(getattr(args, "use_fixture", False)),
+            max_jobs=int(getattr(args, "max_jobs", 5) or 5),
+            dry_run=bool(getattr(args, "dry_run", False)),
+        )
+    except RuntimeError as e:
+        print(json.dumps({"ok": False, "error": str(e)}, indent=2, ensure_ascii=False))
+        return 1
+    out = {"ok": True, "summary": summary}
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_harness_status(args: argparse.Namespace) -> int:
+    """Agentic Operating Harness v1 - queue depth + layer packet counts."""
+
+    from agentic_harness.runtime import build_status_snapshot
+
+    configure_logging()
+    try:
+        snap = build_status_snapshot(
+            use_fixture=bool(getattr(args, "use_fixture", False)),
+            lang=str(getattr(args, "lang", "ko") or "ko"),
+        )
+    except RuntimeError as e:
+        print(json.dumps({"ok": False, "error": str(e)}, indent=2, ensure_ascii=False))
+        return 1
+    print(json.dumps({"ok": True, "status": snap}, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
+def _cmd_harness_ask(args: argparse.Namespace) -> int:
+    """Agentic Operating Harness v1 - bounded LLM user-surface orchestrator."""
+
+    from agentic_harness.runtime import perform_ask
+
+    configure_logging()
+    asset_id = str(getattr(args, "asset", "") or "").strip()
+    question = str(getattr(args, "question", "") or "").strip()
+    if not asset_id or not question:
+        print(
+            json.dumps(
+                {"ok": False, "error": "asset_and_question_required"},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    try:
+        res = perform_ask(
+            asset_id=asset_id,
+            question=question,
+            lang=str(getattr(args, "lang", "ko") or "ko"),
+            provider_name=str(getattr(args, "provider", "") or "") or None,
+            use_fixture=bool(getattr(args, "use_fixture", False)),
+        )
+    except RuntimeError as e:
+        print(json.dumps({"ok": False, "error": str(e)}, indent=2, ensure_ascii=False))
+        return 1
+    print(json.dumps({"ok": True, "result": res}, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="GenAIProacTrade SEC / XBRL worker CLI")
     sub = p.add_subparsers(dest="command", required=True)
@@ -12839,6 +12914,66 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p24c.add_argument("--out-stem", default="docs/operator_closeout", dest="out_stem")
     p24c.set_defaults(func=_cmd_advance_public_first_cycle)
+
+    pht = sub.add_parser(
+        "harness-tick",
+        help=(
+            "Agentic Operating Harness v1: run one in-process scheduler tick "
+            "(cadence seeding + queue drain)."
+        ),
+    )
+    pht.add_argument(
+        "--use-fixture",
+        action="store_true",
+        dest="use_fixture",
+        help="Use in-memory fixture store (no Supabase). Default: Supabase-backed store.",
+    )
+    pht.add_argument(
+        "--max-jobs",
+        type=int,
+        default=5,
+        dest="max_jobs",
+        help="Max jobs claimed per queue per tick (default 5).",
+    )
+    pht.add_argument(
+        "--dry-run",
+        action="store_true",
+        dest="dry_run",
+        help="Report cadence decisions and queue readiness without writing.",
+    )
+    pht.set_defaults(func=_cmd_harness_tick)
+
+    phs = sub.add_parser(
+        "harness-status",
+        help=(
+            "Agentic Operating Harness v1: queue depth + packet counts per layer "
+            "+ last tick summary."
+        ),
+    )
+    phs.add_argument(
+        "--use-fixture", action="store_true", dest="use_fixture",
+    )
+    phs.add_argument("--lang", default="ko", choices=("ko", "en"))
+    phs.set_defaults(func=_cmd_harness_status)
+
+    pha = sub.add_parser(
+        "harness-ask",
+        help=(
+            "Agentic Operating Harness v1: bounded LLM user-surface orchestrator. "
+            "Answers come only in the LLMResponseContractV1 JSON shape and pass "
+            "a forbidden-copy guardrail before being surfaced."
+        ),
+    )
+    pha.add_argument("--asset", required=True, help="asset_id (e.g. TRGP)")
+    pha.add_argument("--question", required=True, help="Natural-language question.")
+    pha.add_argument("--lang", default="ko", choices=("ko", "en"))
+    pha.add_argument(
+        "--provider",
+        default="",
+        help="Override METIS_HARNESS_LLM_PROVIDER (fixture|openai|anthropic).",
+    )
+    pha.add_argument("--use-fixture", action="store_true", dest="use_fixture")
+    pha.set_defaults(func=_cmd_harness_ask)
 
     return p
 

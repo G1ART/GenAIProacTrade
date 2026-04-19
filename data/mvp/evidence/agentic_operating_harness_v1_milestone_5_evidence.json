@@ -1,0 +1,39 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_5",
+  "milestone": "AGH-5 Layer 2 Library Integrity Triage",
+  "scope": "Integrity Sentinel / Coverage Curator / Artifact Librarian agents + severity-based quality_queue enqueue + escalation rule.",
+  "files_added": [
+    "src/agentic_harness/agents/layer2_library.py"
+  ],
+  "agents": [
+    {
+      "name": "integrity_sentinel_agent",
+      "behavior": "Detects PIT violations, stale panels, schema drift \u2192 emits LibraryIntegrityPacketV1 keyed by severity."
+    },
+    {
+      "name": "coverage_curator_agent",
+      "behavior": "Detects cohort / universe coverage gaps \u2192 emits CoverageGapPacketV1."
+    },
+    {
+      "name": "artifact_librarian_agent",
+      "behavior": "Enqueues quality_queue job when severity \u2208 {medium, high}; marks high-severity packets as escalated."
+    }
+  ],
+  "severity_policy": {
+    "low": "packet only, no queue entry.",
+    "medium": "packet + quality_queue job (ops review).",
+    "high": "packet + quality_queue job + status=escalated (blocks further ingest until resolved)."
+  },
+  "tests_added": {
+    "path": "src/tests/test_agentic_layer2_library_v1.py",
+    "count": 6,
+    "coverage": [
+      "integrity sentinel triages three violation kinds with correct severity",
+      "coverage curator emits one packet per cohort gap",
+      "librarian skips low severity",
+      "librarian enqueues medium severity exactly once",
+      "librarian escalates high severity \u2192 status=escalated",
+      "quality_queue_worker marks packet done"
+    ]
+  }
+}
