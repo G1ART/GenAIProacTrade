@@ -95,33 +95,59 @@ def state_reader_agent(
     asset_id = str(asset_id or "").upper().strip()
     relevant_packets: list[dict[str, Any]] = []
 
-    def _collect(packet_type: str, layer: Optional[str], limit: int = 20) -> None:
+    def _collect(
+        packet_type: str,
+        layer: Optional[str],
+        limit: int = 20,
+        *,
+        allow_asset_neutral: bool = False,
+    ) -> None:
+        """Read packets for ``packet_type`` and append to ``relevant_packets``.
+
+        Scope rules:
+        * If ``asset_id`` is set, packets whose ``target_scope.asset_id``
+          matches are always included.
+        * ``allow_asset_neutral`` permits packets that do NOT carry an
+          ``asset_id`` (e.g. universe-level research candidates or overlay
+          proposals) to be included even when ``asset_id`` is set.  This is
+          how Layer 5 surfaces pending research / why_changed context that
+          applies across the registry rather than a single ticker.
+        * When ``asset_id`` is empty, every row is relevant (system-wide
+          queries).
+        """
+
         rows = store.list_packets(
             packet_type=packet_type, target_layer=layer, limit=limit
         )
         for r in rows:
             scope = r.get("target_scope") or {}
-            if asset_id and str(scope.get("asset_id") or "").upper() == asset_id:
+            scope_asset = str(scope.get("asset_id") or "").upper().strip()
+            if asset_id and scope_asset == asset_id:
+                relevant_packets.append(r)
+            elif asset_id and not scope_asset and allow_asset_neutral:
                 relevant_packets.append(r)
             elif not asset_id:
                 relevant_packets.append(r)
 
     if routed_kind == "why_changed":
-        for pt in (
-            "IngestAlertPacketV1",
-            "SourceArtifactPacketV1",
-            "OverlayProposalPacketV1",
-            "RegistryUpdateProposalV1",
-            "ReplayLearningPacketV1",
-        ):
-            _collect(pt, None)
+        # Per-asset evidence (IngestAlert / SourceArtifact) must be asset-scoped.
+        # Registry-/universe-level signals (OverlayProposal /
+        # RegistryUpdateProposal / ReplayLearning) may be asset-neutral and
+        # still belong to the why-changed context so the LLM can explain them
+        # as "signals to watch" rather than fabricating per-asset narratives.
+        _collect("IngestAlertPacketV1", None, allow_asset_neutral=False)
+        _collect("SourceArtifactPacketV1", None, allow_asset_neutral=False)
+        _collect("OverlayProposalPacketV1", None, allow_asset_neutral=True)
+        _collect("RegistryUpdateProposalV1", None, allow_asset_neutral=True)
+        _collect("ReplayLearningPacketV1", None, allow_asset_neutral=True)
     elif routed_kind == "research_pending":
-        for pt in (
-            "ResearchCandidatePacketV1",
-            "EvaluationPacketV1",
-            "PromotionGatePacketV1",
-        ):
-            _collect(pt, None)
+        # Research candidates are often universe-scoped (factor / gate /
+        # cadence proposals).  Include them even when the user pins a
+        # specific asset, so "pending research" never reads empty just
+        # because the candidate wasn't tied to a ticker.
+        _collect("ResearchCandidatePacketV1", None, allow_asset_neutral=True)
+        _collect("EvaluationPacketV1", None, allow_asset_neutral=True)
+        _collect("PromotionGatePacketV1", None, allow_asset_neutral=True)
     elif routed_kind == "system_status":
         # status is global; include a compact census rather than asset-scoped rows.
         relevant_packets = []
@@ -154,7 +180,14 @@ _SYSTEM_PROMPT = (
     "'buy', 'sell', 'guaranteed', 'recommend', 'will definitely', '확실', "
     "'반드시 오른/내린', '무조건 오른/내린'. If the bundle does not justify "
     "a firm statement, mark the relevant fact_vs_interpretation entry as "
-    "'interpretation' and add to blocking_reasons."
+    "'interpretation' and add to blocking_reasons. "
+    "You must NEVER claim that the Today registry has changed its active "
+    "model family, active band, or active horizon surface. You may only "
+    "describe new ingest alerts, pending research candidates, or overlay "
+    "proposals as *signals to watch* or *proposals*, never as accomplished "
+    "facts about the Today surface. The Today active state is only updated "
+    "by the promotion gate + registry patch, which is outside this response "
+    "scope."
 )
 
 

@@ -23,6 +23,8 @@ from agentic_harness.store import FixtureHarnessStore, HarnessStoreProtocol
 # CLI invocations within one process share state.
 _FIXTURE_STORE: Optional[FixtureHarnessStore] = None
 
+_LAYER1_PRODUCTION_BOOTSTRAPPED = False
+
 
 def _get_fixture_store() -> FixtureHarnessStore:
     global _FIXTURE_STORE
@@ -133,6 +135,53 @@ def build_queue_specs() -> list[QueueSpec]:
     return specs
 
 
+def _maybe_bootstrap_layer1_production(
+    store: HarnessStoreProtocol, *, use_fixture: bool
+) -> None:
+    """Env-gated hook: wire Layer 1's StaleAssetProvider to the real Brain
+    bundle + transcript ingest history.
+
+    Activation:
+
+    * Requires ``METIS_HARNESS_L1_WIRE_PRODUCTION`` in {``1``, ``true``, ``yes``}.
+    * Skipped for fixture stores so pytest / ``--use-fixture`` smoke runs
+      stay hermetic.
+    * Idempotent: runs at most once per process.
+
+    The worker-side ``set_transcript_fetcher`` is **intentionally not** wired
+    here.  Live FMP fetch is deferred to a follow-up patch; the current
+    fallback ``transcript_fetcher_not_configured`` path means queued alerts
+    simply fail-to-DLQ, which is the desired "propose but don't pull" state.
+    """
+
+    global _LAYER1_PRODUCTION_BOOTSTRAPPED
+    if _LAYER1_PRODUCTION_BOOTSTRAPPED:
+        return
+    flag = (os.getenv("METIS_HARNESS_L1_WIRE_PRODUCTION") or "").strip().lower()
+    if flag not in {"1", "true", "yes"}:
+        return
+    if use_fixture:
+        return
+    try:
+        from agentic_harness.adapters.layer1_brain_adapter import (
+            build_stale_asset_provider,
+        )
+        from agentic_harness.agents.layer1_ingest import set_stale_asset_provider
+        from config import load_settings
+        from db.client import get_supabase_client
+    except ImportError:
+        return
+
+    settings = load_settings()
+
+    def _client_factory() -> Any:
+        return get_supabase_client(settings)
+
+    provider = build_stale_asset_provider(client_factory=_client_factory)
+    set_stale_asset_provider(provider)
+    _LAYER1_PRODUCTION_BOOTSTRAPPED = True
+
+
 def perform_tick(
     *,
     use_fixture: bool = False,
@@ -141,6 +190,7 @@ def perform_tick(
     store: Optional[HarnessStoreProtocol] = None,
 ) -> dict[str, Any]:
     s = store if store is not None else build_store(use_fixture=use_fixture)
+    _maybe_bootstrap_layer1_production(s, use_fixture=use_fixture)
     return run_one_tick(
         store=s,
         layer_cadences=build_layer_cadences(),

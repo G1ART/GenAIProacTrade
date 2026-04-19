@@ -2,6 +2,36 @@
 
 **단일 목표**: Today/Research/Replay 세 표면을 **Metis Brain bundle + registry + message snapshot store** 라는 하나의 계약 위에 올리고, `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` §10 의 Q1–Q10 이 **자동 spec survey** 에서 전부 `ok=true` 가 되게 한다. (Build Plan §14 수직 슬라이스, §12 항상 지킬 문장.)
 
+## 2026-04-17 (patch 2) — AGH v1 Layer 1 stale wiring + L5 scope (plan `agh_v1_b+c_—_l1_real_stale_wiring_+_l5_scope`)
+
+**단일 목표 (추가)**: 사용자 진행 권고 (A smoke gate 1회 → 메인 패치 B+C) 를 그대로 집행해, Stage 2.5+ 로의 실질적 전진을 닫는다. **B** 는 Layer 1 의 `StaleAssetProvider` 를 실제 Brain bundle universe × 실제 transcript ingest 기록에 연결하지만 **live FMP fetch 는 의도적으로 이월** (worker-side fallback 유지), **C** 는 L5 state_reader 가 asset-neutral research/overlay 까지 bundle 에 담도록 범위를 넓히고 system prompt 에 "Today active state 단정 금지" 가드를 추가해 `why_changed` 흐름의 surface 신뢰를 닫는다.
+
+**Green run 실증 (B+C)**
+
+- **B — Layer 1 production wiring (stale detection only)**. 신규 `src/agentic_harness/adapters/layer1_brain_adapter.py` 가 `data/mvp/metis_brain_bundle_v0.json` (또는 `METIS_BRAIN_BUNDLE` override) 의 `spectrum_rows_by_horizon` 에서 unique `asset_id` 집합을 읽고, `raw_transcript_payloads_fmp` (primary, `symbol + fetched_at`) + `transcript_ingest_runs` (fallback, `detail_json->>symbol`, `status='success'`) 로 `last_fetched_at_utc` 를 합성해 `StaleAssetProvider` 를 만든다. `runtime._maybe_bootstrap_layer1_production` 은 env flag `METIS_HARNESS_L1_WIRE_PRODUCTION ∈ {1,true,yes}` 에서만 **한 번** 켜지고 fixture store 경로에서는 절대 켜지지 않아 테스트는 여전히 hermetic. 기본 freshness 는 `METIS_HARNESS_L1_FRESHNESS_HOURS=2160` (90d × 24h), 기본 universe source 는 `brain_bundle`. **Worker fetcher 는 건드리지 않음** — `_fallback_transcript_fetcher` 가 `transcript_fetcher_not_configured` 를 반환해, 생성된 ingest_queue job 은 의도대로 DLQ 로 떨어진다 (alert packet 자체는 DB 에 남음). Direct registry / Brain bundle write = **0**. 증거: `data/mvp/evidence/agentic_operating_harness_v1_milestone_10_layer1_stale_wiring_evidence.json`.
+- **C — L5 state_reader scope + system prompt 보강**. `state_reader_agent._collect` 이 routed_kind 별로 `allow_asset_neutral` 을 받도록 바뀌었다. `why_changed` 는 per-asset evidence (`IngestAlert / SourceArtifact`) 는 asset-scoped 만, 레지스트리·유니버스급 신호 (`OverlayProposal / RegistryUpdateProposal / ReplayLearning`) 는 asset-neutral 도 포함. `research_pending` 은 `ResearchCandidate / Evaluation / PromotionGate` 전부 asset-neutral 포함 — 그 결과 사용자가 특정 티커를 지정해도 universe-scoped persona 후보가 "pending research" 응답에 비지 않음. `_SYSTEM_PROMPT` 에는 Spec §4.3·§11 준수 3문장을 추가: "NEVER claim that the Today registry has changed its active model family/band/horizon surface", "describe them as *signals to watch* or *proposals*, never as accomplished facts", "Today active state is only updated by the promotion gate + registry patch, which is outside this response scope." 증거: `data/mvp/evidence/agentic_operating_harness_v1_milestone_11_state_reader_scope_evidence.json`.
+- **Live smoke (실제 Supabase + 실제 OpenAI)**. `METIS_HARNESS_L1_WIRE_PRODUCTION=1` 로 `propose_layer1_cadence` 를 실행 → Brain bundle universe 3종 (`DEMO_KR_A/B/C`) 전부 stale 판정 → 3 `IngestAlertPacketV1` + 3 ingest_queue job 이 `agentic_harness_packets_v1` / `agentic_harness_queue_jobs_v1` 에 실제로 기록됨 (응답: `{"stale_asset_count":3,"triggered":3,"enqueued":3}`). 직후 `harness-ask --asset DEMO_KR_A --provider openai` → OpenAI `HTTP/1.1 200 OK`, `guardrail_passed=true`, `llm_fallback=false`, `cited_packet_ids=["pkt_47500e6f160f582b2d996f"]` 이 **방금 L1 이 기록한 DEMO_KR_A 용 alert packet_id 와 정확히 일치** (환각/오염 0), `fact_vs_interpretation_map={"pkt_47500e6f160f582b2d996f":"fact"}`, 응답 텍스트는 "Today active state 변경" 단정 없이 "transcript 신호 / freshness stale" 언어로 서술.
+
+**환경 변수 (새로 추가된 스위치)**
+
+| 변수 | 의미 | 기본값 | 비고 |
+| --- | --- | --- | --- |
+| `METIS_HARNESS_L1_WIRE_PRODUCTION` | L1 production wiring ON | (없음 = OFF) | `1 / true / yes` 만 활성. Fixture store 는 언제나 무시. |
+| `METIS_HARNESS_L1_FRESHNESS_HOURS` | stale 판정 기준 시간 | `2160` (90d) | 72h 은 earnings-calendar anchor 가 생긴 뒤 검토. |
+| `METIS_HARNESS_L1_UNIVERSE_SOURCE` | universe source | `brain_bundle` | 현재는 `brain_bundle` 만 허용. |
+| `METIS_BRAIN_BUNDLE` | Brain bundle JSON 경로 | `data/mvp/metis_brain_bundle_v0.json` | 기존 `metis_brain.bundle` 와 동일한 override. |
+
+**회귀 확인 (B+C)**
+
+- `PYTHONPATH=src python3 -m pytest src/tests/test_agentic_*.py -q` → **102 passed** (이전 93 + 신규 adapter 6 + L5 scope/prompt 3). 이전부터 green 이었던 93 건은 전부 그대로 green.
+- Fixture 경로 (`--use-fixture`) 는 adapter bootstrap 이 강제로 skip 되어 hermetic — 네트워크 0.
+
+**다음 이월 (next patch 후보)**
+
+1. **Live FMP transcript fetcher 배선** — `set_transcript_fetcher` 에 conservative retry / rate-limit 을 붙여 DLQ 대신 실제 `SourceArtifactPacketV1` 까지 닫기.
+2. **Event-anchored 72h freshness** — 어닝스 콜 캘린더 앵커가 붙은 뒤 freshness 가 "90d 기본 + 이벤트 날 ±72h 수축" 하이브리드로 진화.
+3. **Brain bundle 확장** — 현재 universe 가 `DEMO_KR_{A,B,C}` 3건이라 L1 의 실질 커버리지가 데모 범위. default brain 이 real-derived 구간을 실제 티커로 덮게 되면 live smoke 는 자동으로 의미 있는 stale 후보 수로 확장된다.
+
 ## 2026-04-17 — Agentic Operating Harness v1 (plan `agentic-operating-harness-v1`)
 
 **단일 목표 (추가)**: 작업지시서 `METIS_Agentic_Operating_Harness_v1.md` 를 받아, 사람이 CLI 를 **수동으로 찍어야 움직이던** Metis 를 — registry truth 규율을 하나도 깨지 않은 채로 — **packet/queue/scheduler 기반의 에이전트 운영체제** 로 올린다. 목표 지점은 "Stage 2.5: 제품 표면에 드러나는 부분 자율성". 다섯 레이어 (Proactive Data Collection / Library Integrity / Research Automation / Model Governance / User-Surface Orchestrator) 전체를 **정지 없이** 한 번의 tick 으로 L1→L3→L4→L5 항로로 관통시키는 수직 슬라이스까지 닫는 것이 합격선.

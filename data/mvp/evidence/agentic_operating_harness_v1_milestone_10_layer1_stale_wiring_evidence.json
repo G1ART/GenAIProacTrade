@@ -1,0 +1,65 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_10_layer1_stale_wiring",
+  "milestone": "AGH v1 patch B \u2014 Layer 1 production wiring (stale detection only)",
+  "scope": "Layer 1's StaleAssetProvider now reads the actual Brain bundle universe (Spec \u00a73.3 / \u00a710.1) and the real transcript ingest history (raw_transcript_payloads_fmp + transcript_ingest_runs). Worker-side FMP fetch stays on the fallback; live fetch is deferred to the next patch per user directive (q_universe_freshness = D).",
+  "files_added": [
+    "src/agentic_harness/adapters/__init__.py",
+    "src/agentic_harness/adapters/layer1_brain_adapter.py",
+    "src/tests/test_agentic_layer1_brain_adapter_v1.py"
+  ],
+  "files_modified": [
+    "src/agentic_harness/runtime.py"
+  ],
+  "wiring": {
+    "env_flag": "METIS_HARNESS_L1_WIRE_PRODUCTION \u2208 {1, true, yes}",
+    "default_universe_source": "brain_bundle",
+    "default_freshness_hours": 2160,
+    "freshness_env_override": "METIS_HARNESS_L1_FRESHNESS_HOURS (default 90*24 = 2160)",
+    "universe_source_env_override": "METIS_HARNESS_L1_UNIVERSE_SOURCE (only 'brain_bundle' accepted)",
+    "worker_fetcher": "unchanged - _fallback_transcript_fetcher returns transcript_fetcher_not_configured so live FMP stays OFF.",
+    "idempotent_bootstrap": "_maybe_bootstrap_layer1_production runs at most once per process."
+  },
+  "safety_invariants": {
+    "direct_registry_write_count": 0,
+    "brain_bundle_mutation_count": 0,
+    "read_only_supabase_surface": [
+      "raw_transcript_payloads_fmp (primary: symbol, fetched_at)",
+      "transcript_ingest_runs (fallback: detail_json->>symbol, status='success')"
+    ],
+    "fixture_safety": "Adapter wiring is skipped for FixtureHarnessStore callers so tests / --use-fixture runs remain hermetic."
+  },
+  "live_smoke": {
+    "command_tick": "METIS_HARNESS_L1_WIRE_PRODUCTION=1 PYTHONPATH=src python3 -c '<inline: load_settings + _maybe_bootstrap_layer1_production + propose_layer1_cadence>'",
+    "result_tick": {"stale_asset_count": 3, "triggered": 3, "enqueued": 3},
+    "ingest_alert_packets_written_to_supabase": [
+      {"packet_id": "pkt_47500e6f160f582b2d996f", "target_scope": {"asset_id": "DEMO_KR_A", "source_family": "earnings_transcript"}},
+      {"packet_id": "pkt_8cf07a2b448e93bae00521", "target_scope": {"asset_id": "DEMO_KR_B", "source_family": "earnings_transcript"}},
+      {"packet_id": "pkt_1384ef47721ca70106be4d", "target_scope": {"asset_id": "DEMO_KR_C", "source_family": "earnings_transcript"}}
+    ],
+    "command_ask": "PYTHONPATH=src python3 src/main.py harness-ask --asset DEMO_KR_A --question '\uc65c \uc624\ub298 DEMO_KR_A \uac00 \uc6c0\uc9c1\uc600\uc9c0?' --provider openai",
+    "openai_response": {
+      "guardrail_passed": true,
+      "llm_fallback": false,
+      "cited_packet_ids": ["pkt_47500e6f160f582b2d996f"],
+      "fact_vs_interpretation_map": {"pkt_47500e6f160f582b2d996f": "fact"},
+      "provider_name": "openai"
+    },
+    "cited_id_contamination": "none - the single cited id matches the DEMO_KR_A IngestAlertPacketV1 written seconds earlier by the production-wired Layer 1."
+  },
+  "tests": {
+    "new_tests": [
+      "test_agentic_layer1_brain_adapter_v1.py::test_universe_from_brain_bundle_returns_sorted_unique",
+      "test_agentic_layer1_brain_adapter_v1.py::test_universe_from_missing_brain_bundle_is_empty",
+      "test_agentic_layer1_brain_adapter_v1.py::test_build_stale_asset_provider_default_90d",
+      "test_agentic_layer1_brain_adapter_v1.py::test_build_stale_asset_provider_env_override_freshness",
+      "test_agentic_layer1_brain_adapter_v1.py::test_adapter_is_read_only_client",
+      "test_agentic_layer1_brain_adapter_v1.py::test_unknown_universe_source_raises"
+    ],
+    "agentic_suite_total": "102 passed (was 93 before this patch)"
+  },
+  "deferred_to_next_patch": [
+    "Live FMP transcript fetcher wiring via set_transcript_fetcher (conservative retry / cadence).",
+    "Event-anchored 72h freshness once an earnings-calendar anchor is available; until then the 90d default is used.",
+    "Watchlist-based universe source beyond Brain bundle."
+  ]
+}

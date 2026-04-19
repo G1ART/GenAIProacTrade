@@ -13,10 +13,16 @@ from agentic_harness.agents.layer1_ingest import (
     event_trigger_agent,
 )
 from agentic_harness.agents.layer5_orchestrator import (
+    _SYSTEM_PROMPT,
     action_router_agent,
     founder_user_orchestrator_agent,
     run_layer5_ask,
     state_reader_agent,
+)
+from agentic_harness.contracts.packets_v1 import (
+    OverlayProposalPacketV1,
+    ResearchCandidatePacketV1,
+    deterministic_packet_id,
 )
 from agentic_harness.llm.contract import LLMResponseContractV1
 from agentic_harness.llm.provider import FixtureProvider
@@ -157,6 +163,113 @@ def test_run_layer5_ask_with_fixture_default_is_network_free(monkeypatch):
         question="왜 움직였지?",
     )
     assert out["provider_name"] == "fixture"
+
+
+def _insert_asset_neutral_overlay(store: FixtureHarnessStore) -> str:
+    pid = deterministic_packet_id(
+        packet_type="OverlayProposalPacketV1",
+        created_by_agent="research_engine_agent",
+        target_scope={"source_family": "earnings_transcript"},
+        salt="neutral-overlay-1",
+    )
+    pkt = OverlayProposalPacketV1.model_validate(
+        {
+            "packet_id": pid,
+            "packet_type": "OverlayProposalPacketV1",
+            "target_layer": "layer3_research",
+            "created_by_agent": "research_engine_agent",
+            "target_scope": {"source_family": "earnings_transcript"},
+            "provenance_refs": ["seed://overlay_neutral"],
+            "confidence": 0.55,
+            "payload": {
+                "overlay_type": "regime_shift",
+                "expected_direction_hint": "regime_changes",
+                "why_it_matters": "universe-wide tone shift observed across calls",
+            },
+        }
+    )
+    store.upsert_packet(pkt.model_dump())
+    return pid
+
+
+def _insert_asset_neutral_research_candidate(store: FixtureHarnessStore) -> str:
+    persona = {
+        "candidate_id": "pcand_universe_v1",
+        "persona": "quant_residual_analyst",
+        "thesis_family": "residual_tightening_shortlist",
+        "targeted_horizon": "short",
+        "targeted_universe": "combined_largecap_research_v1",
+        "evidence_refs": [{"kind": "seed", "pointer": "seed://x", "summary": "ok"}],
+        "confidence": 0.62,
+        "signal_type": "residual_tightening",
+        "intended_overlay_type": "confidence_adjustment",
+        "blocking_reasons": ["requires_pit_rule_certification"],
+    }
+    pid = deterministic_packet_id(
+        packet_type="ResearchCandidatePacketV1",
+        created_by_agent="research_engine_agent",
+        target_scope={"universe": "combined_largecap_research_v1"},
+        salt="neutral-research-1",
+    )
+    pkt = ResearchCandidatePacketV1.model_validate(
+        {
+            "packet_id": pid,
+            "packet_type": "ResearchCandidatePacketV1",
+            "target_layer": "layer3_research",
+            "created_by_agent": "research_engine_agent",
+            "target_scope": {"universe": "combined_largecap_research_v1"},
+            "provenance_refs": ["seed://persona_universe"],
+            "confidence": 0.6,
+            "payload": {
+                "persona_candidate_packet": persona,
+                "signal_type": "residual_tightening",
+                "intended_overlay_type": "confidence_adjustment",
+            },
+        }
+    )
+    store.upsert_packet(pkt.model_dump())
+    return pid
+
+
+def test_state_reader_research_pending_includes_asset_neutral_candidates():
+    store, _ = _store_with_one_asset_packet()
+    neutral_id = _insert_asset_neutral_research_candidate(store)
+    bundle = state_reader_agent(
+        store=store, asset_id="TRGP", routed_kind="research_pending"
+    )
+    ids = {str(p.get("packet_id")) for p in bundle["relevant_packets"]}
+    assert neutral_id in ids, (
+        "asset-neutral ResearchCandidatePacketV1 must surface under research_pending "
+        "even when the user pins a specific asset"
+    )
+
+
+def test_state_reader_why_changed_includes_neutral_overlay_but_not_neutral_research():
+    store, alert_id = _store_with_one_asset_packet()
+    overlay_neutral_id = _insert_asset_neutral_overlay(store)
+    research_neutral_id = _insert_asset_neutral_research_candidate(store)
+    bundle = state_reader_agent(
+        store=store, asset_id="TRGP", routed_kind="why_changed"
+    )
+    ids = {str(p.get("packet_id")) for p in bundle["relevant_packets"]}
+    assert alert_id in ids, "asset-scoped IngestAlert must be in why_changed bundle"
+    assert overlay_neutral_id in ids, (
+        "asset-neutral OverlayProposal must be included in why_changed bundle as a signal"
+    )
+    assert research_neutral_id not in ids, (
+        "ResearchCandidate is not a why_changed packet type; must NOT leak into that bundle"
+    )
+
+
+def test_system_prompt_forbids_today_active_state_claims():
+    for phrase in (
+        "NEVER claim that the Today registry has changed",
+        "signals to watch",
+        "promotion gate",
+    ):
+        assert phrase in _SYSTEM_PROMPT, (
+            f"system prompt missing surface-guard phrase: {phrase!r}"
+        )
 
 
 def test_contract_rejects_fact_map_with_unknown_key():

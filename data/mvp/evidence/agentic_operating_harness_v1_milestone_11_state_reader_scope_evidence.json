@@ -1,0 +1,45 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_11_state_reader_scope",
+  "milestone": "AGH v1 patch C \u2014 L5 state_reader scope extension + system prompt surface-guard",
+  "scope": "Layer 5 state_reader_agent now explicitly allows asset-neutral packets per routed_kind, so research_pending / why_changed bundles never read empty just because the user pinned an asset and the candidate was universe-scoped. _SYSTEM_PROMPT also forbids the LLM from claiming that the Today registry active state has changed (Spec \u00a74.3 / \u00a711).",
+  "files_modified": [
+    "src/agentic_harness/agents/layer5_orchestrator.py",
+    "src/tests/test_agentic_layer5_orchestrator_v1.py"
+  ],
+  "scope_rules": {
+    "why_changed": {
+      "asset_scoped_only": ["IngestAlertPacketV1", "SourceArtifactPacketV1"],
+      "asset_scoped_or_neutral": ["OverlayProposalPacketV1", "RegistryUpdateProposalV1", "ReplayLearningPacketV1"]
+    },
+    "research_pending": {
+      "asset_scoped_or_neutral": ["ResearchCandidatePacketV1", "EvaluationPacketV1", "PromotionGatePacketV1"]
+    },
+    "system_status": "unchanged \u2014 asset-neutral census only."
+  },
+  "system_prompt_guards_added": [
+    "You must NEVER claim that the Today registry has changed its active model family, active band, or active horizon surface.",
+    "You may only describe new ingest alerts, pending research candidates, or overlay proposals as *signals to watch* or *proposals*, never as accomplished facts about the Today surface.",
+    "The Today active state is only updated by the promotion gate + registry patch, which is outside this response scope."
+  ],
+  "tests": {
+    "new_tests": [
+      "test_agentic_layer5_orchestrator_v1.py::test_state_reader_research_pending_includes_asset_neutral_candidates",
+      "test_agentic_layer5_orchestrator_v1.py::test_state_reader_why_changed_includes_neutral_overlay_but_not_neutral_research",
+      "test_agentic_layer5_orchestrator_v1.py::test_system_prompt_forbids_today_active_state_claims"
+    ],
+    "regression": "102 passed across src/tests/test_agentic_*.py \u2014 no pre-existing AGH v1 test regressed."
+  },
+  "live_observation": {
+    "harness_ask_live_openai_against_DEMO_KR_A": {
+      "answer_ko_snippet": "\uc624\ub298 DEMO_KR_A \uac00 \uc6c0\uc9c1\uc778 \uc774\uc720\ub294 \ucd5c\uadfc\uc5d0 \uc218\uc775 \ubc1c\ud45c(transcript)\uc640 \uad00\ub828\ub41c \uc2e0\ud638\uac00 \uac10\uc9c0\ub418\uc5c8\uae30 \ub54c\ubb38\uc785\ub2c8\ub2e4.",
+      "surface_guard_compliance": true,
+      "no_today_active_state_claim": true,
+      "framing": "signals_to_watch (ingest alert + freshness stale)"
+    }
+  },
+  "doctrinal_alignment": {
+    "spec_4_3": "Proposal / signal-to-watch language only \u2014 no buy/sell or deterministic state-change claims.",
+    "spec_11": "Today surface mutation path (promotion gate + registry patch) remains outside L5 \u2014 enforced in prompt.",
+    "build_plan_12": "Direct registry write from L5 = 0. State reader only reads store; guardrails stay on guardrail path."
+  }
+}
