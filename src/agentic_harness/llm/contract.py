@@ -88,3 +88,48 @@ RESPONSE_JSON_SCHEMA: dict[str, Any] = {
         "blocking_reasons": {"type": "array", "items": {"type": "string"}},
     },
 }
+
+
+# OpenAI ``response_format.json_schema`` with ``strict: true`` accepts only a
+# limited JSON Schema subset: every property must be in ``required``,
+# ``additionalProperties`` must be ``false`` on every object, keywords like
+# ``maxLength`` / ``minItems`` are not supported, and open-keyed maps (i.e.
+# ``additionalProperties: <schema>``) are not allowed.  We therefore expose a
+# strict-safe variant that represents ``fact_vs_interpretation_map`` as an
+# array of ``{packet_id, label}`` objects.  ``OpenAIProvider`` unfolds the
+# array back into a dict before returning, so the internal Pydantic contract
+# is unchanged.
+OPENAI_STRICT_RESPONSE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "answer_ko",
+        "answer_en",
+        "cited_packet_ids",
+        "fact_vs_interpretation",
+        "recheck_rule",
+        "blocking_reasons",
+    ],
+    "properties": {
+        "answer_ko": {"type": "string"},
+        "answer_en": {"type": "string"},
+        "cited_packet_ids": {
+            "type": "array",
+            "items": {"type": "string"},
+        },
+        "fact_vs_interpretation": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["packet_id", "label"],
+                "properties": {
+                    "packet_id": {"type": "string"},
+                    "label": {"type": "string", "enum": ["fact", "interpretation"]},
+                },
+            },
+        },
+        "recheck_rule": {"type": "string"},
+        "blocking_reasons": {"type": "array", "items": {"type": "string"}},
+    },
+}

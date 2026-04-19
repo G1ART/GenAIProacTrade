@@ -20,7 +20,10 @@ import os
 from dataclasses import dataclass
 from typing import Any, Optional, Protocol
 
-from agentic_harness.llm.contract import RESPONSE_JSON_SCHEMA
+from agentic_harness.llm.contract import (
+    OPENAI_STRICT_RESPONSE_SCHEMA,
+    RESPONSE_JSON_SCHEMA,
+)
 
 
 class LLMProviderError(RuntimeError):
@@ -117,7 +120,7 @@ class OpenAIProvider:
                 "type": "json_schema",
                 "json_schema": {
                     "name": "LLMResponseContractV1",
-                    "schema": RESPONSE_JSON_SCHEMA,
+                    "schema": OPENAI_STRICT_RESPONSE_SCHEMA,
                     "strict": True,
                 },
             },
@@ -125,9 +128,29 @@ class OpenAIProvider:
         )
         try:
             content = resp.choices[0].message.content or "{}"
-            return dict(json.loads(content))
+            raw = dict(json.loads(content))
         except Exception as e:
             raise LLMProviderError(f"invalid OpenAI response: {e}") from e
+        # OpenAI strict mode returns ``fact_vs_interpretation`` as an array of
+        # ``{packet_id, label}`` objects; fold it back to the dict shape that
+        # ``LLMResponseContractV1`` expects.  Unknown labels are dropped so the
+        # Pydantic validator can enforce its own Literal type.
+        fact_map: dict[str, str] = {}
+        for item in raw.get("fact_vs_interpretation") or []:
+            if not isinstance(item, dict):
+                continue
+            pid = str(item.get("packet_id") or "").strip()
+            lbl = str(item.get("label") or "").strip()
+            if pid and lbl in ("fact", "interpretation"):
+                fact_map[pid] = lbl
+        return {
+            "answer_ko": str(raw.get("answer_ko") or ""),
+            "answer_en": str(raw.get("answer_en") or ""),
+            "cited_packet_ids": list(raw.get("cited_packet_ids") or []),
+            "fact_vs_interpretation_map": fact_map,
+            "recheck_rule": str(raw.get("recheck_rule") or ""),
+            "blocking_reasons": list(raw.get("blocking_reasons") or []),
+        }
 
 
 class AnthropicProvider:
