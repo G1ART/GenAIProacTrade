@@ -236,6 +236,7 @@ def test_agentic_harness_e2e_vertical_slice():
     uq_id = _run_l5(
         store, alert_id=alert_id, gate_id=gate_id, proposal_id=proposal_id
     )
+    _ = proposal_id  # silence ruff about possible unused-local on older builds
 
     # --- Survey Q1–Q10: smoke grid on the assembled harness state ------
     counts_by_layer = store.count_packets_by_layer()
@@ -250,12 +251,15 @@ def test_agentic_harness_e2e_vertical_slice():
     # Q4  Layer 5 produced exactly one user-query action packet.
     assert counts_by_layer.get("layer5_surface", 0) == 1
     # Q5  No directly-live registry writes were attempted (proposal doctrine):
-    #     every layer-4 packet is a proposal or gate, nothing else.
+    #     every layer-4 packet is a proposal, gate, evaluation, decision, or
+    #     applied-audit record, nothing else.
     for r in store.list_packets(target_layer="layer4_governance", limit=100):
         assert r["packet_type"] in {
             "PromotionGatePacketV1",
             "RegistryUpdateProposalV1",
             "EvaluationPacketV1",
+            "RegistryDecisionPacketV1",
+            "RegistryPatchAppliedPacketV1",
         }
     # Q6  Ingest/research/surface-action queues each moved through lifecycle
     #     without leaving zombie rows: each is either empty or flagged done.
@@ -287,3 +291,151 @@ def test_agentic_harness_e2e_vertical_slice():
         "template_fallback",
         "insufficient_evidence",
     }
+
+
+# ---------------------------------------------------------------------------
+# AGH v1 Patch 2 - promotion-bridge closure vertical slice.
+# L4 proposal -> harness-decide (approve) -> harness-tick -> apply -> L5
+# distinguishes the applied state.
+# ---------------------------------------------------------------------------
+
+
+def test_agentic_harness_e2e_patch2_promotion_bridge(tmp_path, monkeypatch):
+    import json
+
+    from agentic_harness import runtime
+    from agentic_harness.contracts.packets_v1 import RegistryUpdateProposalV1
+    from agentic_harness.contracts.packets_v1 import deterministic_packet_id
+
+    # 1) Prepare a tmp brain bundle with a known horizon_provenance entry.
+    bundle_path = tmp_path / "bundle.json"
+    bundle_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "as_of_utc": "2026-04-18T00:00:00+00:00",
+                "price_layer_note": "",
+                "artifacts": [],
+                "promotion_gates": [],
+                "registry_entries": [],
+                "spectrum_rows_by_horizon": {},
+                "horizon_provenance": {"short": {"source": "template_fallback"}},
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("METIS_BRAIN_BUNDLE", str(bundle_path))
+    monkeypatch.setenv("METIS_REPO_ROOT", str(tmp_path))
+
+    # Ensure a clean fixture store for this vertical slice.
+    monkeypatch.setattr(runtime, "_FIXTURE_STORE", None, raising=False)
+    store = runtime._get_fixture_store()
+
+    # 2) Seed an escalated proposal directly (L4 output; the other L1-L3 flow
+    # is covered in the previous test). This keeps this test focused on the
+    # decide -> tick -> apply bridge.
+    proposal_id = deterministic_packet_id(
+        packet_type="RegistryUpdateProposalV1",
+        created_by_agent="promotion_arbiter_agent",
+        target_scope={
+            "horizon": "short",
+            "from_state": "template_fallback",
+            "to_state": "real_derived",
+        },
+    )
+    proposal = RegistryUpdateProposalV1.model_validate(
+        {
+            "packet_id": proposal_id,
+            "packet_type": "RegistryUpdateProposalV1",
+            "target_layer": "layer4_governance",
+            "created_by_agent": "promotion_arbiter_agent",
+            "target_scope": {
+                "horizon": "short",
+                "from_state": "template_fallback",
+                "to_state": "real_derived",
+            },
+            "provenance_refs": ["governance://short", "packet:pkt_gate_demo"],
+            "confidence": 0.8,
+            "status": "escalated",
+            "payload": {
+                "target": "horizon_provenance",
+                "from_state": "template_fallback",
+                "to_state": "real_derived",
+                "horizon": "short",
+                "evidence_refs": ["validation://horizon:short:v1"],
+            },
+        }
+    )
+    store.upsert_packet(proposal.model_dump())
+
+    # 3) Operator approves via runtime.perform_decision (same path as the
+    # harness-decide CLI).
+    decision_res = runtime.perform_decision(
+        proposal_id=proposal_id,
+        action="approve",
+        actor="ops@example.com",
+        reason="e2e-approved",
+        use_fixture=True,
+    )
+    assert decision_res["ok"] is True
+    assert store.queue_depth()["registry_apply_queue"] == 1
+    # Proposal is still escalated, bundle is still template_fallback.
+    assert store.get_packet(proposal_id)["status"] == "escalated"
+    assert (
+        json.loads(bundle_path.read_text(encoding="utf-8"))["horizon_provenance"][
+            "short"
+        ]["source"]
+        == "template_fallback"
+    )
+
+    # 4) Run a harness-tick to drain the apply queue.
+    tick_summary = runtime.perform_tick(use_fixture=True, max_jobs=5)
+    assert "queue_runs" in tick_summary
+    apply_run = tick_summary["queue_runs"].get("registry_apply_queue") or {}
+    assert apply_run.get("done", 0) >= 1
+
+    # 5) Bundle is now real_derived, proposal is applied, applied packet exists.
+    final_bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+    assert final_bundle["horizon_provenance"]["short"]["source"] == "real_derived"
+    assert (
+        final_bundle["horizon_provenance"]["short"][
+            "last_governed_proposal_packet_id"
+        ]
+        == proposal_id
+    )
+    assert store.get_packet(proposal_id)["status"] == "applied"
+
+    applied_rows = store.list_packets(packet_type="RegistryPatchAppliedPacketV1")
+    assert len(applied_rows) == 1
+    assert applied_rows[0]["payload"]["outcome"] == "applied"
+    assert (
+        applied_rows[0]["payload"]["before_snapshot"]["horizon_provenance"]["short"][
+            "source"
+        ]
+        == "template_fallback"
+    )
+    assert (
+        applied_rows[0]["payload"]["after_snapshot"]["horizon_provenance"]["short"][
+            "source"
+        ]
+        == "real_derived"
+    )
+
+    # 6) L5 state bundle for why_changed must include the applied packet, and
+    # must NOT include the applied proposal as a "pending" row.
+    from agentic_harness.agents.layer5_orchestrator import state_reader_agent
+
+    l5_bundle = state_reader_agent(
+        store=store, asset_id="", routed_kind="why_changed"
+    )
+    packet_types = [p.get("packet_type") for p in l5_bundle["relevant_packets"]]
+    assert "RegistryPatchAppliedPacketV1" in packet_types
+    proposal_ids = {
+        p.get("packet_id")
+        for p in l5_bundle["relevant_packets"]
+        if p.get("packet_type") == "RegistryUpdateProposalV1"
+    }
+    assert proposal_id not in proposal_ids
+
+    # Reset process-level fixture for downstream tests.
+    monkeypatch.setattr(runtime, "_FIXTURE_STORE", None, raising=False)

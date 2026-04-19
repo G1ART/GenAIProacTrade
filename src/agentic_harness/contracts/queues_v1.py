@@ -21,6 +21,10 @@ QUEUE_CLASSES = (
     "governance_queue",
     "surface_action_queue",
     "replay_recompute_queue",
+    # AGH v1 Patch 2: operator-approved RegistryUpdateProposalV1 jobs land here
+    # and are consumed by the ``registry_patch_executor`` worker which performs
+    # the atomic brain-bundle write.
+    "registry_apply_queue",
 )
 
 QueueClass = Literal[
@@ -30,6 +34,7 @@ QueueClass = Literal[
     "governance_queue",
     "surface_action_queue",
     "replay_recompute_queue",
+    "registry_apply_queue",
 ]
 
 JOB_STATUS_VALUES = ("enqueued", "running", "done", "dlq", "expired")

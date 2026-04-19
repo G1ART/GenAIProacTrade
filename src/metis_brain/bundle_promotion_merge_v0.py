@@ -94,3 +94,23 @@ def load_bundle_json(path: Path) -> dict[str, Any]:
 def write_bundle_json(path: Path, bundle_dict: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(bundle_dict, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def write_bundle_json_atomic(path: Path, bundle_dict: dict[str, Any]) -> None:
+    """Atomic variant of :func:`write_bundle_json`.
+
+    Writes to a sibling ``.tmp`` path first, then ``os.replace``-s it onto the
+    final path. This protects Today readers from observing a half-written
+    bundle if the process is killed mid-write. Used by the AGH v1 Patch 2
+    ``registry_patch_executor`` worker so a governed operator-approved
+    horizon_provenance write is durable and all-or-nothing.
+    """
+
+    import os
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(
+        json.dumps(bundle_dict, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    os.replace(tmp, path)

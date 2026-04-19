@@ -1,0 +1,181 @@
+{
+  "bundle_name": "agentic_operating_harness_v1_milestone_13_promotion_bridge",
+  "milestone": "AGH v1 Patch 2 — promotion-bridge closure (operator-gated registry patch)",
+  "scope": "Close the RegistryUpdateProposalV1 -> Today active state gap by adding an operator-gated, deterministic, auditable apply path. Layer 4 proposals reach the user as *pending operator-approved patches*; a new `harness-decide` CLI records a RegistryDecisionPacketV1 (approve|reject|defer); on `approve`, a registry_apply_queue job is enqueued and the next `harness-tick` runs `registry_patch_executor`, which atomically writes `horizon_provenance[horizon].source` on the brain bundle JSON and emits a RegistryPatchAppliedPacketV1 with before/after snapshots. No other registry surfaces are mutated in this patch (active_artifact / challenger / spectrum_rows_by_horizon are explicitly out of scope per q_apply_target=A).",
+  "decision_pipeline": "2-stage (q_decide_pipeline=Y): (1) harness-decide CLI -> record decision packet + (if approve) enqueue apply job; (2) harness-tick -> registry_patch_executor -> atomic bundle write + applied packet. Keeps human approval explicit while making the apply deterministic and in-product.",
+  "files_created": [
+    "src/agentic_harness/agents/layer4_registry_patch_executor.py",
+    "src/tests/test_agentic_registry_decision_packet_v1.py",
+    "src/tests/test_agentic_registry_patch_executor_v1.py",
+    "src/tests/test_agentic_harness_decide_cli_v1.py",
+    "src/tests/test_agentic_layer5_applied_distinction_v1.py",
+    "scripts/agh_v1_patch_2_promotion_bridge_runbook.py",
+    "supabase/migrations/20260418100000_agh_v1_patch_2_promotion_bridge.sql",
+    "data/mvp/evidence/agentic_operating_harness_v1_milestone_13_promotion_bridge_runbook_evidence.json"
+  ],
+  "files_modified": [
+    "src/agentic_harness/contracts/packets_v1.py",
+    "src/agentic_harness/contracts/queues_v1.py",
+    "src/agentic_harness/agents/layer4_governance.py",
+    "src/agentic_harness/agents/layer5_orchestrator.py",
+    "src/agentic_harness/runtime.py",
+    "src/main.py",
+    "src/metis_brain/bundle_promotion_merge_v0.py",
+    "src/tests/test_agentic_packets_v1.py",
+    "src/tests/test_agentic_packet_store_v1.py",
+    "src/tests/test_agentic_harness_e2e_v1.py"
+  ],
+  "new_contracts": {
+    "RegistryDecisionPacketV1": {
+      "purpose": "Audit record for a single operator decision on a RegistryUpdateProposalV1. First-decision-wins (store enforces no duplicate decision per proposal_id).",
+      "payload_keys": [
+        "action (approve|reject|defer)",
+        "actor",
+        "reason (forbidden-copy guardrail enforced)",
+        "decision_at_utc",
+        "cited_proposal_packet_id",
+        "cited_gate_packet_id? (optional)",
+        "next_revisit_hint_utc? (for defer)"
+      ],
+      "invariants": [
+        "action ∈ {approve, reject, defer}",
+        "cited_proposal_packet_id non-empty",
+        "no raw active_registry_mutation field permitted (explicit Pydantic reject)"
+      ]
+    },
+    "RegistryPatchAppliedPacketV1": {
+      "purpose": "Immutable audit of the governed horizon_provenance write. before/after snapshots carry enough detail for replay lineage to reconstruct the transition.",
+      "payload_keys": [
+        "outcome (applied|conflict_skip)",
+        "target (horizon_provenance)",
+        "horizon",
+        "from_state",
+        "to_state",
+        "cited_proposal_packet_id",
+        "cited_decision_packet_id",
+        "applied_at_utc",
+        "bundle_path",
+        "before_snapshot",
+        "after_snapshot"
+      ],
+      "invariants": [
+        "outcome ∈ {applied, conflict_skip}",
+        "from_state / to_state ∈ HORIZON_STATE_VALUES",
+        "conflict_skip may carry empty after_snapshot",
+        "no raw active_registry_mutation field permitted"
+      ]
+    }
+  },
+  "queue_additions": {
+    "registry_apply_queue": {
+      "worker": "registry_patch_executor (src/agentic_harness/agents/layer4_registry_patch_executor.py)",
+      "job_row_shape": "QueueJobV1 with packet_id == RegistryUpdateProposalV1.packet_id (no separate payload needed; worker reads state from packets + brain bundle).",
+      "semantics": "Consumes jobs only for proposals whose status is 'escalated' AND have a matching approve RegistryDecisionPacketV1. Idempotent skip on any other status; fail-fast (retryable=False) on contract breaks (missing decision, wrong packet_type, unsupported target, bundle missing, bundle_integrity_failed, IO failure)."
+    }
+  },
+  "packet_status_additions": [
+    "applied (terminal — proposal rolled forward into bundle)",
+    "rejected (terminal — operator rejected)",
+    "deferred (non-terminal — operator deferred OR conflict_skip)"
+  ],
+  "canonical_write_path": {
+    "target": "data/mvp/metis_brain_bundle_v0.json (brain_bundle_path(repo_root))",
+    "write_chain": [
+      "load_bundle_json",
+      "deepcopy + mutate horizon_provenance[horizon].source + last_governed_* refs",
+      "validate_merged_bundle_dict (integrity gate)",
+      "write_bundle_json_atomic (tempfile + os.replace)"
+    ],
+    "non_goals": [
+      "No SQL writes to any registry table (there is no active-registry Postgres table in MVP).",
+      "No mutation of registry_entries.active_artifact_id / challenger_artifact_id.",
+      "No recomputation of spectrum_rows_by_horizon.",
+      "No change to LLM-derived copy path; L5 only gains vocabulary."
+    ]
+  },
+  "layer5_distinction": {
+    "pending_vs_applied": "state_reader_agent's 'why_changed' kind now collects RegistryDecisionPacketV1 and RegistryPatchAppliedPacketV1 in addition to the filtered RegistryUpdateProposalV1 rows (status ∈ {proposed, escalated, deferred}). Proposals that have rolled forward to 'applied' or 'rejected' are hidden from the pending view but the RegistryPatchAppliedPacketV1 surfaces the applied fact with a concrete from_state → to_state lineage.",
+    "prompt_guardrail_changes": "System prompt still forbids claiming the Today registry has changed its active state UNLESS the cited packet is a RegistryPatchAppliedPacketV1 with payload.outcome == 'applied'. Proposals must be described as *signals to watch* / *proposals* / *pending operator-approved patches* — never as accomplished facts."
+  },
+  "cli_additions": {
+    "harness-decide": {
+      "location": "src/main.py (and runtime.perform_decision)",
+      "args": [
+        "--proposal-id (required)",
+        "--action approve|reject|defer (required)",
+        "--actor (required)",
+        "--reason (required, forbidden-copy token scan enforced)",
+        "--next-revisit-hint-utc (optional, defer only)",
+        "--use-fixture (dev/test hermetic path)"
+      ],
+      "exit_code_contract": "0 on {ok:true}; 1 on {ok:false}. JSON always printed on stdout for operator auditability."
+    }
+  },
+  "supabase_migration": {
+    "file": "supabase/migrations/20260418100000_agh_v1_patch_2_promotion_bridge.sql",
+    "effect": [
+      "Extends packet_type CHECK to include RegistryDecisionPacketV1 + RegistryPatchAppliedPacketV1.",
+      "Extends status CHECK to include applied / rejected / deferred.",
+      "Extends queue_class CHECK to include registry_apply_queue.",
+      "Updates queue_jobs table comment to document the new seven-queue taxonomy."
+    ],
+    "non_goals_sql": [
+      "No new tables.",
+      "No RLS changes.",
+      "No column additions.",
+      "Canonical registry write still happens in the brain bundle JSON, not in SQL."
+    ]
+  },
+  "test_coverage": {
+    "new_tests": {
+      "test_agentic_registry_decision_packet_v1.py": "14 tests — packet schema, action / outcome vocab, non-empty cited ids, active_registry_mutation rejection, forbidden-copy reason rejection, before/after snapshot structural rules, conflict_skip empty after_snapshot.",
+      "test_agentic_registry_patch_executor_v1.py": "6 tests — approve happy path (bundle mutated, before/after captured), from_state mismatch -> conflict_skip (bundle unchanged, proposal deferred), idempotent skip for applied proposal, missing approve decision -> DLQ (retryable=False), missing horizon in bundle -> conflict_skip, missing bundle file -> DLQ without mutation.",
+      "test_agentic_harness_decide_cli_v1.py": "9 tests — approve enqueues apply job + keeps proposal escalated, reject/defer terminal states, duplicate decision blocked, terminal proposal status blocks further decisions, forbidden-copy reason blocked at packet validation, perform_decision error JSON shape, CLI subprocess smoke.",
+      "test_agentic_layer5_applied_distinction_v1.py": "4 tests — why_changed bundle collects decision + applied packets, hides applied proposals from pending view, keeps escalated proposals pending, system prompt vocabulary assertions."
+    },
+    "extended_tests": {
+      "test_agentic_packets_v1.py": "QUEUE_CLASSES extended to include registry_apply_queue.",
+      "test_agentic_packet_store_v1.py": "list_packets filters by new Patch 2 packet types; mark_job_result honors next_not_before_utc (from Patch 1).",
+      "test_agentic_harness_e2e_v1.py": "Adds test_agentic_harness_e2e_patch2_promotion_bridge covering L4 proposal -> harness-decide (approve) -> harness-tick -> bundle atomic write -> L5 why_changed distinction."
+    },
+    "full_suite_green": "193 agentic tests pass (src/tests/test_agentic_*.py). Non-agentic failure (phase39 hypothesis family) is pre-existing and unrelated to Patch 2 — confirmed by running the failing test on HEAD before applying this patch."
+  },
+  "runbook_evidence": {
+    "script": "scripts/agh_v1_patch_2_promotion_bridge_runbook.py",
+    "output": "data/mvp/evidence/agentic_operating_harness_v1_milestone_13_promotion_bridge_runbook_evidence.json",
+    "four_scenarios_captured": [
+      {
+        "scenario": "approve",
+        "observed": "horizon_provenance.short.source template_fallback -> real_derived (atomic), proposal.status -> applied, RegistryPatchAppliedPacketV1.outcome=applied with real before/after snapshots, last_governed_proposal_packet_id + last_governed_decision_packet_id stamped on bundle for replay lineage."
+      },
+      {
+        "scenario": "reject",
+        "observed": "bundle unchanged, proposal.status -> rejected, 0 apply jobs enqueued, 0 applied packets."
+      },
+      {
+        "scenario": "defer",
+        "observed": "bundle unchanged, proposal.status -> deferred, RegistryDecisionPacketV1 carries next_revisit_hint_utc=2026-04-20T00:00:00+00:00 and expiry_or_recheck_rule='next_revisit:2026-04-20T00:00:00+00:00'."
+      },
+      {
+        "scenario": "conflict_skip",
+        "observed": "bundle already at real_derived, proposal claimed from=template_fallback, applied packet outcome=conflict_skip with blocking_reasons=['from_state_mismatch:expected=template_fallback actual=real_derived'] and empty after_snapshot, proposal.status -> deferred. Bundle NOT silently overwritten."
+      }
+    ]
+  },
+  "safety_gates_honored": {
+    "no_direct_brain_bundle_writes": "Only registry_patch_executor writes the bundle, only via validate_merged_bundle_dict + write_bundle_json_atomic, only on outcome='applied'.",
+    "no_llm_derived_registry_writes": "record_registry_decision and registry_patch_executor are both deterministic and LLM-free. L5 orchestrator's LLM never triggers an apply.",
+    "no_silent_from_state_overwrite": "from_state != current bundle source short-circuits to conflict_skip; no mutate.",
+    "no_active_registry_mutation_field": "Both new packet classes reject raw 'active_registry_mutation' payload field, matching the existing RegistryUpdateProposalV1 invariant.",
+    "today_surface_honesty": "L5 state reader hides rolled-forward proposals from 'pending', surfaces applied packets with their concrete from_state -> to_state lineage; system prompt keeps the 'never claim Today changed unless RegistryPatchAppliedPacketV1.outcome==applied is cited' guard."
+  },
+  "deferred_scope_for_future_patches": {
+    "registry_entries_active_challenger_swap": "Not in this patch (q_apply_target=A). A future patch would extend RegistryUpdateProposalV1 payload + executor to swap artifact IDs, likely with a richer conflict detector (e.g. artifact fingerprint parity).",
+    "spectrum_rows_by_horizon_recompute": "Not in this patch. A governed apply that moves a horizon into real_derived does not yet trigger spectrum recomputation — spectrum_rows_by_horizon is mutated by a separate build path.",
+    "surface_action_queue_worker": "Still unregistered. Proposals reach the Today surface via L5 read, not via a surface_action_queue job. Wiring a surface worker is a candidate follow-up if we want write-path notification on proposal creation."
+  },
+  "acceptance_matrix_work_order_alignment": {
+    "§3_non_negotiables": "All honored — no direct brain bundle writes outside executor; no LLM-derived registry writes; operator approval required; deterministic post-approval path; honesty preserved; single source of truth.",
+    "§5_patch_plan_A_to_F": "A (packet + queue extensions), B (record_registry_decision + executor + runtime wiring), C (L5 distinction + prompt), D (tests, e2e), E (runbook), F (evidence + handoff) — all closed."
+  }
+}

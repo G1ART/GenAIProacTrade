@@ -1,0 +1,153 @@
+{
+  "contract": "METIS_AGH_V1_PATCH_2_PROMOTION_BRIDGE_RUNBOOK_V1",
+  "captured_at_utc": "2026-04-19T07:22:01.679141+00:00",
+  "scenarios": [
+    {
+      "scenario": "approve",
+      "expectation": "bundle horizon_provenance.short.source transitions template_fallback -> real_derived; proposal.status -> applied; RegistryPatchAppliedPacketV1.outcome == applied",
+      "proposal_id": "pkt_2eb39034c4d4d294ae8966",
+      "decision_result": {
+        "ok": true,
+        "action": "approve",
+        "proposal_id": "pkt_2eb39034c4d4d294ae8966",
+        "decision_packet_id": "pkt_802851de2bf374b09ef5fa",
+        "apply_job_id": "job_5f773a1f6a2d73eef831b9",
+        "proposal_status": "escalated"
+      },
+      "tick_summary_registry_apply_queue": {
+        "claimed": 1,
+        "done": 1,
+        "dlq": 0,
+        "errors": []
+      },
+      "before_bundle_horizon_provenance": {
+        "short": {
+          "source": "template_fallback"
+        }
+      },
+      "after_bundle_horizon_provenance": {
+        "short": {
+          "source": "real_derived",
+          "last_governed_update_at_utc": "2026-04-19T07:22:01.677068+00:00",
+          "last_governed_proposal_packet_id": "pkt_2eb39034c4d4d294ae8966",
+          "last_governed_decision_packet_id": "pkt_802851de2bf374b09ef5fa"
+        }
+      },
+      "proposal_status_before": "escalated",
+      "proposal_status_after": "applied",
+      "applied_packet_outcome": "applied",
+      "applied_packet_before_snapshot": {
+        "horizon_provenance": {
+          "short": {
+            "source": "template_fallback"
+          }
+        }
+      },
+      "applied_packet_after_snapshot": {
+        "horizon_provenance": {
+          "short": {
+            "source": "real_derived",
+            "last_governed_update_at_utc": "2026-04-19T07:22:01.677068+00:00",
+            "last_governed_proposal_packet_id": "pkt_2eb39034c4d4d294ae8966",
+            "last_governed_decision_packet_id": "pkt_802851de2bf374b09ef5fa"
+          }
+        }
+      }
+    },
+    {
+      "scenario": "reject",
+      "expectation": "bundle unchanged; proposal.status -> rejected; no apply job enqueued",
+      "proposal_id": "pkt_3c3d611725f47e08e1da02",
+      "decision_result": {
+        "ok": true,
+        "action": "reject",
+        "proposal_id": "pkt_3c3d611725f47e08e1da02",
+        "decision_packet_id": "pkt_4dede0d2751b808376e157",
+        "apply_job_id": null,
+        "proposal_status": "rejected"
+      },
+      "queue_depth_registry_apply_queue": 0,
+      "before_bundle_horizon_provenance": {
+        "short": {
+          "source": "template_fallback"
+        }
+      },
+      "after_bundle_horizon_provenance": {
+        "short": {
+          "source": "template_fallback"
+        }
+      },
+      "proposal_status_after": "rejected",
+      "applied_packet_count": 0
+    },
+    {
+      "scenario": "defer",
+      "expectation": "bundle unchanged; proposal.status -> deferred; decision packet carries next_revisit_hint_utc",
+      "proposal_id": "pkt_336a5ee5110a2ab644aba0",
+      "decision_result": {
+        "ok": true,
+        "action": "defer",
+        "proposal_id": "pkt_336a5ee5110a2ab644aba0",
+        "decision_packet_id": "pkt_185c8723152cd10b958001",
+        "apply_job_id": null,
+        "proposal_status": "deferred"
+      },
+      "queue_depth_registry_apply_queue": 0,
+      "before_bundle_horizon_provenance": {
+        "short": {
+          "source": "template_fallback"
+        }
+      },
+      "after_bundle_horizon_provenance": {
+        "short": {
+          "source": "template_fallback"
+        }
+      },
+      "proposal_status_after": "deferred",
+      "decision_next_revisit_hint_utc": "2026-04-20T00:00:00+00:00",
+      "decision_expiry_or_recheck_rule": "next_revisit:2026-04-20T00:00:00+00:00"
+    },
+    {
+      "scenario": "conflict_skip",
+      "expectation": "bundle unchanged (from_state_mismatch); applied packet outcome=conflict_skip; proposal.status -> deferred",
+      "proposal_id": "pkt_585d5b8c79b21aad0674f3",
+      "decision_result": {
+        "ok": true,
+        "action": "approve",
+        "proposal_id": "pkt_585d5b8c79b21aad0674f3",
+        "decision_packet_id": "pkt_fedaffc82876cd7ce2b05b",
+        "apply_job_id": "job_e84975ed8f5c6a2020bea2",
+        "proposal_status": "escalated"
+      },
+      "tick_summary_registry_apply_queue": {
+        "claimed": 1,
+        "done": 1,
+        "dlq": 0,
+        "errors": []
+      },
+      "before_bundle_horizon_provenance": {
+        "short": {
+          "source": "real_derived"
+        }
+      },
+      "after_bundle_horizon_provenance": {
+        "short": {
+          "source": "real_derived"
+        }
+      },
+      "proposal_status_after": "deferred",
+      "applied_packet_outcome": "conflict_skip",
+      "applied_packet_blocking_reasons": [
+        "from_state_mismatch:expected=template_fallback actual=real_derived"
+      ],
+      "applied_packet_after_snapshot": {}
+    }
+  ],
+  "invariants_exercised": [
+    "approve path: bundle mutated atomically, proposal.status -> applied",
+    "reject path: bundle unchanged, proposal.status -> rejected, no apply job",
+    "defer path: bundle unchanged, proposal.status -> deferred, next_revisit_hint_utc recorded",
+    "conflict_skip path: from_state mismatch does NOT mutate bundle, applied packet records conflict_skip, proposal -> deferred",
+    "first-decision-wins and atomic write guarantees hold in all four paths"
+  ]
+}

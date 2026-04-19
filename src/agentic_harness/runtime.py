@@ -136,6 +136,19 @@ def build_queue_specs() -> list[QueueSpec]:
         )
     except ImportError:
         pass
+    try:
+        from agentic_harness.agents.layer4_registry_patch_executor import (
+            registry_patch_executor,
+        )
+
+        specs.append(
+            QueueSpec(
+                queue_class="registry_apply_queue",
+                worker_fn=registry_patch_executor,
+            )
+        )
+    except ImportError:
+        pass
     return specs
 
 
@@ -279,6 +292,55 @@ def build_status_snapshot(
         "last_harness_tick_at_utc": (last_tick or {}).get("tick_at_utc"),
         "last_harness_tick_summary": (last_tick or {}).get("summary"),
     }
+
+
+def perform_decision(
+    *,
+    proposal_id: str,
+    action: str,
+    actor: str,
+    reason: str,
+    next_revisit_hint_utc: Optional[str] = None,
+    use_fixture: bool = False,
+    store: Optional[HarnessStoreProtocol] = None,
+    now_utc: Optional[str] = None,
+) -> dict[str, Any]:
+    """AGH v1 Patch 2 - operator-gated promotion-bridge decision entrypoint.
+
+    Records a ``RegistryDecisionPacketV1`` for the given
+    ``RegistryUpdateProposalV1`` and, on ``approve``, enqueues a job on
+    ``registry_apply_queue`` so the next ``harness-tick`` runs the
+    ``registry_patch_executor`` worker.  This entrypoint never writes to
+    the brain bundle itself; that stays in the queue worker so the apply
+    step is deterministic, retryable, and audit-logged.
+    """
+
+    from agentic_harness.agents.layer4_governance import (
+        DecisionError,
+        record_registry_decision,
+    )
+    from agentic_harness.store.protocol import now_utc_iso
+
+    s = store if store is not None else build_store(use_fixture=use_fixture)
+    now_iso = str(now_utc or now_utc_iso())
+    try:
+        result = record_registry_decision(
+            s,
+            proposal_id=proposal_id,
+            action=action,
+            actor=actor,
+            reason=reason,
+            now_iso=now_iso,
+            next_revisit_hint_utc=next_revisit_hint_utc,
+        )
+    except DecisionError as exc:
+        return {
+            "ok": False,
+            "error": f"decision_error:{exc}",
+            "proposal_id": proposal_id,
+            "action": action,
+        }
+    return result
 
 
 def perform_ask(

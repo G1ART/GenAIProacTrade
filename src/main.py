@@ -8628,6 +8628,65 @@ def _cmd_harness_ask(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_harness_decide(args: argparse.Namespace) -> int:
+    """Agentic Operating Harness v1 (Patch 2) - record an operator decision
+    for a ``RegistryUpdateProposalV1``.
+
+    On ``approve`` this records a ``RegistryDecisionPacketV1`` and enqueues a
+    job on ``registry_apply_queue``; the next ``harness-tick`` executes the
+    governed atomic brain-bundle write via ``registry_patch_executor``.
+    ``reject`` / ``defer`` move the proposal to its terminal state and leave
+    the brain bundle untouched.
+    """
+
+    from agentic_harness.runtime import perform_decision
+
+    configure_logging()
+    proposal_id = str(getattr(args, "proposal_id", "") or "").strip()
+    action = str(getattr(args, "action", "") or "").strip().lower()
+    actor = str(getattr(args, "actor", "") or "").strip()
+    reason = str(getattr(args, "reason", "") or "")
+    next_hint = str(getattr(args, "next_revisit_hint_utc", "") or "").strip() or None
+    if not proposal_id or not action or not actor:
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": "proposal_id_action_actor_required",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    try:
+        res = perform_decision(
+            proposal_id=proposal_id,
+            action=action,
+            actor=actor,
+            reason=reason,
+            next_revisit_hint_utc=next_hint,
+            use_fixture=bool(getattr(args, "use_fixture", False)),
+        )
+    except RuntimeError as e:
+        print(json.dumps({"ok": False, "error": str(e)}, indent=2, ensure_ascii=False))
+        return 1
+    except ValueError as e:
+        # Pydantic validation failure on the decision packet itself
+        # (e.g., forbidden-copy in --reason). Surface it honestly.
+        print(
+            json.dumps(
+                {"ok": False, "error": f"validation_error:{e}"},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+    ok = bool(res.get("ok", False))
+    print(json.dumps({"ok": ok, "result": res}, indent=2, ensure_ascii=False, default=str))
+    return 0 if ok else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="GenAIProacTrade SEC / XBRL worker CLI")
     sub = p.add_subparsers(dest="command", required=True)
@@ -12974,6 +13033,48 @@ def build_parser() -> argparse.ArgumentParser:
     )
     pha.add_argument("--use-fixture", action="store_true", dest="use_fixture")
     pha.set_defaults(func=_cmd_harness_ask)
+
+    phd = sub.add_parser(
+        "harness-decide",
+        help=(
+            "Agentic Operating Harness v1 (Patch 2): operator-gated promotion "
+            "bridge. Record approve/reject/defer for a RegistryUpdateProposalV1 "
+            "and, on approve, enqueue the governed atomic brain-bundle write."
+        ),
+    )
+    phd.add_argument(
+        "--proposal-id",
+        required=True,
+        dest="proposal_id",
+        help="RegistryUpdateProposalV1 packet_id to decide on.",
+    )
+    phd.add_argument(
+        "--action",
+        required=True,
+        choices=("approve", "reject", "defer"),
+        help="Decision action. approve enqueues the apply job on registry_apply_queue.",
+    )
+    phd.add_argument(
+        "--actor",
+        required=True,
+        help="Operator identifier (e.g. email or handle). Recorded in the audit packet.",
+    )
+    phd.add_argument(
+        "--reason",
+        default="",
+        help=(
+            "Free-form rationale. Scanned for forbidden copy tokens "
+            "(buy/sell/recommend/...) before acceptance."
+        ),
+    )
+    phd.add_argument(
+        "--next-revisit-hint-utc",
+        default="",
+        dest="next_revisit_hint_utc",
+        help="Optional ISO UTC timestamp for revisit planning (defer only).",
+    )
+    phd.add_argument("--use-fixture", action="store_true", dest="use_fixture")
+    phd.set_defaults(func=_cmd_harness_decide)
 
     return p
 

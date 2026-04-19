@@ -61,6 +61,12 @@ PACKET_STATUS_VALUES = (
     "blocked",
     "escalated",
     "expired",
+    # AGH v1 Patch 2 (Promotion Bridge Closure) - RegistryUpdateProposalV1
+    # transitions into one of these terminal states after an operator decision
+    # is recorded and the registry_patch_executor has or has not applied it.
+    "applied",
+    "rejected",
+    "deferred",
 )
 
 PacketStatus = Literal[
@@ -71,6 +77,9 @@ PacketStatus = Literal[
     "blocked",
     "escalated",
     "expired",
+    "applied",
+    "rejected",
+    "deferred",
 ]
 
 PACKET_TYPES = (
@@ -86,6 +95,9 @@ PACKET_TYPES = (
     "RegistryUpdateProposalV1",
     "ReplayLearningPacketV1",
     "UserQueryActionPacketV1",
+    # AGH v1 Patch 2: operator-gated promotion bridge closure.
+    "RegistryDecisionPacketV1",
+    "RegistryPatchAppliedPacketV1",
 )
 
 
@@ -494,6 +506,120 @@ class RegistryUpdateProposalV1(AgenticPacketBaseV1):
 
 
 # -----------------------------------------------------------------------------
+# AGH v1 Patch 2 (Promotion Bridge Closure) - operator-gated decision + apply.
+#
+# Flow:
+#   1. Layer 4 emits ``RegistryUpdateProposalV1`` (target=horizon_provenance).
+#   2. Operator issues a decision via ``harness-decide``; this records a
+#      ``RegistryDecisionPacketV1`` with action ``approve|reject|defer``.
+#   3. On ``approve`` the registry_patch_executor worker loads the brain
+#      bundle, verifies ``from_state`` matches the current
+#      ``horizon_provenance[horizon].source``, and either performs a governed
+#      atomic write (outcome=applied) or records a conflict_skip
+#      ``RegistryPatchAppliedPacketV1``.
+#
+# Both packets are strictly audit artifacts: they never carry raw registry
+# mutations of the ``active_registry_mutation`` shape (same invariant as
+# ``RegistryUpdateProposalV1``).
+# -----------------------------------------------------------------------------
+
+
+REGISTRY_DECISION_ACTIONS = ("approve", "reject", "defer")
+
+REGISTRY_PATCH_OUTCOMES = ("applied", "conflict_skip")
+
+
+class RegistryDecisionPacketV1(AgenticPacketBaseV1):
+    packet_type: str = "RegistryDecisionPacketV1"
+    target_layer: TargetLayer = "layer4_governance"
+
+    @field_validator("payload")
+    @classmethod
+    def _required_payload_fields(cls, v: dict[str, Any]) -> dict[str, Any]:
+        if not isinstance(v, dict):
+            raise ValueError("payload must be a dict")
+        for k in (
+            "action",
+            "actor",
+            "reason",
+            "decision_at_utc",
+            "cited_proposal_packet_id",
+        ):
+            if k not in v:
+                raise ValueError(f"RegistryDecisionPacketV1.payload requires '{k}'")
+        if v["action"] not in REGISTRY_DECISION_ACTIONS:
+            raise ValueError(
+                "RegistryDecisionPacketV1 action must be one of "
+                f"{REGISTRY_DECISION_ACTIONS}"
+            )
+        if not str(v["cited_proposal_packet_id"]).strip():
+            raise ValueError("cited_proposal_packet_id must be non-empty")
+        if not str(v["actor"]).strip():
+            raise ValueError("actor must be non-empty")
+        # Patch 2 invariant: a decision packet is an audit record only; it
+        # must not smuggle a raw registry mutation.
+        if "active_registry_mutation" in v:
+            raise ValueError(
+                "RegistryDecisionPacketV1 must not carry raw active_registry_mutation; "
+                "registry writes stay in the registry_patch_executor worker."
+            )
+        return dict(v)
+
+
+class RegistryPatchAppliedPacketV1(AgenticPacketBaseV1):
+    packet_type: str = "RegistryPatchAppliedPacketV1"
+    target_layer: TargetLayer = "layer4_governance"
+
+    @field_validator("payload")
+    @classmethod
+    def _required_payload_fields(cls, v: dict[str, Any]) -> dict[str, Any]:
+        if not isinstance(v, dict):
+            raise ValueError("payload must be a dict")
+        for k in (
+            "outcome",
+            "target",
+            "horizon",
+            "from_state",
+            "to_state",
+            "cited_proposal_packet_id",
+            "cited_decision_packet_id",
+            "applied_at_utc",
+            "before_snapshot",
+            "after_snapshot",
+        ):
+            if k not in v:
+                raise ValueError(f"RegistryPatchAppliedPacketV1.payload requires '{k}'")
+        if v["outcome"] not in REGISTRY_PATCH_OUTCOMES:
+            raise ValueError(
+                "RegistryPatchAppliedPacketV1 outcome must be one of "
+                f"{REGISTRY_PATCH_OUTCOMES}"
+            )
+        if v["target"] == "horizon_provenance":
+            for s in (v["from_state"], v["to_state"]):
+                if s not in HORIZON_STATE_VALUES:
+                    raise ValueError(
+                        f"horizon_provenance state must be one of {HORIZON_STATE_VALUES}"
+                    )
+        if not str(v["cited_proposal_packet_id"]).strip():
+            raise ValueError("cited_proposal_packet_id must be non-empty")
+        if not str(v["cited_decision_packet_id"]).strip():
+            raise ValueError("cited_decision_packet_id must be non-empty")
+        if not isinstance(v["before_snapshot"], dict):
+            raise ValueError("before_snapshot must be a dict")
+        # after_snapshot may be an empty dict when outcome=conflict_skip.
+        if not isinstance(v["after_snapshot"], dict):
+            raise ValueError("after_snapshot must be a dict")
+        # Same invariant as RegistryUpdateProposalV1: audit packet, not a
+        # vehicle for raw registry mutation.
+        if "active_registry_mutation" in v:
+            raise ValueError(
+                "RegistryPatchAppliedPacketV1 must not carry raw active_registry_mutation; "
+                "the applied diff lives in before_snapshot / after_snapshot only."
+            )
+        return dict(v)
+
+
+# -----------------------------------------------------------------------------
 # Replay & User Surface
 # -----------------------------------------------------------------------------
 
@@ -568,6 +694,8 @@ PACKET_TYPE_TO_CLASS: dict[str, type[AgenticPacketBaseV1]] = {
     "RegistryUpdateProposalV1": RegistryUpdateProposalV1,
     "ReplayLearningPacketV1": ReplayLearningPacketV1,
     "UserQueryActionPacketV1": UserQueryActionPacketV1,
+    "RegistryDecisionPacketV1": RegistryDecisionPacketV1,
+    "RegistryPatchAppliedPacketV1": RegistryPatchAppliedPacketV1,
 }
 
 

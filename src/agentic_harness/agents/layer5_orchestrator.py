@@ -101,6 +101,7 @@ def state_reader_agent(
         limit: int = 20,
         *,
         allow_asset_neutral: bool = False,
+        status_in: Optional[tuple[str, ...]] = None,
     ) -> None:
         """Read packets for ``packet_type`` and append to ``relevant_packets``.
 
@@ -114,12 +115,21 @@ def state_reader_agent(
           applies across the registry rather than a single ticker.
         * When ``asset_id`` is empty, every row is relevant (system-wide
           queries).
+        * ``status_in`` optionally filters packet rows by their top-level
+          ``status`` field. AGH v1 Patch 2 uses this to hide proposals
+          whose terminal state has rolled forward (e.g. the proposal moved
+          to ``applied`` and the RegistryPatchAppliedPacketV1 is now the
+          authoritative citation for that transition).
         """
 
         rows = store.list_packets(
             packet_type=packet_type, target_layer=layer, limit=limit
         )
         for r in rows:
+            if status_in is not None:
+                st = str(r.get("status") or "")
+                if st not in status_in:
+                    continue
             scope = r.get("target_scope") or {}
             scope_asset = str(scope.get("asset_id") or "").upper().strip()
             if asset_id and scope_asset == asset_id:
@@ -138,7 +148,22 @@ def state_reader_agent(
         _collect("IngestAlertPacketV1", None, allow_asset_neutral=False)
         _collect("SourceArtifactPacketV1", None, allow_asset_neutral=False)
         _collect("OverlayProposalPacketV1", None, allow_asset_neutral=True)
-        _collect("RegistryUpdateProposalV1", None, allow_asset_neutral=True)
+        # AGH v1 Patch 2: only show proposals that are still in-flight as
+        # "pending" signals. Once a proposal moves to ``applied``/``rejected``
+        # the RegistryDecisionPacketV1 + RegistryPatchAppliedPacketV1 are the
+        # authoritative citations the LLM should use.
+        _collect(
+            "RegistryUpdateProposalV1",
+            None,
+            allow_asset_neutral=True,
+            status_in=("proposed", "escalated", "deferred"),
+        )
+        _collect(
+            "RegistryDecisionPacketV1", None, allow_asset_neutral=True
+        )
+        _collect(
+            "RegistryPatchAppliedPacketV1", None, allow_asset_neutral=True
+        )
         _collect("ReplayLearningPacketV1", None, allow_asset_neutral=True)
     elif routed_kind == "research_pending":
         # Research candidates are often universe-scoped (factor / gate /
@@ -181,13 +206,25 @@ _SYSTEM_PROMPT = (
     "'반드시 오른/내린', '무조건 오른/내린'. If the bundle does not justify "
     "a firm statement, mark the relevant fact_vs_interpretation entry as "
     "'interpretation' and add to blocking_reasons. "
+    # AGH v1 Patch 2 — promotion bridge vocabulary.
+    "RegistryUpdateProposalV1 packets carry a status: 'proposed' / 'escalated' "
+    "means the registry has NOT changed yet and the item is a *pending proposal* "
+    "or *signal to watch*; 'deferred' means a decision declined to apply for "
+    "now; 'rejected' means the proposal was declined; 'applied' means the "
+    "governed write has landed. "
     "You must NEVER claim that the Today registry has changed its active "
-    "model family, active band, or active horizon surface. You may only "
-    "describe new ingest alerts, pending research candidates, or overlay "
-    "proposals as *signals to watch* or *proposals*, never as accomplished "
-    "facts about the Today surface. The Today active state is only updated "
-    "by the promotion gate + registry patch, which is outside this response "
-    "scope."
+    "model family, active band, or active horizon_provenance.source UNLESS "
+    "the cited packet is a RegistryPatchAppliedPacketV1 with payload.outcome "
+    "== 'applied'. In that case you may describe the transition as an "
+    "accomplished fact, but you must cite the RegistryPatchAppliedPacketV1 "
+    "packet_id in cited_packet_ids and label it as 'fact' in "
+    "fact_vs_interpretation_map. Otherwise describe new ingest alerts, "
+    "pending research candidates, proposals, or operator decisions as "
+    "*signals to watch*, *proposals*, or *pending operator-approved patches* "
+    "— never as accomplished facts about the Today surface. "
+    "The Today active state is only updated by the promotion gate + "
+    "governed registry patch (RegistryPatchAppliedPacketV1), which is the "
+    "sole authoritative signal of an applied change."
 )
 
 

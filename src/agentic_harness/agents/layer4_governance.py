@@ -31,6 +31,8 @@ from agentic_harness.contracts.packets_v1 import (
     EvaluationPacketV1,
     HORIZON_STATE_VALUES,
     PromotionGatePacketV1,
+    REGISTRY_DECISION_ACTIONS,
+    RegistryDecisionPacketV1,
     RegistryUpdateProposalV1,
     deterministic_packet_id,
 )
@@ -408,3 +410,221 @@ def governance_queue_worker(
     except StoreError:
         pass
     return {"ok": True, "escalated_packet_id": pid, "surface_job_id": sjob.job_id}
+
+
+# ---------------------------------------------------------------------------
+# AGH v1 Patch 2 - Operator decision recorder (Stage 1 of the promotion
+# bridge). This function is called by the ``harness-decide`` CLI and the
+# ``runtime.perform_decision`` entrypoint. It does NOT write the brain
+# bundle - it only records the decision as a packet and, for approve,
+# enqueues a job on ``registry_apply_queue`` so the next harness-tick can
+# run ``registry_patch_executor`` to perform the governed atomic write.
+# ---------------------------------------------------------------------------
+
+
+class DecisionError(RuntimeError):
+    """Raised when a decision cannot be recorded (proposal missing /
+    duplicate / terminal-state / bad action)."""
+
+
+def _find_existing_decision_for_proposal(
+    store: HarnessStoreProtocol, proposal_id: str
+) -> Optional[dict[str, Any]]:
+    # list_packets does not filter by payload content; scan a bounded page.
+    rows = store.list_packets(
+        packet_type="RegistryDecisionPacketV1", limit=500
+    )
+    for r in rows:
+        payload = r.get("payload") or {}
+        if str(payload.get("cited_proposal_packet_id") or "") == proposal_id:
+            return r
+    return None
+
+
+def record_registry_decision(
+    store: HarnessStoreProtocol,
+    *,
+    proposal_id: str,
+    action: str,
+    actor: str,
+    reason: str,
+    now_iso: str,
+    next_revisit_hint_utc: Optional[str] = None,
+) -> dict[str, Any]:
+    """Record an operator decision for a ``RegistryUpdateProposalV1``.
+
+    Behaviour:
+      * ``approve``: upserts ``RegistryDecisionPacketV1`` and enqueues a job
+        on ``registry_apply_queue``. Proposal status stays ``escalated``
+        until the ``registry_patch_executor`` worker actually writes the
+        brain bundle in a later tick.
+      * ``reject``: upserts decision packet, sets proposal status to
+        ``rejected``. No queue job, no brain-bundle write.
+      * ``defer``: upserts decision packet, sets proposal status to
+        ``deferred``. If ``next_revisit_hint_utc`` is given, stores it on
+        the decision packet's ``expiry_or_recheck_rule`` for replay.
+
+    Raises ``DecisionError`` on:
+      * unknown proposal id
+      * proposal not a ``RegistryUpdateProposalV1``
+      * proposal already in a terminal state (``applied``/``rejected``/``deferred``)
+      * duplicate decision for the same proposal id (first-decision wins)
+      * action not in ``{approve, reject, defer}``
+    """
+
+    action = str(action or "").strip().lower()
+    if action not in REGISTRY_DECISION_ACTIONS:
+        raise DecisionError(
+            f"action must be one of {REGISTRY_DECISION_ACTIONS}, got {action!r}"
+        )
+    pid = str(proposal_id or "").strip()
+    if not pid:
+        raise DecisionError("proposal_id is required")
+    actor_s = str(actor or "").strip()
+    if not actor_s:
+        raise DecisionError("actor is required")
+
+    pkt = store.get_packet(pid)
+    if pkt is None:
+        raise DecisionError(f"proposal packet not found: {pid}")
+    if str(pkt.get("packet_type") or "") != "RegistryUpdateProposalV1":
+        raise DecisionError(
+            f"packet {pid} is not a RegistryUpdateProposalV1 (got "
+            f"{pkt.get('packet_type')!r})"
+        )
+    current_status = str(pkt.get("status") or "")
+    if current_status in ("applied", "rejected", "deferred"):
+        raise DecisionError(
+            f"proposal {pid} is already in terminal state {current_status!r}"
+        )
+    if current_status not in ("proposed", "escalated"):
+        raise DecisionError(
+            f"proposal {pid} has unsupported status {current_status!r}; "
+            "only 'proposed' or 'escalated' proposals can be decided"
+        )
+
+    existing = _find_existing_decision_for_proposal(store, pid)
+    if existing is not None:
+        raise DecisionError(
+            f"proposal {pid} already has a decision packet "
+            f"{existing.get('packet_id')!r}"
+        )
+
+    payload = pkt.get("payload") or {}
+    target_scope = pkt.get("target_scope") or {}
+    horizon = str(payload.get("horizon") or target_scope.get("horizon") or "")
+
+    # Cited gate packet id is the proposal's provenance_ref of form
+    # ``packet:{gate_id}`` (see _build_update_proposal).
+    cited_gate_packet_id = ""
+    for ref in pkt.get("provenance_refs") or []:
+        if isinstance(ref, str) and ref.startswith("packet:"):
+            cited_gate_packet_id = ref.split(":", 1)[1]
+            break
+
+    decision_packet_id = deterministic_packet_id(
+        packet_type="RegistryDecisionPacketV1",
+        created_by_agent=f"operator:{actor_s}",
+        target_scope={"proposal_packet_id": pid, "horizon": horizon, "action": action},
+        salt=now_iso,
+    )
+    decision_payload: dict[str, Any] = {
+        "action": action,
+        "actor": actor_s,
+        "reason": str(reason or ""),
+        "decision_at_utc": now_iso,
+        "cited_proposal_packet_id": pid,
+    }
+    if cited_gate_packet_id:
+        decision_payload["cited_gate_packet_id"] = cited_gate_packet_id
+    if action == "defer" and next_revisit_hint_utc:
+        decision_payload["next_revisit_hint_utc"] = str(next_revisit_hint_utc)
+
+    provenance = [f"packet:{pid}"]
+    if cited_gate_packet_id:
+        provenance.append(f"packet:{cited_gate_packet_id}")
+
+    decision_pkt = RegistryDecisionPacketV1.model_validate(
+        {
+            "packet_id": decision_packet_id,
+            "packet_type": "RegistryDecisionPacketV1",
+            "target_layer": "layer4_governance",
+            "created_by_agent": f"operator:{actor_s}",
+            "target_scope": {
+                "proposal_packet_id": pid,
+                "horizon": horizon,
+                "action": action,
+            },
+            "provenance_refs": provenance,
+            "confidence": 1.0,
+            "expiry_or_recheck_rule": (
+                f"next_revisit:{next_revisit_hint_utc}"
+                if action == "defer" and next_revisit_hint_utc
+                else ""
+            ),
+            # ``done`` is the natural packet lifecycle terminal for an audit
+            # record. The proposal packet itself transitions to ``applied``/
+            # ``rejected``/``deferred`` below.
+            "status": "done",
+            "payload": decision_payload,
+        }
+    )
+    store.upsert_packet(decision_pkt.model_dump())
+
+    apply_job_id: Optional[str] = None
+    if action == "approve":
+        # Proposal stays ``escalated`` until the executor actually writes.
+        # This preserves the "honesty before apply" contract in
+        # Workorder §5.1. We only flip the proposal to ``applied`` once the
+        # governed write has succeeded.
+        if current_status != "escalated":
+            # If the proposal was still ``proposed`` (never escalated), we
+            # lift it to ``escalated`` so Layer 5 treats it as in-flight.
+            store.set_packet_status(pid, "escalated")
+        apply_job = QueueJobV1.model_validate(
+            {
+                "job_id": deterministic_job_id(
+                    queue_class="registry_apply_queue",
+                    packet_id=pid,
+                    salt=decision_pkt.packet_id,
+                ),
+                "queue_class": "registry_apply_queue",
+                "packet_id": pid,
+                "not_before_utc": now_iso,
+                "worker_agent": "registry_patch_executor",
+            }
+        )
+        try:
+            store.enqueue_job(apply_job.model_dump())
+            apply_job_id = apply_job.job_id
+        except StoreError as exc:
+            # An active job already exists; surface it but do not duplicate.
+            apply_job_id = None
+            # Record on the result so callers can see the idempotency skip.
+            return {
+                "ok": True,
+                "action": action,
+                "proposal_id": pid,
+                "decision_packet_id": decision_pkt.packet_id,
+                "apply_job_id": None,
+                "apply_job_idempotent_skip": True,
+                "apply_job_idempotent_reason": str(exc),
+                "proposal_status": "escalated",
+            }
+    elif action == "reject":
+        store.set_packet_status(pid, "rejected")
+    elif action == "defer":
+        store.set_packet_status(pid, "deferred")
+
+    return {
+        "ok": True,
+        "action": action,
+        "proposal_id": pid,
+        "decision_packet_id": decision_pkt.packet_id,
+        "apply_job_id": apply_job_id,
+        "proposal_status": (
+            "escalated"
+            if action == "approve"
+            else ("rejected" if action == "reject" else "deferred")
+        ),
+    }

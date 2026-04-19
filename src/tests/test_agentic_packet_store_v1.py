@@ -281,3 +281,76 @@ def test_log_tick_and_last_tick_of_kind():
     assert t["tick_id"]
     assert s.last_tick_of_kind("harness_tick")["summary"]["jobs_run"] == 3
     assert s.last_tick_of_kind("not_a_kind") is None
+
+
+def test_list_packets_filters_by_new_patch2_packet_types():
+    """AGH v1 Patch 2 - store must support listing the new packet types."""
+
+    from agentic_harness.contracts.packets_v1 import (
+        RegistryDecisionPacketV1,
+        RegistryPatchAppliedPacketV1,
+    )
+
+    s = FixtureHarnessStore()
+    decision = RegistryDecisionPacketV1.model_validate(
+        {
+            "packet_id": deterministic_packet_id(
+                packet_type="RegistryDecisionPacketV1",
+                created_by_agent="operator:test",
+                target_scope={"proposal_packet_id": "pkt_proposal_x", "action": "approve"},
+            ),
+            "packet_type": "RegistryDecisionPacketV1",
+            "target_layer": "layer4_governance",
+            "created_by_agent": "operator:test",
+            "target_scope": {"proposal_packet_id": "pkt_proposal_x", "action": "approve"},
+            "provenance_refs": ["packet:pkt_proposal_x"],
+            "confidence": 1.0,
+            "status": "done",
+            "payload": {
+                "action": "approve",
+                "actor": "test",
+                "reason": "",
+                "decision_at_utc": now_utc_iso(),
+                "cited_proposal_packet_id": "pkt_proposal_x",
+            },
+        }
+    )
+    s.upsert_packet(decision.model_dump())
+
+    applied = RegistryPatchAppliedPacketV1.model_validate(
+        {
+            "packet_id": deterministic_packet_id(
+                packet_type="RegistryPatchAppliedPacketV1",
+                created_by_agent="registry_patch_executor",
+                target_scope={"proposal_packet_id": "pkt_proposal_x", "outcome": "applied"},
+            ),
+            "packet_type": "RegistryPatchAppliedPacketV1",
+            "target_layer": "layer4_governance",
+            "created_by_agent": "registry_patch_executor",
+            "target_scope": {"proposal_packet_id": "pkt_proposal_x"},
+            "provenance_refs": ["packet:pkt_proposal_x", f"packet:{decision.packet_id}"],
+            "confidence": 1.0,
+            "status": "done",
+            "payload": {
+                "outcome": "applied",
+                "target": "horizon_provenance",
+                "horizon": "short",
+                "from_state": "template_fallback",
+                "to_state": "real_derived",
+                "cited_proposal_packet_id": "pkt_proposal_x",
+                "cited_decision_packet_id": decision.packet_id,
+                "applied_at_utc": now_utc_iso(),
+                "bundle_path": "/tmp/x.json",
+                "before_snapshot": {"horizon_provenance": {"short": {"source": "template_fallback"}}},
+                "after_snapshot": {"horizon_provenance": {"short": {"source": "real_derived"}}},
+            },
+        }
+    )
+    s.upsert_packet(applied.model_dump())
+
+    decisions = s.list_packets(packet_type="RegistryDecisionPacketV1")
+    applieds = s.list_packets(packet_type="RegistryPatchAppliedPacketV1")
+    assert len(decisions) == 1
+    assert len(applieds) == 1
+    assert decisions[0]["packet_id"] == decision.packet_id
+    assert applieds[0]["packet_id"] == applied.packet_id

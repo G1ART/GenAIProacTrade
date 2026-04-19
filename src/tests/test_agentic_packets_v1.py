@@ -382,6 +382,8 @@ def test_queue_job_rejects_unknown_queue_class():
 
 def test_queue_job_status_vocab_stable():
     assert set(JOB_STATUS_VALUES) == {"enqueued", "running", "done", "dlq", "expired"}
+    # AGH v1 Patch 2 adds ``registry_apply_queue`` for operator-approved
+    # RegistryUpdateProposalV1 jobs consumed by registry_patch_executor.
     assert set(QUEUE_CLASSES) == {
         "ingest_queue",
         "quality_queue",
@@ -389,4 +391,5 @@ def test_queue_job_status_vocab_stable():
         "governance_queue",
         "surface_action_queue",
         "replay_recompute_queue",
+        "registry_apply_queue",
     }
