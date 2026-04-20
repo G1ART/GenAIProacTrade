@@ -1,0 +1,52 @@
+{
+  "contract": "AGH_V1_PATCH_5_RESEARCH_ASK_SANDBOX_BRIDGE_EVIDENCE_V1",
+  "deferred_followups_cf3": [
+    "evidence_refresh",
+    "residual_review",
+    "replay_comparison"
+  ],
+  "generated_at_utc": "2026-04-20T04:42:21.473115+00:00",
+  "live_smoke_cf4": {
+    "next_step_trigger": "Once a real factor_validation_runs row with status='completed' exists, re-run scripts/agh_v1_patch_4_validation_to_governance_runbook.py with SUPABASE_* env vars set and capture the output here.",
+    "reason": "No completed factor_validation_run currently present in Supabase; provider code + idempotency tests are shipped in Patch 5 but the live evaluator smoke is gated on having a real completed run to join against.",
+    "status": "deferred"
+  },
+  "milestone": 16,
+  "packet_vocabulary": {
+    "queue_classes_includes_sandbox_queue": true,
+    "sandbox_kinds_patch_5": [
+      "validation_rerun"
+    ],
+    "sandbox_packet_types_present": [
+      "SandboxRequestPacketV1",
+      "SandboxResultPacketV1"
+    ],
+    "sandbox_request_actors": [
+      "operator",
+      "research_ask_v1"
+    ],
+    "sandbox_result_outcomes": [
+      "completed",
+      "no_change",
+      "blocked_insufficient_inputs",
+      "rejected_kind_not_allowed",
+      "errored"
+    ]
+  },
+  "research_structured_kinds": [
+    "deeper_rationale",
+    "what_remains_unproven",
+    "what_to_watch",
+    "sandbox_request"
+  ],
+  "sandbox_migration_file": "supabase/migrations/20260420100000_agh_v1_patch_5_research_sandbox.sql",
+  "user_question_kinds": [
+    "why_changed",
+    "system_status",
+    "research_pending",
+    "deeper_rationale",
+    "what_remains_unproven",
+    "what_to_watch",
+    "sandbox_request"
+  ]
+}

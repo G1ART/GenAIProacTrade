@@ -8687,6 +8687,93 @@ def _cmd_harness_decide(args: argparse.Namespace) -> int:
     return 0 if ok else 1
 
 
+def _cmd_harness_sandbox_request(args: argparse.Namespace) -> int:
+    """Agentic Operating Harness v1 (Patch 5) - operator-gated sandbox
+    request entry point.
+
+    Records a ``SandboxRequestPacketV1`` and enqueues a ``sandbox_queue``
+    job; the next ``harness-tick`` runs
+    ``layer3_sandbox_executor_v1.sandbox_queue_worker`` and produces a
+    ``SandboxResultPacketV1`` citing the request. Patch 5 only supports
+    ``sandbox_kind=validation_rerun``.
+
+    This path NEVER mutates the active registry; operator-gated
+    promotion continues to ride ``harness-decide`` + ``harness-tick``.
+    """
+
+    from agentic_harness.runtime import perform_sandbox_request
+
+    configure_logging()
+    request_id = str(getattr(args, "request_id", "") or "").strip()
+    sandbox_kind = str(getattr(args, "sandbox_kind", "") or "").strip()
+    registry_entry_id = str(getattr(args, "registry_entry_id", "") or "").strip()
+    horizon = str(getattr(args, "horizon", "") or "").strip()
+    requested_by = str(getattr(args, "requested_by", "") or "").strip() or "operator"
+    universe_name = str(getattr(args, "universe_name", "") or "").strip()
+    horizon_type = str(getattr(args, "horizon_type", "") or "").strip()
+    factor_name = str(getattr(args, "factor_name", "") or "").strip()
+    return_basis = str(getattr(args, "return_basis", "raw") or "raw").strip() or "raw"
+    cited_raw = str(getattr(args, "cited_evidence_packet_ids", "") or "").strip()
+    cited_ask = str(getattr(args, "cited_ask_packet_id", "") or "").strip() or None
+    cited_evidence_packet_ids = [
+        p.strip() for p in cited_raw.split(",") if p.strip()
+    ]
+
+    missing = []
+    if not request_id:
+        missing.append("request_id")
+    if not sandbox_kind:
+        missing.append("sandbox_kind")
+    if not registry_entry_id:
+        missing.append("registry_entry_id")
+    if not horizon:
+        missing.append("horizon")
+    if not cited_evidence_packet_ids:
+        missing.append("cited_evidence_packet_ids")
+    if sandbox_kind == "validation_rerun":
+        for k, v in (
+            ("factor_name", factor_name),
+            ("universe_name", universe_name),
+            ("horizon_type", horizon_type),
+        ):
+            if not v:
+                missing.append(k)
+    if missing:
+        print(
+            json.dumps(
+                {"ok": False, "error": f"missing_required:{missing}"},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+
+    target_spec = {
+        "factor_name": factor_name,
+        "universe_name": universe_name,
+        "horizon_type": horizon_type,
+        "return_basis": return_basis,
+    }
+    try:
+        res = perform_sandbox_request(
+            request_id=request_id,
+            sandbox_kind=sandbox_kind,
+            registry_entry_id=registry_entry_id,
+            horizon=horizon,
+            target_spec=target_spec,
+            requested_by=requested_by,
+            cited_evidence_packet_ids=cited_evidence_packet_ids,
+            cited_ask_packet_id=cited_ask,
+            use_fixture=bool(getattr(args, "use_fixture", False)),
+        )
+    except RuntimeError as e:
+        print(json.dumps({"ok": False, "error": str(e)}, indent=2, ensure_ascii=False))
+        return 1
+    ok = bool(res.get("ok", False))
+    print(json.dumps({"ok": ok, "result": res}, indent=2, ensure_ascii=False, default=str))
+    return 0 if ok else 1
+
+
 def _cmd_harness_evaluate_promotions(args: argparse.Namespace) -> int:
     """Agentic Operating Harness v1 (Patch 4) - turn completed factor_validation
     evidence into (optionally emitted) ``RegistryUpdateProposalV1(target=
@@ -13338,6 +13425,92 @@ def build_parser() -> argparse.ArgumentParser:
     )
     phe.add_argument("--use-fixture", action="store_true", dest="use_fixture")
     phe.set_defaults(func=_cmd_harness_evaluate_promotions)
+
+    phsb = sub.add_parser(
+        "harness-sandbox-request",
+        help=(
+            "Agentic Operating Harness v1 (Patch 5): record a "
+            "SandboxRequestPacketV1 and enqueue a sandbox_queue job. Patch "
+            "5 supports sandbox_kind=validation_rerun only. Apply path is "
+            "NEVER touched (active registry stays operator-gated)."
+        ),
+    )
+    phsb.add_argument(
+        "--request-id",
+        required=True,
+        dest="request_id",
+        help="Deterministic request_id string; reused across retries.",
+    )
+    phsb.add_argument(
+        "--sandbox-kind",
+        dest="sandbox_kind",
+        default="validation_rerun",
+        choices=("validation_rerun",),
+        help="Sandbox kind. Patch 5 only supports validation_rerun.",
+    )
+    phsb.add_argument(
+        "--registry-entry-id",
+        required=True,
+        dest="registry_entry_id",
+        help="Target registry_entries[*].registry_entry_id.",
+    )
+    phsb.add_argument(
+        "--horizon",
+        required=True,
+        choices=("short", "medium", "medium_long", "long"),
+        help="Bundle horizon for the registry entry.",
+    )
+    phsb.add_argument(
+        "--factor-name",
+        dest="factor_name",
+        default="",
+        help="target_spec.factor_name (required for validation_rerun).",
+    )
+    phsb.add_argument(
+        "--universe-name",
+        dest="universe_name",
+        default="",
+        help="target_spec.universe_name (required for validation_rerun).",
+    )
+    phsb.add_argument(
+        "--horizon-type",
+        dest="horizon_type",
+        default="",
+        help=(
+            "target_spec.horizon_type (next_month|next_quarter|"
+            "next_half_year|next_year) required for validation_rerun."
+        ),
+    )
+    phsb.add_argument(
+        "--return-basis",
+        dest="return_basis",
+        default="raw",
+        help="target_spec.return_basis (raw|excess); defaults to raw.",
+    )
+    phsb.add_argument(
+        "--requested-by",
+        dest="requested_by",
+        default="operator",
+        choices=("operator", "research_ask_v1"),
+        help="Actor identifier recorded on the request packet.",
+    )
+    phsb.add_argument(
+        "--cited-evidence-packet-ids",
+        dest="cited_evidence_packet_ids",
+        required=True,
+        help=(
+            "Comma-separated list of at least one packet_id to cite as "
+            "evidence (e.g. ValidationPromotionEvaluationV1 packet_ids)."
+        ),
+    )
+    phsb.add_argument(
+        "--cited-ask-packet-id",
+        dest="cited_ask_packet_id",
+        default="",
+        help="Optional UserQueryActionPacketV1 packet_id that spawned the request.",
+    )
+    phsb.add_argument("--use-fixture", action="store_true", dest="use_fixture")
+    phsb.set_defaults(func=_cmd_harness_sandbox_request)
 
     return p
 

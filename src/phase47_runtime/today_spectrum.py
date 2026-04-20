@@ -878,6 +878,215 @@ def _research_from_seed_or_fallback(
     }
 
 
+def _sandbox_options_v1_from_registry_surface(
+    registry_surface: dict[str, Any] | None,
+    bundle: BrainBundleV0 | None,
+) -> dict[str, Any]:
+    """AGH v1 Patch 5 — deterministic catalog of bounded sandbox options
+    available for a registry entry.
+
+    The catalog is derived purely from the brain bundle: each
+    ``research_factor_bindings_v1`` binding on the active
+    ``registry_entry`` becomes one ``validation_rerun`` option.
+    Operators can pass the resulting ``target_spec`` verbatim to the
+    ``harness-sandbox-request`` CLI. Today surfaces the options but
+    NEVER triggers the job — the active registry remains operator-gated.
+    """
+
+    if not isinstance(registry_surface, dict):
+        return {
+            "contract": "TODAY_SANDBOX_OPTIONS_V1",
+            "supported_kinds": ["validation_rerun"],
+            "options": [],
+            "registry_entry_id": None,
+        }
+    rid = str(registry_surface.get("registry_entry_id") or "")
+    horizon = str(registry_surface.get("horizon") or "")
+    universe = str(registry_surface.get("universe") or "")
+    bindings: list[dict[str, str]] = []
+    if bundle is not None and rid:
+        for ent in bundle.registry_entries:
+            if str(ent.registry_entry_id or "") != rid:
+                continue
+            for b in list(getattr(ent, "research_factor_bindings_v1", []) or []):
+                if not isinstance(b, dict):
+                    continue
+                bindings.append(
+                    {
+                        "factor_name": str(b.get("factor_name") or "").strip(),
+                        "return_basis": str(b.get("return_basis") or "").strip(),
+                    }
+                )
+            break
+
+    HORIZON_TO_HORIZON_TYPE = {
+        "short": "next_month",
+        "medium": "next_quarter",
+        "medium_long": "next_half_year",
+        "long": "next_year",
+    }
+    hz_type_hint = HORIZON_TO_HORIZON_TYPE.get(horizon, "")
+
+    options: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, str, str]] = set()
+    for b in bindings:
+        fname = b["factor_name"]
+        rb = b["return_basis"] or "raw"
+        if not fname:
+            continue
+        key = (fname, universe, hz_type_hint, rb)
+        if key in seen:
+            continue
+        seen.add(key)
+        options.append(
+            {
+                "sandbox_kind": "validation_rerun",
+                "registry_entry_id": rid,
+                "horizon": horizon,
+                "target_spec": {
+                    "factor_name": fname,
+                    "universe_name": universe,
+                    "horizon_type": hz_type_hint,
+                    "return_basis": rb,
+                },
+                "label_ko": (
+                    f"{fname} 재검증 ({rb}) · {universe} · {hz_type_hint}"
+                ),
+                "label_en": (
+                    f"Rerun {fname} validation ({rb}) · {universe} · {hz_type_hint}"
+                ),
+            }
+        )
+
+    return {
+        "contract": "TODAY_SANDBOX_OPTIONS_V1",
+        "supported_kinds": ["validation_rerun"],
+        "registry_entry_id": rid or None,
+        "horizon": horizon or None,
+        "universe": universe or None,
+        "horizon_type_hint": hz_type_hint or None,
+        "options": options,
+        "operator_gated_note_ko": (
+            "샌드박스 옵션은 운영자 승인 후에만 실행됩니다. "
+            "Today 활성 레지스트리는 이 경로로 변경되지 않습니다."
+        ),
+        "operator_gated_note_en": (
+            "Sandbox options run only after operator approval. "
+            "The active Today registry is never mutated from this path."
+        ),
+    }
+
+
+def _research_status_badges_v1_from_bundle(
+    registry_surface: dict[str, Any] | None,
+    bundle: BrainBundleV0 | None,
+) -> dict[str, Any]:
+    """AGH v1 Patch 5 — deterministic research status badges derived
+    from the brain bundle + the cited ``registry_surface``.
+
+    Badges surfaced:
+      * ``active_artifact_recently_applied`` — most-recent
+        ``recent_governed_applies`` entry for this registry_entry shows
+        ``target == "registry_entry_artifact_promotion"``.
+      * ``spectrum_refresh_needs_db_rebuild`` — most-recent entry's
+        ``spectrum_refresh_needs_db_rebuild`` is true; the Today
+        rationale rows may still reflect the prior artifact.
+      * ``has_research_factor_bindings`` — the registry entry declares
+        at least one factor binding, so ``sandbox_options_v1`` is
+        populated.
+
+    Badges are simple ``{code, severity, label_ko, label_en}`` dicts; the
+    surface never embeds free-form copy from the LLM.
+    """
+
+    badges: list[dict[str, Any]] = []
+    rid = str((registry_surface or {}).get("registry_entry_id") or "")
+    horizon = str((registry_surface or {}).get("horizon") or "")
+    entry = None
+    if bundle is not None and rid:
+        for e in bundle.registry_entries:
+            if str(e.registry_entry_id or "") == rid:
+                entry = e
+                break
+
+    has_bindings = bool(
+        entry is not None
+        and list(getattr(entry, "research_factor_bindings_v1", []) or [])
+    )
+    if has_bindings:
+        badges.append(
+            {
+                "code": "has_research_factor_bindings",
+                "severity": "info",
+                "label_ko": "재검증 샌드박스 옵션 있음",
+                "label_en": "Validation rerun sandbox options available",
+            }
+        )
+    else:
+        badges.append(
+            {
+                "code": "no_research_factor_bindings",
+                "severity": "neutral",
+                "label_ko": "재검증 샌드박스 바인딩 없음",
+                "label_en": "No validation rerun bindings configured",
+            }
+        )
+
+    recent_applies = list(getattr(bundle, "recent_governed_applies", []) or []) if bundle is not None else []
+    matching_apply: dict[str, Any] | None = None
+    for tail in reversed(recent_applies):
+        if not isinstance(tail, dict):
+            continue
+        if str(tail.get("registry_entry_id") or "") != rid:
+            continue
+        if horizon and str(tail.get("horizon") or "") != horizon:
+            continue
+        matching_apply = tail
+        break
+
+    if matching_apply is not None:
+        badges.append(
+            {
+                "code": "active_artifact_recently_applied",
+                "severity": "info",
+                "label_ko": "최근 활성 아티팩트가 거버넌스로 교체됨",
+                "label_en": "Active artifact recently swapped via governance",
+                "applied_at_utc": str(matching_apply.get("applied_at_utc") or ""),
+                "from_active_artifact_id": str(
+                    matching_apply.get("from_active_artifact_id") or ""
+                ),
+                "to_active_artifact_id": str(
+                    matching_apply.get("to_active_artifact_id") or ""
+                ),
+            }
+        )
+        if bool(matching_apply.get("spectrum_refresh_needs_db_rebuild")):
+            badges.append(
+                {
+                    "code": "spectrum_refresh_needs_db_rebuild",
+                    "severity": "warning",
+                    "label_ko": "스펙트럼 설명 row가 구 아티팩트 기준일 수 있음 (재빌드 필요)",
+                    "label_en": "Spectrum rationale rows may still reflect prior artifact (db rebuild needed)",
+                }
+            )
+    else:
+        badges.append(
+            {
+                "code": "no_recent_governed_apply",
+                "severity": "neutral",
+                "label_ko": "최근 거버넌스 적용 기록 없음",
+                "label_en": "No recent governed apply recorded",
+            }
+        )
+
+    return {
+        "contract": "TODAY_RESEARCH_STATUS_BADGES_V1",
+        "registry_entry_id": rid or None,
+        "horizon": horizon or None,
+        "badges": badges,
+    }
+
+
 def build_today_object_detail_payload(
     *,
     repo_root: Path,
@@ -961,6 +1170,17 @@ def build_today_object_detail_payload(
     if pair:
         upsert_message_snapshot(repo_root, pair[0], pair[1])
 
+    registry_surface = sp.get("registry_surface_v1") or {}
+    bundle_for_surface, _bundle_errs = try_load_brain_bundle_v0(repo_root)
+    sandbox_options_v1 = _sandbox_options_v1_from_registry_surface(
+        registry_surface,
+        bundle_for_surface,
+    )
+    research_status_badges_v1 = _research_status_badges_v1_from_bundle(
+        registry_surface,
+        bundle_for_surface,
+    )
+
     return {
         "ok": True,
         "detail_contract": "SPRINT4_MESSAGE_INFORMATION_RESEARCH_V0",
@@ -988,4 +1208,6 @@ def build_today_object_detail_payload(
         "research": research,
         "replay_lineage_join_v1": rj,
         "registry_surface_v1": sp.get("registry_surface_v1"),
+        "sandbox_options_v1": sandbox_options_v1,
+        "research_status_badges_v1": research_status_badges_v1,
     }

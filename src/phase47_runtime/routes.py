@@ -243,6 +243,132 @@ def api_sandbox_run_get(state: CockpitRuntimeState, run_id: str) -> dict[str, An
     return {"ok": True, "run": row, "source": "ledger"}
 
 
+def _build_harness_store_for_api(
+    use_fixture: bool = False,
+) -> Any:
+    """Lazy build of the harness store for sandbox / governance-lineage
+    read APIs. Import is deferred so non-harness routes do not pull the
+    harness module graph."""
+
+    from agentic_harness.runtime import build_store
+
+    return build_store(use_fixture=use_fixture)
+
+
+def api_sandbox_requests_list(
+    state: CockpitRuntimeState,
+    *,
+    registry_entry_id: str | None = None,
+    horizon: str | None = None,
+    limit: int = 40,
+    use_fixture: bool = False,
+) -> dict[str, Any]:
+    """AGH v1 Patch 5 — list recent ``SandboxRequestPacketV1`` packets
+    (optionally filtered by ``registry_entry_id`` / ``horizon``) and
+    attach the matching ``SandboxResultPacketV1`` when one exists.
+
+    The active registry is never read from this path; Today keeps its
+    own registry-only surface.
+    """
+
+    try:
+        store = _build_harness_store_for_api(use_fixture=use_fixture)
+    except Exception as exc:
+        return {
+            "ok": False,
+            "error": f"harness_store_unavailable:{exc}",
+            "contract": "AGH_V1_SANDBOX_REQUESTS_LIST",
+        }
+    try:
+        requests = list(
+            store.list_packets(packet_type="SandboxRequestPacketV1", limit=max(limit, 1))
+            or []
+        )
+        results = list(
+            store.list_packets(packet_type="SandboxResultPacketV1", limit=max(limit, 1) * 2)
+            or []
+        )
+    except Exception as exc:
+        return {
+            "ok": False,
+            "error": f"packet_list_failed:{exc}",
+            "contract": "AGH_V1_SANDBOX_REQUESTS_LIST",
+        }
+
+    rid = (registry_entry_id or "").strip()
+    hz = (horizon or "").strip()
+
+    def _match(pkt: dict[str, Any]) -> bool:
+        payload = pkt.get("payload") or {}
+        if rid and str(payload.get("registry_entry_id") or "") != rid:
+            return False
+        if hz and str(payload.get("horizon") or "") != hz:
+            return False
+        return True
+
+    matched = [p for p in requests if _match(p)]
+    matched.sort(key=lambda r: str(r.get("created_at_utc") or ""), reverse=True)
+    matched = matched[:limit]
+
+    def _result_for(req_pid: str) -> dict[str, Any] | None:
+        for r in results:
+            payload = r.get("payload") or {}
+            if str(payload.get("cited_request_packet_id") or "") == req_pid:
+                return r
+        return None
+
+    items: list[dict[str, Any]] = []
+    for req in matched:
+        req_pid = str(req.get("packet_id") or "")
+        items.append({"request": req, "result": _result_for(req_pid)})
+
+    return {
+        "ok": True,
+        "contract": "AGH_V1_SANDBOX_REQUESTS_LIST",
+        "registry_entry_id": rid or None,
+        "horizon": hz or None,
+        "requests": items,
+        "count": len(items),
+    }
+
+
+def api_replay_governance_lineage(
+    state: CockpitRuntimeState,
+    *,
+    registry_entry_id: str,
+    horizon: str | None = None,
+    use_fixture: bool = False,
+) -> dict[str, Any]:
+    """AGH v1 Patch 5 — expose ``api_governance_lineage_for_registry_entry``
+    (validation evaluations + governance chain + sandbox followups) so
+    Replay can render a full lineage browser without a new subgraph."""
+
+    from phase47_runtime.traceability_replay import (
+        api_governance_lineage_for_registry_entry,
+    )
+
+    rid = (registry_entry_id or "").strip()
+    if not rid:
+        return {
+            "ok": False,
+            "error": "registry_entry_id_required",
+            "contract": "AGH_V1_REPLAY_GOVERNANCE_LINEAGE",
+        }
+    try:
+        store = _build_harness_store_for_api(use_fixture=use_fixture)
+    except Exception as exc:
+        return {
+            "ok": False,
+            "error": f"harness_store_unavailable:{exc}",
+            "contract": "AGH_V1_REPLAY_GOVERNANCE_LINEAGE",
+        }
+    res = api_governance_lineage_for_registry_entry(
+        store, registry_entry_id=rid, horizon=(horizon or "").strip(), limit=200
+    )
+    res.setdefault("contract", "AGH_V1_REPLAY_GOVERNANCE_LINEAGE")
+    return res
+
+
 def api_reload(state: CockpitRuntimeState) -> dict[str, Any]:
     state.reload_bundle()
     emit_notification("bundle_reloaded", {"path": str(state.phase46_bundle_path)})
@@ -590,6 +716,36 @@ def dispatch_json(
             return 400, {"ok": False, "error": "run_id_required", "contract": "SANDBOX_V1"}
         r = api_sandbox_run_get(state, rid)
         return (200 if r.get("ok") else 404), r
+    if method == "GET" and p == "/api/sandbox/requests":
+        try:
+            lim = int(q.get("limit") or "40")
+        except ValueError:
+            lim = 40
+        use_fixture = (q.get("use_fixture") or "").strip().lower() in {"1", "true", "yes"}
+        r = api_sandbox_requests_list(
+            state,
+            registry_entry_id=q.get("registry_entry_id"),
+            horizon=q.get("horizon"),
+            limit=lim,
+            use_fixture=use_fixture,
+        )
+        return (200 if r.get("ok") else 500), r
+    if method == "GET" and p == "/api/replay/governance-lineage":
+        rid = (q.get("registry_entry_id") or "").strip()
+        if not rid:
+            return 400, {
+                "ok": False,
+                "error": "registry_entry_id_required",
+                "contract": "AGH_V1_REPLAY_GOVERNANCE_LINEAGE",
+            }
+        use_fixture = (q.get("use_fixture") or "").strip().lower() in {"1", "true", "yes"}
+        r = api_replay_governance_lineage(
+            state,
+            registry_entry_id=rid,
+            horizon=q.get("horizon"),
+            use_fixture=use_fixture,
+        )
+        return (200 if r.get("ok") else 500), r
     if method == "GET" and p == "/api/today/object":
         ob = api_today_object(state, lang, q)
         err = ob.get("error")

@@ -26,6 +26,8 @@ _FIXTURE_STORE: Optional[FixtureHarnessStore] = None
 
 _LAYER1_PRODUCTION_BOOTSTRAPPED = False
 _LAYER1_LIVE_FETCH_BOOTSTRAPPED = False
+_GOVERNANCE_SCAN_BOOTSTRAPPED = False
+_SANDBOX_CLIENT_FACTORY_BOOTSTRAPPED = False
 
 log = logging.getLogger(__name__)
 
@@ -162,6 +164,19 @@ def build_queue_specs() -> list[QueueSpec]:
         )
     except ImportError:
         pass
+    try:
+        from agentic_harness.agents.layer3_sandbox_executor_v1 import (
+            sandbox_queue_worker,
+        )
+
+        specs.append(
+            QueueSpec(
+                queue_class="sandbox_queue",
+                worker_fn=sandbox_queue_worker,
+            )
+        )
+    except ImportError:
+        pass
     return specs
 
 
@@ -268,6 +283,120 @@ def _maybe_bootstrap_layer1_live_fetch(
     _LAYER1_LIVE_FETCH_BOOTSTRAPPED = True
 
 
+def _maybe_bootstrap_governance_scan_provider(
+    store: HarnessStoreProtocol, *, use_fixture: bool
+) -> None:
+    """AGH v1 Patch 5 — env-gated install of the production
+    ``governance_scan`` spec provider.
+
+    Activation requires BOTH ``SUPABASE_URL`` and
+    ``SUPABASE_SERVICE_ROLE_KEY`` (via ``config.load_settings``). Without
+    them we leave the provider slot empty so the cadence emits an honest
+    ``no_governance_scan_spec_provider`` skip instead of inventing specs.
+
+    * Fixture stores are skipped — tests install the provider directly.
+    * Idempotent across process lifetime.
+    """
+
+    global _GOVERNANCE_SCAN_BOOTSTRAPPED
+    if _GOVERNANCE_SCAN_BOOTSTRAPPED:
+        return
+    if use_fixture:
+        return
+    try:
+        from agentic_harness.agents.governance_scan_provider_v1 import (
+            build_supabase_governance_scan_provider,
+        )
+        from agentic_harness.agents.layer4_promotion_evaluator_v1 import (
+            _repo_root_from_env,
+            set_governance_scan_client_factory,
+            set_governance_scan_spec_provider,
+        )
+        from config import load_settings
+        from db.client import get_supabase_client
+        from metis_brain.bundle import brain_bundle_path
+    except ImportError:
+        return
+    try:
+        settings = load_settings()
+    except Exception as exc:  # pragma: no cover - defensive
+        log.warning("governance_scan bootstrap: load_settings failed: %s", exc)
+        return
+    url = str(getattr(settings, "supabase_url", "") or "").strip()
+    key = str(getattr(settings, "supabase_service_role_key", "") or "").strip()
+    if not url or not key:
+        log.warning(
+            "governance_scan bootstrap skipped: SUPABASE_URL / "
+            "SUPABASE_SERVICE_ROLE_KEY missing (honest no-provider)"
+        )
+        return
+
+    def _client_factory() -> Any:
+        return get_supabase_client(settings)
+
+    def _bundle_path_factory() -> Any:
+        return brain_bundle_path(_repo_root_from_env())
+
+    provider = build_supabase_governance_scan_provider(
+        client_factory=_client_factory,
+        bundle_path_factory=_bundle_path_factory,
+    )
+    set_governance_scan_spec_provider(provider)
+    set_governance_scan_client_factory(_client_factory)
+    _GOVERNANCE_SCAN_BOOTSTRAPPED = True
+
+
+def _maybe_bootstrap_sandbox_client_factory(
+    store: HarnessStoreProtocol, *, use_fixture: bool
+) -> None:
+    """AGH v1 Patch 5 — env-gated install of the production Supabase client
+    factory used by the sandbox ``validation_rerun`` runner.
+
+    Activation requires BOTH ``SUPABASE_URL`` and
+    ``SUPABASE_SERVICE_ROLE_KEY`` (via ``config.load_settings``). Without
+    them, the sandbox executor leaves the client factory unset and queued
+    requests land as ``blocked_insufficient_inputs`` (honest no-client)
+    instead of pretending to rerun.
+
+    * Fixture stores are skipped — tests install a deterministic runner
+      stub directly via ``set_sandbox_validation_rerun_runner``.
+    * Idempotent across process lifetime.
+    """
+
+    global _SANDBOX_CLIENT_FACTORY_BOOTSTRAPPED
+    if _SANDBOX_CLIENT_FACTORY_BOOTSTRAPPED:
+        return
+    if use_fixture:
+        return
+    try:
+        from agentic_harness.agents.layer3_sandbox_executor_v1 import (
+            set_sandbox_client_factory,
+        )
+        from config import load_settings
+        from db.client import get_supabase_client
+    except ImportError:
+        return
+    try:
+        settings = load_settings()
+    except Exception as exc:  # pragma: no cover - defensive
+        log.warning("sandbox client factory bootstrap: load_settings failed: %s", exc)
+        return
+    url = str(getattr(settings, "supabase_url", "") or "").strip()
+    key = str(getattr(settings, "supabase_service_role_key", "") or "").strip()
+    if not url or not key:
+        log.warning(
+            "sandbox client factory bootstrap skipped: SUPABASE_URL / "
+            "SUPABASE_SERVICE_ROLE_KEY missing (honest no-client)"
+        )
+        return
+
+    def _client_factory() -> Any:
+        return get_supabase_client(settings)
+
+    set_sandbox_client_factory(_client_factory)
+    _SANDBOX_CLIENT_FACTORY_BOOTSTRAPPED = True
+
+
 def perform_tick(
     *,
     use_fixture: bool = False,
@@ -278,6 +407,8 @@ def perform_tick(
     s = store if store is not None else build_store(use_fixture=use_fixture)
     _maybe_bootstrap_layer1_production(s, use_fixture=use_fixture)
     _maybe_bootstrap_layer1_live_fetch(s, use_fixture=use_fixture)
+    _maybe_bootstrap_governance_scan_provider(s, use_fixture=use_fixture)
+    _maybe_bootstrap_sandbox_client_factory(s, use_fixture=use_fixture)
     return run_one_tick(
         store=s,
         layer_cadences=build_layer_cadences(),
@@ -354,6 +485,48 @@ def perform_decision(
             "action": action,
         }
     return result
+
+
+def perform_sandbox_request(
+    *,
+    request_id: str,
+    sandbox_kind: str,
+    registry_entry_id: str,
+    horizon: str,
+    target_spec: dict[str, Any],
+    requested_by: str,
+    cited_evidence_packet_ids: list[str],
+    cited_ask_packet_id: Optional[str] = None,
+    use_fixture: bool = False,
+    store: Optional[HarnessStoreProtocol] = None,
+) -> dict[str, Any]:
+    """AGH v1 Patch 5 - operator/research-ask-gated sandbox request entry.
+
+    Creates a ``SandboxRequestPacketV1`` and enqueues a ``sandbox_queue``
+    job pointing at it. The next ``harness-tick`` runs
+    ``layer3_sandbox_executor_v1.sandbox_queue_worker`` which records the
+    corresponding ``SandboxResultPacketV1``.
+
+    This path NEVER mutates the brain bundle or the active registry;
+    operator-gated promotion continues to ride the Patch 2/3/4 rails.
+    """
+
+    from agentic_harness.agents.layer3_sandbox_executor_v1 import (
+        enqueue_sandbox_request,
+    )
+
+    s = store if store is not None else build_store(use_fixture=use_fixture)
+    return enqueue_sandbox_request(
+        s,
+        request_id=request_id,
+        sandbox_kind=sandbox_kind,
+        registry_entry_id=registry_entry_id,
+        horizon=horizon,
+        target_spec=target_spec,
+        requested_by=requested_by,
+        cited_evidence_packet_ids=cited_evidence_packet_ids,
+        cited_ask_packet_id=cited_ask_packet_id,
+    )
 
 
 def perform_ask(

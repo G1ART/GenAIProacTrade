@@ -1,0 +1,114 @@
+{
+  "contract": "AGH_V1_PATCH_5_RESEARCH_ASK_SANDBOX_RUNBOOK_EVIDENCE_V1",
+  "generated_at_utc": "2026-04-20T04:42:21.473249+00:00",
+  "horizon": "short",
+  "milestone": 16,
+  "registry_entry_id": "reg_short_demo_v0",
+  "scenarios": [
+    {
+      "enqueue": {
+        "job_id": "job_bfd76d0c37e75c5a33aead",
+        "ok": true,
+        "request_packet_id": "pkt_74682979e8507c736a2a8b"
+      },
+      "scenario": "S1_completed",
+      "worker_outcome": {
+        "ok": true,
+        "outcome": "completed",
+        "produced_refs": [
+          {
+            "details": {
+              "factors_failed": 0,
+              "factors_ok": 1,
+              "status": "completed",
+              "symbols_in_slice": 42,
+              "validation_panels_used": 1
+            },
+            "id": "fvr_runbook_completed_1",
+            "kind": "factor_validation_run_id"
+          }
+        ],
+        "result_packet_id": "pkt_55e16dcacddfa2d0bd8aa2"
+      }
+    },
+    {
+      "enqueue": {
+        "job_id": "job_5caacc82ac42d9419a55ae",
+        "ok": true,
+        "request_packet_id": "pkt_3212a62c13e0e645925239"
+      },
+      "scenario": "S2_blocked_insufficient_inputs",
+      "worker_outcome": {
+        "blocking_reasons": [
+          "no_sandbox_validation_rerun_runner_installed"
+        ],
+        "ok": true,
+        "outcome": "blocked_insufficient_inputs",
+        "result_packet_id": "pkt_a0370b115c039fa2823a7a"
+      }
+    },
+    {
+      "enqueue": {
+        "job_id": "job_fbddc606962de25cf630b9",
+        "ok": true,
+        "request_packet_id": "pkt_d5d6a73504f37a73a2fe00"
+      },
+      "scenario": "S3_rejected_kind_not_allowed",
+      "worker_outcome": {
+        "blocking_reasons": [
+          "sandbox_kind_not_allowed:'evidence_refresh'"
+        ],
+        "ok": true,
+        "outcome": "rejected_kind_not_allowed",
+        "result_packet_id": "pkt_9f162bfc17a2d18791a54b"
+      }
+    },
+    {
+      "sandbox_followups_compact": [
+        {
+          "request_packet_id": "pkt_d5d6a73504f37a73a2fe00",
+          "result_outcome": "rejected_kind_not_allowed",
+          "result_packet_id": "pkt_9f162bfc17a2d18791a54b",
+          "sandbox_kind": "evidence_refresh"
+        },
+        {
+          "request_packet_id": "pkt_3212a62c13e0e645925239",
+          "result_outcome": "blocked_insufficient_inputs",
+          "result_packet_id": "pkt_a0370b115c039fa2823a7a",
+          "sandbox_kind": "validation_rerun"
+        },
+        {
+          "request_packet_id": "pkt_74682979e8507c736a2a8b",
+          "result_outcome": "completed",
+          "result_packet_id": "pkt_55e16dcacddfa2d0bd8aa2",
+          "sandbox_kind": "validation_rerun"
+        }
+      ],
+      "scenario": "S4_api_governance_lineage",
+      "summary": {
+        "latest_applied_needs_db_rebuild": null,
+        "latest_applied_packet_id": "",
+        "total_applied": 0,
+        "total_emitted_from_evaluator": 0,
+        "total_evaluations": 0,
+        "total_proposals": 0,
+        "total_sandbox_blocked": 2,
+        "total_sandbox_completed": 1,
+        "total_sandbox_requests": 3,
+        "total_spectrum_refreshed": 0
+      }
+    },
+    {
+      "active_artifact_id_before_sandbox": "art_short_demo_v0",
+      "detail_has_research_status_badges_v1": true,
+      "detail_has_sandbox_options_v1": true,
+      "registry_entry_id": "reg_short_demo_v0",
+      "research_status_badge_codes": [
+        "has_research_factor_bindings",
+        "no_recent_governed_apply"
+      ],
+      "sandbox_options_count": 2,
+      "scenario": "S5_today_surface"
+    }
+  ]
+}

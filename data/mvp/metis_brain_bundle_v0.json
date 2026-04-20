@@ -197,7 +197,9 @@
       "horizon": "short",
       "active_model_family_name": "shallow_value_blend_v0",
       "active_artifact_id": "art_short_demo_v0",
-      "challenger_artifact_ids": ["art_short_challenger_momentum_v0"],
+      "challenger_artifact_ids": [
+        "art_short_challenger_momentum_v0"
+      ],
       "universe": "large_cap_research_slice_demo_v0",
       "sector_scope": "multi_sector_v0",
       "effective_from": "2026-04-01T00:00:00+00:00",
@@ -205,7 +207,17 @@
       "scoring_endpoint_contract": "inline_spectrum_rows_v0",
       "message_contract_version": "v1",
       "replay_lineage_pointer": "lineage:registry:short:demo_v0",
-      "status": "active"
+      "status": "active",
+      "research_factor_bindings_v1": [
+        {
+          "factor_name": "earnings_quality_composite",
+          "return_basis": "raw"
+        },
+        {
+          "factor_name": "earnings_quality_composite",
+          "return_basis": "excess"
+        }
+      ]
     },
     {
       "registry_entry_id": "reg_medium_demo_v0",
@@ -220,7 +232,13 @@
       "scoring_endpoint_contract": "inline_spectrum_rows_v0",
       "message_contract_version": "v1",
       "replay_lineage_pointer": "lineage:registry:medium:demo_v0",
-      "status": "active"
+      "status": "active",
+      "research_factor_bindings_v1": [
+        {
+          "factor_name": "quality_earnings_bridge",
+          "return_basis": "raw"
+        }
+      ]
     },
     {
       "registry_entry_id": "reg_medium_long_demo_v0",
@@ -235,7 +253,8 @@
       "scoring_endpoint_contract": "inline_spectrum_rows_v0",
       "message_contract_version": "v1",
       "replay_lineage_pointer": "lineage:registry:medium_long:demo_v0",
-      "status": "active"
+      "status": "active",
+      "research_factor_bindings_v1": []
     },
     {
       "registry_entry_id": "reg_long_demo_v0",
@@ -250,7 +269,8 @@
       "scoring_endpoint_contract": "inline_spectrum_rows_v0",
       "message_contract_version": "v1",
       "replay_lineage_pointer": "lineage:registry:long:demo_v0",
-      "status": "active"
+      "status": "active",
+      "research_factor_bindings_v1": []
     }
   ],
   "spectrum_rows_by_horizon": {

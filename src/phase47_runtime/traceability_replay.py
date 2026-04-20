@@ -927,6 +927,8 @@ def api_governance_lineage_for_registry_entry(
     applied = _list("RegistryPatchAppliedPacketV1")
     refreshes = _list("SpectrumRefreshRecordV1")
     evaluations = _list("ValidationPromotionEvaluationV1")
+    sandbox_requests = _list("SandboxRequestPacketV1")
+    sandbox_results = _list("SandboxResultPacketV1")
 
     def _proposal_matches(pkt: dict[str, Any]) -> bool:
         payload = pkt.get("payload") or {}
@@ -1039,12 +1041,73 @@ def api_governance_lineage_for_registry_entry(
         and str((e.get("payload") or {}).get("emitted_proposal_packet_id") or "").strip()
     )
 
+    # AGH v1 Patch 5 — sandbox followups. We surface bounded-sandbox
+    # requests + results scoped to this registry_entry/horizon so Replay
+    # can reconstruct the research loop (registry → governance scan →
+    # evaluation → operator ask / sandbox rerun → result) without relying
+    # on raw Supabase queries. Active registry is NEVER read from the
+    # sandbox path; this is audit-only.
+    def _sandbox_request_matches(pkt: dict[str, Any]) -> bool:
+        payload = pkt.get("payload") or {}
+        if str(payload.get("registry_entry_id") or "") != rid:
+            return False
+        if hz and str(payload.get("horizon") or "") != hz:
+            return False
+        return True
+
+    matched_sandbox_requests = [
+        s for s in sandbox_requests if _sandbox_request_matches(s)
+    ]
+    matched_sandbox_requests.sort(
+        key=lambda r: str(r.get("created_at_utc") or ""), reverse=True
+    )
+
+    def _sandbox_result_for_request(
+        req_pid: str,
+    ) -> dict[str, Any] | None:
+        if not req_pid:
+            return None
+        for r in sandbox_results:
+            payload = r.get("payload") or {}
+            if (
+                str(payload.get("cited_request_packet_id") or "")
+                == req_pid
+            ):
+                return r
+        return None
+
+    sandbox_followups: list[dict[str, Any]] = []
+    total_sandbox_requests = 0
+    total_sandbox_completed = 0
+    total_sandbox_blocked = 0
+    for sreq in matched_sandbox_requests:
+        req_pid = str(sreq.get("packet_id") or "")
+        sres = _sandbox_result_for_request(req_pid)
+        outcome = str((sres or {}).get("payload", {}).get("outcome") or "")
+        total_sandbox_requests += 1
+        if outcome == "completed":
+            total_sandbox_completed += 1
+        elif outcome in (
+            "blocked_insufficient_inputs",
+            "rejected_kind_not_allowed",
+            "errored",
+            "no_change",
+        ):
+            total_sandbox_blocked += 1
+        sandbox_followups.append(
+            {
+                "request": sreq,
+                "result": sres,
+            }
+        )
+
     return {
         "ok": True,
         "registry_entry_id": rid,
         "horizon": hz,
         "chain": chain,
         "validation_promotion_evaluations": validation_promotion_evaluations,
+        "sandbox_followups": sandbox_followups,
         "summary": {
             "total_proposals": len(chain),
             "total_applied": total_applied,
@@ -1053,5 +1116,8 @@ def api_governance_lineage_for_registry_entry(
             "latest_applied_needs_db_rebuild": latest_applied_needs_db_rebuild,
             "total_evaluations": len(matched_evaluations),
             "total_emitted_from_evaluator": total_emitted_from_evaluator,
+            "total_sandbox_requests": total_sandbox_requests,
+            "total_sandbox_completed": total_sandbox_completed,
+            "total_sandbox_blocked": total_sandbox_blocked,
         },
     }

@@ -75,3 +75,84 @@ def validate_cited_ids_subset(
 
     allowed = set(str(x) for x in allowed_packet_ids)
     return [pid for pid in cited_packet_ids if pid not in allowed]
+
+
+def validate_research_structured_v1(
+    *,
+    research_structured: dict | None,
+    routed_kind: str,
+    allowed_packet_ids: list[str],
+) -> list[str]:
+    """AGH v1 Patch 5 — Research acceptance guardrail.
+
+    Returns a list of blocking reasons if the LLM-returned
+    ``research_structured_v1`` block violates any of the Patch 5
+    acceptance invariants. An empty list means acceptance.
+
+    Invariants (from Workorder §5.B):
+
+    * If ``routed_kind`` is one of ``RESEARCH_STRUCTURED_KINDS`` and no
+      structured block was produced, that is acceptable only when the
+      enclosing answer carries ``blocking_reasons`` explaining why.
+      (Reported as ``missing_research_structured_for_research_kind`` so
+      the caller can decide whether to template-fallback.)
+    * ``evidence_cited`` entries must be ``allowed_packet_ids`` subset
+      (also cross-checked on the Pydantic contract, but enforced here so
+      the surface packet never loses blocked context to silent coercion).
+    * Text fields must pass ``guardrail_violations``; each bullet list
+      is scanned together with the free-text ``rationale``.
+    * ``proposed_sandbox_request`` is not scanned for *subset* here —
+      the Pydantic contract already enforces the ``SANDBOX_KINDS`` enum
+      and required ``target_spec`` fields.
+    """
+
+    from agentic_harness.llm.contract import RESEARCH_STRUCTURED_KINDS
+
+    blocking: list[str] = []
+    if routed_kind in RESEARCH_STRUCTURED_KINDS and not research_structured:
+        blocking.append(
+            "missing_research_structured_for_research_kind:" + str(routed_kind)
+        )
+        return blocking
+    if not research_structured:
+        return blocking
+
+    if not isinstance(research_structured, dict):
+        blocking.append("research_structured_v1_must_be_dict")
+        return blocking
+
+    evidence = research_structured.get("evidence_cited") or []
+    if not isinstance(evidence, list):
+        blocking.append("research_structured_v1.evidence_cited_must_be_list")
+        return blocking
+    allowed = set(str(x) for x in allowed_packet_ids)
+    bogus = [pid for pid in evidence if str(pid) not in allowed]
+    if bogus:
+        blocking.append(
+            f"research_structured_v1.evidence_cited_hallucinated:count={len(bogus)}"
+        )
+
+    texts: list[str] = []
+    for key in (
+        "summary_bullets_ko",
+        "summary_bullets_en",
+        "residual_uncertainty_bullets",
+        "what_to_watch_bullets",
+    ):
+        v = research_structured.get(key) or []
+        if not isinstance(v, list):
+            blocking.append(f"research_structured_v1.{key}_must_be_list")
+            continue
+        texts.extend(str(x) for x in v)
+    prop = research_structured.get("proposed_sandbox_request")
+    if isinstance(prop, dict):
+        if "rationale" in prop:
+            texts.append(str(prop.get("rationale") or ""))
+
+    violations = guardrail_violations(texts)
+    if violations:
+        blocking.append(
+            f"research_structured_v1.forbidden_copy:count={len(set(violations))}"
+        )
+
+    return blocking

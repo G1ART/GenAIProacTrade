@@ -68,3 +68,10 @@ class ActiveHorizonRegistryEntryV0(BaseModel):
     display_id: str = ""
     display_family_name_ko: str = ""
     display_family_name_en: str = ""
+    # AGH v1 Patch 5 — research factor bindings. Optional list of
+    # ``{"factor_name": str, "return_basis": str}`` entries that tell the
+    # ``governance_scan`` cadence which completed ``factor_validation`` runs
+    # it may consider as upstream evidence for this registry entry. Empty
+    # list (default) means "not yet bound" and the scan honestly skips this
+    # entry instead of inventing a factor/basis mapping.
+    research_factor_bindings_v1: list[dict[str, str]] = Field(default_factory=list)

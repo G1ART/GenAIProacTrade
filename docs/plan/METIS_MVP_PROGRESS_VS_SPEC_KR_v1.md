@@ -24,8 +24,8 @@
 | Q6 | 카드에 headline·why_now·rationale? | **닫힘** | 시드/번들 스펙트럼 행 + object detail |
 | Q7 | 동명 종목·지평별 위치 차이? | **닫힘** | 지평별 행·`horizon_lens_compare` |
 | Q8 | price overlay가 rank movement 변경? | **닫힘** | `mock_price_tick=1` |
-| Q9 | Research message→information→deeper? | **최소 닫힘** | object detail 계약 + 테스트 |
-| Q10 | Replay가 당시 family·결과 연결? | **강화 중** | 타임라인 lineage 주입 + **registry_entry_id** 필드 추가(본 스프린트) |
+| Q9 | Research message→information→deeper? | **강화 닫힘(AGH v1 Patch 5)** | Patch 5에서 `layer5_intent_router_v1`(7 kinds 결정론 라우팅) + `ResearchAnswerStructureV1`(summary/residual/what_to_watch/evidence_cited/proposed_sandbox_request) + `validate_research_structured_v1` 가드레일을 통해 "왜 / 무엇이 미증명 / 무엇을 봐야 / 어떤 bounded sandbox 필요?" 4축 acceptance 발음 완료. Today object detail에 `sandbox_options_v1` + `research_status_badges_v1` 노출. |
+| Q10 | Replay가 당시 family·결과 연결? | **닫힘(AGH v1 Patch 5)** | 타임라인 lineage + `registry_entry_id` 필드는 종전 스프린트에서 닫힘, Patch 5에서 `api_governance_lineage_for_registry_entry`에 `sandbox_followups` + `total_sandbox_requests/completed/blocked` 확장, `/api/sandbox/requests`·`/api/replay/governance-lineage` 라우트 추가. 즉 operator는 "validation → evaluator → proposal → decision → apply → spectrum refresh → sandbox rerun" 체인을 단일 뷰에서 복원 가능. |
 
 ---
 

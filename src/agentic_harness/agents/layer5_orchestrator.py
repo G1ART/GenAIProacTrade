@@ -24,17 +24,25 @@ from typing import Any, Optional
 
 from pydantic import ValidationError
 
+from agentic_harness.agents.layer5_intent_router_v1 import (
+    route_user_question_v1,
+)
 from agentic_harness.contracts.packets_v1 import (
     UserQueryActionPacketV1,
     deterministic_packet_id,
 )
 from agentic_harness.contracts.queues_v1 import QueueJobV1, deterministic_job_id
-from agentic_harness.llm.contract import LLMResponseContractV1, USER_QUESTION_KINDS
+from agentic_harness.llm.contract import (
+    LLMResponseContractV1,
+    RESEARCH_STRUCTURED_KINDS,
+    USER_QUESTION_KINDS,
+)
 from agentic_harness.llm.guardrails import (
     guardrail_violations,
     redact_forbidden,
     redact_mapping,
     validate_cited_ids_subset,
+    validate_research_structured_v1,
 )
 from agentic_harness.llm.provider import (
     FixtureProvider,
@@ -51,30 +59,16 @@ from agentic_harness.store.protocol import HarnessStoreProtocol, StoreError
 # ---------------------------------------------------------------------------
 
 
-_ROUTING_RULES: list[tuple[str, tuple[str, ...]]] = [
-    # (routed_kind, keyword_list)
-    (
-        "why_changed",
-        ("왜", "바뀌", "변동", "why", "changed", "move", "움직", "어째서"),
-    ),
-    (
-        "system_status",
-        ("상태", "status", "큐", "queue", "packet", "system"),
-    ),
-    (
-        "research_pending",
-        ("연구", "research", "pending", "candidate", "후보", "대기"),
-    ),
-]
+def action_router_agent(question: str, *, lang: str = "ko") -> str:
+    """AGH v1 Patch 5 - delegates to ``layer5_intent_router_v1
+    .route_user_question_v1`` so Research intents
+    (``deeper_rationale`` / ``what_remains_unproven`` /
+    ``what_to_watch`` / ``sandbox_request``) are normalized alongside
+    the Patch 2 Trio. Kept as a thin wrapper for backward-compat with
+    existing tests that import ``action_router_agent`` directly.
+    """
 
-
-def action_router_agent(question: str) -> str:
-    q = str(question or "").strip().lower()
-    for kind, kws in _ROUTING_RULES:
-        for kw in kws:
-            if kw.lower() in q:
-                return kind
-    return "why_changed"  # default: treat unknown as "why changed"
+    return route_user_question_v1(question, lang=lang)
 
 
 # ---------------------------------------------------------------------------
@@ -189,6 +183,69 @@ def state_reader_agent(
         _collect("ResearchCandidatePacketV1", None, allow_asset_neutral=True)
         _collect("EvaluationPacketV1", None, allow_asset_neutral=True)
         _collect("PromotionGatePacketV1", None, allow_asset_neutral=True)
+    elif routed_kind == "deeper_rationale":
+        # AGH v1 Patch 5 — "근거 좀 더 보여줘". The LLM is asked to
+        # elaborate on *why* the current Today view exists. We include
+        # the full upstream audit chain (validation evaluations +
+        # governance proposals + decisions + applies + spectrum refresh
+        # records) plus any bounded sandbox followups already recorded,
+        # so the answer can cite *evidence* rather than narrate.
+        _collect("ValidationPromotionEvaluationV1", None, allow_asset_neutral=True)
+        _collect(
+            "RegistryUpdateProposalV1",
+            None,
+            allow_asset_neutral=True,
+        )
+        _collect("RegistryDecisionPacketV1", None, allow_asset_neutral=True)
+        _collect("RegistryPatchAppliedPacketV1", None, allow_asset_neutral=True)
+        _collect("SpectrumRefreshRecordV1", None, allow_asset_neutral=True)
+        _collect("SandboxRequestPacketV1", None, allow_asset_neutral=True)
+        _collect("SandboxResultPacketV1", None, allow_asset_neutral=True)
+    elif routed_kind == "what_remains_unproven":
+        # AGH v1 Patch 5 — "아직 증명되지 않은 게 뭐야". Prioritize blocked
+        # validation evaluations + pending proposals (blocked_by_gate,
+        # blocked_missing_evidence, blocked_same_as_active) + sandbox
+        # requests that ended blocked/errored so the LLM can honestly
+        # describe the open residuals.
+        _collect("ValidationPromotionEvaluationV1", None, allow_asset_neutral=True)
+        _collect(
+            "RegistryUpdateProposalV1",
+            None,
+            allow_asset_neutral=True,
+            status_in=("proposed", "escalated", "deferred"),
+        )
+        _collect("SandboxRequestPacketV1", None, allow_asset_neutral=True)
+        _collect("SandboxResultPacketV1", None, allow_asset_neutral=True)
+    elif routed_kind == "what_to_watch":
+        # AGH v1 Patch 5 — "지켜봐야 할 게 뭐야". Forward-looking: recent
+        # ingest alerts + pending overlay proposals + recent ticks so the
+        # LLM can construct a bounded "watch list" that cites source
+        # packets instead of predicting directionals.
+        _collect("IngestAlertPacketV1", None)
+        _collect("OverlayProposalPacketV1", None, allow_asset_neutral=True)
+        _collect(
+            "RegistryUpdateProposalV1",
+            None,
+            allow_asset_neutral=True,
+            status_in=("proposed", "escalated"),
+        )
+        _collect("ValidationPromotionEvaluationV1", None, allow_asset_neutral=True)
+        _collect("ReplayLearningPacketV1", None, allow_asset_neutral=True)
+    elif routed_kind == "sandbox_request":
+        # AGH v1 Patch 5 — explicit sandbox-gating intent. The LLM must
+        # be able to cite the upstream evidence (ValidationPromotion*
+        # packets) that justifies the proposed sandbox request, plus any
+        # prior sandbox requests/results for the same scope so it does
+        # not re-propose a still-pending rerun.
+        _collect("ValidationPromotionEvaluationV1", None, allow_asset_neutral=True)
+        _collect(
+            "RegistryUpdateProposalV1",
+            None,
+            allow_asset_neutral=True,
+            status_in=("proposed", "escalated", "deferred"),
+        )
+        _collect("SandboxRequestPacketV1", None, allow_asset_neutral=True)
+        _collect("SandboxResultPacketV1", None, allow_asset_neutral=True)
     elif routed_kind == "system_status":
         # status is global; include a compact census rather than asset-scoped rows.
         relevant_packets = []
@@ -272,7 +329,28 @@ _SYSTEM_PROMPT = (
     "paraphrasing them as a promotion. Proposals emitted by the evaluator "
     "still require the same operator decision (harness-decide approve) + "
     "governed apply (RegistryPatchAppliedPacketV1) before the Today "
-    "surface is considered changed."
+    "surface is considered changed. "
+    # AGH v1 Patch 5 — Research acceptance block.
+    "When routed_kind is 'deeper_rationale', 'what_remains_unproven', "
+    "'what_to_watch', or 'sandbox_request' you MUST also populate "
+    "research_structured_v1 on the response. research_structured_v1 has "
+    "bounded bullet lists (summary_bullets_ko / summary_bullets_en / "
+    "residual_uncertainty_bullets / what_to_watch_bullets; each <= 280 "
+    "chars, each list <= 6 items) and an evidence_cited array that is a "
+    "SUBSET of the top-level cited_packet_ids. You MUST NOT cite any "
+    "packet_id that is not in the provided state bundle. If the user "
+    "asked for a 'sandbox_request' (e.g. '재검증 돌려줘' / "
+    "'rerun validation'), you MAY additionally propose exactly one "
+    "proposed_sandbox_request object with {sandbox_kind: "
+    "'validation_rerun', registry_entry_id, horizon, target_spec:{"
+    "factor_name, universe_name, horizon_type, return_basis}, "
+    "rationale}. Patch 5 only supports sandbox_kind='validation_rerun'; "
+    "any other value is rejected by the guardrail. A "
+    "proposed_sandbox_request is NEVER applied automatically — it is "
+    "only surfaced to the operator UI so they can explicitly call the "
+    "harness-sandbox-request CLI. Under NO circumstances may you "
+    "describe a proposed sandbox request as an executed action or claim "
+    "it has already changed the registry."
 )
 
 
@@ -331,7 +409,7 @@ def founder_user_orchestrator_agent(
     lang: str = "ko",
     provider: Optional[LLMProviderProtocol] = None,
 ) -> dict[str, Any]:
-    routed_kind = action_router_agent(question)
+    routed_kind = action_router_agent(question, lang=lang)
     state_bundle = state_reader_agent(
         store=store, asset_id=asset_id, routed_kind=routed_kind
     )
@@ -399,6 +477,30 @@ def founder_user_orchestrator_agent(
                     )
                     guardrail_passed = False
                     fallback_reason = response.fallback_reason
+                else:
+                    # 4) AGH v1 Patch 5 — research acceptance guardrail.
+                    # The Pydantic contract already enforces shape, but we
+                    # recheck the evidence_cited subset + forbidden-copy
+                    # scan on bullets + proposed_sandbox_request.rationale
+                    # here so a failure lands as a template_fallback with
+                    # a clear reason instead of silently accepting a
+                    # research block that cites packets outside the
+                    # state bundle.
+                    rs_raw = raw.get("research_structured_v1")
+                    rs_block = validate_research_structured_v1(
+                        research_structured=rs_raw
+                        if isinstance(rs_raw, dict)
+                        else None,
+                        routed_kind=routed_kind,
+                        allowed_packet_ids=allowed_packet_ids,
+                    )
+                    if rs_block:
+                        response = _template_fallback_response(
+                            state_bundle=state_bundle,
+                            reason=f"research_structured_blocked:{rs_block[0]}",
+                        )
+                        guardrail_passed = False
+                        fallback_reason = response.fallback_reason
 
     safe_payload = redact_mapping(
         {

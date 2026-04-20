@@ -25,6 +25,12 @@ QUEUE_CLASSES = (
     # and are consumed by the ``registry_patch_executor`` worker which performs
     # the atomic brain-bundle write.
     "registry_apply_queue",
+    # AGH v1 Patch 5: bounded sandbox queue. Consumed by the Layer 3
+    # ``sandbox_executor_v1`` worker; Patch 5 only supports the
+    # ``validation_rerun`` sandbox_kind closed-loop. Separate queue class
+    # (rather than reusing ``research_queue``) so DLQ + idempotency live
+    # on a single purpose-built rail.
+    "sandbox_queue",
 )
 
 QueueClass = Literal[
@@ -35,6 +41,7 @@ QueueClass = Literal[
     "surface_action_queue",
     "replay_recompute_queue",
     "registry_apply_queue",
+    "sandbox_queue",
 ]
 
 JOB_STATUS_VALUES = ("enqueued", "running", "done", "dlq", "expired")

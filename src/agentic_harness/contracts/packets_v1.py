@@ -109,6 +109,12 @@ PACKET_TYPES = (
     # when the gate verdict is ``promote``; otherwise records the blocked
     # outcome with explicit ``blocking_reasons``.
     "ValidationPromotionEvaluationV1",
+    # AGH v1 Patch 5: Research Ask + bounded sandbox closure. Request/Result
+    # pair for the minimal closed-loop sandbox rerun path. Every operator /
+    # Research-ask initiated ``validation_rerun`` rides these packets; the
+    # sandbox worker never mutates the active registry.
+    "SandboxRequestPacketV1",
+    "SandboxResultPacketV1",
 )
 
 
@@ -985,7 +991,21 @@ class ReplayLearningPacketV1(AgenticPacketBaseV1):
         return dict(v)
 
 
-USER_QUESTION_KINDS = ("why_changed", "system_status", "research_pending")
+USER_QUESTION_KINDS = (
+    # Patch 2: original three canonical kinds.
+    "why_changed",
+    "system_status",
+    "research_pending",
+    # AGH v1 Patch 5: Research Ask kinds surfaced by the deterministic
+    # intent router. ``sandbox_request`` routes the question into the
+    # bounded sandbox request path (C1+C2); the remaining three let the
+    # Research view differentiate interpretation layers (deeper rationale,
+    # unproven claims, watch-next signals) without free-form planning.
+    "deeper_rationale",
+    "what_remains_unproven",
+    "what_to_watch",
+    "sandbox_request",
+)
 
 
 class UserQueryActionPacketV1(AgenticPacketBaseV1):
@@ -1017,6 +1037,149 @@ class UserQueryActionPacketV1(AgenticPacketBaseV1):
         return dict(v)
 
 
+# -----------------------------------------------------------------------------
+# AGH v1 Patch 5 — Research Ask / bounded sandbox closure.
+#
+# Minimal closed-loop surface:
+#   1. Research ask (``routed_kind=sandbox_request``) or operator CLI emits a
+#      ``SandboxRequestPacketV1`` naming a ``sandbox_kind`` + ``target_spec``.
+#   2. Worker consumes the ``sandbox_queue`` job, re-reads completed
+#      ``factor_validation_runs``, and records a ``SandboxResultPacketV1``.
+#   3. Today / Research / Replay cite the packets by id; the active
+#      registry is NEVER mutated from this path (governed apply still
+#      requires Patch 2/3 operator decision).
+#
+# Non-goals (Patch 5 scope): only ``validation_rerun`` kind is supported.
+# Additional kinds (``evidence_refresh`` / ``residual_review`` /
+# ``replay_comparison``) ride the same contract in a future patch by adding
+# to ``SANDBOX_KINDS``; no schema change required.
+# -----------------------------------------------------------------------------
+
+
+SANDBOX_KINDS = ("validation_rerun",)
+
+SANDBOX_REQUEST_ACTORS = ("operator", "research_ask_v1")
+
+SANDBOX_RESULT_OUTCOMES = (
+    "completed",
+    "no_change",
+    "blocked_insufficient_inputs",
+    "rejected_kind_not_allowed",
+    "errored",
+)
+
+
+class SandboxRequestPacketV1(AgenticPacketBaseV1):
+    packet_type: str = "SandboxRequestPacketV1"
+    target_layer: TargetLayer = "layer3_research"
+
+    @field_validator("payload")
+    @classmethod
+    def _required_payload_fields(cls, v: dict[str, Any]) -> dict[str, Any]:
+        if not isinstance(v, dict):
+            raise ValueError("payload must be a dict")
+        for k in (
+            "request_id",
+            "sandbox_kind",
+            "registry_entry_id",
+            "horizon",
+            "target_spec",
+            "requested_by",
+            "cited_evidence_packet_ids",
+            "queued_at_utc",
+        ):
+            if k not in v:
+                raise ValueError(f"SandboxRequestPacketV1.payload requires '{k}'")
+        if v["sandbox_kind"] not in SANDBOX_KINDS:
+            raise ValueError(
+                f"SandboxRequestPacketV1 sandbox_kind must be one of {SANDBOX_KINDS}"
+            )
+        if v["horizon"] not in REGISTRY_BUNDLE_HORIZONS:
+            raise ValueError(
+                f"horizon must be one of {REGISTRY_BUNDLE_HORIZONS}"
+            )
+        if v["requested_by"] not in SANDBOX_REQUEST_ACTORS:
+            raise ValueError(
+                f"requested_by must be one of {SANDBOX_REQUEST_ACTORS}"
+            )
+        for k in ("request_id", "registry_entry_id"):
+            if not str(v[k]).strip():
+                raise ValueError(f"{k} must be non-empty")
+        target_spec = v["target_spec"]
+        if not isinstance(target_spec, dict):
+            raise ValueError("target_spec must be a dict")
+        if v["sandbox_kind"] == "validation_rerun":
+            for k in ("factor_name", "universe_name", "horizon_type", "return_basis"):
+                if not str(target_spec.get(k) or "").strip():
+                    raise ValueError(
+                        f"target_spec(validation_rerun) requires non-empty '{k}'"
+                    )
+        evidence = v["cited_evidence_packet_ids"]
+        if not isinstance(evidence, list) or not evidence:
+            raise ValueError("cited_evidence_packet_ids must be a non-empty list")
+        cited_ask = v.get("cited_ask_packet_id")
+        if cited_ask is not None and not isinstance(cited_ask, str):
+            raise ValueError("cited_ask_packet_id must be a string or null")
+        # Audit-only: sandbox requests never carry raw registry mutations.
+        if "active_registry_mutation" in v:
+            raise ValueError(
+                "SandboxRequestPacketV1 must not carry raw active_registry_mutation; "
+                "the sandbox path is bounded and never mutates the active registry."
+            )
+        return dict(v)
+
+
+class SandboxResultPacketV1(AgenticPacketBaseV1):
+    packet_type: str = "SandboxResultPacketV1"
+    target_layer: TargetLayer = "layer3_research"
+
+    @field_validator("payload")
+    @classmethod
+    def _required_payload_fields(cls, v: dict[str, Any]) -> dict[str, Any]:
+        if not isinstance(v, dict):
+            raise ValueError("payload must be a dict")
+        for k in (
+            "result_id",
+            "cited_request_packet_id",
+            "outcome",
+            "produced_refs",
+            "blocking_reasons",
+            "completed_at_utc",
+        ):
+            if k not in v:
+                raise ValueError(f"SandboxResultPacketV1.payload requires '{k}'")
+        if v["outcome"] not in SANDBOX_RESULT_OUTCOMES:
+            raise ValueError(
+                f"SandboxResultPacketV1 outcome must be one of {SANDBOX_RESULT_OUTCOMES}"
+            )
+        for k in ("result_id", "cited_request_packet_id"):
+            if not str(v[k]).strip():
+                raise ValueError(f"{k} must be non-empty")
+        produced = v["produced_refs"]
+        if not isinstance(produced, list):
+            raise ValueError("produced_refs must be a list")
+        blocking = v["blocking_reasons"]
+        if not isinstance(blocking, list):
+            raise ValueError("blocking_reasons must be a list")
+        if v["outcome"] == "completed":
+            if not produced:
+                raise ValueError("outcome=completed requires non-empty produced_refs")
+        if v["outcome"] in (
+            "blocked_insufficient_inputs",
+            "rejected_kind_not_allowed",
+            "errored",
+        ):
+            if not blocking:
+                raise ValueError(
+                    f"outcome={v['outcome']!r} requires non-empty blocking_reasons"
+                )
+        if "active_registry_mutation" in v:
+            raise ValueError(
+                "SandboxResultPacketV1 must not carry raw active_registry_mutation."
+            )
+        return dict(v)
+
+
 PACKET_TYPE_TO_CLASS: dict[str, type[AgenticPacketBaseV1]] = {
     "IngestAlertPacketV1": IngestAlertPacketV1,
     "EventTriggerPacketV1": EventTriggerPacketV1,
@@ -1034,6 +1197,8 @@ PACKET_TYPE_TO_CLASS: dict[str, type[AgenticPacketBaseV1]] = {
     "RegistryPatchAppliedPacketV1": RegistryPatchAppliedPacketV1,
     "SpectrumRefreshRecordV1": SpectrumRefreshRecordV1,
     "ValidationPromotionEvaluationV1": ValidationPromotionEvaluationV1,
+    "SandboxRequestPacketV1": SandboxRequestPacketV1,
+    "SandboxResultPacketV1": SandboxResultPacketV1,
 }
 
 
