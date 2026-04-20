@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 from metis_brain.bundle import BrainBundleV0, brain_bundle_path, bundle_ready_for_horizon, try_load_brain_bundle_v0
@@ -26,6 +28,52 @@ from phase47_runtime.message_layer_v1 import (
 from phase47_runtime.phase47e_user_locale import normalize_lang, t
 
 _ALLOWED = frozenset({"short", "medium", "medium_long", "long"})
+
+# AGH v1 Patch 7 C2b — explicit row cap for Today spectrum payload so the
+# UI JSON does not balloon linearly with universe size. Default matches
+# previous ~200-ticker operational envelope; hard cap protects against
+# operator-supplied overrides that would defeat the purpose.
+TODAY_SPECTRUM_DEFAULT_ROWS_LIMIT = 200
+TODAY_SPECTRUM_MAX_ROWS_LIMIT = 1000
+
+
+def _emit_perf_log(*, fn: str, ms: float, extra: dict[str, Any] | None = None) -> None:
+    """AGH v1 Patch 7 C2d — single-line structured perf log to stderr.
+
+    See ``docs/plan/METIS_Scale_Readiness_Note_Patch7_v1.md`` §3. Keeps
+    instrumentation side-channel (never raises).
+    """
+    try:
+        rec = {
+            "kind": "metis_perf",
+            "fn": fn,
+            "ms": round(float(ms), 3),
+        }
+        if extra:
+            rec.update(extra)
+        sys.stderr.write(json.dumps(rec, sort_keys=True) + "\n")
+    except Exception:  # pragma: no cover - defensive
+        pass
+
+
+def _normalize_rows_limit(rows_limit: Any) -> int:
+    """Coerce an operator-supplied ``rows_limit`` into the hard envelope.
+
+    None/invalid -> default; ``<=0`` -> default; values above
+    ``TODAY_SPECTRUM_MAX_ROWS_LIMIT`` are capped. Returned value is the
+    *effective* limit applied to row slicing.
+    """
+    if rows_limit is None:
+        return TODAY_SPECTRUM_DEFAULT_ROWS_LIMIT
+    try:
+        v = int(rows_limit)
+    except (TypeError, ValueError):
+        return TODAY_SPECTRUM_DEFAULT_ROWS_LIMIT
+    if v <= 0:
+        return TODAY_SPECTRUM_DEFAULT_ROWS_LIMIT
+    if v > TODAY_SPECTRUM_MAX_ROWS_LIMIT:
+        return TODAY_SPECTRUM_MAX_ROWS_LIMIT
+    return v
 
 # AGH v1 Patch 3 — bounded FIFO surfaced to Today for governed-apply badges.
 # Today reads the bundle's ``recent_governed_applies`` (written atomically by
@@ -441,6 +489,7 @@ def _finalize_spectrum_payload(
     fam: str,
     product_stream: str,
     extra: dict[str, Any] | None = None,
+    rows_limit: int | None = None,
 ) -> dict[str, Any]:
     pre_rank_by_asset: dict[str, int] = {}
     if tick == "1":
@@ -465,6 +514,12 @@ def _finalize_spectrum_payload(
                 r["rank_movement"] = "unchanged"
         else:
             r["rank_movement"] = "steady"
+    total_rows = len(out_rows)
+    truncated = False
+    sliced_rows = out_rows
+    if rows_limit is not None and total_rows > rows_limit:
+        sliced_rows = out_rows[:rows_limit]
+        truncated = True
     horizon_options = [{"id": h, "label": t(lg, _HORIZON_LABEL_KEYS[h])} for h in _HORIZON_ORDER]
     base: dict[str, Any] = {
         "ok": True,
@@ -477,7 +532,10 @@ def _finalize_spectrum_payload(
         "mock_price_tick": tick,
         "mock_price_tick_note": t(lg, "spectrum.mock_tick_note") if tick == "1" else "",
         "active_model_family": fam,
-        "rows": out_rows,
+        "rows": sliced_rows,
+        "total_rows": total_rows,
+        "truncated": truncated,
+        "rows_limit": rows_limit if rows_limit is not None else total_rows,
         "allowed_horizons": list(_HORIZON_ORDER),
         "message_layer_version": 1,
         "message_layer_keys": list(MESSAGE_LAYER_V1_KEYS),
@@ -563,8 +621,19 @@ def build_today_spectrum_payload(
     horizon: str | None,
     lang: str | None = None,
     mock_price_tick: str | None = None,
+    rows_limit: int | None = None,
 ) -> dict[str, Any]:
-    """Spectrum rows for one horizon — registry bundle first when valid, else seed (mode-dependent)."""
+    """Spectrum rows for one horizon — registry bundle first when valid, else seed (mode-dependent).
+
+    AGH v1 Patch 7 C2b: ``rows_limit`` is an **optional** response-size
+    guardrail. When None, behaves exactly as before except the output now
+    declares ``total_rows`` / ``truncated`` so clients can surface the
+    truth. When a positive int, rows are sliced to at most
+    ``min(rows_limit, TODAY_SPECTRUM_MAX_ROWS_LIMIT)`` AFTER all business
+    logic has run (rank/quintile/movement are computed against the full
+    population so top-N slicing does not lie about rank).
+    """
+    t0 = perf_counter()
     lg = normalize_lang(lang)
     tick = _normalize_mock_price_tick(mock_price_tick)
     hz = (horizon or "short").strip().lower().replace("-", "_")
@@ -574,6 +643,7 @@ def build_today_spectrum_payload(
             "error": "invalid_horizon",
             "allowed": sorted(_ALLOWED),
         }
+    effective_limit = _normalize_rows_limit(rows_limit)
     mode = _today_source_mode()
     brain_skip_reasons: list[str] = []
 
@@ -613,8 +683,19 @@ def build_today_spectrum_payload(
                         _recent_governed_applies_for_horizon(bundle, horizon=hz)
                     ),
                 },
+                rows_limit=effective_limit,
             )
             persist_message_snapshots_for_spectrum_payload(repo_root, out)
+            _emit_perf_log(
+                fn="today_spectrum.build_today_spectrum_payload",
+                ms=(perf_counter() - t0) * 1000.0,
+                extra={
+                    "horizon": hz,
+                    "source": "registry",
+                    "total_rows": out.get("total_rows"),
+                    "truncated": out.get("truncated"),
+                },
+            )
             return out
         if mode == "registry":
             p = brain_bundle_path(repo_root)
@@ -676,8 +757,19 @@ def build_today_spectrum_payload(
         fam=fam,
         product_stream="SPRINT1_TODAY_SPECTRUM_ENGINE_V0",
         extra=extra,
+        rows_limit=effective_limit,
     )
     persist_message_snapshots_for_spectrum_payload(repo_root, out)
+    _emit_perf_log(
+        fn="today_spectrum.build_today_spectrum_payload",
+        ms=(perf_counter() - t0) * 1000.0,
+        extra={
+            "horizon": hz,
+            "source": "seed",
+            "total_rows": out.get("total_rows"),
+            "truncated": out.get("truncated"),
+        },
+    )
     return out
 
 
@@ -1158,17 +1250,26 @@ def build_today_object_detail_payload(
     mock_price_tick: str | None = None,
 ) -> dict[str, Any]:
     """Sprint 4 — one object: Message → Information → Research (seed + spectrum context)."""
+    t0 = perf_counter()
     lg = normalize_lang(lang)
     aid = (asset_id or "").strip()
     if not aid:
         return {"ok": False, "error": "missing_asset_id"}
+    # AGH v1 Patch 7 C2b: object detail needs the *full* population so it
+    # can locate any asset regardless of the operator-visible row cap.
     sp = build_today_spectrum_payload(
         repo_root=repo_root,
         horizon=horizon,
         lang=lg,
         mock_price_tick=mock_price_tick,
+        rows_limit=TODAY_SPECTRUM_MAX_ROWS_LIMIT,
     )
     if not sp.get("ok"):
+        _emit_perf_log(
+            fn="today_spectrum.build_today_object_detail_payload",
+            ms=(perf_counter() - t0) * 1000.0,
+            extra={"asset_id": aid, "ok": False},
+        )
         return sp
     hz = str(sp.get("horizon") or "")
     row: dict[str, Any] | None = None
@@ -1252,7 +1353,7 @@ def build_today_object_detail_payload(
         horizon=hz,
     )
 
-    return {
+    result = {
         "ok": True,
         "detail_contract": "SPRINT4_MESSAGE_INFORMATION_RESEARCH_V0",
         "lang": lg,
@@ -1283,3 +1384,9 @@ def build_today_object_detail_payload(
         "research_status_badges_v1": research_status_badges_v1,
         "research_structured_v1": research_structured_v1,
     }
+    _emit_perf_log(
+        fn="today_spectrum.build_today_object_detail_payload",
+        ms=(perf_counter() - t0) * 1000.0,
+        extra={"asset_id": aid, "horizon": hz, "ok": True},
+    )
+    return result

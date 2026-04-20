@@ -40,9 +40,12 @@ Env-gated install site: ``src/main.py`` ``perform_tick`` bootstrap.
 
 from __future__ import annotations
 
+import json
 import logging
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from time import perf_counter
 from typing import Any, Callable, Optional
 
 from agentic_harness.agents.layer4_promotion_evaluator_v1 import (
@@ -61,6 +64,28 @@ log = logging.getLogger(__name__)
 
 DEFAULT_DEDUPE_WINDOW_DAYS = 14
 DEFAULT_RUN_FETCH_LIMIT = 50
+
+
+def _emit_perf_log(*, fn: str, ms: float, extra: dict[str, Any] | None = None) -> None:
+    """AGH v1 Patch 7 C2d — single-line structured perf log to stderr.
+
+    No new dependencies: vanilla ``json.dumps`` to ``sys.stderr``. The
+    scheduler tick / Today spectrum builder / governance dedupe use the
+    same ``kind:"metis_perf"`` envelope so a future analyzer can grep
+    stderr without parsing rich log frames. Failures are swallowed to
+    keep perf instrumentation strictly side-channel.
+    """
+    try:
+        rec = {
+            "kind": "metis_perf",
+            "fn": fn,
+            "ms": round(float(ms), 3),
+        }
+        if extra:
+            rec.update(extra)
+        sys.stderr.write(json.dumps(rec, sort_keys=True) + "\n")
+    except Exception:  # pragma: no cover - defensive
+        pass
 
 
 def _parse_iso(s: str) -> Optional[datetime]:
@@ -265,6 +290,15 @@ def _existing_evaluation_matches(
     validation_run_id: str,
     limit: int = 200,
 ) -> bool:
+    """Legacy per-spec lookup kept for backward compatibility.
+
+    AGH v1 Patch 7 switches ``deduplicate_specs`` to a single hoisted
+    ``list_packets`` call to avoid an N+1 query pattern (see
+    ``docs/plan/METIS_Scale_Readiness_Note_Patch7_v1.md`` Finding 2).
+    This helper is no longer on the dedupe hot path, but we keep it so
+    external callers (and isolated unit tests) can still ask "does this
+    evaluation already exist?" without rebuilding the index.
+    """
     try:
         rows = store.list_packets(
             packet_type="ValidationPromotionEvaluationV1", limit=limit
@@ -284,6 +318,38 @@ def _existing_evaluation_matches(
     return False
 
 
+def _build_existing_evaluation_index(
+    store: HarnessStoreProtocol,
+    *,
+    limit: int,
+) -> set[tuple[str, str, str, str]]:
+    """Load ``ValidationPromotionEvaluationV1`` packets once and return a
+    hash index keyed by the 4-tuple that dedupe decisions care about.
+
+    AGH v1 Patch 7 Scope C2a: see
+    ``docs/plan/METIS_Scale_Readiness_Note_Patch7_v1.md`` Finding 2.
+    """
+    try:
+        rows = store.list_packets(
+            packet_type="ValidationPromotionEvaluationV1", limit=limit
+        )
+    except Exception as exc:  # pragma: no cover - defensive
+        log.warning("governance_scan provider: list_packets failed: %s", exc)
+        return set()
+    index: set[tuple[str, str, str, str]] = set()
+    for r in rows or []:
+        payload = r.get("payload") or {}
+        index.add(
+            (
+                str(payload.get("registry_entry_id") or ""),
+                str(payload.get("horizon") or ""),
+                str(payload.get("derived_artifact_id") or ""),
+                str(payload.get("validation_run_id") or ""),
+            )
+        )
+    return index
+
+
 def deduplicate_specs(
     store: HarnessStoreProtocol,
     specs: list[dict[str, Any]],
@@ -293,11 +359,23 @@ def deduplicate_specs(
 
     Uses the same deterministic ``derive_artifact_id`` policy as the
     evaluator so "same evidence -> same artifact id" holds across ticks.
+
+    AGH v1 Patch 7 C2a: the existing evaluation lookup is hoisted out of
+    the per-spec loop — one ``list_packets`` call, O(1) membership
+    check against an in-memory set — so a governance_scan tick costs a
+    constant number of store reads regardless of how many specs the
+    validation runner produced. Semantics are unchanged (same 4-tuple
+    equality as the legacy ``_existing_evaluation_matches`` helper).
     """
 
     if not specs:
         return []
+    t0 = perf_counter()
+    existing = _build_existing_evaluation_index(
+        store, limit=max(200, 2 * len(specs))
+    )
     out: list[dict[str, Any]] = []
+    dropped = 0
     for spec in specs:
         ev = spec.get("_evidence") or {}
         validation_run_id = str(ev.get("validation_run_id") or "").strip()
@@ -314,15 +392,26 @@ def deduplicate_specs(
             )
         except ValueError:
             continue
-        if _existing_evaluation_matches(
-            store,
-            registry_entry_id=str(spec["registry_entry_id"]),
-            horizon=str(spec["horizon"]),
-            derived_artifact_id=derived,
-            validation_run_id=validation_run_id,
-        ):
+        key = (
+            str(spec["registry_entry_id"]),
+            str(spec["horizon"]),
+            derived,
+            validation_run_id,
+        )
+        if key in existing:
+            dropped += 1
             continue
         out.append(spec)
+    _emit_perf_log(
+        fn="governance_scan_provider_v1.deduplicate_specs",
+        ms=(perf_counter() - t0) * 1000.0,
+        extra={
+            "specs_in": len(specs),
+            "specs_out": len(out),
+            "dropped": dropped,
+            "existing_index_size": len(existing),
+        },
+    )
     return out
 
 

@@ -1,0 +1,74 @@
+{
+  "contract": "AGH_V1_PATCH_7_INFORMATION_ARCHITECTURE_EVIDENCE_V1",
+  "milestone": 18,
+  "patch_nature": "product_hardening_ux_depth_scale_readiness",
+  "not_a_demo_theater_patch": true,
+  "scope": "A1 — Information architecture simplification for the primary product path",
+  "workorder_reference": "docs/plan/METIS_Patch_7_Workorder_Product_Hardening_UX_Scale_2026-04-20.md#4 scope a1",
+  "changes": {
+    "nav_two_tier": {
+      "primary_row": {
+        "file": "src/phase47_runtime/static/index.html",
+        "css_classes": ["nav-row", "nav-primary"],
+        "role": "group",
+        "data_nav_tier": "primary",
+        "buttons": [
+          {"panel": "home",       "label_key": "nav.home"},
+          {"panel": "watchlist",  "label_key": "nav.watchlist"},
+          {"panel": "research",   "label_key": "nav.research"},
+          {"panel": "replay",     "label_key": "nav.replay"},
+          {"panel": "ask_ai",     "label_key": "nav.ask_ai"}
+        ],
+        "aria_key": "tsr.nav.primary.aria"
+      },
+      "utility_row": {
+        "file": "src/phase47_runtime/static/index.html",
+        "css_classes": ["nav-row", "nav-utility"],
+        "role": "group",
+        "data_nav_tier": "utility",
+        "visual_tone": "muted, 0.74rem font, 0.78 opacity, right-aligned, top border",
+        "buttons": [
+          {"panel": "journal",   "label_key": "nav.journal"},
+          {"panel": "advanced",  "label_key": "nav.advanced"},
+          {"panel": null, "id": "btn-reload", "label_key": "nav.reload"}
+        ],
+        "utility_note_key": "tsr.nav.utility.note",
+        "aria_key": "tsr.nav.utility.aria"
+      }
+    },
+    "home_feed_jump_buttons_demoted": {
+      "file": "src/phase47_runtime/static/app.js",
+      "from": "<button data-jump=...>",
+      "to": "<a class=\"feed-utility-link\" data-jump=...>",
+      "preventDefault_on_click": true,
+      "visual_tone_css_class": "feed-utility-link"
+    },
+    "active_panel_highlight": {
+      "file": "src/phase47_runtime/static/app.js",
+      "fn": "showPanel",
+      "behavior": "Applies 'active' class to ALL #nav button[data-panel] elements (primary + utility rows) so both tiers correctly highlight the current panel."
+    }
+  },
+  "non_regressions": {
+    "no_functionality_removed": true,
+    "journal_still_accessible": true,
+    "advanced_still_accessible": true,
+    "reload_bundle_still_accessible": true,
+    "principle": "UX uniqueness comes from the intuitive, multi-dimensional presentation inside Today / Research / Replay — NOT from reshuffling the menu. This change is pure demotion of operator-tone affordances to a utility row; it removes nothing."
+  },
+  "locale_keys_added_ko": [
+    "tsr.nav.primary.aria",
+    "tsr.nav.utility.aria",
+    "tsr.nav.utility.note"
+  ],
+  "locale_keys_added_en": [
+    "tsr.nav.primary.aria",
+    "tsr.nav.utility.aria",
+    "tsr.nav.utility.note"
+  ],
+  "surface_tests": [
+    "src/tests/test_agh_v1_patch7_product_hardening_surface.py::test_a1_nav_two_rows_present",
+    "src/tests/test_agh_v1_patch7_product_hardening_surface.py::test_a1_nav_utility_houses_demoted_entries",
+    "src/tests/test_agh_v1_patch7_product_hardening_surface.py::test_a1_nav_aria_labels_localized"
+  ]
+}

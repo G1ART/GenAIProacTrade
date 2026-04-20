@@ -1,0 +1,88 @@
+{
+  "contract": "AGH_V1_PATCH_7_PRODUCT_HARDENING_BRIDGE_EVIDENCE_V1",
+  "generated_at_utc": "2026-04-20T07:43:40.669053+00:00",
+  "locale_patch7_coverage_per_lang": {
+    "en": {
+      "lineage.step_after": true,
+      "lineage.step_count": true,
+      "lineage.step_pending": true,
+      "plot.lane_apply": true,
+      "plot.lane_legend_note": true,
+      "plot.lane_sandbox": true,
+      "plot.lane_spectrum": true,
+      "tsr.audit.head": true,
+      "tsr.invoke.contract.after_enqueue": true,
+      "tsr.invoke.contract.head": true,
+      "tsr.invoke.contract.will_do": true,
+      "tsr.invoke.contract.will_not_do": true,
+      "tsr.nav.primary.aria": true,
+      "tsr.nav.utility.aria": true,
+      "tsr.nav.utility.note": true,
+      "tsr.recent.empty": true,
+      "tsr.recent.head": true
+    },
+    "ko": {
+      "lineage.step_after": true,
+      "lineage.step_count": true,
+      "lineage.step_pending": true,
+      "plot.lane_apply": true,
+      "plot.lane_legend_note": true,
+      "plot.lane_sandbox": true,
+      "plot.lane_spectrum": true,
+      "tsr.audit.head": true,
+      "tsr.invoke.contract.after_enqueue": true,
+      "tsr.invoke.contract.head": true,
+      "tsr.invoke.contract.will_do": true,
+      "tsr.invoke.contract.will_not_do": true,
+      "tsr.nav.primary.aria": true,
+      "tsr.nav.utility.aria": true,
+      "tsr.nav.utility.note": true,
+      "tsr.recent.empty": true,
+      "tsr.recent.head": true
+    }
+  },
+  "locale_patch7_keys": [
+    "tsr.nav.primary.aria",
+    "tsr.nav.utility.aria",
+    "tsr.nav.utility.note",
+    "tsr.invoke.contract.head",
+    "tsr.invoke.contract.will_do",
+    "tsr.invoke.contract.will_not_do",
+    "tsr.invoke.contract.after_enqueue",
+    "tsr.recent.head",
+    "tsr.recent.empty",
+    "tsr.audit.head",
+    "plot.lane_apply",
+    "plot.lane_spectrum",
+    "plot.lane_sandbox",
+    "plot.lane_legend_note",
+    "lineage.step_count",
+    "lineage.step_after",
+    "lineage.step_pending"
+  ],
+  "milestone": 18,
+  "not_a_demo_theater_patch": true,
+  "patch_nature": "product_hardening_ux_depth_scale_readiness",
+  "renderer_contracts_ok": {
+    "audit_consolidated": true,
+    "invoke_contract_card": true,
+    "replay_three_lane": true,
+    "research_three_clusters": true,
+    "today_typography": true,
+    "tooltip_multipart": true,
+    "two_tier_nav": true
+  },
+  "scale_guardrails_ok": {
+    "governance_dedupe_hoisted": true,
+    "lineage_limit": true,
+    "lineage_max_cap_500": true,
+    "perf_instrumentation_sites": {
+      "governance_scan_provider_v1.deduplicate_specs": true,
+      "scheduler.tick.run_one_tick": true,
+      "today_spectrum.build_today_object_detail_payload": true,
+      "today_spectrum.build_today_spectrum_payload": true
+    },
+    "spectrum_rows_limit": true
+  },
+  "scale_readiness_note_ok": true
+}

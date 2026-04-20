@@ -1,0 +1,85 @@
+{
+  "contract": "AGH_V1_PATCH_7_SCALE_READINESS_EVIDENCE_V1",
+  "milestone": 18,
+  "patch_nature": "product_hardening_ux_depth_scale_readiness",
+  "not_a_demo_theater_patch": true,
+  "scope": [
+    "C1 — Current universe bottleneck audit: produce a concise engineering note with real constraints and near-term remedies.",
+    "C2 — Scale-safe defaults / safeguards: conservative pagination/batching, explicit limits/truncation for UI payloads, query hygiene improvements, instrumentation where missing. No broad infra rewrite.",
+    "C3 — S&P 500 readiness verdict: grounded, evidence-based (not aspirational)."
+  ],
+  "workorder_reference": "docs/plan/METIS_Patch_7_Workorder_Product_Hardening_UX_Scale_2026-04-20.md#6 scope c",
+  "c1_scale_readiness_note": {
+    "path": "docs/plan/METIS_Scale_Readiness_Note_Patch7_v1.md",
+    "finding_count": 6,
+    "findings": [
+      {"id": "F1", "title": "Factor validation cadence — per-factor panel re-scan + row-by-row Supabase insert + silent-truncation risk", "patch_7_action": "deferred (high-risk; requires migration + batch RPC); remediation captured as carry-forward CF-7·1"},
+      {"id": "F2", "title": "governance_scan dedupe N+1 (list_packets per spec)", "patch_7_action": "FIXED in C2a — single _build_existing_evaluation_index call before the loop, O(1) hash index membership check"},
+      {"id": "F3", "title": "Bundle joined fetch — repeated panel fetches during bundle build", "patch_7_action": "deferred; carry-forward CF-7·2"},
+      {"id": "F4", "title": "Today payload unbounded — /api/today/spectrum returns all rows, _horizon_lens_compare rebuilds spectrums multiple times, persist_message_snapshots per-row upserts", "patch_7_action": "PARTIALLY FIXED in C2b — rows_limit param + truncated/total_rows metadata; _horizon_lens_compare and per-row upserts deferred"},
+      {"id": "F5", "title": "Queue / packet retention absence — count_packets_by_layer full-table scans, no TTL/archive", "patch_7_action": "deferred; carry-forward CF-7·4"},
+      {"id": "F6", "title": "Research structured lookup linear scan — up to 200 packets scanned per ask", "patch_7_action": "deferred; carry-forward CF-7·3 (indexing)"}
+    ]
+  },
+  "c2a_governance_scan_n_plus_1_hoist": {
+    "file": "src/agentic_harness/agents/governance_scan_provider_v1.py",
+    "before": "deduplicate_specs called store.list_packets(ValidationPromotionEvaluationV1, ...) inside the per-spec loop — O(K) store reads per tick where K = number of candidate specs.",
+    "after": "deduplicate_specs now calls _build_existing_evaluation_index(store, limit=max(200, 2*K)) once before the loop, then performs O(1) membership checks against an in-memory set. Semantics unchanged (same 4-tuple equality as the legacy _existing_evaluation_matches helper).",
+    "proof": "inspect.getsource(deduplicate_specs).count('store.list_packets(') == 0; _build_existing_evaluation_index calls list_packets exactly once."
+  },
+  "c2b_today_spectrum_rows_limit": {
+    "file": "src/phase47_runtime/today_spectrum.py",
+    "constants": {
+      "TODAY_SPECTRUM_DEFAULT_ROWS_LIMIT": 200,
+      "TODAY_SPECTRUM_MAX_ROWS_LIMIT": 1000
+    },
+    "api_contract": "/api/today/spectrum now accepts optional ?rows_limit=N (capped at 1000). When None, behaves exactly as before except the output declares total_rows + truncated so clients can surface the truth. Rows are sliced AFTER all business logic has run (rank/quintile/movement are computed against the full population so top-N slicing does not lie about rank).",
+    "object_detail_correctness": "build_today_object_detail_payload explicitly requests rows_limit=TODAY_SPECTRUM_MAX_ROWS_LIMIT so it still finds specific assets regardless of rank."
+  },
+  "c2c_replay_lineage_limit_cap": {
+    "file": "src/phase47_runtime/routes.py",
+    "constants": {
+      "REPLAY_LINEAGE_DEFAULT_LIMIT": 200,
+      "REPLAY_LINEAGE_MAX_LIMIT": 500
+    },
+    "api_contract": "/api/replay/governance-lineage now accepts optional ?limit=N capped at 500; response payload includes the limit used."
+  },
+  "c2d_perf_instrumentation": {
+    "output_stream": "stderr",
+    "format": "JSON one-line per call, {\"kind\":\"metis_perf\",\"fn\":\"...\",\"ms\":...,\"...extras...\"}",
+    "instrumentation_sites": [
+      "governance_scan_provider_v1.deduplicate_specs (specs_in, specs_out, dropped, existing_index_size)",
+      "today_spectrum.build_today_spectrum_payload (horizon, source, total_rows, truncated)",
+      "today_spectrum.build_today_object_detail_payload (asset_id, horizon, ok)",
+      "scheduler.tick.run_one_tick (dry_run, cadences_ran, queues)"
+    ],
+    "rationale": "Stderr JSON is trivially tail-grep-able and does not contaminate stdout payloads. Operators can grep 'metis_perf' across harness-tick logs to answer 'what is slow at scale?' without adding a tracing dependency."
+  },
+  "c3_sp500_readiness_verdict": {
+    "status": "readiness_work_done_this_patch_but_not_yet_sp500_ready",
+    "what_is_already_sufficient_at_500_tickers": [
+      "governance_scan tick cost (C2a hoist makes it O(1) store reads regardless of K)",
+      "Today UI payload size (C2b rows_limit + truncated metadata)",
+      "Replay lineage UI payload size (C2c limit cap)",
+      "basic perf instrumentation at 4 hotspots (C2d)"
+    ],
+    "what_still_blocks_full_sp500_coverage": [
+      "factor validation cadence (F1) — row-by-row Supabase insert dominates; needs batch RPC + migration",
+      "bundle joined fetch duplication (F3) — repeated panel fetches during bundle build",
+      "queue / packet retention policy (F5) — count_packets_by_layer full scans will grow with queue size",
+      "research structured lookup linear scan (F6) — needs indexed lookup (asset_id, horizon) instead of 200-row scan"
+    ],
+    "next_concrete_patch_scope_sketch": [
+      "CF-7·1  factor validation batch RPC (F1)",
+      "CF-7·2  bundle panel-fetch dedupe + cache (F3)",
+      "CF-7·3  research structured (asset_id, horizon) index or packet-level filter (F6)",
+      "CF-7·4  packet_store retention / archival + queue counter cache (F5)"
+    ],
+    "honest_framing": "This patch is readiness work toward S&P 500, NOT the S&P 500 rollout itself. The verdict is evidence-based: what was safely fixable without infra rewrite has been fixed; what requires migration/RPC work is explicitly deferred with a named carry-forward ID."
+  },
+  "surface_tests": [
+    "src/tests/test_agh_v1_patch7_product_hardening_surface.py::test_c2b_today_spectrum_accepts_rows_limit",
+    "src/tests/test_agh_v1_patch7_product_hardening_surface.py::test_c2c_replay_lineage_limit_cap",
+    "src/tests/test_agh_v1_patch7_product_hardening_surface.py::test_c2a_dedupe_hoists_list_packets_out_of_loop"
+  ]
+}

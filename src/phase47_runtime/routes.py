@@ -521,16 +521,26 @@ def api_sandbox_enqueue_v1(
     }
 
 
+REPLAY_LINEAGE_DEFAULT_LIMIT = 200
+REPLAY_LINEAGE_MAX_LIMIT = 500
+
+
 def api_replay_governance_lineage(
     state: CockpitRuntimeState,
     *,
     registry_entry_id: str,
     horizon: str | None = None,
     use_fixture: bool = False,
+    limit: int | None = None,
 ) -> dict[str, Any]:
     """AGH v1 Patch 5 — expose ``api_governance_lineage_for_registry_entry``
     (validation evaluations + governance chain + sandbox followups) so
-    Replay can render a full lineage browser without a new subgraph."""
+    Replay can render a full lineage browser without a new subgraph.
+
+    AGH v1 Patch 7 C2c: ``limit`` is now operator-controllable via query
+    param (default ``REPLAY_LINEAGE_DEFAULT_LIMIT`` = 200, capped at
+    ``REPLAY_LINEAGE_MAX_LIMIT`` = 500). Default keeps prior behavior.
+    """
 
     from phase47_runtime.traceability_replay import (
         api_governance_lineage_for_registry_entry,
@@ -551,10 +561,20 @@ def api_replay_governance_lineage(
             "error": f"harness_store_unavailable:{exc}",
             "contract": "AGH_V1_REPLAY_GOVERNANCE_LINEAGE",
         }
+    effective_limit = REPLAY_LINEAGE_DEFAULT_LIMIT
+    if limit is not None:
+        try:
+            effective_limit = max(1, min(int(limit), REPLAY_LINEAGE_MAX_LIMIT))
+        except (TypeError, ValueError):
+            effective_limit = REPLAY_LINEAGE_DEFAULT_LIMIT
     res = api_governance_lineage_for_registry_entry(
-        store, registry_entry_id=rid, horizon=(horizon or "").strip(), limit=200
+        store,
+        registry_entry_id=rid,
+        horizon=(horizon or "").strip(),
+        limit=effective_limit,
     )
     res.setdefault("contract", "AGH_V1_REPLAY_GOVERNANCE_LINEAGE")
+    res.setdefault("limit", effective_limit)
     return res
 
 
@@ -612,10 +632,17 @@ def api_locale(_state: CockpitRuntimeState, lang: str) -> dict[str, Any]:
     return {"ok": True, "lang": lg, "strings": export_shell_locale_dict(lg)}
 
 
-def api_today_spectrum(state: CockpitRuntimeState, lang: str, horizon: str, mock_price_tick: str) -> dict[str, Any]:
+def api_today_spectrum(
+    state: CockpitRuntimeState,
+    lang: str,
+    horizon: str,
+    mock_price_tick: str,
+    rows_limit: int | None = None,
+) -> dict[str, Any]:
     from phase47_runtime.today_spectrum import build_today_spectrum_payload
 
     return build_today_spectrum_payload(
+        rows_limit=rows_limit,
         repo_root=state.repo_root,
         horizon=horizon,
         lang=lang,
@@ -886,7 +913,13 @@ def dispatch_json(
     if method == "GET" and p == "/api/today/spectrum":
         hz = (q.get("horizon") or q.get("h") or "short").strip()
         mt = (q.get("mock_price_tick") or q.get("price_tick") or "0").strip()
-        sp = api_today_spectrum(state, lang, hz, mt)
+        raw_rows_limit = q.get("rows_limit") or q.get("limit")
+        rl: int | None
+        try:
+            rl = int(raw_rows_limit) if raw_rows_limit not in (None, "") else None
+        except ValueError:
+            rl = None
+        sp = api_today_spectrum(state, lang, hz, mt, rows_limit=rl)
         return (200 if sp.get("ok") else 404), sp
     if method == "GET" and p == "/api/today/watchlist-order":
         return 200, api_today_watchlist_order_get(state)
@@ -928,11 +961,22 @@ def dispatch_json(
                 "contract": "AGH_V1_REPLAY_GOVERNANCE_LINEAGE",
             }
         use_fixture = (q.get("use_fixture") or "").strip().lower() in {"1", "true", "yes"}
+        raw_lineage_limit = q.get("limit")
+        lineage_limit: int | None
+        try:
+            lineage_limit = (
+                int(raw_lineage_limit)
+                if raw_lineage_limit not in (None, "")
+                else None
+            )
+        except ValueError:
+            lineage_limit = None
         r = api_replay_governance_lineage(
             state,
             registry_entry_id=rid,
             horizon=q.get("horizon"),
             use_fixture=use_fixture,
+            limit=lineage_limit,
         )
         return (200 if r.get("ok") else 500), r
     if method == "GET" and p == "/api/today/object":

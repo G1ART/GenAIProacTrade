@@ -111,6 +111,11 @@
       const k = el.getAttribute("data-i18n-placeholder");
       if (k) el.setAttribute("placeholder", tr(k));
     });
+    // AGH v1 Patch 7 A1 — localised aria-label for nav row groups.
+    document.querySelectorAll("[data-i18n-aria-label]").forEach((el) => {
+      const k = el.getAttribute("data-i18n-aria-label");
+      if (k) el.setAttribute("aria-label", tr(k));
+    });
   }
 
   async function api(path, opts) {
@@ -140,9 +145,13 @@
     document.querySelectorAll(".panel").forEach((p) => p.classList.remove("visible"));
     const el = document.getElementById("panel-" + name);
     if (el) el.classList.add("visible");
-    document.querySelectorAll("#nav button.nav-main[data-panel]").forEach((b) => {
-      b.classList.toggle("active", b.dataset.panel === name);
-    });
+    // AGH v1 Patch 7 A1 — both nav tiers share active-state styling so a
+    // utility panel (Journal / Advanced) still visibly tracks the route.
+    document
+      .querySelectorAll("#nav button[data-panel]")
+      .forEach((b) => {
+        b.classList.toggle("active", b.dataset.panel === name);
+      });
     if (name === "replay") loadReplay();
     if (name === "advanced") loadAlerts();
     if (name === "watchlist") loadWatchlistPanel();
@@ -154,7 +163,7 @@
     }
   }
 
-  document.querySelectorAll("#nav button.nav-main[data-panel]").forEach((btn) => {
+  document.querySelectorAll("#nav button[data-panel]").forEach((btn) => {
     btn.addEventListener("click", () => showPanel(btn.dataset.panel));
   });
 
@@ -590,8 +599,13 @@
   }
 
   function wireHomeJumpButtons(root) {
-    root.querySelectorAll("button[data-jump]").forEach((btn) => {
-      btn.addEventListener("click", () => showPanel(btn.getAttribute("data-jump")));
+    // AGH v1 Patch 7 A1 — include <a> elements so demoted utility links
+    // (Journal / Advanced) keep the same navigation behaviour as before.
+    root.querySelectorAll("[data-jump]").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        if (btn.tagName === "A") ev.preventDefault();
+        showPanel(btn.getAttribute("data-jump"));
+      });
     });
   }
 
@@ -951,6 +965,12 @@
       document.body.appendChild(tip);
       return tip;
     }
+    // AGH v1 Patch 7 A5 — "sub" can now contain multiple semantic parts
+    // joined by " · " (SUB_SEP). When present, we emit each part on its
+    // own line so tooltips can carry denser info (e.g. outcome · delta ·
+    // from→to) without overflowing horizontally. Hosts that only pass a
+    // single string continue to render unchanged.
+    const SUB_SEP = " · ";
     window.tooltipAt = function tooltipAt(x, y, label, sub) {
       const el = ensureNode();
       const lbl = String(label || "").trim();
@@ -959,9 +979,14 @@
         el.style.display = "none";
         return;
       }
+      const subParts = sbt ? sbt.split(SUB_SEP).map((s) => s.trim()).filter(Boolean) : [];
+      const subHtml = subParts.length
+        ? subParts
+            .map((p) => `<div class="tt-sub">${escapeHtml(p)}</div>`)
+            .join("")
+        : "";
       el.innerHTML =
-        (lbl ? `<div class="tt-label">${escapeHtml(lbl)}</div>` : "") +
-        (sbt ? `<div class="tt-sub">${escapeHtml(sbt)}</div>` : "");
+        (lbl ? `<div class="tt-label">${escapeHtml(lbl)}</div>` : "") + subHtml;
       el.style.display = "block";
       const margin = 12;
       const vw = window.innerWidth || 1024;
@@ -1032,7 +1057,11 @@
     return knownPrefix[prefix] || (isKo ? "참조" : "Reference");
   }
 
-  // AGH v1 Patch 6 — Research 5-section renderer (B2).
+  // AGH v1 Patch 7 A3 — Research renderer with tr() wiring, 3-cluster
+  // visual grouping, humanised evidence chips, bounded-invoke contract
+  // card. DOM `data-tsr-sec` keys unchanged (5) so Patch 6 regression
+  // tests still lock shape; clustering is CSS-only via
+  // `data-tsr-cluster`.
   function renderResearchStructuredSection(j, lang) {
     const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
     const rs = (j && j.research_structured_v1) || null;
@@ -1042,22 +1071,32 @@
     if (!rs || typeof rs !== "object") {
       return (
         `<div class="tsr-research" data-tsr-research-empty="1">` +
-        `<h4>${escapeHtml(isKo ? "연구 · Ask AI" : "Research · Ask AI")}</h4>` +
-        `<div class="tsr-empty"><span class="tsr-empty-head">${escapeHtml(
-          isKo ? "해당 종목 · 수평선에 연결된 질의 없음" : "No ask routed for this asset × horizon"
-        )}</span><br/><span class="ev-faint">${escapeHtml(
-          isKo
-            ? "Ask AI에서 질의하면 이 영역에 구조화된 해석이 표시됩니다."
-            : "Ask a question in Ask AI and the structured read will appear here."
-        )}</span></div></div>`
+        `<h4>${escapeHtml(tr("research_section.head"))}</h4>` +
+        `<div class="tsr-empty tsr-empty--premium">` +
+        `<span class="tsr-empty-head">${escapeHtml(
+          tr("research_section.empty_head")
+        )}</span><br/>` +
+        `<span class="ev-faint">${escapeHtml(
+          tr("research_section.empty_body")
+        )}</span>` +
+        `<div class="tsr-empty-cta">` +
+        `<button type="button" class="btn btn-xs" data-jump="ask_ai">${escapeHtml(
+          tr("nav.ask_ai")
+        )}</button>` +
+        `</div>` +
+        `</div></div>`
       );
     }
     const cov = String(rs.locale_coverage || "dual");
+    // AGH v1 Patch 7 A3 — product-toned locale coverage copy routed via tr()
+    // so the wording stays in one place (phase47e_user_locale SHELL).
     const covLabel = {
-      dual: isKo ? "한·영 모두" : "Dual KO+EN",
-      ko_only: isKo ? "한국어만" : "KO only",
-      en_only: isKo ? "영어만" : "EN only",
-      degraded: isKo ? "부분 응답" : "Degraded",
+      dual: tr("research_section.locale_dual"),
+      ko_only: tr("research_section.locale_ko_only"),
+      en_only: tr("research_section.locale_en_only"),
+      degraded: isKo
+        ? tr("research_section.locale_degraded_label_ko")
+        : tr("research_section.locale_degraded_label_en"),
     }[cov] || cov;
     const covTip =
       cov === "dual"
@@ -1087,28 +1126,53 @@
       : sumEn.length
       ? sumEn
       : sumKo;
-    const summaryEmpty = isKo ? "요약 없음" : "No summary";
+    const summaryEmpty = tr("research_section.no_bullets");
 
+    // AGH v1 Patch 7 A3 — evidence chips grouped by packet kind so
+    // operators scan by source-of-truth class (apply / proposal / eval /
+    // message) before diving into raw IDs. Tooltip sub-line exposes the
+    // engineering packet kind so the humanised label never lies.
     const evidenceCited = Array.isArray(rs.evidence_cited) ? rs.evidence_cited : [];
-    const evidenceChips = evidenceCited
-      .slice(0, 6)
-      .map((ref) => {
-        const label = humanizeResearchEvidenceRef(ref, lang);
-        return `<span class="tsr-chip tsr-chip--neutral" title="${escapeHtml(
-          String(ref)
-        )}">${escapeHtml(label)}</span>`;
+    function evidenceKindOf(ref) {
+      const s = String(ref || "").toLowerCase();
+      if (!s) return "other";
+      if (s.startsWith("registrypatchapplied")) return "apply";
+      if (s.startsWith("registrypatchproposal")) return "proposal";
+      if (s.startsWith("validationpromotionevaluation")) return "evaluation";
+      if (s.startsWith("userqueryactionpacket")) return "message";
+      return "other";
+    }
+    const evGroups = { apply: [], proposal: [], evaluation: [], message: [], other: [] };
+    evidenceCited.slice(0, 8).forEach((ref) => {
+      evGroups[evidenceKindOf(ref)].push(ref);
+    });
+    const evOrder = ["apply", "proposal", "evaluation", "message", "other"];
+    const evidenceChips = evOrder
+      .map((k) => {
+        if (!evGroups[k].length) return "";
+        return evGroups[k]
+          .map((ref) => {
+            const label = humanizeResearchEvidenceRef(ref, lang);
+            return `<span class="tsr-chip tsr-chip--neutral tsr-evidence-chip" data-tsr-evkind="${escapeHtml(
+              k
+            )}" data-tsr-tt-label="${escapeHtml(label)}" data-tsr-tt-sub="${escapeHtml(
+              String(ref)
+            )}">${escapeHtml(label)}</span>`;
+          })
+          .join(" ");
       })
-      .join(" ");
+      .filter(Boolean)
+      .join(`<span class="tsr-evidence-sep" aria-hidden="true"> · </span>`);
     const rawEvidenceDetails =
       evidenceCited.length > 0
         ? `<details><summary>${escapeHtml(
-            isKo ? "원본 증거 식별자 (감사용)" : "Raw evidence identifiers (audit)"
+            tr("tsr.evidence.raw_ids")
           )}</summary><div class="raw-ids">${evidenceCited
             .map((x) => escapeHtml(String(x)))
             .join("<br/>")}</div></details>`
         : "";
 
-    // Section (e) — bounded next step invoke UI.
+    // Section (e) — bounded next step invoke UI with contract card (Patch 7 B2)
     const ps = rs.proposed_sandbox_request && typeof rs.proposed_sandbox_request === "object"
       ? rs.proposed_sandbox_request
       : null;
@@ -1146,37 +1210,58 @@
             rb
           )}" data-cited="${escapeHtml(citedFlat)}" data-rationale="${escapeHtml(
             String(ps.rationale || "")
-          )}">${escapeHtml(
-            isKo
-              ? "UI로 대기열 추가 (운영자 게이트)"
-              : "Enqueue via UI (operator-gated)"
-          )}</button>`
+          )}">${escapeHtml(tr("research_section.invoke_enqueue_btn"))}</button>`
         : "";
       const inlineMsg = invokeEnabled
         ? `<span class="invoke-inline-msg">${escapeHtml(
-            isKo
-              ? "대기열 추가 후 터미널에서 harness-tick --queue sandbox_queue 를 실행하세요."
-              : "After enqueue, run `harness-tick --queue sandbox_queue` in your terminal."
+            tr("research_section.invoke_ui_hint")
           )}</span>`
         : `<span class="invoke-inline-msg">${escapeHtml(
-            isKo
-              ? "터미널에서 아래 명령을 복붙해서 실행하세요 (UI 실행은 기본 비활성)."
-              : "Copy and paste the command below in your terminal (UI execute is disabled by default)."
+            tr("research_section.invoke_copy_hint")
           )}</span>`;
-      invokeSec = (
-        `<div class="tsr-research-invoke">` +
-        `<div class="invoke-label">${escapeHtml(
-          isKo
-            ? `Bounded 다음 액션 · ${sk}`
-            : `Bounded next step · ${sk}`
+      // AGH v1 Patch 7 B2 — contract card 3 lines (will_do / will_not_do /
+      // after_enqueue). Always rendered regardless of `invokeEnabled` so
+      // the operator sees the bounded contract even when UI invoke is off.
+      const contractCard =
+        `<div class="tsr-contract-card" data-tsr-contract="1">` +
+        `<div class="tsr-contract-head">${escapeHtml(
+          tr("tsr.invoke.contract.head")
         )}</div>` +
+        `<ul class="tsr-contract-list">` +
+        `<li data-tsr-contract-line="will_do">${escapeHtml(
+          tr("tsr.invoke.contract.will_do")
+        )}</li>` +
+        `<li data-tsr-contract-line="will_not_do">${escapeHtml(
+          tr("tsr.invoke.contract.will_not_do")
+        )}</li>` +
+        `<li data-tsr-contract-line="after_enqueue">${escapeHtml(
+          tr("tsr.invoke.contract.after_enqueue")
+        )}</li>` +
+        `</ul>` +
+        `</div>`;
+      invokeSec = (
+        `<div class="tsr-research-invoke" data-tsr-rid="${escapeHtml(
+          rid
+        )}" data-tsr-hz="${escapeHtml(hz)}">` +
+        contractCard +
+        `<div class="invoke-label">${escapeHtml(
+          tr("research_section.bounded_next")
+        )} · ${escapeHtml(sk)}</div>` +
         `<div class="invoke-cli" data-tsr-cli="1">${escapeHtml(cli)}</div>` +
         `<div class="invoke-row">` +
         `<button type="button" class="btn" data-tsr-copy-cli="1">${escapeHtml(
-          isKo ? "복사" : "Copy"
+          tr("research_section.invoke_copy_btn")
         )}</button>` +
         buttonRow +
         inlineMsg +
+        `</div>` +
+        `<div class="invoke-row invoke-state-row" data-tsr-invoke-state-row="1" hidden>` +
+        `<span class="tsr-chip tsr-chip--neutral" data-tsr-invoke-state-chip="1">${escapeHtml(
+          tr("research_section.invoke_state_unknown")
+        )}</span>` +
+        `<button type="button" class="btn btn-xs" data-tsr-invoke-refresh="1">${escapeHtml(
+          tr("research_section.invoke_queue_poll")
+        )}</button>` +
         `</div>` +
         `<div data-tsr-enqueue-result="1" class="invoke-inline-msg" style="margin-top:0.3rem"></div>` +
         `</div>`
@@ -1185,46 +1270,50 @@
 
     return (
       `<div class="tsr-research" data-tsr-research="1">` +
-      `<h4>${escapeHtml(
-        isKo ? "연구 해석 · Research read" : "Research read"
-      )} ${covBadge}</h4>` +
+      `<h4>${escapeHtml(tr("research_section.head"))} ${covBadge}</h4>` +
+      `<div class="tsr-research-cluster" data-tsr-cluster="current_read">` +
       `<div class="tsr-research-sec" data-tsr-sec="current_read">` +
       `<div class="sec-title">${escapeHtml(
-        isKo ? "현재 해석 · Current read" : "Current read"
+        tr("research_section.current_read")
       )}</div>` +
       bulletList(summary, summaryEmpty) +
       `</div>` +
       `<div class="tsr-research-sec" data-tsr-sec="why_plausible">` +
       `<div class="sec-title">${escapeHtml(
-        isKo ? "해석 근거 · Why plausible" : "Why plausible"
+        tr("research_section.why_plausible")
       )}</div>` +
       (evidenceChips
-        ? `<div class="row" style="gap:0.3rem">${evidenceChips}</div>${rawEvidenceDetails}`
+        ? `<div class="row tsr-evidence-row" style="gap:0.3rem">${evidenceChips}</div>${rawEvidenceDetails}`
         : `<div class="ev-faint">${escapeHtml(
-            isKo ? "인용 증거 없음" : "No evidence cited"
+            tr("research_section.no_evidence")
           )}</div>`) +
       `</div>` +
+      `</div>` +
+      `<div class="tsr-research-cluster" data-tsr-cluster="open_questions">` +
       `<div class="tsr-research-sec" data-tsr-sec="unproven">` +
       `<div class="sec-title">${escapeHtml(
-        isKo ? "아직 미증명 · What remains unproven" : "What remains unproven"
+        tr("research_section.unproven")
       )}</div>` +
-      bulletList(residual, isKo ? "미증명 항목 없음" : "None listed") +
+      bulletList(residual, tr("research_section.no_unproven")) +
       `</div>` +
       `<div class="tsr-research-sec" data-tsr-sec="watch">` +
       `<div class="sec-title">${escapeHtml(
-        isKo ? "계속 볼 것 · What to watch" : "What to watch"
+        tr("research_section.watch")
       )}</div>` +
-      bulletList(watch, isKo ? "관찰 항목 없음" : "None listed") +
+      bulletList(watch, tr("research_section.no_watch")) +
       `</div>` +
+      `</div>` +
+      `<div class="tsr-research-cluster" data-tsr-cluster="bounded_next">` +
       `<div class="tsr-research-sec" data-tsr-sec="bounded_next">` +
       `<div class="sec-title">${escapeHtml(
-        isKo ? "Bounded 다음 액션 · Bounded next step" : "Bounded next step"
+        tr("research_section.bounded_next")
       )}</div>` +
       (invokeSec
         ? invokeSec
         : `<div class="ev-faint">${escapeHtml(
-            isKo ? "제안된 샌드박스 액션 없음" : "No sandbox action proposed"
+            tr("research_section.no_sandbox_action")
           )}</div>`) +
+      `</div>` +
       `</div>` +
       `</div>`
     );
@@ -1279,6 +1368,11 @@
       const rebuild = json.latest_applied_needs_db_rebuild === true;
       const chains = Array.isArray(json.chains) ? json.chains : [];
       const latest = chains.length ? chains[0] : null;
+      // AGH v1 Patch 7 A4 — lineage step rows carry (a) the step outcome,
+      // (b) a per-step at_utc so we can compute inter-step time-delta, and
+      // (c) a done-count summary rendered at the top of the step indicator.
+      const stepAt = (obj) =>
+        obj && typeof obj === "object" ? String(obj.created_at_utc || "") : "";
       const steps = [
         {
           key: "proposal",
@@ -1288,11 +1382,15 @@
               : latest && latest.validation_promotion_evaluation && latest.validation_promotion_evaluation.outcome
               ? String(latest.validation_promotion_evaluation.outcome)
               : "",
+          at:
+            stepAt(latest && latest.proposal) ||
+            stepAt(latest && latest.validation_promotion_evaluation),
           label: isKo ? "제안" : "Proposal",
         },
         {
           key: "applied",
           outcome: latest && latest.applied && latest.applied.outcome ? String(latest.applied.outcome) : "",
+          at: stepAt(latest && latest.applied),
           label: isKo ? "적용" : "Apply",
         },
         {
@@ -1301,6 +1399,7 @@
             latest && latest.spectrum_refresh && latest.spectrum_refresh.outcome
               ? String(latest.spectrum_refresh.outcome)
               : "",
+          at: stepAt(latest && latest.spectrum_refresh),
           label: isKo ? "스펙트럼 리프레시" : "Spectrum refresh",
         },
         {
@@ -1309,6 +1408,7 @@
             latest && latest.validation_promotion_evaluation && latest.validation_promotion_evaluation.outcome
               ? String(latest.validation_promotion_evaluation.outcome)
               : "",
+          at: stepAt(latest && latest.validation_promotion_evaluation),
           label: isKo ? "검증 평가" : "Validation eval",
         },
       ];
@@ -1319,16 +1419,46 @@
         if (s === "applied" || s === "emitted" || s === "promotion_candidate" || s === "refreshed" || s === "skipped") return "done";
         return "pending";
       }
+      function tsrStepDeltaLabel(prevIso, curIso, lang) {
+        if (!prevIso || !curIso) return "";
+        const a = Date.parse(prevIso);
+        const b = Date.parse(curIso);
+        if (!isFinite(a) || !isFinite(b) || b <= a) return "";
+        const sec = Math.round((b - a) / 1000);
+        let token;
+        if (sec < 60) token = `${sec}s`;
+        else if (sec < 3600) token = `${Math.round(sec / 60)}m`;
+        else if (sec < 86400) token = `${Math.round(sec / 3600)}h`;
+        else token = `${Math.round(sec / 86400)}d`;
+        return tr("lineage.step_after").replace("{delta}", token);
+      }
+      const doneCount = steps.filter((s) => stepClass(s.outcome) === "done").length;
+      const doneSummaryText = tr("lineage.step_count").replace(
+        "{done}",
+        String(doneCount)
+      );
+      const doneSummaryHtml = `<div class="tsr-step-summary tsr-foot" data-tsr-step-summary="1">${escapeHtml(
+        doneSummaryText
+      )}</div>`;
       const stepsHtml = steps
         .map((s, i) => {
           const cls = `tsr-step ${stepClass(s.outcome)}`;
-          const sub = s.outcome ? s.outcome : isKo ? "대기" : "pending";
+          const sub = s.outcome ? s.outcome : tr("lineage.step_pending");
+          const prevAt = i > 0 ? steps[i - 1].at : "";
+          const deltaLabel = tsrStepDeltaLabel(prevAt, s.at, isKo ? "ko" : "en");
+          const tipSub = deltaLabel ? `${sub} · ${deltaLabel}` : sub;
           const arrow =
-            i < steps.length - 1 ? `<span class="tsr-step-arrow">→</span>` : "";
+            i < steps.length - 1
+              ? `<span class="tsr-step-arrow">${
+                  deltaLabel && steps[i + 1].at
+                    ? escapeHtml("→")
+                    : "→"
+                }</span>`
+              : "";
           return (
             `<span class="${cls}" data-tsr-tt-label="${escapeHtml(
               s.label
-            )}" data-tsr-tt-sub="${escapeHtml(sub)}"><span class="step-num">${i + 1}</span>${escapeHtml(
+            )}" data-tsr-tt-sub="${escapeHtml(tipSub)}"><span class="step-num">${i + 1}</span>${escapeHtml(
               s.label
             )}</span>` + arrow
           );
@@ -1366,6 +1496,7 @@
       el.innerHTML =
         `<h4>${escapeHtml(isKo ? "거버넌스 계보 · Governance lineage" : "Governance lineage")}</h4>` +
         `<div class="row" style="gap:0.35rem">${chipTotal}${chipCompleted}${chipRebuild}</div>` +
+        doneSummaryHtml +
         `<div class="tsr-step-indicator">${stepsHtml}</div>` +
         timeline +
         followupsHtml;
@@ -1379,30 +1510,53 @@
   }
 
   // AGH v1 Patch 6 — Replay timeline SVG plot (C1). No external charting lib.
+  // AGH v1 Patch 7 A4 — upgraded to 3-lane layout so "what happened when"
+  // reads at a glance:
+  //   lane 1 = governed_apply  (top)
+  //   lane 2 = spectrum_refresh (middle)
+  //   lane 3 = sandbox_followup (bottom)
+  // Each lane has a left-side label in the user's locale. Events still
+  // carry tooltip label/sub via data-tsr-tt-* so the existing shared
+  // tooltip wiring keeps working unchanged.
   function renderReplayTimelinePlotSvg(latestChain, followups, isKo) {
+    // AGH v1 Patch 7 A5 — plot sub lines now carry **multiple** facts,
+    // joined by " · " so the shared tooltip splits them into separate
+    // rows (outcome / delta / from→to). This gives the hover a richer
+    // one-glance read without visible clutter in the SVG itself.
     const events = [];
     if (latestChain && latestChain.applied && latestChain.applied.created_at_utc) {
       const outcome = String(latestChain.applied.outcome || "");
       const fromId = String(latestChain.applied.from_active_artifact_id || "");
       const toId = String(latestChain.applied.to_active_artifact_id || "");
-      const transferLabel = fromId
-        ? ` · ${humanizeActiveArtifactLabel({}, fromId)} → ${
+      const transfer = fromId
+        ? `${humanizeActiveArtifactLabel({}, fromId)} → ${
             toId ? humanizeActiveArtifactLabel({}, toId) : ""
           }`
         : "";
+      const delta = humanizeTimeDelta(
+        String(latestChain.applied.created_at_utc),
+        isKo ? "ko" : "en"
+      );
       events.push({
+        lane: 0,
         type: "governed_apply",
         at: String(latestChain.applied.created_at_utc),
         label: tr("plot.governed_apply"),
-        sub: outcome + transferLabel,
+        sub: [outcome, delta, transfer].filter(Boolean).join(" · "),
       });
     }
     if (latestChain && latestChain.spectrum_refresh && latestChain.spectrum_refresh.created_at_utc) {
+      const outcome = String(latestChain.spectrum_refresh.outcome || "");
+      const delta = humanizeTimeDelta(
+        String(latestChain.spectrum_refresh.created_at_utc),
+        isKo ? "ko" : "en"
+      );
       events.push({
-        type: "event",
+        lane: 1,
+        type: "spectrum_refresh",
         at: String(latestChain.spectrum_refresh.created_at_utc),
         label: tr("plot.spectrum_refresh"),
-        sub: String(latestChain.spectrum_refresh.outcome || ""),
+        sub: [outcome, delta].filter(Boolean).join(" · "),
       });
     }
     if (Array.isArray(followups)) {
@@ -1413,12 +1567,17 @@
           (res && res.created_at_utc) || (req && req.created_at_utc) || ""
         );
         if (!at) return;
+        const kind =
+          (req && req.payload && req.payload.sandbox_kind) || "validation_rerun";
+        const outcome =
+          (res && res.payload && res.payload.outcome) || tr("lineage.step_pending");
+        const delta = humanizeTimeDelta(at, isKo ? "ko" : "en");
         events.push({
+          lane: 2,
           type: "sandbox_followup",
           at,
           label: tr("plot.sandbox_followup"),
-          sub:
-            (req && req.payload && req.payload.sandbox_kind) || "validation_rerun",
+          sub: [kind, String(outcome), delta].filter(Boolean).join(" · "),
         });
       });
     }
@@ -1437,53 +1596,150 @@
     const t1 = Math.max.apply(null, times);
     const range = Math.max(t1 - t0, 24 * 3600 * 1000);
     const w = 640;
-    const h = 80;
-    const pad = 24;
+    const laneLabelWidth = 92;
+    const laneHeight = 26;
+    const laneTopPad = 8;
+    const axisH = 18;
+    const h = laneTopPad + laneHeight * 3 + axisH;
+    const plotLeft = laneLabelWidth;
+    const plotRight = w - 12;
     function xOf(ms) {
-      return pad + ((ms - t0) / range) * (w - pad * 2);
+      return plotLeft + ((ms - t0) / range) * (plotRight - plotLeft);
     }
-    const axisY = h - 20;
+    function laneY(laneIdx) {
+      return laneTopPad + laneHeight * laneIdx + laneHeight / 2;
+    }
+    const laneNames = [
+      tr("plot.lane_apply"),
+      tr("plot.lane_spectrum"),
+      tr("plot.lane_sandbox"),
+    ];
+    const laneGuidesSvg = [0, 1, 2]
+      .map((i) => {
+        const y = laneY(i);
+        return (
+          `<text class="plot-lane-label" x="4" y="${y + 4}">${escapeHtml(
+            laneNames[i]
+          )}</text>` +
+          `<line class="plot-lane-guide" x1="${plotLeft}" y1="${y}" x2="${plotRight}" y2="${y}" />`
+        );
+      })
+      .join("");
     const eventsSvg = events
       .map((e) => {
         const t = Date.parse(e.at);
         if (isNaN(t)) return "";
         const x = xOf(t);
+        const y = laneY(e.lane);
         const dayLabel = e.at.slice(0, 10);
         const tipLabel = `${e.label} · ${dayLabel}`;
         const tipSub = e.sub || "";
         if (e.type === "governed_apply") {
           return (
-            `<line class="plot-govern-apply" x1="${x}" y1="10" x2="${x}" y2="${axisY}" data-tsr-tt-label="${escapeHtml(
+            `<line class="plot-govern-apply" x1="${x}" y1="${y - 10}" x2="${x}" y2="${y + 10}" data-tsr-tt-label="${escapeHtml(
               tipLabel
             )}" data-tsr-tt-sub="${escapeHtml(tipSub)}" />` +
-            `<text class="plot-govern-apply-label" x="${x + 3}" y="16">${escapeHtml(
-              tr("plot.apply_label")
-            )}</text>`
+            `<circle class="plot-govern-apply-dot" cx="${x}" cy="${y}" r="4" data-tsr-tt-label="${escapeHtml(
+              tipLabel
+            )}" data-tsr-tt-sub="${escapeHtml(tipSub)}" />`
           );
         }
-        if (e.type === "sandbox_followup") {
-          return `<line class="plot-sandbox-tick" x1="${x}" y1="${axisY}" x2="${x}" y2="${axisY + 10}" data-tsr-tt-label="${escapeHtml(
+        if (e.type === "spectrum_refresh") {
+          return `<rect class="plot-spectrum-tick" x="${x - 3}" y="${y - 6}" width="6" height="12" data-tsr-tt-label="${escapeHtml(
             tipLabel
           )}" data-tsr-tt-sub="${escapeHtml(tipSub)}" />`;
         }
-        return `<circle class="plot-event" cx="${x}" cy="${axisY - 16}" r="4" data-tsr-tt-label="${escapeHtml(
+        return `<circle class="plot-sandbox-tick plot-event" cx="${x}" cy="${y}" r="4" data-tsr-tt-label="${escapeHtml(
           tipLabel
         )}" data-tsr-tt-sub="${escapeHtml(tipSub)}" />`;
       })
       .join("");
+    const axisY = laneTopPad + laneHeight * 3;
     const axisLabels =
-      `<text x="${pad}" y="${h - 4}">${escapeHtml(new Date(t0).toISOString().slice(0, 10))}</text>` +
-      `<text x="${w - pad - 60}" y="${h - 4}">${escapeHtml(new Date(t1).toISOString().slice(0, 10))}</text>`;
+      `<text class="plot-axis-label" x="${plotLeft}" y="${h - 4}">${escapeHtml(
+        new Date(t0).toISOString().slice(0, 10)
+      )}</text>` +
+      `<text class="plot-axis-label" x="${plotRight - 66}" y="${h - 4}">${escapeHtml(
+        new Date(t1).toISOString().slice(0, 10)
+      )}</text>`;
+    const legend = `<text class="plot-axis-label" x="${plotLeft}" y="${
+      laneTopPad - 2
+    }">${escapeHtml(tr("plot.lane_legend_note"))}</text>`;
     const svg =
-      `<svg class="tsr-timeline-plot" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" data-tsr-timeline-plot="1">` +
-      `<line class="plot-axis" x1="${pad}" y1="${axisY}" x2="${w - pad}" y2="${axisY}" />` +
+      `<svg class="tsr-timeline-plot" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" data-tsr-timeline-plot="3lane">` +
+      legend +
+      laneGuidesSvg +
+      `<line class="plot-axis" x1="${plotLeft}" y1="${axisY}" x2="${plotRight}" y2="${axisY}" />` +
       eventsSvg +
       axisLabels +
       `</svg>`;
     return svg;
   }
 
-  // AGH v1 Patch 6 — wire enqueue-sandbox click (E2 mode B).
+  // AGH v1 Patch 7 B1 — enqueue-sandbox click, upgraded from Patch 6:
+  // (a) every user-facing string routed through tr() with keys in
+  //     phase47e_user_locale SHELL.
+  // (b) uses server-returned `cli_hint` + `operator_note` instead of
+  //     reconstructing the command text client-side (server is the
+  //     single source of truth for what harness-tick to run).
+  // (c) one-time, on-demand queue state polling. We poll once 1.5s
+  //     after enqueue (post-enqueue delay masks common Supabase commit
+  //     lag), then only on explicit operator "Refresh" click. We do
+  //     NOT background-poll, because that would erode the operator
+  //     gate (Product Spec §4.3: operator decides when harness-tick
+  //     runs; the UI must not imply otherwise).
+  async function tsrInvokePollState(wrap, requestPacketId) {
+    if (!wrap || !requestPacketId) return;
+    const row = wrap.querySelector("[data-tsr-invoke-state-row]");
+    const chip = wrap.querySelector("[data-tsr-invoke-state-chip]");
+    if (!row || !chip) return;
+    row.hidden = false;
+    chip.className = "tsr-chip tsr-chip--neutral";
+    chip.textContent = tr("research_section.invoke_state_loading");
+    const rid = wrap.getAttribute("data-tsr-rid") || "";
+    const hz = wrap.getAttribute("data-tsr-hz") || "";
+    try {
+      const qs =
+        "?limit=10" +
+        (rid ? `&registry_entry_id=${encodeURIComponent(rid)}` : "") +
+        (hz ? `&horizon=${encodeURIComponent(hz)}` : "");
+      const r = await fetch("/api/sandbox/requests" + qs);
+      const j = await r.json().catch(() => ({}));
+      const items = (j && j.requests) || [];
+      const match = items.find((x) => {
+        const req = (x && x.request) || {};
+        return String(req.packet_id || "") === String(requestPacketId);
+      });
+      if (!match) {
+        chip.className = "tsr-chip tsr-chip--neutral";
+        chip.textContent = tr("research_section.invoke_state_unknown");
+        return;
+      }
+      const resultPkt = match.result || null;
+      const resultPayload = (resultPkt && resultPkt.payload) || {};
+      const outcome = String(resultPayload.outcome || resultPayload.state || "").toLowerCase();
+      if (!resultPkt) {
+        chip.className = "tsr-chip tsr-chip--warn tsr-invoke-state-queued";
+        chip.textContent = tr("research_section.invoke_state_queued");
+      } else if (outcome === "blocked" || outcome === "dlq" || outcome === "failed") {
+        chip.className = "tsr-chip tsr-chip--degraded tsr-invoke-state-blocked";
+        const reasons = Array.isArray(resultPayload.blocking_reasons)
+          ? resultPayload.blocking_reasons
+          : [];
+        const reason = reasons.length ? String(reasons[0]).slice(0, 160) : "";
+        chip.textContent =
+          tr("research_section.invoke_state_blocked") +
+          (reason ? ` — ${reason}` : "");
+      } else {
+        chip.className = "tsr-chip tsr-chip--info tsr-invoke-state-completed";
+        chip.textContent = tr("research_section.invoke_state_completed");
+      }
+    } catch (_e) {
+      chip.className = "tsr-chip tsr-chip--neutral";
+      chip.textContent = tr("research_section.invoke_state_unknown");
+    }
+  }
+
   document.addEventListener("click", async (ev) => {
     const t = ev.target;
     if (!t || !t.closest) return;
@@ -1496,15 +1752,21 @@
         await navigator.clipboard.writeText(text);
       } catch (_) {}
       const res = wrap ? wrap.querySelector("[data-tsr-enqueue-result]") : null;
-      if (res) res.textContent = cockpitLang().startsWith("ko") ? "복사됨." : "Copied.";
+      if (res) res.textContent = tr("research_section.invoke_copy_done");
+      return;
+    }
+    const refreshBtn = t.closest("[data-tsr-invoke-refresh]");
+    if (refreshBtn) {
+      const wrap = refreshBtn.closest(".tsr-research-invoke");
+      const rpid = wrap ? wrap.getAttribute("data-tsr-request-packet-id") : "";
+      if (rpid) await tsrInvokePollState(wrap, rpid);
       return;
     }
     const eqBtn = t.closest("[data-tsr-enqueue-sandbox]");
     if (eqBtn) {
       const wrap = eqBtn.closest(".tsr-research-invoke");
       const res = wrap ? wrap.querySelector("[data-tsr-enqueue-result]") : null;
-      const isKo = cockpitLang().startsWith("ko");
-      if (res) res.textContent = isKo ? "대기열 추가 중…" : "Enqueuing…";
+      if (res) res.textContent = tr("research_section.invoke_state_loading");
       try {
         const cited = String(eqBtn.getAttribute("data-cited") || "")
           .split(/\s+/)
@@ -1529,18 +1791,56 @@
         });
         const j = await r.json().catch(() => ({}));
         if (!r.ok || !j.ok) {
-          if (res)
-            res.textContent = isKo
-              ? `대기열 추가 실패: ${j.error || r.status}`
-              : `Enqueue failed: ${j.error || r.status}`;
+          const serverErr = j && j.error ? String(j.error) : String(r.status || "");
+          let headline = tr("research_section.invoke_error_server");
+          if (r.status === 403 || /ui_invoke_disabled/i.test(serverErr)) {
+            headline = tr("research_section.invoke_error_disabled");
+          } else if (r.status === 400) {
+            headline = tr("research_section.invoke_error_validation");
+          }
+          if (res) {
+            res.innerHTML =
+              `<span class="tsr-chip tsr-chip--degraded">${escapeHtml(
+                headline
+              )}</span> ` +
+              `<details style="display:inline-block;margin-left:0.3rem"><summary>${escapeHtml(
+                tr("research_section.invoke_error_raw")
+              )}</summary><code>${escapeHtml(serverErr)}</code></details>`;
+          }
         } else {
-          if (res)
-            res.textContent = isKo
-              ? `대기열 추가됨 (job ${j.job_id}). 터미널에서 harness-tick --queue sandbox_queue 실행.`
-              : `Enqueued (job ${j.job_id}). Run harness-tick --queue sandbox_queue in terminal.`;
+          const rpid = String(j.request_packet_id || "");
+          const operatorNote = String(j.operator_note || "");
+          const cliHint = String(j.cli_hint || "");
+          if (wrap && rpid) {
+            wrap.setAttribute("data-tsr-request-packet-id", rpid);
+          }
+          if (res) {
+            res.innerHTML =
+              `<span class="tsr-chip tsr-chip--info tsr-invoke-state-queued">${escapeHtml(
+                tr("research_section.invoke_state_queued")
+              )}</span>` +
+              (operatorNote
+                ? ` <span class="invoke-inline-msg">${escapeHtml(
+                    operatorNote
+                  )}</span>`
+                : "") +
+              (cliHint
+                ? ` <code class="invoke-cli-hint">${escapeHtml(cliHint)}</code>`
+                : "");
+          }
+          // One deferred poll — gives Supabase commit time to settle,
+          // then surfaces the server-authoritative queue state. The
+          // operator can re-poll manually; we do not loop.
+          if (wrap && rpid) {
+            window.setTimeout(() => tsrInvokePollState(wrap, rpid), 1500);
+          }
         }
       } catch (e) {
-        if (res) res.textContent = isKo ? `네트워크 실패: ${e}` : `Network error: ${e}`;
+        if (res)
+          res.innerHTML =
+            `<span class="tsr-chip tsr-chip--degraded">${escapeHtml(
+              tr("research_section.invoke_error_server")
+            )}</span> <code>${escapeHtml(String(e))}</code>`;
       }
     }
   });
@@ -1569,6 +1869,25 @@
   // Inputs: research_status_badges_v1 + recent_governed_applies_for_horizon.
   // Output: calm chip row (change chip + badge chips + active_artifact chip),
   // with NO raw packet ids or engineering codes — only label_ko / label_en.
+  // AGH v1 Patch 7 A5 — humanise "time since event" for rail / lineage
+  // sub-lines so tooltip density carries information instead of raw ISO.
+  function humanizeTimeDelta(isoStr, lang) {
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    if (!isoStr) return "";
+    const then = Date.parse(String(isoStr));
+    if (!isFinite(then)) return "";
+    const deltaSec = Math.max(0, (Date.now() - then) / 1000);
+    if (deltaSec < 60) return isKo ? "방금 전" : "just now";
+    const m = Math.round(deltaSec / 60);
+    if (m < 60) return isKo ? `${m}분 전` : `${m}m ago`;
+    const h = Math.round(m / 60);
+    if (h < 48) return isKo ? `${h}시간 전` : `${h}h ago`;
+    const d = Math.round(h / 24);
+    if (d < 14) return isKo ? `${d}일 전` : `${d}d ago`;
+    const w = Math.round(d / 7);
+    return isKo ? `${w}주 전` : `${w}w ago`;
+  }
+
   function renderTodaySummaryRailHtml(j, lang) {
     const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
     const rsb = (j && j.research_status_badges_v1) || {};
@@ -1577,18 +1896,32 @@
     const recent = Array.isArray(rs.recent_governed_applies_for_horizon)
       ? rs.recent_governed_applies_for_horizon
       : [];
+    const needsRebuild =
+      rs && rs.needs_db_rebuild === true ? true : false;
     const changeChip = (() => {
       if (!recent.length) return "";
       const top = recent[0] || {};
       const when = String(top.applied_at_utc || "").slice(0, 10);
+      const delta = humanizeTimeDelta(top.applied_at_utc, lang);
+      const outcome = String(top.outcome || "").trim();
+      const fromAid = humanizeActiveArtifactLabel(rs, top.from_active_artifact_id || "");
       const toAid = humanizeActiveArtifactLabel(rs, top.to_active_artifact_id || "");
       const labelText = isKo
         ? `오늘 거버넌스 적용: ${when}`
         : `Governed apply today: ${when}`;
-      const tip = isKo
-        ? `활성 아티팩트 교체 → ${toAid}`
-        : `Active artifact swap → ${toAid}`;
-      return `<span class="tsr-chip tsr-chip--change" title="${escapeHtml(tip)}" data-tsr-tt-label="${escapeHtml(labelText)}" data-tsr-tt-sub="${escapeHtml(tip)}"><span class="chip-dot"></span>${escapeHtml(labelText)}</span>`;
+      // AGH v1 Patch 7 A2·A5 — rail tooltip sub is now a multi-part
+      // string joined by " · " so the shared tooltip renders each fact
+      // on its own row: outcome · delta · from→to.
+      const subParts = [];
+      if (outcome) subParts.push(outcome);
+      if (delta) subParts.push(delta);
+      if (fromAid && toAid) subParts.push(`${fromAid} → ${toAid}`);
+      else if (toAid) subParts.push(`→ ${toAid}`);
+      const sub = subParts.join(" · ");
+      const chipClass = needsRebuild
+        ? "tsr-chip tsr-chip--warn"
+        : "tsr-chip tsr-chip--change";
+      return `<span class="${chipClass}" title="${escapeHtml(sub)}" data-tsr-tt-label="${escapeHtml(labelText)}" data-tsr-tt-sub="${escapeHtml(sub)}"><span class="chip-dot"></span>${escapeHtml(labelText)}</span>`;
     })();
     const badgeChips = badges
       .map((b) => {
@@ -1619,30 +1952,42 @@
   }
 
   // AGH v1 Patch 6 — Primary object panel (block 2 of 4).
+  // AGH v1 Patch 7 A2 — typography hierarchy added: hero (h2) = asset +
+  // one-line take; subhead/body split for "why now" / "what changed";
+  // foot line for horizon · model family · as-of timestamp. The raw
+  // strings are unchanged; only visual weight and grouping change.
   function renderTodayPrimaryPanelHtml(j, lang) {
     const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
     const msg = (j && j.message) || {};
     const title = String(j.asset_id || "");
+    const oneLine = String(msg.one_line_take || "").trim();
     const horizonLabel = String(j.horizon_label || "");
     const fam = String(j.active_model_family || "");
-    const sub = [horizonLabel, fam, String(j.as_of_utc || "")]
+    const foot = [horizonLabel, fam, String(j.as_of_utc || "")]
       .filter(Boolean)
       .map(escapeHtml)
       .join(" · ");
     const whyNow = String(msg.why_now || "").trim();
     const whatChanged = String(msg.what_changed || "").trim();
+    const heroHeadline = oneLine
+      ? `<h2 class="tsr-hero" data-tsr-hero="1">${escapeHtml(title)} — ${escapeHtml(oneLine)}</h2>`
+      : `<h2 class="tsr-hero" data-tsr-hero="1">${escapeHtml(title)}</h2>`;
     const whyNowBlock = whyNow
-      ? `<p class="why-now">${escapeHtml(whyNow)}</p>`
-      : `<p class="why-now ev-faint">${escapeHtml(
-          isKo ? "현재 해석 준비되지 않음" : "Current read not ready"
+      ? `<div class="tsr-subhead" data-tsr-subhead="why_now">${escapeHtml(
+          isKo ? "Why now" : "Why now"
+        )}</div><p class="tsr-body" data-tsr-body="why_now">${escapeHtml(whyNow)}</p>`
+      : `<p class="tsr-body ev-faint" data-tsr-body="why_now_empty">${escapeHtml(
+          tr("tsr.primary.why_now_empty")
         )}</p>`;
     const whatChangedBlock = whatChanged
-      ? `<p class="what-changed">${escapeHtml(whatChanged)}</p>`
+      ? `<div class="tsr-subhead" data-tsr-subhead="what_changed">${escapeHtml(
+          isKo ? "무엇이 바뀌었나" : "What changed"
+        )}</div><p class="tsr-body" data-tsr-body="what_changed">${escapeHtml(whatChanged)}</p>`
       : "";
     return (
       `<div class="tsr-primary">` +
-      `<h3>${escapeHtml(title)}</h3>` +
-      `<div class="meta-sub">${sub}</div>` +
+      heroHeadline +
+      `<div class="tsr-foot meta-sub" data-tsr-foot="primary_meta">${foot}</div>` +
       whyNowBlock +
       whatChangedBlock +
       `</div>`
@@ -1717,6 +2062,9 @@
   // outside the primary-UI TSR renderer surface so raw snake_case tokens
   // (active_artifact_id / registry_entry_id / message_snapshot_id) don't
   // tip into user-visible copy.
+  // AGH v1 Patch 7 A2 — now renders the *inner* rows only; the outer
+  // <details> shell is emitted by the consolidated audit block so we end
+  // up with a single audit disclosure instead of one-per-block.
   function renderTodayEvidenceRawIdsAuditHtml(rs, rlj, isKo) {
     const aaid = String((rs && rs.active_artifact_id) || "").trim();
     const rid = String((rs && rs.registry_entry_id) || "").trim();
@@ -1726,15 +2074,70 @@
     if (rid) rows.push(`registry_entry_id: ${rid}`);
     if (mid) rows.push(`message_snapshot_id: ${mid}`);
     if (!rows.length) return "";
-    const head = tr("tsr.evidence.raw_ids");
     const escaped = rows.map(escapeHtml).join("<br/>");
+    return `<div class="raw-ids">${escaped}</div>`;
+  }
+
+  // AGH v1 Patch 7 A2 — compact "recent governance activity" mini-list.
+  // Shows up to 3 most-recent governed applies with a humanised time
+  // delta (e.g. "2d ago") and the from→to active-artifact flow.
+  function renderTodayRecentActivityHtml(j, lang) {
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    const rs = (j && j.registry_surface_v1) || {};
+    const recent = Array.isArray(rs.recent_governed_applies_for_horizon)
+      ? rs.recent_governed_applies_for_horizon.slice(0, 3)
+      : [];
+    const head = tr("tsr.recent.head");
+    if (!recent.length) {
+      return (
+        `<div class="tsr-recent-activity" data-tsr-recent="empty">` +
+        `<div class="tsr-subhead">${escapeHtml(head)}</div>` +
+        `<div class="ev-faint tsr-foot">${escapeHtml(
+          tr("tsr.recent.empty")
+        )}</div>` +
+        `</div>`
+      );
+    }
+    const rows = recent
+      .map((r) => {
+        if (!r || typeof r !== "object") return "";
+        const delta = humanizeTimeDelta(r.applied_at_utc, lang);
+        const when = String(r.applied_at_utc || "").slice(0, 16);
+        const toAid = humanizeActiveArtifactLabel(rs, r.to_active_artifact_id || "");
+        const fromAid = humanizeActiveArtifactLabel(rs, r.from_active_artifact_id || "");
+        const flow =
+          fromAid && toAid
+            ? `${fromAid} → ${toAid}`
+            : toAid
+              ? `→ ${toAid}`
+              : "";
+        const timeLabel = delta || when;
+        const kindLabel = tr("tsr.recent.apply");
+        return (
+          `<div class="tsr-mini-row" title="${escapeHtml(when)}">` +
+          `<span class="tsr-mini-time">${escapeHtml(timeLabel)}</span>` +
+          `<span class="tsr-mini-flow">` +
+          `<span class="tsr-chip tsr-chip--apply"><span class="chip-dot"></span>${escapeHtml(kindLabel)}</span>` +
+          `<span class="tsr-mini-arrow">${escapeHtml(flow)}</span>` +
+          `</span>` +
+          `</div>`
+        );
+      })
+      .filter(Boolean)
+      .join("");
     return (
-      `<details><summary>${escapeHtml(head)}</summary>` +
-      `<div class="raw-ids">${escaped}</div></details>`
+      `<div class="tsr-recent-activity" data-tsr-recent="list">` +
+      `<div class="tsr-subhead">${escapeHtml(head)}</div>` +
+      rows +
+      `</div>`
     );
   }
 
   // AGH v1 Patch 6 — Evidence strip (block 4 of 4).
+  // AGH v1 Patch 7 A2 — audit disclosure is now *consolidated*: the old
+  // standalone raw-ids <details> is folded into a single "Audit · raw
+  // identifiers" block that lives at the bottom of the Today surface.
+  // The evidence strip itself is now about the *evidence*, not audit.
   function renderTodayEvidenceStripHtml(j, lang) {
     const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
     const rs = (j && j.registry_surface_v1) || {};
@@ -1743,7 +2146,6 @@
     const fam = String(rs.active_model_family_name || "");
     const tf = String(rs.active_thesis_family || "");
     const univ = String(rs.universe || "");
-    const rlj = (j && j.replay_lineage_join_v1) || {};
     const ridHead = tr("tsr.evidence.head");
     const labelLine = aaid
       ? `<div><span class="ev-label">${escapeHtml(
@@ -1754,19 +2156,56 @@
         )}</div>`;
     const metaLine =
       (fam || tf || univ)
-        ? `<div class="ev-faint">${[fam, tf, univ]
+        ? `<div class="ev-faint tsr-foot">${[fam, tf, univ]
             .filter(Boolean)
             .map(escapeHtml)
             .join(" · ")}</div>`
         : "";
-    const rawBlock = renderTodayEvidenceRawIdsAuditHtml(rs, rlj, isKo);
+    const recentHtml = renderTodayRecentActivityHtml(j, lang);
     return (
       `<div class="tsr-evidence">` +
-      `<h4>${escapeHtml(ridHead)}</h4>` +
+      `<h4 class="tsr-subhead">${escapeHtml(ridHead)}</h4>` +
       labelLine +
       metaLine +
-      rawBlock +
+      recentHtml +
       `</div>`
+    );
+  }
+
+  // AGH v1 Patch 7 A2 — consolidated audit block. Pulls raw identifiers
+  // from registry_surface_v1 + replay_lineage_join_v1 into ONE <details>
+  // at the bottom of the Today surface. This replaces:
+  //   - the per-block raw_ids <details> that used to live inside the
+  //     evidence strip
+  //   - the "Show legacy MIR detail (advanced)" block at the very bottom
+  //     of renderTodayObjectDetailHtml, which is now folded inside this
+  //     same audit disclosure as an inner <details>.
+  function renderTodayConsolidatedAuditHtml(j, lang, innerLegacyHtml) {
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    const rs = (j && j.registry_surface_v1) || {};
+    const rlj = (j && j.replay_lineage_join_v1) || {};
+    const rawIds = renderTodayEvidenceRawIdsAuditHtml(rs, rlj, isKo);
+    if (!rawIds && !innerLegacyHtml) return "";
+    const head = tr("tsr.audit.head");
+    const note = tr("tsr.audit.note");
+    const rawSection = rawIds
+      ? `<section class="tsr-audit-section" data-tsr-audit="raw_ids">` +
+        `<div class="tsr-subhead">${escapeHtml(tr("tsr.evidence.raw_ids"))}</div>` +
+        rawIds +
+        `</section>`
+      : "";
+    const legacySection = innerLegacyHtml
+      ? `<section class="tsr-audit-section" data-tsr-audit="legacy_mir">${innerLegacyHtml}</section>`
+      : "";
+    return (
+      `<details class="tsr-audit" data-tsr-audit="1">` +
+      `<summary>${escapeHtml(head)}</summary>` +
+      `<div class="tsr-audit-body">` +
+      `<p class="ev-faint tsr-foot">${escapeHtml(note)}</p>` +
+      rawSection +
+      legacySection +
+      `</div>` +
+      `</details>`
     );
   }
 
@@ -1873,6 +2312,16 @@
       )}</button>` +
       `</div>`;
 
+    // AGH v1 Patch 7 A2 — fold the "legacy MIR detail" progressive-disclosure
+    // block into the consolidated audit <details>. Raw identifiers + legacy
+    // MIR now live in ONE audit shell at the bottom instead of two.
+    const legacyInner =
+      `<p class="meta tsr-foot">${metaLine}</p>` +
+      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_message"))}</h4>${msgBlock}</div>` +
+      registryBlock +
+      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_information"))}</h4>${infBlock}</div>` +
+      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_research"))}</h4>${resBlock}</div>`;
+    const auditHtml = renderTodayConsolidatedAuditHtml(j, lang, legacyInner);
     return (
       railHtml +
       primaryHtml +
@@ -1880,15 +2329,7 @@
       evidenceHtml +
       researchStructuredHtml +
       replayLineageHtml +
-      `<details style="margin-top:0.8rem"><summary style="cursor:pointer;color:var(--muted);font-size:0.8rem">` +
-      escapeHtml(lang.startsWith("ko") ? "원 MIR 세부 보기 (고급)" : "Show legacy MIR detail (advanced)") +
-      `</summary>` +
-      `<p class="meta">${metaLine}</p>` +
-      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_message"))}</h4>${msgBlock}</div>` +
-      registryBlock +
-      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_information"))}</h4>${infBlock}</div>` +
-      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_research"))}</h4>${resBlock}</div>` +
-      `</details>`
+      auditHtml
     );
   }
 
@@ -2152,7 +2593,7 @@
         (ahtml
           ? `<ul class="feed-list">${ahtml}</ul>`
           : `<p class="sub"><strong>${escapeHtml(ae.title || "No alerts")}</strong> — ${escapeHtml(ae.why || "")} <em>${escapeHtml(ae.fills_when || "")}</em></p>`) +
-        `<button type="button" class="btn" data-jump="advanced">${escapeHtml(tr("home.jump.manage_alerts"))}</button></div>`
+        `<a href="#" class="feed-utility-link" data-jump="advanced">${escapeHtml(tr("home.jump.manage_alerts"))}</a></div>`
     );
 
     const jp = json.decision_journal_preview || [];
@@ -2177,7 +2618,7 @@
           : je
             ? `<p class="sub"><strong>${escapeHtml(je.title)}</strong> — ${escapeHtml(je.why)} <em>${escapeHtml(je.fills_when)}</em></p>`
             : "") +
-        `<button type="button" class="btn" data-jump="journal">${escapeHtml(tr("home.jump.open_journal"))}</button></div>`
+        `<a href="#" class="feed-utility-link" data-jump="journal">${escapeHtml(tr("home.jump.open_journal"))}</a></div>`
     );
 
     const ab = json.ask_ai_brief || {};

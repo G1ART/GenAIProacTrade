@@ -1,0 +1,78 @@
+{
+  "contract": "AGH_V1_PATCH_7_BOUNDED_INVOKE_EVIDENCE_V1",
+  "milestone": 18,
+  "patch_nature": "product_hardening_ux_depth_scale_readiness",
+  "not_a_demo_theater_patch": true,
+  "scope": [
+    "B1 — One-click bounded invoke polish (clear action wording, clear blocked/queued/completed states, better inline confirmations, cleaner operator guidance).",
+    "B2 — Better bounded-action affordance design: at the action point the user sees what the action will do, will NOT do, and whether operator approval is required."
+  ],
+  "workorder_reference": "docs/plan/METIS_Patch_7_Workorder_Product_Hardening_UX_Scale_2026-04-20.md#5 scope b",
+  "safety_non_negotiables_preserved": {
+    "no_llm_direct_writes_to_registry_bundle_factor_active_state": true,
+    "env_gate_preserved": {
+      "env": "METIS_HARNESS_UI_INVOKE_ENABLED",
+      "unset_behavior": "POST /api/sandbox/enqueue → 403 operator_gate_disabled",
+      "enabled_behavior": "POST /api/sandbox/enqueue → enqueue a bounded SandboxRequestPacketV1; worker still requires operator to run `harness-tick --queue sandbox_queue` from terminal",
+      "worker_does_not_autostart_from_ui": true
+    },
+    "sandbox_kinds_unchanged": ["validation_rerun"],
+    "no_new_sandbox_kinds_in_patch7": true,
+    "no_cosmetic_replacement_of_real_bounded_flow": true
+  },
+  "b1_invoke_tr_wiring": {
+    "file": "src/phase47_runtime/static/app.js",
+    "pattern_before": "inline isKo ? '…' : '…' ternary strings (operator-tone, hard to change)",
+    "pattern_after": "tr(locale_key) resolved from phase47e_user_locale SHELL (single source of truth)",
+    "server_wiring": {
+      "uses_server_cli_hint": true,
+      "uses_server_operator_note": true,
+      "note": "The server is the single source of truth for which harness-tick command to run; the UI must not reconstruct it client-side."
+    },
+    "state_polling": {
+      "policy": "one-time after enqueue (1.5s post-enqueue delay masks common Supabase commit lag) + on explicit operator 'Refresh' click; no background polling",
+      "rationale": "Background polling would erode the operator gate (Product Spec §4.3: operator decides when harness-tick runs; UI must not imply otherwise)."
+    },
+    "error_copy_keys": {
+      "disabled_403": "research_section.invoke_error_disabled",
+      "validation_400": "research_section.invoke_error_validation",
+      "server_500": "research_section.invoke_error_server",
+      "raw_error_details": "research_section.invoke_error_raw"
+    },
+    "state_chips": {
+      "queued": "research_section.invoke_state_queued",
+      "completed": "research_section.invoke_state_completed",
+      "blocked": "research_section.invoke_state_blocked",
+      "unknown": "research_section.invoke_state_unknown",
+      "loading": "research_section.invoke_state_loading"
+    }
+  },
+  "b2_contract_card_at_action_point": {
+    "file": "src/phase47_runtime/static/app.js",
+    "position": "rendered inside the research section, ABOVE the invoke buttons, so the contract is visible at the action point (not only in logs).",
+    "locale_keys": {
+      "head": "tsr.invoke.contract.head",
+      "will_do": "tsr.invoke.contract.will_do",
+      "will_not_do": "tsr.invoke.contract.will_not_do",
+      "after_enqueue": "tsr.invoke.contract.after_enqueue"
+    },
+    "copy_ko": {
+      "head": "이 액션의 범위",
+      "will_do": "수행: 샌드박스 큐에 bounded validation_rerun 요청 1건을 적재합니다.",
+      "will_not_do": "수행하지 않음: 활성 레지스트리 변경·아티팩트 승격·Today 화면 갱신은 하지 않습니다.",
+      "after_enqueue": "적재 후: 운영자가 터미널에서 `harness-tick --queue sandbox_queue` 를 실행해야 샌드박스 워커가 돌아갑니다."
+    },
+    "copy_en": {
+      "head": "What this action does",
+      "will_do": "Will do: enqueue one bounded validation_rerun request into the sandbox queue.",
+      "will_not_do": "Will NOT do: mutate active registry, promote artifacts, or refresh the Today surface.",
+      "after_enqueue": "After enqueue: the operator must run `harness-tick --queue sandbox_queue` in a terminal for the sandbox worker to execute."
+    }
+  },
+  "operator_gate_smoke_trace": "scripts/agh_v1_patch_7_product_hardening_runbook.py::_run_s3_bounded_invoke_contract — FixtureHarnessStore-backed smoke verifies disabled_status=403 with error=operator_gate_disabled, enabled_status=200 with cli_hint and operator_note populated.",
+  "surface_tests": [
+    "src/tests/test_agh_v1_patch7_product_hardening_surface.py::test_b2_bounded_action_contract_locale_keys_present",
+    "src/tests/test_agh_v1_patch7_product_hardening_surface.py::test_b2_bounded_action_contract_card_wired",
+    "src/tests/test_agh_v1_patch6_sandbox_enqueue_endpoint.py (Patch 6 regression — still green)"
+  ]
+}

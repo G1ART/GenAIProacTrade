@@ -1,0 +1,33 @@
+{
+  "contract": "AGH_V1_PATCH_7_PRODUCT_HARDENING_SNAPSHOTS_MANIFEST_V1",
+  "generated_at_utc": "2026-04-20T07:44:39.028002+00:00",
+  "milestone": 18,
+  "patch_nature": "product_hardening_ux_depth_scale_readiness",
+  "snapshot_count": 4,
+  "snapshots": [
+    {
+      "bytes": 40148,
+      "path": "data/mvp/evidence/screenshots_patch_7/freeze_spa_index_patch_7.html",
+      "sha256": "3a394e3d0e68b11a52eadc77284b66e90cc6cd48cee98615db85272331f9ed5e"
+    },
+    {
+      "bytes": 11423,
+      "path": "data/mvp/evidence/screenshots_patch_7/freeze_today_object_detail_ko_patch_7.html",
+      "sha256": "5f580c08e7626b9018320cfc08b4155e7eae9145ae8f6b9ef3316ba8ba10105a"
+    },
+    {
+      "bytes": 11258,
+      "path": "data/mvp/evidence/screenshots_patch_7/freeze_today_object_detail_en_patch_7.html",
+      "sha256": "ed61c62b94ec0aa841275bbdc59330145b2a3eadb3745896dc7d969be087d821"
+    },
+    {
+      "bytes": 1985,
+      "path": "data/mvp/evidence/screenshots_patch_7/freeze_replay_governance_lineage_demo_patch_7.html",
+      "sha256": "6105cb20647aeca36220beb1322d857e6a3a27792bcb1e0d328337965b734424"
+    }
+  ],
+  "spa_shell_source_sha256": {
+    "app.js": "43c94836179ada775ad974ebb2122a85a30a3b91fd081bdfe05afab9bb6cd1b5",
+    "index.html": "3a394e3d0e68b11a52eadc77284b66e90cc6cd48cee98615db85272331f9ed5e"
+  }
+}

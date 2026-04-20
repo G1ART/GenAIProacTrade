@@ -1,0 +1,99 @@
+{
+  "contract": "AGH_V1_PATCH_7_PRODUCT_HARDENING_RUNBOOK_EVIDENCE_V1",
+  "generated_at_utc": "2026-04-20T07:43:40.669058+00:00",
+  "milestone": 18,
+  "patch_nature": "product_hardening_ux_depth_scale_readiness",
+  "scenarios": [
+    {
+      "aria_keys_declared_per_lang": {
+        "en": true,
+        "ko": true
+      },
+      "aria_primary_wired": true,
+      "aria_utility_wired": true,
+      "demoted_entries_in_utility": {
+        "advanced": true,
+        "journal": true
+      },
+      "primary_row_present": true,
+      "reload_bundle_in_utility": true,
+      "scenario": "S1_information_architecture_two_tier_nav",
+      "utility_row_present": true
+    },
+    {
+      "a2_consolidated_audit_renderer": true,
+      "a2_legacy_mir_detail_copy_removed": true,
+      "a2_recent_activity_renderer": true,
+      "a2_typography_classes_missing": [],
+      "a2_typography_tokens_missing": [],
+      "a3_research_clusters_present": [
+        "current_read",
+        "open_questions",
+        "bounded_next"
+      ],
+      "a4_lineage_step_count_summary": true,
+      "a4_lineage_step_delta_helper": true,
+      "a4_timeline_three_lane": true,
+      "a5_tooltip_multipart_split": true,
+      "scenario": "S2_ux_depth_surfaces"
+    },
+    {
+      "contract_keys_declared_per_lang": {
+        "en": [
+          "tsr.invoke.contract.head",
+          "tsr.invoke.contract.will_do",
+          "tsr.invoke.contract.will_not_do",
+          "tsr.invoke.contract.after_enqueue"
+        ],
+        "ko": [
+          "tsr.invoke.contract.head",
+          "tsr.invoke.contract.will_do",
+          "tsr.invoke.contract.will_not_do",
+          "tsr.invoke.contract.after_enqueue"
+        ]
+      },
+      "contract_rendered_in_app_js": true,
+      "gate_disabled_error": "ui_invoke_disabled",
+      "gate_disabled_status": 403,
+      "gate_enabled_cli_hint_present": true,
+      "gate_enabled_operator_note_present": true,
+      "gate_enabled_status": 200,
+      "sandbox_kinds": [
+        "validation_rerun"
+      ],
+      "scenario": "S3_bounded_invoke_contract_and_gate"
+    },
+    {
+      "lineage_default_limit": 200,
+      "lineage_limit_param_present": true,
+      "lineage_max_cap_500": true,
+      "lineage_max_limit": 500,
+      "scenario": "S4_response_size_guardrails",
+      "spectrum_default_rows_limit": 200,
+      "spectrum_max_rows_limit": 1000,
+      "spectrum_rows_limit_param_present": true
+    },
+    {
+      "dedupe_hoists_index_builder": true,
+      "dedupe_per_spec_list_packets_calls": 0,
+      "index_builder_list_packets_calls": 1,
+      "perf_instrumentation_sites": {
+        "governance_scan_provider_v1.deduplicate_specs": true,
+        "scheduler.tick.run_one_tick": true,
+        "today_spectrum.build_today_object_detail_payload": true,
+        "today_spectrum.build_today_spectrum_payload": true
+      },
+      "scenario": "S5_scale_safe_defaults"
+    },
+    {
+      "finding_count": 6,
+      "has_sp500_verdict_section": true,
+      "mentions_next_concrete_patch": false,
+      "mentions_what_is_sufficient": false,
+      "mentions_what_still_blocks": false,
+      "path": "docs/plan/METIS_Scale_Readiness_Note_Patch7_v1.md",
+      "present": true,
+      "scenario": "S6_scale_readiness_note"
+    }
+  ]
+}

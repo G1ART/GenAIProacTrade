@@ -16,7 +16,7 @@
 
 | # | 질문 (스펙 원문) | 현재 상태 | 비고 |
 |---|------------------|-----------|------|
-| Q1 | Today가 registry만 읽는가? | **조건부 닫힘** | 기본 `METIS_TODAY_SOURCE=registry` + `validate-metis-brain-bundle` 통과 번들이면 시드 미사용. `seed`/`auto`+번들 불완 시 시드 폴백. |
+| Q1 | Today가 registry만 읽는가? | **조건부 닫힘 (AGH v1 Patch 7 강화)** | 기본 `METIS_TODAY_SOURCE=registry` + `validate-metis-brain-bundle` 통과 번들이면 시드 미사용. `seed`/`auto`+번들 불완 시 시드 폴백. Patch 7 에서 `/api/today/spectrum` 에 **`rows_limit` (default 200, cap 1000) + `total_rows` + `truncated`** 가 추가되어 500 ticker 확장 시 UI 페이로드가 무제한 커지는 것을 막음. rows 슬라이스는 rank/quintile/movement 계산 **이후** 에 적용되어 top-N 이 rank 에 거짓말하지 않음. |
 | Q2 | 각 시간축에 active family 존재? | **닫힘** | `metis_brain_bundle_v0` + `bundle_ready_for_horizon` |
 | Q3 | challenger/active 구분? | **닫힘** | short challenger 등 |
 | Q4 | artifact 없이 Today 불가? | **스키마상 닫힘** | 번들 무결성 검사; **실데이터 Heart→Artifact 자동 생산**은 별도(게이트 export/merge 파이프) |
@@ -24,8 +24,8 @@
 | Q6 | 카드에 headline·why_now·rationale? | **닫힘** | 시드/번들 스펙트럼 행 + object detail |
 | Q7 | 동명 종목·지평별 위치 차이? | **닫힘** | 지평별 행·`horizon_lens_compare` |
 | Q8 | price overlay가 rank movement 변경? | **닫힘** | `mock_price_tick=1` |
-| Q9 | Research message→information→deeper? | **강화 닫힘(AGH v1 Patch 6)** | Patch 5의 intent router + `ResearchAnswerStructureV1` + 가드레일 위에, Patch 6가 (a) `locale_coverage ∈ {dual,ko_only,en_only,degraded}` 계약 + Pydantic `model_validator` + `validate_research_structured_v1` + `_SYSTEM_PROMPT` 삼중 가드로 **silent dual-claim 차단**, (b) Today object detail payload에 `research_structured_v1` 전달 (`_latest_research_structured_v1_for_asset`), (c) cockpit UI에 **Research 5-section 렌더러** (current read / why plausible / unproven / watch / bounded next step) + `tsr-research-coverage` 배지 + bounded-next-step 2-mode 조작 UI (CLI 복사 기본 + `?ui_invoke=1` 시 `POST /api/sandbox/enqueue`), (d) `tsr.*` bilingual 로캘 strings + 엔지니어링 용어 누수 정적 스캐너. 즉 "왜 / 무엇이 미증명 / 무엇을 봐야 / 어떤 bounded sandbox 필요?" 4축 acceptance 가 investor-facing UI 까지 연결. |
-| Q10 | Replay가 당시 family·결과 연결? | **닫힘(AGH v1 Patch 6)** | 타임라인 lineage + `registry_entry_id`·`sandbox_followups` 필드는 Patch 5에서 닫힘, Patch 6가 cockpit UI에 **Replay governance lineage compact** (proposal → apply → spectrum refresh → validation eval 4-step indicator) + **inline SVG timeline plot** (governed-apply 수직선, spectrum refresh 원형 마커, sandbox followup ticks) + 공용 tooltip primitive 를 얹어 operator가 "validation → evaluator → proposal → decision → apply → spectrum refresh → sandbox rerun" 체인을 **시각적 단일 뷰** 에서 복원 가능. `humanizeActiveArtifactLabel` 로 raw id 대신 사람 친화 라벨을 노출. |
+| Q9 | Research message→information→deeper? | **강화 닫힘 (AGH v1 Patch 7)** | Patch 5 의 intent router + `ResearchAnswerStructureV1` + 가드레일 + Patch 6 의 `locale_coverage` 삼중 가드 + Research 5-section 렌더러 위에, Patch 7 이 (a) **3-cluster 재그룹** (current_read / open_questions / bounded_next) 으로 같은 5 섹션을 더 적은 덩어리로 읽히게, (b) evidence 칩을 packet kind 별로 그룹핑 + humanize, (c) `locale_coverage='degraded'` 카피를 "부분 응답 / Partial response" 제품 톤으로, (d) **bounded action contract card** (will_do / will_not_do / after_enqueue 3 줄) 을 invoke 버튼 **바로 위** 에 렌더해 액션의 경계를 액션 지점에서 명시, (e) invoke UI 의 모든 문자열을 `tr()` 로 이관 + 서버 `cli_hint`/`operator_note` 단일 출처 + 큐 상태 one-time polling (background polling 없음) 으로 operator gate 정신 준수. 즉 "왜 / 무엇이 미증명 / 무엇을 봐야 / 어떤 bounded sandbox 필요?" 4축 acceptance 가 **시각적으로도** 3 덩어리로 스캔 가능하며, bounded action 의 경계가 UI 표면에서 투명. |
+| Q10 | Replay가 당시 family·결과 연결? | **강화 닫힘 (AGH v1 Patch 7)** | Patch 6 의 Replay compact + SVG timeline plot + tooltip primitive 위에, Patch 7 이 (a) **SVG timeline 을 3-lane 구조** (governed apply / spectrum refresh / sandbox followup) 로 재작성해 "what happened when" 이 한눈에 스캔 가능, (b) lineage step indicator 위에 **step count summary** ("4단계 중 N단계 완료 / N of 4 steps complete") 배너, (c) 각 step 의 `created_at_utc` 를 추출해 **time-delta tooltip** (`이전 대비 +3h` / `+3h after previous`) 를 step 간 차이로 surface, (d) **tooltip sub-line multi-part split** (SUB_SEP=" · ") 로 rail chip / lineage steps / plot events 의 hover 가 "outcome · delta · from→to" 를 다차원 요약으로 드러냄. `/api/replay/governance-lineage` 는 `?limit` (default 200, cap 500) 으로 스케일 safe. `humanizeActiveArtifactLabel` 은 계속 raw id 차단. |
 
 ---
 
@@ -37,9 +37,9 @@
 | 1 Today 수직 | Registry 스펙트럼·밴딩·워치·rank | **닫힘**(registry 우선·폴백 시드) |
 | 2 Message v1 | 1급 객체·스냅샷 | **거의 닫힘**(저장·해석·Ask 스레드) |
 | 3 Research 최소 | 계층·Ask·샌드박스 | **최소 닫힘** |
-| 4 Replay | lineage·counterfactual·결정 | **대부분 닫힘**(Patch 6 UI compact + SVG timeline plot 포함) |
-| 5 Shell/KO-EN/데모 동결 | — | **Patch 6 에서 4-block Today + Research 5-section + Replay compact + KO/EN `tsr.*` 로캘 + HTML snapshot sha256 manifest 로 첫 수직 슬라이스 동결** (playwright 기반 스크린샷은 이월) |
-| 6 Trust | — | **후순위** (진입: Patch 6 의 no-leak 스캐너 + locale honesty + operator-gated UI invoke) |
+| 4 Replay | lineage·counterfactual·결정 | **대부분 닫힘 (AGH v1 Patch 7 강화)** — Patch 6 UI compact + SVG timeline plot + Patch 7 **3-lane SVG** (apply / spectrum refresh / sandbox followup) + **step count summary** + **step 간 time-delta tooltip** + multi-part tooltip sub-line |
+| 5 Shell/KO-EN/데모 동결 | — | **Patch 6 초기 동결 (4-block Today + Research 5-section + Replay compact + KO/EN `tsr.*` + HTML snapshot sha256 manifest) → Patch 7 product hardening 으로 상향**: A1 IA 2-tier nav (primary/utility), A2 Today 타이포 토큰 + recent-activity + consolidated audit, A3 Research 3-cluster + 제품 톤 카피, A4 Replay 3-lane, A5 tooltip sub-line, B2 bounded action contract card. playwright 기반 실 브라우저 스크린샷은 여전히 이월 (`screenshots_patch_7/` 는 정적 HTML + sha256 manifest). |
+| 6 Trust | — | **부분 닫힘 (AGH v1 Patch 7)** — Patch 6 의 no-leak 스캐너 + locale honesty + operator-gated UI invoke 위에 Patch 7 의 (a) **bounded action contract card** (will_do / will_not_do / after_enqueue) 로 액션 경계를 액션 지점에서 명시, (b) `cli_hint`/`operator_note` 서버 단일 출처, (c) invoke 후 one-time 큐 상태 polling 으로 fake autonomy language 없이 진행 상태 노출. 전용 Trust 패널 / surface-level signature / cockpit health surface 제품 톤 재작성은 후속. |
 
 ---
 
@@ -49,6 +49,7 @@
 2. **운영 단일 경로**: `build-metis-brain-bundle-from-factor-validation` 성공률·실패 리포트를 팀이 매일 볼 수 있게 CI/헬스에 고정.  
 3. **Replay ↔ outcome**: 결정 ledger·알림과 **동일 message_snapshot_id**로 끝까지 조인 검증(이벤트 빌더 확장).  
 4. **스펙 §7**: free-form 승격·registry 우회 방지 — 정책 테스트·리뷰 체크리스트.
+5. **S&P 500 스케일 준비 (Patch 7 Scale Readiness Note 요약)**: Patch 7 은 C2a (governance_scan N+1 hoist) + C2b (Today rows_limit) + C2c (Replay lineage limit cap) + C2d (perf instrumentation) 로 **low-risk readiness** 를 먼저 설치했지만, S&P 500 rollout 은 아래 4 finding 이 남아 있어 **아직 Patch 7 만으로 선언할 수 없음**: (F1) factor validation cadence row-by-row Supabase insert → batch RPC 필요 (CF-7·1), (F3) bundle panel-fetch 중복 → 빌드 로컬 캐시 (CF-7·2), (F5) `packet_store` retention / queue counter scan → archive + counter cache (CF-7·4), (F6) research structured linear scan → `(asset, horizon, kind, created_at)` 인덱스 (CF-7·3). 상세: `docs/plan/METIS_Scale_Readiness_Note_Patch7_v1.md`.
 
 ---
 

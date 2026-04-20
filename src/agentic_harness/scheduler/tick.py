@@ -15,13 +15,29 @@ this module never branches on packet_type / layer semantics.
 
 from __future__ import annotations
 
+import json
+import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from time import perf_counter
 from typing import Any, Callable, Optional
 
 from agentic_harness.contracts.queues_v1 import QUEUE_CLASSES
 from agentic_harness.scheduler.cadences import DEFAULT_CADENCES, should_run_cadence
 from agentic_harness.store.protocol import HarnessStoreProtocol
+
+
+def _emit_perf_log(*, fn: str, ms: float, extra: dict[str, Any] | None = None) -> None:
+    """AGH v1 Patch 7 C2d — scheduler-side stderr perf log (see
+    ``docs/plan/METIS_Scale_Readiness_Note_Patch7_v1.md`` §3).
+    """
+    try:
+        rec = {"kind": "metis_perf", "fn": fn, "ms": round(float(ms), 3)}
+        if extra:
+            rec.update(extra)
+        sys.stderr.write(json.dumps(rec, sort_keys=True) + "\n")
+    except Exception:  # pragma: no cover - defensive
+        pass
 
 
 LayerProposeFn = Callable[[HarnessStoreProtocol, str], dict[str, Any]]
@@ -93,6 +109,7 @@ def run_one_tick(
     max_jobs_per_queue: int = 5,
     dry_run: bool = False,
 ) -> dict[str, Any]:
+    t0 = perf_counter()
     now_iso = _utc_iso(now)
     summary = TickSummary(tick_at_utc=now_iso, dry_run=bool(dry_run))
 
@@ -189,7 +206,19 @@ def run_one_tick(
     # --- 3) log the tick itself --------------------------------------------
     if not dry_run:
         store.log_tick(tick_kind="harness_tick", summary=summary.as_dict())
-    return summary.as_dict()
+    result = summary.as_dict()
+    _emit_perf_log(
+        fn="scheduler.tick.run_one_tick",
+        ms=(perf_counter() - t0) * 1000.0,
+        extra={
+            "dry_run": bool(dry_run),
+            "cadences_ran": sum(
+                1 for v in summary.cadence_decisions.values() if v == "ran"
+            ),
+            "queues": list(summary.queue_runs.keys()),
+        },
+    )
+    return result
 
 
 def default_cadences_keys() -> list[str]:
