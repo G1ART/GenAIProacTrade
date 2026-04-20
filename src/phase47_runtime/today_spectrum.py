@@ -1087,6 +1087,68 @@ def _research_status_badges_v1_from_bundle(
     }
 
 
+def _latest_research_structured_v1_for_asset(
+    *,
+    repo_root: Path,
+    asset_id: str,
+    horizon: str,
+) -> dict[str, Any] | None:
+    """AGH v1 Patch 6 — best-effort lookup of the latest
+    ``UserQueryActionPacketV1.payload.llm_response.research_structured_v1``
+    for the given ``asset_id``.
+
+    Returns ``None`` when:
+      * the harness store is not configured (fresh clones / dev),
+      * no UserQueryActionPacket exists for this asset,
+      * the latest packet's LLM response has no structured block, OR
+      * ``asset_id`` is empty.
+
+    Never raises — the Today surface renders an empty state instead.
+    """
+
+    aid = str(asset_id or "").strip()
+    if not aid:
+        return None
+    try:
+        from agentic_harness.runtime import build_store
+    except Exception:
+        return None
+    try:
+        store = build_store()
+    except Exception:
+        return None
+    try:
+        packets = list(
+            store.list_packets(packet_type="UserQueryActionPacketV1", limit=200)
+            or []
+        )
+    except Exception:
+        return None
+
+    def _sort_key(p: dict[str, Any]) -> str:
+        return str(p.get("created_at_utc") or "")
+
+    packets.sort(key=_sort_key, reverse=True)
+    for p in packets:
+        ts = (p.get("target_scope") or {}) if isinstance(p.get("target_scope"), dict) else {}
+        if str(ts.get("asset_id") or "") != aid:
+            continue
+        payload = p.get("payload") or {}
+        llm = payload.get("llm_response") or {}
+        if not isinstance(llm, dict):
+            continue
+        rs = llm.get("research_structured_v1")
+        if not isinstance(rs, dict):
+            continue
+        rs = dict(rs)
+        rs.setdefault("cited_packet_ids", list(llm.get("cited_packet_ids") or []))
+        rs.setdefault("_source_packet_id", p.get("packet_id"))
+        rs.setdefault("_routed_kind", str(payload.get("routed_kind") or ""))
+        rs.setdefault("_horizon_hint", horizon)
+        return rs
+    return None
+
+
 def build_today_object_detail_payload(
     *,
     repo_root: Path,
@@ -1180,6 +1242,15 @@ def build_today_object_detail_payload(
         registry_surface,
         bundle_for_surface,
     )
+    # AGH v1 Patch 6 — surface the most recent research_structured_v1 for
+    # this asset/horizon so the Research renderer has bullets to show.
+    # Best-effort: if the harness store is not available, we quietly
+    # return None and the UI renders its empty state.
+    research_structured_v1 = _latest_research_structured_v1_for_asset(
+        repo_root=repo_root,
+        asset_id=aid,
+        horizon=hz,
+    )
 
     return {
         "ok": True,
@@ -1210,4 +1281,5 @@ def build_today_object_detail_payload(
         "registry_surface_v1": sp.get("registry_surface_v1"),
         "sandbox_options_v1": sandbox_options_v1,
         "research_status_badges_v1": research_status_badges_v1,
+        "research_structured_v1": research_structured_v1,
     }

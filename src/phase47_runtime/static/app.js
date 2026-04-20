@@ -938,12 +938,845 @@
     refreshResearchRegistryStrip();
   }
 
+  // AGH v1 Patch 6 — shared tooltip primitive (C2). label-not-dump copy.
+  (function tsrInstallTooltip() {
+    if (window.__tsrTooltipInstalled) return;
+    window.__tsrTooltipInstalled = true;
+    let tip = null;
+    function ensureNode() {
+      if (tip) return tip;
+      tip = document.createElement("div");
+      tip.className = "tsr-tooltip";
+      tip.style.display = "none";
+      document.body.appendChild(tip);
+      return tip;
+    }
+    window.tooltipAt = function tooltipAt(x, y, label, sub) {
+      const el = ensureNode();
+      const lbl = String(label || "").trim();
+      const sbt = String(sub || "").trim();
+      if (!lbl && !sbt) {
+        el.style.display = "none";
+        return;
+      }
+      el.innerHTML =
+        (lbl ? `<div class="tt-label">${escapeHtml(lbl)}</div>` : "") +
+        (sbt ? `<div class="tt-sub">${escapeHtml(sbt)}</div>` : "");
+      el.style.display = "block";
+      const margin = 12;
+      const vw = window.innerWidth || 1024;
+      const vh = window.innerHeight || 768;
+      let left = x + margin;
+      let top = y + margin;
+      const bb = el.getBoundingClientRect();
+      if (left + bb.width > vw - margin) left = Math.max(margin, x - bb.width - margin);
+      if (top + bb.height > vh - margin) top = Math.max(margin, y - bb.height - margin);
+      el.style.left = left + "px";
+      el.style.top = top + "px";
+    };
+    window.tooltipHide = function tooltipHide() {
+      if (tip) tip.style.display = "none";
+    };
+    // Global delegated hover: any element with data-tsr-tt-label shows tooltip.
+    document.addEventListener("mouseover", (ev) => {
+      const t = ev.target;
+      if (!t || !t.closest) return;
+      const host = t.closest("[data-tsr-tt-label]");
+      if (!host) return;
+      window.tooltipAt(
+        ev.clientX,
+        ev.clientY,
+        host.getAttribute("data-tsr-tt-label") || "",
+        host.getAttribute("data-tsr-tt-sub") || ""
+      );
+    });
+    document.addEventListener("mousemove", (ev) => {
+      const t = ev.target;
+      if (!t || !t.closest) return;
+      const host = t.closest("[data-tsr-tt-label]");
+      if (!host) {
+        window.tooltipHide();
+        return;
+      }
+      window.tooltipAt(
+        ev.clientX,
+        ev.clientY,
+        host.getAttribute("data-tsr-tt-label") || "",
+        host.getAttribute("data-tsr-tt-sub") || ""
+      );
+    });
+    document.addEventListener("mouseout", (ev) => {
+      const t = ev.target;
+      if (!t || !t.closest) return;
+      const host = t.closest("[data-tsr-tt-label]");
+      if (!host) window.tooltipHide();
+    });
+  })();
+
+  // AGH v1 Patch 6 — humanize research evidence ref (prefer prefix map).
+  function humanizeResearchEvidenceRef(ref, lang) {
+    const s = String(ref || "").trim();
+    if (!s) return "";
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    const prefix = s.split(":")[0] || s.split("_")[0] || "";
+    const knownPrefix = {
+      pkt: isKo ? "증거 패킷" : "Evidence packet",
+      vpe: isKo ? "검증→승격 평가" : "Validation→promotion eval",
+      fvs: isKo ? "검증 통계" : "Validation stats",
+      rpa: isKo ? "거버넌스 적용" : "Governed apply",
+      SandboxRequestPacketV1: isKo ? "샌드박스 요청" : "Sandbox request",
+      SandboxResultPacketV1: isKo ? "샌드박스 결과" : "Sandbox result",
+      bundle: isKo ? "번들 상태" : "Bundle state",
+      seed: isKo ? "시드 데이터" : "Seed data",
+    };
+    return knownPrefix[prefix] || (isKo ? "참조" : "Reference");
+  }
+
+  // AGH v1 Patch 6 — Research 5-section renderer (B2).
+  function renderResearchStructuredSection(j, lang) {
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    const rs = (j && j.research_structured_v1) || null;
+    const rsb = (j && j.registry_surface_v1) || {};
+    const ridReq = String(rsb.registry_entry_id || "").trim();
+    const hzReq = String(j.horizon || "").trim();
+    if (!rs || typeof rs !== "object") {
+      return (
+        `<div class="tsr-research" data-tsr-research-empty="1">` +
+        `<h4>${escapeHtml(isKo ? "연구 · Ask AI" : "Research · Ask AI")}</h4>` +
+        `<div class="tsr-empty"><span class="tsr-empty-head">${escapeHtml(
+          isKo ? "해당 종목 · 수평선에 연결된 질의 없음" : "No ask routed for this asset × horizon"
+        )}</span><br/><span class="ev-faint">${escapeHtml(
+          isKo
+            ? "Ask AI에서 질의하면 이 영역에 구조화된 해석이 표시됩니다."
+            : "Ask a question in Ask AI and the structured read will appear here."
+        )}</span></div></div>`
+      );
+    }
+    const cov = String(rs.locale_coverage || "dual");
+    const covLabel = {
+      dual: isKo ? "한·영 모두" : "Dual KO+EN",
+      ko_only: isKo ? "한국어만" : "KO only",
+      en_only: isKo ? "영어만" : "EN only",
+      degraded: isKo ? "부분 응답" : "Degraded",
+    }[cov] || cov;
+    const covTip =
+      cov === "dual"
+        ? isKo ? "양쪽 로캘 모두 제공됨" : "Both locales provided"
+        : cov === "degraded"
+        ? isKo ? "증거 부족으로 요약 미완성" : "Evidence too thin for a full summary"
+        : isKo ? "단일 로캘만 제공됨" : "Only one locale provided";
+    const covBadge = `<span class="tsr-research-coverage ${escapeHtml(cov)}" data-tsr-tt-label="${escapeHtml(
+      covLabel
+    )}" data-tsr-tt-sub="${escapeHtml(covTip)}">${escapeHtml(covLabel)}</span>`;
+
+    const sumKo = Array.isArray(rs.summary_bullets_ko) ? rs.summary_bullets_ko : [];
+    const sumEn = Array.isArray(rs.summary_bullets_en) ? rs.summary_bullets_en : [];
+    const residual = Array.isArray(rs.residual_uncertainty_bullets)
+      ? rs.residual_uncertainty_bullets
+      : [];
+    const watch = Array.isArray(rs.what_to_watch_bullets) ? rs.what_to_watch_bullets : [];
+
+    function bulletList(items, emptyLabel) {
+      if (!items.length) return `<div class="ev-faint">${escapeHtml(emptyLabel)}</div>`;
+      return `<ul>${items.map((x) => `<li>${escapeHtml(String(x))}</li>`).join("")}</ul>`;
+    }
+    const summary = isKo
+      ? sumKo.length
+        ? sumKo
+        : sumEn
+      : sumEn.length
+      ? sumEn
+      : sumKo;
+    const summaryEmpty = isKo ? "요약 없음" : "No summary";
+
+    const evidenceCited = Array.isArray(rs.evidence_cited) ? rs.evidence_cited : [];
+    const evidenceChips = evidenceCited
+      .slice(0, 6)
+      .map((ref) => {
+        const label = humanizeResearchEvidenceRef(ref, lang);
+        return `<span class="tsr-chip tsr-chip--neutral" title="${escapeHtml(
+          String(ref)
+        )}">${escapeHtml(label)}</span>`;
+      })
+      .join(" ");
+    const rawEvidenceDetails =
+      evidenceCited.length > 0
+        ? `<details><summary>${escapeHtml(
+            isKo ? "원본 증거 식별자 (감사용)" : "Raw evidence identifiers (audit)"
+          )}</summary><div class="raw-ids">${evidenceCited
+            .map((x) => escapeHtml(String(x)))
+            .join("<br/>")}</div></details>`
+        : "";
+
+    // Section (e) — bounded next step invoke UI.
+    const ps = rs.proposed_sandbox_request && typeof rs.proposed_sandbox_request === "object"
+      ? rs.proposed_sandbox_request
+      : null;
+    let invokeSec = "";
+    if (ps) {
+      const sk = String(ps.sandbox_kind || "");
+      const rid = String(ps.registry_entry_id || ridReq);
+      const hz = String(ps.horizon || hzReq);
+      const ts = ps.target_spec && typeof ps.target_spec === "object" ? ps.target_spec : {};
+      const fn = String(ts.factor_name || "");
+      const un = String(ts.universe_name || "");
+      const htp = String(ts.horizon_type || "");
+      const rb = String(ts.return_basis || "");
+      const cited = Array.isArray(rs.evidence_cited) && rs.evidence_cited.length
+        ? rs.evidence_cited
+        : (Array.isArray(rs.cited_packet_ids) ? rs.cited_packet_ids : []);
+      const citedFlat = cited.map((x) => String(x)).filter(Boolean).join(" ");
+      const cli =
+        `harness-sandbox-request ` +
+        `--registry-entry-id ${rid} ` +
+        `--horizon ${hz} ` +
+        `--factor-name ${fn} ` +
+        `--universe-name ${un} ` +
+        `--horizon-type ${htp} ` +
+        `--return-basis ${rb} ` +
+        (citedFlat ? `--cited-evidence-packet-ids ${citedFlat} ` : "") +
+        `--request-id $(uuidgen)`;
+      const invokeEnabled = !!window.__metisUiInvokeEnabled;
+      const buttonRow = invokeEnabled
+        ? `<button type="button" class="btn btn-primary" data-tsr-enqueue-sandbox="1" data-rid="${escapeHtml(
+            rid
+          )}" data-hz="${escapeHtml(hz)}" data-fn="${escapeHtml(fn)}" data-un="${escapeHtml(
+            un
+          )}" data-htp="${escapeHtml(htp)}" data-rb="${escapeHtml(
+            rb
+          )}" data-cited="${escapeHtml(citedFlat)}" data-rationale="${escapeHtml(
+            String(ps.rationale || "")
+          )}">${escapeHtml(
+            isKo
+              ? "UI로 대기열 추가 (운영자 게이트)"
+              : "Enqueue via UI (operator-gated)"
+          )}</button>`
+        : "";
+      const inlineMsg = invokeEnabled
+        ? `<span class="invoke-inline-msg">${escapeHtml(
+            isKo
+              ? "대기열 추가 후 터미널에서 harness-tick --queue sandbox_queue 를 실행하세요."
+              : "After enqueue, run `harness-tick --queue sandbox_queue` in your terminal."
+          )}</span>`
+        : `<span class="invoke-inline-msg">${escapeHtml(
+            isKo
+              ? "터미널에서 아래 명령을 복붙해서 실행하세요 (UI 실행은 기본 비활성)."
+              : "Copy and paste the command below in your terminal (UI execute is disabled by default)."
+          )}</span>`;
+      invokeSec = (
+        `<div class="tsr-research-invoke">` +
+        `<div class="invoke-label">${escapeHtml(
+          isKo
+            ? `Bounded 다음 액션 · ${sk}`
+            : `Bounded next step · ${sk}`
+        )}</div>` +
+        `<div class="invoke-cli" data-tsr-cli="1">${escapeHtml(cli)}</div>` +
+        `<div class="invoke-row">` +
+        `<button type="button" class="btn" data-tsr-copy-cli="1">${escapeHtml(
+          isKo ? "복사" : "Copy"
+        )}</button>` +
+        buttonRow +
+        inlineMsg +
+        `</div>` +
+        `<div data-tsr-enqueue-result="1" class="invoke-inline-msg" style="margin-top:0.3rem"></div>` +
+        `</div>`
+      );
+    }
+
+    return (
+      `<div class="tsr-research" data-tsr-research="1">` +
+      `<h4>${escapeHtml(
+        isKo ? "연구 해석 · Research read" : "Research read"
+      )} ${covBadge}</h4>` +
+      `<div class="tsr-research-sec" data-tsr-sec="current_read">` +
+      `<div class="sec-title">${escapeHtml(
+        isKo ? "현재 해석 · Current read" : "Current read"
+      )}</div>` +
+      bulletList(summary, summaryEmpty) +
+      `</div>` +
+      `<div class="tsr-research-sec" data-tsr-sec="why_plausible">` +
+      `<div class="sec-title">${escapeHtml(
+        isKo ? "해석 근거 · Why plausible" : "Why plausible"
+      )}</div>` +
+      (evidenceChips
+        ? `<div class="row" style="gap:0.3rem">${evidenceChips}</div>${rawEvidenceDetails}`
+        : `<div class="ev-faint">${escapeHtml(
+            isKo ? "인용 증거 없음" : "No evidence cited"
+          )}</div>`) +
+      `</div>` +
+      `<div class="tsr-research-sec" data-tsr-sec="unproven">` +
+      `<div class="sec-title">${escapeHtml(
+        isKo ? "아직 미증명 · What remains unproven" : "What remains unproven"
+      )}</div>` +
+      bulletList(residual, isKo ? "미증명 항목 없음" : "None listed") +
+      `</div>` +
+      `<div class="tsr-research-sec" data-tsr-sec="watch">` +
+      `<div class="sec-title">${escapeHtml(
+        isKo ? "계속 볼 것 · What to watch" : "What to watch"
+      )}</div>` +
+      bulletList(watch, isKo ? "관찰 항목 없음" : "None listed") +
+      `</div>` +
+      `<div class="tsr-research-sec" data-tsr-sec="bounded_next">` +
+      `<div class="sec-title">${escapeHtml(
+        isKo ? "Bounded 다음 액션 · Bounded next step" : "Bounded next step"
+      )}</div>` +
+      (invokeSec
+        ? invokeSec
+        : `<div class="ev-faint">${escapeHtml(
+            isKo ? "제안된 샌드박스 액션 없음" : "No sandbox action proposed"
+          )}</div>`) +
+      `</div>` +
+      `</div>`
+    );
+  }
+
+  // AGH v1 Patch 6 — Replay governance lineage compact renderer (B3).
+  // Loads /api/replay/governance-lineage asynchronously and writes into
+  // the placeholder container (returned by the sync renderer).
+  function renderReplayGovernanceLineageCompactHtml(j, lang) {
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    const rs = (j && j.registry_surface_v1) || {};
+    const rid = String(rs.registry_entry_id || "").trim();
+    const hz = String(j.horizon || "").trim();
+    if (!rid) {
+      return "";
+    }
+    const sid = `tsr-lineage-${Math.random().toString(36).slice(2, 9)}`;
+    // Queue an async fetch after render.
+    setTimeout(() => hydrateReplayGovernanceLineageCompact(sid, rid, hz, isKo), 0);
+    return (
+      `<div id="${sid}" class="tsr-replay-lineage" data-tsr-replay-lineage="1">` +
+      `<h4>${escapeHtml(
+        isKo ? "거버넌스 계보 · Governance lineage" : "Governance lineage"
+      )}</h4>` +
+      `<div class="ev-faint" data-tsr-lineage-loading="1">${escapeHtml(
+        isKo ? "로드 중…" : "Loading…"
+      )}</div>` +
+      `</div>`
+    );
+  }
+
+  async function hydrateReplayGovernanceLineageCompact(containerId, rid, hz, isKo) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    try {
+      const qs = `registry_entry_id=${encodeURIComponent(rid)}${
+        hz ? `&horizon=${encodeURIComponent(hz)}` : ""
+      }`;
+      const { ok, json } = await api(`/api/replay/governance-lineage?${qs}`);
+      if (!ok || !json || json.ok === false) {
+        el.innerHTML =
+          `<h4>${escapeHtml(
+            isKo ? "거버넌스 계보" : "Governance lineage"
+          )}</h4>` +
+          `<div class="tsr-empty">${escapeHtml(
+            isKo ? "계보 정보를 읽지 못했습니다." : "Lineage unavailable."
+          )}</div>`;
+        return;
+      }
+      const total = json.total_applied || json.total_applies || 0;
+      const completed = json.total_sandbox_completed || 0;
+      const rebuild = json.latest_applied_needs_db_rebuild === true;
+      const chains = Array.isArray(json.chains) ? json.chains : [];
+      const latest = chains.length ? chains[0] : null;
+      const steps = [
+        {
+          key: "proposal",
+          outcome:
+            latest && latest.proposal && latest.proposal.outcome
+              ? String(latest.proposal.outcome)
+              : latest && latest.validation_promotion_evaluation && latest.validation_promotion_evaluation.outcome
+              ? String(latest.validation_promotion_evaluation.outcome)
+              : "",
+          label: isKo ? "제안" : "Proposal",
+        },
+        {
+          key: "applied",
+          outcome: latest && latest.applied && latest.applied.outcome ? String(latest.applied.outcome) : "",
+          label: isKo ? "적용" : "Apply",
+        },
+        {
+          key: "spectrum_refresh",
+          outcome:
+            latest && latest.spectrum_refresh && latest.spectrum_refresh.outcome
+              ? String(latest.spectrum_refresh.outcome)
+              : "",
+          label: isKo ? "스펙트럼 리프레시" : "Spectrum refresh",
+        },
+        {
+          key: "validation_eval",
+          outcome:
+            latest && latest.validation_promotion_evaluation && latest.validation_promotion_evaluation.outcome
+              ? String(latest.validation_promotion_evaluation.outcome)
+              : "",
+          label: isKo ? "검증 평가" : "Validation eval",
+        },
+      ];
+      function stepClass(outcome) {
+        const s = String(outcome || "").toLowerCase();
+        if (!s) return "pending";
+        if (s.startsWith("blocked")) return "blocked";
+        if (s === "applied" || s === "emitted" || s === "promotion_candidate" || s === "refreshed" || s === "skipped") return "done";
+        return "pending";
+      }
+      const stepsHtml = steps
+        .map((s, i) => {
+          const cls = `tsr-step ${stepClass(s.outcome)}`;
+          const sub = s.outcome ? s.outcome : isKo ? "대기" : "pending";
+          const arrow =
+            i < steps.length - 1 ? `<span class="tsr-step-arrow">→</span>` : "";
+          return (
+            `<span class="${cls}" data-tsr-tt-label="${escapeHtml(
+              s.label
+            )}" data-tsr-tt-sub="${escapeHtml(sub)}"><span class="step-num">${i + 1}</span>${escapeHtml(
+              s.label
+            )}</span>` + arrow
+          );
+        })
+        .join("");
+      const followups = Array.isArray(json.sandbox_followups) ? json.sandbox_followups : [];
+      const followupsHtml = followups.length
+        ? `<div class="tsr-lineage-followups"><strong>${escapeHtml(
+            isKo ? "샌드박스 팔로업" : "Sandbox followups"
+          )}</strong><ul>${followups
+            .slice(0, 3)
+            .map((fu) => {
+              const kind = String((fu.request && fu.request.payload && fu.request.payload.sandbox_kind) || "");
+              const outcome = String((fu.result && fu.result.payload && fu.result.payload.outcome) || (isKo ? "대기" : "pending"));
+              return `<li>${escapeHtml(kind || "validation_rerun")} · ${escapeHtml(outcome)}</li>`;
+            })
+            .join("")}</ul></div>`
+        : `<div class="tsr-lineage-followups ev-faint">${escapeHtml(
+            isKo ? "샌드박스 팔로업 없음" : "No sandbox followups"
+          )}</div>`;
+      const chipTotal = `<span class="tsr-chip tsr-chip--info">${escapeHtml(
+        isKo ? `적용 ${total}건` : `Applies: ${total}`
+      )}</span>`;
+      const chipCompleted = `<span class="tsr-chip ${
+        completed ? "tsr-chip--info" : "tsr-chip--neutral"
+      }">${escapeHtml(
+        isKo ? `샌드박스 완료 ${completed}건` : `Sandbox completed: ${completed}`
+      )}</span>`;
+      const chipRebuild = rebuild
+        ? `<span class="tsr-chip tsr-chip--warn">${escapeHtml(
+            isKo ? "DB 재빌드 필요" : "DB rebuild needed"
+          )}</span>`
+        : "";
+      const timeline = renderReplayTimelinePlotSvg(latest, followups, isKo);
+      el.innerHTML =
+        `<h4>${escapeHtml(isKo ? "거버넌스 계보 · Governance lineage" : "Governance lineage")}</h4>` +
+        `<div class="row" style="gap:0.35rem">${chipTotal}${chipCompleted}${chipRebuild}</div>` +
+        `<div class="tsr-step-indicator">${stepsHtml}</div>` +
+        timeline +
+        followupsHtml;
+    } catch (_e) {
+      el.innerHTML =
+        `<h4>${escapeHtml(isKo ? "거버넌스 계보" : "Governance lineage")}</h4>` +
+        `<div class="tsr-empty">${escapeHtml(
+          isKo ? "계보 로드 실패." : "Lineage load failed."
+        )}</div>`;
+    }
+  }
+
+  // AGH v1 Patch 6 — Replay timeline SVG plot (C1). No external charting lib.
+  function renderReplayTimelinePlotSvg(latestChain, followups, isKo) {
+    const events = [];
+    if (latestChain && latestChain.applied && latestChain.applied.created_at_utc) {
+      const outcome = String(latestChain.applied.outcome || "");
+      const fromId = String(latestChain.applied.from_active_artifact_id || "");
+      const toId = String(latestChain.applied.to_active_artifact_id || "");
+      const transferLabel = fromId
+        ? ` · ${humanizeActiveArtifactLabel({}, fromId)} → ${
+            toId ? humanizeActiveArtifactLabel({}, toId) : ""
+          }`
+        : "";
+      events.push({
+        type: "governed_apply",
+        at: String(latestChain.applied.created_at_utc),
+        label: tr("plot.governed_apply"),
+        sub: outcome + transferLabel,
+      });
+    }
+    if (latestChain && latestChain.spectrum_refresh && latestChain.spectrum_refresh.created_at_utc) {
+      events.push({
+        type: "event",
+        at: String(latestChain.spectrum_refresh.created_at_utc),
+        label: tr("plot.spectrum_refresh"),
+        sub: String(latestChain.spectrum_refresh.outcome || ""),
+      });
+    }
+    if (Array.isArray(followups)) {
+      followups.slice(0, 5).forEach((fu) => {
+        const res = fu && fu.result ? fu.result : null;
+        const req = fu && fu.request ? fu.request : null;
+        const at = String(
+          (res && res.created_at_utc) || (req && req.created_at_utc) || ""
+        );
+        if (!at) return;
+        events.push({
+          type: "sandbox_followup",
+          at,
+          label: tr("plot.sandbox_followup"),
+          sub:
+            (req && req.payload && req.payload.sandbox_kind) || "validation_rerun",
+        });
+      });
+    }
+    if (!events.length) {
+      return `<div class="ev-faint" style="margin:0.45rem 0">${escapeHtml(
+        tr("plot.no_events")
+      )}</div>`;
+    }
+    const times = events
+      .map((e) => Date.parse(e.at))
+      .filter((t) => !isNaN(t));
+    if (!times.length) {
+      return "";
+    }
+    const t0 = Math.min.apply(null, times);
+    const t1 = Math.max.apply(null, times);
+    const range = Math.max(t1 - t0, 24 * 3600 * 1000);
+    const w = 640;
+    const h = 80;
+    const pad = 24;
+    function xOf(ms) {
+      return pad + ((ms - t0) / range) * (w - pad * 2);
+    }
+    const axisY = h - 20;
+    const eventsSvg = events
+      .map((e) => {
+        const t = Date.parse(e.at);
+        if (isNaN(t)) return "";
+        const x = xOf(t);
+        const dayLabel = e.at.slice(0, 10);
+        const tipLabel = `${e.label} · ${dayLabel}`;
+        const tipSub = e.sub || "";
+        if (e.type === "governed_apply") {
+          return (
+            `<line class="plot-govern-apply" x1="${x}" y1="10" x2="${x}" y2="${axisY}" data-tsr-tt-label="${escapeHtml(
+              tipLabel
+            )}" data-tsr-tt-sub="${escapeHtml(tipSub)}" />` +
+            `<text class="plot-govern-apply-label" x="${x + 3}" y="16">${escapeHtml(
+              tr("plot.apply_label")
+            )}</text>`
+          );
+        }
+        if (e.type === "sandbox_followup") {
+          return `<line class="plot-sandbox-tick" x1="${x}" y1="${axisY}" x2="${x}" y2="${axisY + 10}" data-tsr-tt-label="${escapeHtml(
+            tipLabel
+          )}" data-tsr-tt-sub="${escapeHtml(tipSub)}" />`;
+        }
+        return `<circle class="plot-event" cx="${x}" cy="${axisY - 16}" r="4" data-tsr-tt-label="${escapeHtml(
+          tipLabel
+        )}" data-tsr-tt-sub="${escapeHtml(tipSub)}" />`;
+      })
+      .join("");
+    const axisLabels =
+      `<text x="${pad}" y="${h - 4}">${escapeHtml(new Date(t0).toISOString().slice(0, 10))}</text>` +
+      `<text x="${w - pad - 60}" y="${h - 4}">${escapeHtml(new Date(t1).toISOString().slice(0, 10))}</text>`;
+    const svg =
+      `<svg class="tsr-timeline-plot" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" data-tsr-timeline-plot="1">` +
+      `<line class="plot-axis" x1="${pad}" y1="${axisY}" x2="${w - pad}" y2="${axisY}" />` +
+      eventsSvg +
+      axisLabels +
+      `</svg>`;
+    return svg;
+  }
+
+  // AGH v1 Patch 6 — wire enqueue-sandbox click (E2 mode B).
+  document.addEventListener("click", async (ev) => {
+    const t = ev.target;
+    if (!t || !t.closest) return;
+    const copyBtn = t.closest("[data-tsr-copy-cli]");
+    if (copyBtn) {
+      const wrap = copyBtn.closest(".tsr-research-invoke");
+      const cli = wrap ? wrap.querySelector("[data-tsr-cli]") : null;
+      const text = cli ? cli.textContent || "" : "";
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (_) {}
+      const res = wrap ? wrap.querySelector("[data-tsr-enqueue-result]") : null;
+      if (res) res.textContent = cockpitLang().startsWith("ko") ? "복사됨." : "Copied.";
+      return;
+    }
+    const eqBtn = t.closest("[data-tsr-enqueue-sandbox]");
+    if (eqBtn) {
+      const wrap = eqBtn.closest(".tsr-research-invoke");
+      const res = wrap ? wrap.querySelector("[data-tsr-enqueue-result]") : null;
+      const isKo = cockpitLang().startsWith("ko");
+      if (res) res.textContent = isKo ? "대기열 추가 중…" : "Enqueuing…";
+      try {
+        const cited = String(eqBtn.getAttribute("data-cited") || "")
+          .split(/\s+/)
+          .filter(Boolean);
+        const body = {
+          sandbox_kind: "validation_rerun",
+          registry_entry_id: eqBtn.getAttribute("data-rid") || "",
+          horizon: eqBtn.getAttribute("data-hz") || "",
+          target_spec: {
+            factor_name: eqBtn.getAttribute("data-fn") || "",
+            universe_name: eqBtn.getAttribute("data-un") || "",
+            horizon_type: eqBtn.getAttribute("data-htp") || "",
+            return_basis: eqBtn.getAttribute("data-rb") || "",
+          },
+          rationale: eqBtn.getAttribute("data-rationale") || "ui operator enqueue",
+          cited_evidence_packet_ids: cited.length ? cited : [eqBtn.getAttribute("data-rid") || "ui"],
+        };
+        const r = await fetch("/api/sandbox/enqueue", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.ok) {
+          if (res)
+            res.textContent = isKo
+              ? `대기열 추가 실패: ${j.error || r.status}`
+              : `Enqueue failed: ${j.error || r.status}`;
+        } else {
+          if (res)
+            res.textContent = isKo
+              ? `대기열 추가됨 (job ${j.job_id}). 터미널에서 harness-tick --queue sandbox_queue 실행.`
+              : `Enqueued (job ${j.job_id}). Run harness-tick --queue sandbox_queue in terminal.`;
+        }
+      } catch (e) {
+        if (res) res.textContent = isKo ? `네트워크 실패: ${e}` : `Network error: ${e}`;
+      }
+    }
+  });
+
+  // AGH v1 Patch 6 — helper: human-readable active artifact label
+  function humanizeActiveArtifactLabel(rs, aaid) {
+    if (!rs || typeof rs !== "object") return String(aaid || "");
+    const fam = String(rs.active_model_family_name || "").trim();
+    const tf = String(rs.active_thesis_family || "").trim();
+    const univ = String(rs.universe || "").trim();
+    const parts = [fam || "active_artifact", tf || "", univ || ""].filter(Boolean);
+    return parts.join(" · ") || String(aaid || "");
+  }
+
+  // AGH v1 Patch 6 — severity → chip class
+  function tsrBadgeChipClass(sev) {
+    const s = String(sev || "").toLowerCase();
+    if (s === "warning" || s === "warn") return "tsr-chip tsr-chip--warn";
+    if (s === "info") return "tsr-chip tsr-chip--info";
+    if (s === "neutral") return "tsr-chip tsr-chip--neutral";
+    if (s === "degraded" || s === "danger") return "tsr-chip tsr-chip--degraded";
+    return "tsr-chip tsr-chip--neutral";
+  }
+
+  // AGH v1 Patch 6 — Top summary rail (block 1 of 4).
+  // Inputs: research_status_badges_v1 + recent_governed_applies_for_horizon.
+  // Output: calm chip row (change chip + badge chips + active_artifact chip),
+  // with NO raw packet ids or engineering codes — only label_ko / label_en.
+  function renderTodaySummaryRailHtml(j, lang) {
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    const rsb = (j && j.research_status_badges_v1) || {};
+    const badges = Array.isArray(rsb.badges) ? rsb.badges : [];
+    const rs = (j && j.registry_surface_v1) || {};
+    const recent = Array.isArray(rs.recent_governed_applies_for_horizon)
+      ? rs.recent_governed_applies_for_horizon
+      : [];
+    const changeChip = (() => {
+      if (!recent.length) return "";
+      const top = recent[0] || {};
+      const when = String(top.applied_at_utc || "").slice(0, 10);
+      const toAid = humanizeActiveArtifactLabel(rs, top.to_active_artifact_id || "");
+      const labelText = isKo
+        ? `오늘 거버넌스 적용: ${when}`
+        : `Governed apply today: ${when}`;
+      const tip = isKo
+        ? `활성 아티팩트 교체 → ${toAid}`
+        : `Active artifact swap → ${toAid}`;
+      return `<span class="tsr-chip tsr-chip--change" title="${escapeHtml(tip)}" data-tsr-tt-label="${escapeHtml(labelText)}" data-tsr-tt-sub="${escapeHtml(tip)}"><span class="chip-dot"></span>${escapeHtml(labelText)}</span>`;
+    })();
+    const badgeChips = badges
+      .map((b) => {
+        if (!b || typeof b !== "object") return "";
+        const sev = String(b.severity || "neutral");
+        const lab = isKo ? String(b.label_ko || "") : String(b.label_en || "");
+        if (!lab) return "";
+        return `<span class="${tsrBadgeChipClass(sev)}">${escapeHtml(lab)}</span>`;
+      })
+      .filter(Boolean)
+      .join("");
+    const aaid = String(rs.active_artifact_id || "").trim();
+    const aaidLabel = humanizeActiveArtifactLabel(rs, aaid);
+    const activeChip = aaid
+      ? `<span class="tsr-chip" title="${escapeHtml(aaid)}"><span class="chip-dot"></span>${escapeHtml(aaidLabel)}</span>`
+      : "";
+    const body = [changeChip, badgeChips, activeChip].filter(Boolean).join("");
+    if (!body) {
+      return `<div class="tsr-rail tsr-empty"><span class="tsr-empty-head">${escapeHtml(
+        isKo ? "오늘 요약" : "Today summary"
+      )}</span> · ${escapeHtml(
+        isKo ? "최근 거버넌스 이벤트 없음" : "no recent governed events"
+      )}</div>`;
+    }
+    return `<div class="tsr-rail" role="region" aria-label="${escapeHtml(
+      isKo ? "오늘 요약" : "Today summary"
+    )}">${body}</div>`;
+  }
+
+  // AGH v1 Patch 6 — Primary object panel (block 2 of 4).
+  function renderTodayPrimaryPanelHtml(j, lang) {
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    const msg = (j && j.message) || {};
+    const title = String(j.asset_id || "");
+    const horizonLabel = String(j.horizon_label || "");
+    const fam = String(j.active_model_family || "");
+    const sub = [horizonLabel, fam, String(j.as_of_utc || "")]
+      .filter(Boolean)
+      .map(escapeHtml)
+      .join(" · ");
+    const whyNow = String(msg.why_now || "").trim();
+    const whatChanged = String(msg.what_changed || "").trim();
+    const whyNowBlock = whyNow
+      ? `<p class="why-now">${escapeHtml(whyNow)}</p>`
+      : `<p class="why-now ev-faint">${escapeHtml(
+          isKo ? "현재 해석 준비되지 않음" : "Current read not ready"
+        )}</p>`;
+    const whatChangedBlock = whatChanged
+      ? `<p class="what-changed">${escapeHtml(whatChanged)}</p>`
+      : "";
+    return (
+      `<div class="tsr-primary">` +
+      `<h3>${escapeHtml(title)}</h3>` +
+      `<div class="meta-sub">${sub}</div>` +
+      whyNowBlock +
+      whatChangedBlock +
+      `</div>`
+    );
+  }
+
+  // AGH v1 Patch 6 — Decision-depth stack (block 3 of 4, progressive disclosure).
+  function renderTodayDecisionStackHtml(j, lang) {
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    const msg = (j && j.message) || {};
+    const inf = (j && j.information) || {};
+    const res = (j && j.research) || {};
+    function ul(arr) {
+      const a = Array.isArray(arr) ? arr : [];
+      if (!a.length) return `<li class="sub">—</li>`;
+      return a.map((x) => `<li>${escapeHtml(String(x))}</li>`).join("");
+    }
+    const oneLine = String(msg.one_line_take || "").trim();
+    const oneLineHtml = oneLine
+      ? `<p class="one-line">${escapeHtml(oneLine)}</p>`
+      : `<p class="one-line ev-faint">${escapeHtml(
+          isKo ? "한 줄 요약 준비되지 않음" : "One-line take not ready"
+        )}</p>`;
+    const deeper = String(res.deeper_rationale || "").trim();
+    const unproven = String(msg.what_remains_unproven || "").trim();
+    const watch = String(msg.what_to_watch || "").trim();
+    function section(labelKo, labelEn, bodyHtml) {
+      return (
+        `<details><summary>${escapeHtml(isKo ? labelKo : labelEn)}</summary>` +
+        `<div class="tsr-drill">${bodyHtml}</div></details>`
+      );
+    }
+    const deeperSec = deeper
+      ? section(
+          "해석 근거 자세히",
+          "Why plausible — deeper rationale",
+          `<p>${escapeHtml(deeper)}</p>`
+        )
+      : "";
+    const signalsSec = section(
+      "뒷받침 · 반증 신호",
+      "Supporting and opposing signals",
+      `<span class="k">${escapeHtml(isKo ? "뒷받침" : "Supporting")}</span><ul>${ul(
+        inf.supporting_signals
+      )}</ul><span class="k">${escapeHtml(isKo ? "반증" : "Opposing")}</span><ul>${ul(
+        inf.opposing_signals
+      )}</ul>`
+    );
+    const unprovenSec = unproven
+      ? section(
+          "아직 미증명",
+          "What remains unproven",
+          `<p>${escapeHtml(unproven)}</p>`
+        )
+      : "";
+    const watchSec = watch
+      ? section("계속 볼 것", "What to watch", `<p>${escapeHtml(watch)}</p>`)
+      : "";
+    return (
+      `<div class="tsr-decision">` +
+      oneLineHtml +
+      deeperSec +
+      signalsSec +
+      unprovenSec +
+      watchSec +
+      `</div>`
+    );
+  }
+
+  // AGH v1 Patch 6 — Audit-only helper. Emits raw engineering identifiers
+  // inside a <details> progressive-disclosure block. Deliberately kept
+  // outside the primary-UI TSR renderer surface so raw snake_case tokens
+  // (active_artifact_id / registry_entry_id / message_snapshot_id) don't
+  // tip into user-visible copy.
+  function renderTodayEvidenceRawIdsAuditHtml(rs, rlj, isKo) {
+    const aaid = String((rs && rs.active_artifact_id) || "").trim();
+    const rid = String((rs && rs.registry_entry_id) || "").trim();
+    const mid = String((rlj && rlj.message_snapshot_id) || "").trim();
+    const rows = [];
+    if (aaid) rows.push(`active_artifact_id: ${aaid}`);
+    if (rid) rows.push(`registry_entry_id: ${rid}`);
+    if (mid) rows.push(`message_snapshot_id: ${mid}`);
+    if (!rows.length) return "";
+    const head = tr("tsr.evidence.raw_ids");
+    const escaped = rows.map(escapeHtml).join("<br/>");
+    return (
+      `<details><summary>${escapeHtml(head)}</summary>` +
+      `<div class="raw-ids">${escaped}</div></details>`
+    );
+  }
+
+  // AGH v1 Patch 6 — Evidence strip (block 4 of 4).
+  function renderTodayEvidenceStripHtml(j, lang) {
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    const rs = (j && j.registry_surface_v1) || {};
+    const aaid = String(rs.active_artifact_id || "").trim();
+    const aaidLabel = humanizeActiveArtifactLabel(rs, aaid);
+    const fam = String(rs.active_model_family_name || "");
+    const tf = String(rs.active_thesis_family || "");
+    const univ = String(rs.universe || "");
+    const rlj = (j && j.replay_lineage_join_v1) || {};
+    const ridHead = tr("tsr.evidence.head");
+    const labelLine = aaid
+      ? `<div><span class="ev-label">${escapeHtml(
+          tr("tsr.evidence.active_artifact")
+        )}:</span> ${escapeHtml(aaidLabel)}</div>`
+      : `<div class="ev-faint">${escapeHtml(
+          tr("tsr.evidence.no_artifact")
+        )}</div>`;
+    const metaLine =
+      (fam || tf || univ)
+        ? `<div class="ev-faint">${[fam, tf, univ]
+            .filter(Boolean)
+            .map(escapeHtml)
+            .join(" · ")}</div>`
+        : "";
+    const rawBlock = renderTodayEvidenceRawIdsAuditHtml(rs, rlj, isKo);
+    return (
+      `<div class="tsr-evidence">` +
+      `<h4>${escapeHtml(ridHead)}</h4>` +
+      labelLine +
+      metaLine +
+      rawBlock +
+      `</div>`
+    );
+  }
+
   function renderTodayObjectDetailHtml(j) {
     const msg = j.message || {};
     const inf = j.information || {};
     const res = j.research || {};
     const links = res.links || {};
     const spec = j.spectrum || {};
+    const lang = cockpitLang();
     function ulItems(arr) {
       const a = Array.isArray(arr) ? arr : [];
       if (!a.length) return `<li class="sub">—</li>`;
@@ -962,6 +1795,12 @@
     const registryBlock = rsInner
       ? `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_registry"))}</h4><div class="meta" style="padding:0.45rem 0.55rem;background:#101820;border:1px solid #2a4a62;border-radius:8px;font-size:0.82rem;line-height:1.45">${rsInner}</div></div>`
       : "";
+    const railHtml = renderTodaySummaryRailHtml(j, lang);
+    const primaryHtml = renderTodayPrimaryPanelHtml(j, lang);
+    const decisionHtml = renderTodayDecisionStackHtml(j, lang);
+    const evidenceHtml = renderTodayEvidenceStripHtml(j, lang);
+    const researchStructuredHtml = renderResearchStructuredSection(j, lang);
+    const replayLineageHtml = renderReplayGovernanceLineageCompactHtml(j, lang);
     const msgBlock =
       kv("today_detail.f_headline", msg.headline) +
       kv("today_detail.f_one_line", msg.one_line_take) +
@@ -1035,11 +1874,21 @@
       `</div>`;
 
     return (
+      railHtml +
+      primaryHtml +
+      decisionHtml +
+      evidenceHtml +
+      researchStructuredHtml +
+      replayLineageHtml +
+      `<details style="margin-top:0.8rem"><summary style="cursor:pointer;color:var(--muted);font-size:0.8rem">` +
+      escapeHtml(lang.startsWith("ko") ? "원 MIR 세부 보기 (고급)" : "Show legacy MIR detail (advanced)") +
+      `</summary>` +
       `<p class="meta">${metaLine}</p>` +
       `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_message"))}</h4>${msgBlock}</div>` +
       registryBlock +
       `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_information"))}</h4>${infBlock}</div>` +
-      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_research"))}</h4>${resBlock}</div>`
+      `<div class="mir-block"><h4>${escapeHtml(tr("today_detail.section_research"))}</h4>${resBlock}</div>` +
+      `</details>`
     );
   }
 
@@ -2168,6 +3017,15 @@
 
   async function initCockpit() {
     window.__cockpitLang = cockpitLang();
+    // AGH v1 Patch 6 — operator-gated UI enqueue toggle.
+    // Enable via URL ?ui_invoke=1 (e.g. dev / demo) OR via a runtime
+    // probe by calling the enqueue endpoint with an invalid body and
+    // observing whether the server responds 403 (disabled) vs 400/200.
+    try {
+      const u = new URL(window.location.href);
+      const flag = u.searchParams.get("ui_invoke");
+      if (flag === "1") window.__metisUiInvokeEnabled = true;
+    } catch (_) {}
     await loadLocaleStrings();
     applyChromeStrings();
     await refreshObjectTabsFromOverview();

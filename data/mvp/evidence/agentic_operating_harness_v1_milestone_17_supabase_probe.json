@@ -1,0 +1,17 @@
+{
+  "branch": "R",
+  "completed_run_count": 25,
+  "contract": "AGH_V1_PATCH_6_SUPABASE_PROBE_V1",
+  "detail": "Found 25 completed factor_validation_run(s); Patch 6 live smoke will attempt real evaluator + sandbox paths in dry_run mode.",
+  "probed_at_utc": "2026-04-20T05:53:21.743847+00:00",
+  "reason": "completed_run_present",
+  "sample_run": {
+    "completed_at": "2026-04-17T17:28:38.340946+00:00",
+    "factor_version": "v1",
+    "horizon_type": "next_quarter",
+    "id": "7023235e-d0e6-4501-8f4d-af5b25857971",
+    "run_type": "factor_validation_research",
+    "status": "completed",
+    "universe_name": "sp500_current"
+  }
+}

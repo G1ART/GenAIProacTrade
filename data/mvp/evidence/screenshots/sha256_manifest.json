@@ -1,0 +1,32 @@
+{
+  "contract": "AGH_V1_PATCH_6_DEMO_FREEZE_SNAPSHOTS_MANIFEST_V1",
+  "generated_at_utc": "2026-04-20T06:15:55.619105+00:00",
+  "milestone": 17,
+  "snapshot_count": 4,
+  "snapshots": [
+    {
+      "bytes": 34528,
+      "path": "data/mvp/evidence/screenshots/freeze_spa_index.html",
+      "sha256": "985f72b6289e29663279988b43ea6457af7195623910127a861ef36700a57a7d"
+    },
+    {
+      "bytes": 11348,
+      "path": "data/mvp/evidence/screenshots/freeze_today_object_detail_ko.html",
+      "sha256": "3dd8feb8b887975cba0fa30d54453f70563e704cb83cb271a0182731c49f16f5"
+    },
+    {
+      "bytes": 11163,
+      "path": "data/mvp/evidence/screenshots/freeze_today_object_detail_en.html",
+      "sha256": "6b26a42c6d69c11346a3ea9bb0e1160ee3b8051733e8f9e73d301c8cb1e48206"
+    },
+    {
+      "bytes": 1863,
+      "path": "data/mvp/evidence/screenshots/freeze_replay_governance_lineage_demo.html",
+      "sha256": "1355cb4dbb6f4f0a73a845578c3452891b24ee2d0463515c8a64fa674bf6ecf7"
+    }
+  ],
+  "spa_shell_source_sha256": {
+    "app.js": "8cbd658e3452becd2ebfcaa0ab824059dbfd8e141b85b48c4aa93a0462714e3c",
+    "index.html": "985f72b6289e29663279988b43ea6457af7195623910127a861ef36700a57a7d"
+  }
+}

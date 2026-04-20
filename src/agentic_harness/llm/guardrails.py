@@ -155,4 +155,41 @@ def validate_research_structured_v1(
             f"research_structured_v1.forbidden_copy:count={len(set(violations))}"
         )
 
+    # AGH v1 Patch 6 — locale_coverage honesty. Default is ``dual`` (both
+    # KO+EN populated). If the LLM claims ``dual`` but one locale is
+    # empty, reject with ``locale_claim_mismatch``. Partial claims
+    # (``ko_only`` / ``en_only`` / ``degraded``) are accepted but the
+    # renderer surfaces a degraded-coverage badge.
+    cov = str(research_structured.get("locale_coverage") or "dual").strip() or "dual"
+    ko_has = bool(research_structured.get("summary_bullets_ko"))
+    en_has = bool(research_structured.get("summary_bullets_en"))
+    if cov == "dual":
+        if not (ko_has and en_has):
+            blocking.append(
+                "research_structured_v1.locale_claim_mismatch:"
+                "dual_claim_but_missing_locale"
+            )
+    elif cov == "ko_only":
+        if not ko_has or en_has:
+            blocking.append(
+                "research_structured_v1.locale_claim_mismatch:"
+                "ko_only_claim_invariant_broken"
+            )
+    elif cov == "en_only":
+        if not en_has or ko_has:
+            blocking.append(
+                "research_structured_v1.locale_claim_mismatch:"
+                "en_only_claim_invariant_broken"
+            )
+    elif cov == "degraded":
+        if ko_has or en_has:
+            blocking.append(
+                "research_structured_v1.locale_claim_mismatch:"
+                "degraded_claim_but_bullets_present"
+            )
+    else:
+        blocking.append(
+            f"research_structured_v1.locale_coverage_unknown:{cov}"
+        )
+
     return blocking

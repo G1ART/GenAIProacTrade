@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>Today — object detail (EN) freeze snapshot</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;margin:0;padding:1.5rem;background:#0f1115;color:#e6e6e6;line-height:1.5;}
+h1{font-size:1.1rem;margin:0 0 0.6rem;color:#fff;}
+h2{font-size:0.9rem;margin:1.4rem 0 0.4rem;color:#8ab4f8;text-transform:uppercase;letter-spacing:0.08em;}
+.meta{font-size:0.8rem;color:#9aa0a6;margin-bottom:1rem;}
+pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem;overflow:auto;font-size:0.78rem;white-space:pre-wrap;word-break:break-word;}
+.note{color:#b9b9b9;font-size:0.82rem;margin-top:0.8rem;}
+</style>
+</head>
+<body>
+<h1>Today — object detail (EN) freeze snapshot</h1>
+<div class="meta">captured_at_utc=2026-04-20T06:15:55.617711+00:00</div>
+<div class="note">Canonical payload of GET /api/today/object_detail?lang=en. Locale coverage is enforced by ResearchAnswerStructureV1 + guardrails; silent degradation is rejected at source.</div>
+<h2>canonical payload</h2>
+<pre>{
+  &quot;active_model_family&quot;: &quot;shallow_value_blend_v0&quot;,
+  &quot;as_of_utc&quot;: &quot;2026-04-01T12:00:00+00:00&quot;,
+  &quot;asset_id&quot;: &quot;DEMO_KR_B&quot;,
+  &quot;detail_contract&quot;: &quot;SPRINT4_MESSAGE_INFORMATION_RESEARCH_V0&quot;,
+  &quot;horizon&quot;: &quot;short&quot;,
+  &quot;horizon_label&quot;: &quot;Short-term&quot;,
+  &quot;information&quot;: {
+    &quot;data_layer_note&quot;: &quot;This build uses snapshot / demo data.&quot;,
+    &quot;evidence_summary&quot;: &quot;When the seed has no information_layer: showing spectrum row summary only.&quot;,
+    &quot;opposing_signals&quot;: [
+      &quot;Volume spike in the last sessions.&quot;
+    ],
+    &quot;supporting_signals&quot;: [
+      &quot;Momentum is pressing the short-horizon band upward.&quot;,
+      &quot;Valuation tension: stretched&quot;
+    ]
+  },
+  &quot;lang&quot;: &quot;en&quot;,
+  &quot;message&quot;: {
+    &quot;action_frame&quot;: &quot;&quot;,
+    &quot;asset_id&quot;: &quot;DEMO_KR_B&quot;,
+    &quot;confidence_band&quot;: &quot;low&quot;,
+    &quot;headline&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;,
+    &quot;horizon&quot;: &quot;short&quot;,
+    &quot;linked_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
+    &quot;linked_evidence&quot;: [
+      {
+        &quot;kind&quot;: &quot;validation&quot;,
+        &quot;pointer&quot;: &quot;spectrum_row:DEMO_KR_B:short:v1&quot;,
+        &quot;summary&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;
+      }
+    ],
+    &quot;linked_evidence_summary&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;,
+    &quot;linked_model_family&quot;: &quot;shallow_value_blend_v0&quot;,
+    &quot;linked_registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+    &quot;message_id&quot;: &quot;demo_short_DEMO_KR_B&quot;,
+    &quot;one_line_take&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;,
+    &quot;what_changed&quot;: &quot;Volume spike in the last sessions.&quot;,
+    &quot;what_remains_unproven&quot;: &quot;&quot;,
+    &quot;what_to_watch&quot;: &quot;&quot;,
+    &quot;why_now&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;
+  },
+  &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:bb7d63beeb5b4eda89c7bb2c&quot;,
+  &quot;mock_price_tick&quot;: &quot;0&quot;,
+  &quot;ok&quot;: true,
+  &quot;registry_surface_v1&quot;: {
+    &quot;active_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
+    &quot;active_model_family_name&quot;: &quot;shallow_value_blend_v0&quot;,
+    &quot;active_thesis_family&quot;: &quot;shallow_value_blend_v0&quot;,
+    &quot;brain_overlay_ids&quot;: [],
+    &quot;brain_overlay_summary&quot;: {
+      &quot;contract&quot;: &quot;TODAY_BRAIN_OVERLAY_SUMMARY_V1&quot;,
+      &quot;count_by_type&quot;: {},
+      &quot;labels&quot;: [],
+      &quot;total&quot;: 0
+    },
+    &quot;challenger_artifact_ids&quot;: [
+      &quot;art_short_challenger_momentum_v0&quot;
+    ],
+    &quot;challengers_resolved&quot;: [
+      {
+        &quot;artifact_id&quot;: &quot;art_short_challenger_momentum_v0&quot;,
+        &quot;created_by&quot;: &quot;deterministic_kernel:v0&quot;,
+        &quot;horizon&quot;: &quot;short&quot;,
+        &quot;thesis_family&quot;: &quot;short_momentum_reversion_probe_v0&quot;
+      }
+    ],
+    &quot;contract&quot;: &quot;TODAY_REGISTRY_SURFACE_V1&quot;,
+    &quot;display_family_name_en&quot;: &quot;&quot;,
+    &quot;display_family_name_ko&quot;: &quot;&quot;,
+    &quot;display_id&quot;: &quot;&quot;,
+    &quot;horizon&quot;: &quot;short&quot;,
+    &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+    &quot;replay_lineage_pointer&quot;: &quot;lineage:registry:short:demo_v0&quot;,
+    &quot;scoring_endpoint_contract&quot;: &quot;inline_spectrum_rows_v0&quot;,
+    &quot;status&quot;: &quot;active&quot;,
+    &quot;universe&quot;: &quot;large_cap_research_slice_demo_v0&quot;
+  },
+  &quot;replay_lineage_join_v1&quot;: {
+    &quot;contract&quot;: &quot;REPLAY_LINEAGE_JOIN_V1&quot;,
+    &quot;linked_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
+    &quot;linked_registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+    &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:bb7d63beeb5b4eda89c7bb2c&quot;,
+    &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+    &quot;replay_lineage_pointer&quot;: &quot;lineage:registry:short:demo_v0&quot;,
+    &quot;today_input_source&quot;: &quot;active_horizon_model_registry_v0&quot;
+  },
+  &quot;research&quot;: {
+    &quot;deeper_rationale&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;,
+    &quot;disagreement_preserving&quot;: {
+      &quot;note&quot;: &quot;Signals are not sharply contradictory — watch the next catalysts across spectrum and journal.&quot;
+    },
+    &quot;horizon_lens_compare&quot;: [
+      {
+        &quot;headline&quot;: &quot;Some cooling vs the short-term stretch.&quot;,
+        &quot;horizon&quot;: &quot;medium&quot;,
+        &quot;horizon_label&quot;: &quot;Medium-term&quot;,
+        &quot;rank_index&quot;: 2,
+        &quot;rank_total&quot;: 2,
+        &quot;spectrum_band&quot;: &quot;center&quot;,
+        &quot;spectrum_position&quot;: 0.38,
+        &quot;spectrum_quintile&quot;: &quot;neutral&quot;
+      },
+      {
+        &quot;headline&quot;: &quot;Strong long story but valuation load is heavy.&quot;,
+        &quot;horizon&quot;: &quot;long&quot;,
+        &quot;horizon_label&quot;: &quot;Long-term&quot;,
+        &quot;rank_index&quot;: 1,
+        &quot;rank_total&quot;: 2,
+        &quot;spectrum_band&quot;: &quot;right&quot;,
+        &quot;spectrum_position&quot;: 0.81,
+        &quot;spectrum_quintile&quot;: &quot;overpriced&quot;
+      }
+    ],
+    &quot;links&quot;: {
+      &quot;open_replay_panel&quot;: true,
+      &quot;prefill_ask_ai&quot;: &quot;Why is this asset placed here on this horizon?&quot;,
+      &quot;replay_highlight_asset_id&quot;: &quot;DEMO_KR_B&quot;
+    },
+    &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:bb7d63beeb5b4eda89c7bb2c&quot;,
+    &quot;model_family_context&quot;: &quot;Model context (stub): shallow_value_blend_v0 (short).&quot;,
+    &quot;overlay_explanations&quot;: []
+  },
+  &quot;research_status_badges_v1&quot;: {
+    &quot;badges&quot;: [
+      {
+        &quot;code&quot;: &quot;has_research_factor_bindings&quot;,
+        &quot;label_en&quot;: &quot;Validation rerun sandbox options available&quot;,
+        &quot;label_ko&quot;: &quot;재검증 샌드박스 옵션 있음&quot;,
+        &quot;severity&quot;: &quot;info&quot;
+      },
+      {
+        &quot;code&quot;: &quot;no_recent_governed_apply&quot;,
+        &quot;label_en&quot;: &quot;No recent governed apply recorded&quot;,
+        &quot;label_ko&quot;: &quot;최근 거버넌스 적용 기록 없음&quot;,
+        &quot;severity&quot;: &quot;neutral&quot;
+      }
+    ],
+    &quot;contract&quot;: &quot;TODAY_RESEARCH_STATUS_BADGES_V1&quot;,
+    &quot;horizon&quot;: &quot;short&quot;,
+    &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;
+  },
+  &quot;research_structured_v1&quot;: null,
+  &quot;sandbox_options_v1&quot;: {
+    &quot;contract&quot;: &quot;TODAY_SANDBOX_OPTIONS_V1&quot;,
+    &quot;horizon&quot;: &quot;short&quot;,
+    &quot;horizon_type_hint&quot;: &quot;next_month&quot;,
+    &quot;operator_gated_note_en&quot;: &quot;Sandbox options run only after operator approval. The active Today registry is never mutated from this path.&quot;,
+    &quot;operator_gated_note_ko&quot;: &quot;샌드박스 옵션은 운영자 승인 후에만 실행됩니다. Today 활성 레지스트리는 이 경로로 변경되지 않습니다.&quot;,
+    &quot;options&quot;: [
+      {
+        &quot;horizon&quot;: &quot;short&quot;,
+        &quot;label_en&quot;: &quot;Rerun earnings_quality_composite validation (raw) · large_cap_research_slice_demo_v0 · next_month&quot;,
+        &quot;label_ko&quot;: &quot;earnings_quality_composite 재검증 (raw) · large_cap_research_slice_demo_v0 · next_month&quot;,
+        &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+        &quot;sandbox_kind&quot;: &quot;validation_rerun&quot;,
+        &quot;target_spec&quot;: {
+          &quot;factor_name&quot;: &quot;earnings_quality_composite&quot;,
+          &quot;horizon_type&quot;: &quot;next_month&quot;,
+          &quot;return_basis&quot;: &quot;raw&quot;,
+          &quot;universe_name&quot;: &quot;large_cap_research_slice_demo_v0&quot;
+        }
+      },
+      {
+        &quot;horizon&quot;: &quot;short&quot;,
+        &quot;label_en&quot;: &quot;Rerun earnings_quality_composite validation (excess) · large_cap_research_slice_demo_v0 · next_month&quot;,
+        &quot;label_ko&quot;: &quot;earnings_quality_composite 재검증 (excess) · large_cap_research_slice_demo_v0 · next_month&quot;,
+        &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+        &quot;sandbox_kind&quot;: &quot;validation_rerun&quot;,
+        &quot;target_spec&quot;: {
+          &quot;factor_name&quot;: &quot;earnings_quality_composite&quot;,
+          &quot;horizon_type&quot;: &quot;next_month&quot;,
+          &quot;return_basis&quot;: &quot;excess&quot;,
+          &quot;universe_name&quot;: &quot;large_cap_research_slice_demo_v0&quot;
+        }
+      }
+    ],
+    &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+    &quot;supported_kinds&quot;: [
+      &quot;validation_rerun&quot;
+    ],
+    &quot;universe&quot;: &quot;large_cap_research_slice_demo_v0&quot;
+  },
+  &quot;spectrum&quot;: {
+    &quot;rank_index&quot;: 1,
+    &quot;rank_movement&quot;: &quot;steady&quot;,
+    &quot;rank_total&quot;: 3,
+    &quot;rationale_summary&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;,
+    &quot;spectrum_band&quot;: &quot;right&quot;,
+    &quot;spectrum_position&quot;: 0.72,
+    &quot;spectrum_quintile&quot;: &quot;overpriced&quot;,
+    &quot;valuation_tension&quot;: &quot;stretched&quot;,
+    &quot;what_changed&quot;: &quot;Volume spike in the last sessions.&quot;
+  }
+}</pre>
+
+</body>
+</html>

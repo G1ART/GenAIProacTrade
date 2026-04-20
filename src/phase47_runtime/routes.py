@@ -332,6 +332,195 @@ def api_sandbox_requests_list(
     }
 
 
+def api_sandbox_enqueue_v1(
+    state: CockpitRuntimeState,
+    body: dict[str, Any],
+) -> tuple[int, dict[str, Any]]:
+    """AGH v1 Patch 6 — operator-gated thin POST endpoint.
+
+    Guarded by ``METIS_HARNESS_UI_INVOKE_ENABLED=1``. When enabled, the UI
+    can click "Enqueue via UI (operator-gated)" and the server calls
+    ``layer3_sandbox_executor_v1.enqueue_sandbox_request`` on the real
+    store. The worker tick is still a separate CLI invocation
+    (``harness-tick --queue sandbox_queue``). The server never executes
+    the sandbox autonomously.
+
+    Returns ``(http_status, body)`` so ``dispatch_json`` does not need to
+    infer the status from the payload.
+    """
+
+    _ = state
+    import os as _os
+
+    gated = _os.environ.get("METIS_HARNESS_UI_INVOKE_ENABLED", "0").strip() == "1"
+    if not gated:
+        return 403, {
+            "ok": False,
+            "error": "ui_invoke_disabled",
+            "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+            "hint": (
+                "Set METIS_HARNESS_UI_INVOKE_ENABLED=1 to enable the "
+                "operator-gated UI enqueue path, or copy-paste the "
+                "harness-sandbox-request CLI string."
+            ),
+        }
+
+    from agentic_harness.contracts.packets_v1 import SANDBOX_KINDS
+
+    required_top = (
+        "sandbox_kind",
+        "registry_entry_id",
+        "horizon",
+        "target_spec",
+        "rationale",
+        "cited_evidence_packet_ids",
+    )
+    missing = [k for k in required_top if k not in (body or {})]
+    if missing:
+        return 400, {
+            "ok": False,
+            "error": f"missing_fields:{','.join(missing)}",
+            "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+        }
+
+    kind = str(body.get("sandbox_kind") or "").strip()
+    if kind not in SANDBOX_KINDS:
+        return 400, {
+            "ok": False,
+            "error": (
+                f"sandbox_kind_not_allowed:{kind!r} (allowed={list(SANDBOX_KINDS)})"
+            ),
+            "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+        }
+
+    target_spec = body.get("target_spec") or {}
+    if not isinstance(target_spec, dict):
+        return 400, {
+            "ok": False,
+            "error": "target_spec_must_be_object",
+            "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+        }
+    if kind == "validation_rerun":
+        for k in ("factor_name", "universe_name", "horizon_type", "return_basis"):
+            if not str(target_spec.get(k) or "").strip():
+                return 400, {
+                    "ok": False,
+                    "error": f"target_spec_missing:{k}",
+                    "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+                }
+
+    rid = str(body.get("registry_entry_id") or "").strip()
+    horizon = str(body.get("horizon") or "").strip()
+    if not rid or not horizon:
+        return 400, {
+            "ok": False,
+            "error": "registry_entry_id_and_horizon_required",
+            "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+        }
+
+    rationale = str(body.get("rationale") or "").strip()
+    if not rationale or len(rationale) > 500:
+        return 400, {
+            "ok": False,
+            "error": "rationale_must_be_1_to_500_chars",
+            "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+        }
+
+    cited_raw = body.get("cited_evidence_packet_ids") or []
+    if not isinstance(cited_raw, list) or not cited_raw:
+        return 400, {
+            "ok": False,
+            "error": "cited_evidence_packet_ids_must_be_non_empty_list",
+            "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+        }
+    cited = [str(x).strip() for x in cited_raw if str(x or "").strip()]
+    if not cited:
+        return 400, {
+            "ok": False,
+            "error": "cited_evidence_packet_ids_must_be_non_empty_list",
+            "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+        }
+
+    request_id = str(body.get("request_id") or "").strip()
+    if not request_id:
+        import uuid as _uuid
+
+        request_id = f"ui-op-{_uuid.uuid4()}"
+
+    # SandboxRequestPacketV1 restricts ``requested_by`` to
+    # ``SANDBOX_REQUEST_ACTORS`` = ("operator", "research_ask_v1"). UI-gated
+    # enqueue is an explicit operator action, so we default to "operator"
+    # (the CLI also uses "operator"). Callers may override only to another
+    # allowed value.
+    from agentic_harness.contracts.packets_v1 import SANDBOX_REQUEST_ACTORS
+
+    requested_by_raw = str(body.get("requested_by") or "operator").strip()[:120]
+    requested_by = requested_by_raw if requested_by_raw in SANDBOX_REQUEST_ACTORS else "operator"
+    use_fixture = bool(body.get("use_fixture") or False)
+
+    try:
+        store = _build_harness_store_for_api(use_fixture=use_fixture)
+    except Exception as exc:
+        return 500, {
+            "ok": False,
+            "error": f"harness_store_unavailable:{exc}",
+            "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+        }
+
+    from agentic_harness.agents.layer3_sandbox_executor_v1 import (
+        enqueue_sandbox_request,
+    )
+
+    try:
+        res = enqueue_sandbox_request(
+            store,
+            request_id=request_id,
+            sandbox_kind=kind,
+            registry_entry_id=rid,
+            horizon=horizon,
+            target_spec=target_spec,
+            requested_by=requested_by,
+            cited_evidence_packet_ids=cited,
+            cited_ask_packet_id=(
+                str(body.get("cited_ask_packet_id") or "").strip() or None
+            ),
+        )
+    except Exception as exc:
+        return 500, {
+            "ok": False,
+            "error": f"enqueue_failed:{exc}",
+            "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+        }
+    if not res.get("ok"):
+        return 400, {
+            "ok": False,
+            "error": res.get("error"),
+            "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+            "rationale_echo": rationale,
+        }
+    emit_notification(
+        "sandbox_request_enqueued_via_ui",
+        {
+            "request_packet_id": res.get("request_packet_id"),
+            "job_id": res.get("job_id"),
+            "registry_entry_id": rid,
+            "horizon": horizon,
+            "sandbox_kind": kind,
+        },
+    )
+    return 200, {
+        "ok": True,
+        "contract": "AGH_V1_SANDBOX_ENQUEUE_V1",
+        "request_packet_id": res.get("request_packet_id"),
+        "job_id": res.get("job_id"),
+        "cli_hint": "harness-tick --queue sandbox_queue",
+        "operator_note": (
+            "Request enqueued. Execute `harness-tick --queue sandbox_queue` "
+            "on the operator terminal to run the sandbox worker."
+        ),
+    }
+
+
 def api_replay_governance_lineage(
     state: CockpitRuntimeState,
     *,
@@ -776,5 +965,8 @@ def dispatch_json(
     if method == "POST" and p == "/api/sandbox/run":
         r = api_sandbox_run(state, raw, lang)
         return (200 if r.get("ok") else 400), r
+    if method == "POST" and p == "/api/sandbox/enqueue":
+        status, r = api_sandbox_enqueue_v1(state, raw)
+        return status, r
 
     return 404, {"ok": False, "error": "not_found", "path": p}

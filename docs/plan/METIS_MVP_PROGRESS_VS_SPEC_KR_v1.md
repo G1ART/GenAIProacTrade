@@ -24,8 +24,8 @@
 | Q6 | 카드에 headline·why_now·rationale? | **닫힘** | 시드/번들 스펙트럼 행 + object detail |
 | Q7 | 동명 종목·지평별 위치 차이? | **닫힘** | 지평별 행·`horizon_lens_compare` |
 | Q8 | price overlay가 rank movement 변경? | **닫힘** | `mock_price_tick=1` |
-| Q9 | Research message→information→deeper? | **강화 닫힘(AGH v1 Patch 5)** | Patch 5에서 `layer5_intent_router_v1`(7 kinds 결정론 라우팅) + `ResearchAnswerStructureV1`(summary/residual/what_to_watch/evidence_cited/proposed_sandbox_request) + `validate_research_structured_v1` 가드레일을 통해 "왜 / 무엇이 미증명 / 무엇을 봐야 / 어떤 bounded sandbox 필요?" 4축 acceptance 발음 완료. Today object detail에 `sandbox_options_v1` + `research_status_badges_v1` 노출. |
-| Q10 | Replay가 당시 family·결과 연결? | **닫힘(AGH v1 Patch 5)** | 타임라인 lineage + `registry_entry_id` 필드는 종전 스프린트에서 닫힘, Patch 5에서 `api_governance_lineage_for_registry_entry`에 `sandbox_followups` + `total_sandbox_requests/completed/blocked` 확장, `/api/sandbox/requests`·`/api/replay/governance-lineage` 라우트 추가. 즉 operator는 "validation → evaluator → proposal → decision → apply → spectrum refresh → sandbox rerun" 체인을 단일 뷰에서 복원 가능. |
+| Q9 | Research message→information→deeper? | **강화 닫힘(AGH v1 Patch 6)** | Patch 5의 intent router + `ResearchAnswerStructureV1` + 가드레일 위에, Patch 6가 (a) `locale_coverage ∈ {dual,ko_only,en_only,degraded}` 계약 + Pydantic `model_validator` + `validate_research_structured_v1` + `_SYSTEM_PROMPT` 삼중 가드로 **silent dual-claim 차단**, (b) Today object detail payload에 `research_structured_v1` 전달 (`_latest_research_structured_v1_for_asset`), (c) cockpit UI에 **Research 5-section 렌더러** (current read / why plausible / unproven / watch / bounded next step) + `tsr-research-coverage` 배지 + bounded-next-step 2-mode 조작 UI (CLI 복사 기본 + `?ui_invoke=1` 시 `POST /api/sandbox/enqueue`), (d) `tsr.*` bilingual 로캘 strings + 엔지니어링 용어 누수 정적 스캐너. 즉 "왜 / 무엇이 미증명 / 무엇을 봐야 / 어떤 bounded sandbox 필요?" 4축 acceptance 가 investor-facing UI 까지 연결. |
+| Q10 | Replay가 당시 family·결과 연결? | **닫힘(AGH v1 Patch 6)** | 타임라인 lineage + `registry_entry_id`·`sandbox_followups` 필드는 Patch 5에서 닫힘, Patch 6가 cockpit UI에 **Replay governance lineage compact** (proposal → apply → spectrum refresh → validation eval 4-step indicator) + **inline SVG timeline plot** (governed-apply 수직선, spectrum refresh 원형 마커, sandbox followup ticks) + 공용 tooltip primitive 를 얹어 operator가 "validation → evaluator → proposal → decision → apply → spectrum refresh → sandbox rerun" 체인을 **시각적 단일 뷰** 에서 복원 가능. `humanizeActiveArtifactLabel` 로 raw id 대신 사람 친화 라벨을 노출. |
 
 ---
 
@@ -37,9 +37,9 @@
 | 1 Today 수직 | Registry 스펙트럼·밴딩·워치·rank | **닫힘**(registry 우선·폴백 시드) |
 | 2 Message v1 | 1급 객체·스냅샷 | **거의 닫힘**(저장·해석·Ask 스레드) |
 | 3 Research 최소 | 계층·Ask·샌드박스 | **최소 닫힘** |
-| 4 Replay | lineage·counterfactual·결정 | **부분**·계속 (registry id on timeline) |
-| 5 Shell/KO-EN/데모 동결 | — | **의도적 후순위**(사용자: 데모 스크립트 저우선) |
-| 6 Trust | — | **후순위** |
+| 4 Replay | lineage·counterfactual·결정 | **대부분 닫힘**(Patch 6 UI compact + SVG timeline plot 포함) |
+| 5 Shell/KO-EN/데모 동결 | — | **Patch 6 에서 4-block Today + Research 5-section + Replay compact + KO/EN `tsr.*` 로캘 + HTML snapshot sha256 manifest 로 첫 수직 슬라이스 동결** (playwright 기반 스크린샷은 이월) |
+| 6 Trust | — | **후순위** (진입: Patch 6 의 no-leak 스캐너 + locale honesty + operator-gated UI invoke) |
 
 ---
 

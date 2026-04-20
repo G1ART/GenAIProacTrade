@@ -350,7 +350,17 @@ _SYSTEM_PROMPT = (
     "only surfaced to the operator UI so they can explicitly call the "
     "harness-sandbox-request CLI. Under NO circumstances may you "
     "describe a proposed sandbox request as an executed action or claim "
-    "it has already changed the registry."
+    "it has already changed the registry. "
+    # AGH v1 Patch 6 — locale coverage honesty.
+    "You MUST set research_structured_v1.locale_coverage honestly to one "
+    "of 'dual' | 'ko_only' | 'en_only' | 'degraded'. Default is 'dual' "
+    "which REQUIRES both summary_bullets_ko and summary_bullets_en to be "
+    "non-empty. If you only produced Korean summary bullets you MUST set "
+    "locale_coverage='ko_only' (and leave summary_bullets_en empty); "
+    "symmetrically 'en_only' if only English. Use 'degraded' only if the "
+    "evidence is too thin to ground any bullet list in either locale. Do "
+    "NOT claim 'dual' while one side is empty; the guardrail will reject "
+    "such silently-degraded responses and force a template fallback."
 )
 
 

@@ -1,0 +1,82 @@
+{
+  "contract": "AGH_V1_PATCH_6_DEMO_FREEZE_RUNBOOK_EVIDENCE_V1",
+  "generated_at_utc": "2026-04-20T06:14:30.086653+00:00",
+  "horizon": "short",
+  "milestone": 17,
+  "registry_entry_id": "reg_short_demo_v0",
+  "scenarios": [
+    {
+      "branch": "R",
+      "completed_run_count": 25,
+      "reason": "completed_run_present",
+      "sample_run_id": "7023235e-d0e6-4501-8f4d-af5b25857971",
+      "scenario": "S1_supabase_probe"
+    },
+    {
+      "accepted_round_trip_cases": [
+        "dual_ok",
+        "ko_only_ok",
+        "en_only_ok",
+        "degraded_ok"
+      ],
+      "locale_coverage_kinds_listed": [
+        "dual",
+        "ko_only",
+        "en_only",
+        "degraded"
+      ],
+      "scenario": "S2_locale_coverage_guardrail",
+      "silent_dual_claim_with_empty_ko_blocked": true,
+      "system_prompt_mentions_locale_coverage": true,
+      "unexpected_violations": []
+    },
+    {
+      "disabled_error": "ui_invoke_disabled",
+      "disabled_status": 403,
+      "enabled_cli_hint": "harness-tick --queue sandbox_queue",
+      "enabled_ok": true,
+      "enabled_request_packet_id": "pkt_e5a1c21d506a9192e36e66",
+      "enabled_status": 200,
+      "sandbox_kinds": [
+        "validation_rerun"
+      ],
+      "sandbox_request_actors": [
+        "operator",
+        "research_ask_v1"
+      ],
+      "scenario": "S3_sandbox_enqueue_endpoint",
+      "worker_ran_autonomously": false
+    },
+    {
+      "asset_id": "DEMO_AAA",
+      "horizon": "short",
+      "latest_locale_coverage": "dual",
+      "latest_research_structured_v1_present": true,
+      "latest_research_structured_v1_source_packet_id": "pkt_runbook_s4",
+      "scenario": "S4_today_research_structured_plumbing"
+    },
+    {
+      "app_js_bytes": 134239,
+      "index_html_bytes": 34464,
+      "missing_css_primitives": [],
+      "missing_renderer_fns": [],
+      "prefers_reduced_motion_guard": true,
+      "scenario": "S5_ui_renderer_contract",
+      "tsr_locale_key_count": {
+        "en": 56,
+        "ko": 56
+      }
+    },
+    {
+      "branch": "R",
+      "detail": "Probe found >=1 completed factor_validation_run. The runbook does not invoke the live evaluator or sandbox worker to avoid side-effects; operators use the standalone Patch 4 / Patch 5 runbooks with SUPABASE_* env vars when they want a real write.",
+      "live_write_intentionally_skipped": true,
+      "sample_run_completed_at": "2026-04-17T17:28:38.340946+00:00",
+      "sample_run_horizon_type": "next_quarter",
+      "sample_run_id": "7023235e-d0e6-4501-8f4d-af5b25857971",
+      "sample_run_universe_name": "sp500_current",
+      "scenario": "S6_live_evaluator_sandbox_smoke",
+      "status": "live_branch_reachable_dry_only"
+    }
+  ]
+}

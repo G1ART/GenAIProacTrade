@@ -1,0 +1,29 @@
+{
+  "contract": "AGH_V1_PATCH_6_DEMO_FREEZE_BRIDGE_EVIDENCE_V1",
+  "generated_at_utc": "2026-04-20T06:14:30.086648+00:00",
+  "locale_coverage_kinds": [
+    "dual",
+    "ko_only",
+    "en_only",
+    "degraded"
+  ],
+  "milestone": 17,
+  "prefers_reduced_motion_guard": true,
+  "probe_branch": "R",
+  "probe_reason": "completed_run_present",
+  "required_css_primitives_missing": [],
+  "required_renderer_fns_missing": [],
+  "sandbox_kinds_patch_6": [
+    "validation_rerun"
+  ],
+  "sandbox_request_actors": [
+    "operator",
+    "research_ask_v1"
+  ],
+  "system_prompt_mentions_locale_coverage": true,
+  "tsr_locale_key_count_by_lang": {
+    "en": 56,
+    "ko": 56
+  },
+  "ui_invoke_env_gate": "METIS_HARNESS_UI_INVOKE_ENABLED"
+}

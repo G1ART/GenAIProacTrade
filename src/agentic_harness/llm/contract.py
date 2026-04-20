@@ -46,6 +46,16 @@ RESEARCH_STRUCTURED_KINDS = (
     "sandbox_request",
 )
 
+# AGH v1 Patch 6 — explicit dual-locale coverage marker. ``dual`` claims
+# both KO and EN summary bullets are populated; ``ko_only`` / ``en_only``
+# claim only one side is available (the missing side is honest-empty);
+# ``degraded`` claims neither side is available (e.g. evidence too thin
+# to ground a bullet list). Any claim mismatched with the actual
+# ``summary_bullets_ko`` / ``summary_bullets_en`` content is rejected by
+# ``ResearchAnswerStructureV1`` model-validator so Patch 5's silent
+# one-locale degrade is no longer reachable.
+LOCALE_COVERAGE_KINDS = ("dual", "ko_only", "en_only", "degraded")
+
 
 class ResearchAnswerStructureV1(BaseModel):
     """AGH v1 Patch 5 - structured research answer extension.
@@ -72,6 +82,11 @@ class ResearchAnswerStructureV1(BaseModel):
     what_to_watch_bullets: list[str] = Field(default_factory=list, max_length=6)
     evidence_cited: list[str] = Field(default_factory=list)
     proposed_sandbox_request: Optional[dict[str, Any]] = None
+
+    # AGH v1 Patch 6 — dual-locale honesty marker. Default ``dual`` means
+    # both KO and EN summary bullet lists must be non-empty. See
+    # ``LOCALE_COVERAGE_KINDS`` for the honest-degrade variants.
+    locale_coverage: Literal["dual", "ko_only", "en_only", "degraded"] = "dual"
 
     @field_validator(
         "summary_bullets_ko",
@@ -141,6 +156,48 @@ class ResearchAnswerStructureV1(BaseModel):
         if len(rationale) > 500:
             raise ValueError("proposed_sandbox_request.rationale must be <= 500 chars")
         return dict(v)
+
+    @model_validator(mode="after")
+    def _locale_coverage_matches_bullets(self) -> "ResearchAnswerStructureV1":
+        ko_has = bool(self.summary_bullets_ko)
+        en_has = bool(self.summary_bullets_en)
+        cov = self.locale_coverage
+        if cov == "dual":
+            if not (ko_has and en_has):
+                raise ValueError(
+                    "locale_claim_mismatch: locale_coverage='dual' requires "
+                    "both summary_bullets_ko and summary_bullets_en to be "
+                    "non-empty"
+                )
+        elif cov == "ko_only":
+            if not ko_has:
+                raise ValueError(
+                    "locale_claim_mismatch: locale_coverage='ko_only' "
+                    "requires summary_bullets_ko to be non-empty"
+                )
+            if en_has:
+                raise ValueError(
+                    "locale_claim_mismatch: locale_coverage='ko_only' "
+                    "requires summary_bullets_en to be empty"
+                )
+        elif cov == "en_only":
+            if not en_has:
+                raise ValueError(
+                    "locale_claim_mismatch: locale_coverage='en_only' "
+                    "requires summary_bullets_en to be non-empty"
+                )
+            if ko_has:
+                raise ValueError(
+                    "locale_claim_mismatch: locale_coverage='en_only' "
+                    "requires summary_bullets_ko to be empty"
+                )
+        elif cov == "degraded":
+            if ko_has or en_has:
+                raise ValueError(
+                    "locale_claim_mismatch: locale_coverage='degraded' "
+                    "requires both summary bullet lists to be empty"
+                )
+        return self
 
 
 class LLMResponseContractV1(BaseModel):
