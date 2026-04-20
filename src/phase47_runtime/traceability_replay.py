@@ -926,6 +926,7 @@ def api_governance_lineage_for_registry_entry(
     decisions = _list("RegistryDecisionPacketV1")
     applied = _list("RegistryPatchAppliedPacketV1")
     refreshes = _list("SpectrumRefreshRecordV1")
+    evaluations = _list("ValidationPromotionEvaluationV1")
 
     def _proposal_matches(pkt: dict[str, Any]) -> bool:
         payload = pkt.get("payload") or {}
@@ -969,11 +970,33 @@ def api_governance_lineage_for_registry_entry(
                 return r
         return None
 
+    def _evaluation_matches(pkt: dict[str, Any]) -> bool:
+        payload = pkt.get("payload") or {}
+        if str(payload.get("registry_entry_id") or "") != rid:
+            return False
+        if hz and str(payload.get("horizon") or "") != hz:
+            return False
+        return True
+
+    matched_evaluations = [e for e in evaluations if _evaluation_matches(e)]
+    matched_evaluations.sort(
+        key=lambda r: str(r.get("created_at_utc") or ""), reverse=True
+    )
+
     chain: list[dict[str, Any]] = []
     total_applied = 0
     total_refreshed = 0
     latest_applied_packet_id = ""
     latest_applied_needs_db_rebuild: bool | None = None
+
+    def _evaluation_for_proposal(pid: str) -> dict[str, Any] | None:
+        if not pid:
+            return None
+        for e in matched_evaluations:
+            payload = e.get("payload") or {}
+            if str(payload.get("emitted_proposal_packet_id") or "") == pid:
+                return e
+        return None
 
     for prop in matched_proposals:
         pid = str(prop.get("packet_id") or "")
@@ -984,6 +1007,7 @@ def api_governance_lineage_for_registry_entry(
             if app
             else None
         )
+        evalr = _evaluation_for_proposal(pid)
         if app and str((app.get("payload") or {}).get("outcome") or "") == "applied":
             total_applied += 1
             if not latest_applied_packet_id:
@@ -1000,19 +1024,34 @@ def api_governance_lineage_for_registry_entry(
                 "decision": dec,
                 "applied": app,
                 "spectrum_refresh": ref,
+                "validation_promotion_evaluation": evalr,
             }
         )
+
+    # Flat list of every matched evaluation (including blocked outcomes that
+    # never emitted a proposal) so the UI can surface upstream validation
+    # audit even when no proposal exists.
+    validation_promotion_evaluations: list[dict[str, Any]] = list(matched_evaluations)
+    total_emitted_from_evaluator = sum(
+        1
+        for e in matched_evaluations
+        if str((e.get("payload") or {}).get("outcome") or "") == "proposal_emitted"
+        and str((e.get("payload") or {}).get("emitted_proposal_packet_id") or "").strip()
+    )
 
     return {
         "ok": True,
         "registry_entry_id": rid,
         "horizon": hz,
         "chain": chain,
+        "validation_promotion_evaluations": validation_promotion_evaluations,
         "summary": {
             "total_proposals": len(chain),
             "total_applied": total_applied,
             "total_spectrum_refreshed": total_refreshed,
             "latest_applied_packet_id": latest_applied_packet_id,
             "latest_applied_needs_db_rebuild": latest_applied_needs_db_rebuild,
+            "total_evaluations": len(matched_evaluations),
+            "total_emitted_from_evaluator": total_emitted_from_evaluator,
         },
     }

@@ -1,0 +1,215 @@
+{
+  "contract": "METIS_AGH_V1_PATCH_4_VALIDATION_TO_GOVERNANCE_RUNBOOK_V1",
+  "captured_at_utc": "2026-04-19T20:27:35.557397+00:00",
+  "target_scope": {
+    "registry_entry_id": "reg_short_demo_v0",
+    "horizon": "short",
+    "factor_name": "demo_factor",
+    "universe_name": "large_cap_research_slice_demo_v0",
+    "horizon_type": "next_month",
+    "return_basis": "raw"
+  },
+  "scenarios": [
+    {
+      "scenario": "promote",
+      "expectation": "verdict=promote; artifact_action=added_challenger; outcome=proposal_emitted; evaluation + proposal packets emitted; governance_queue job+1.",
+      "before_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": []
+      },
+      "after_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": [
+          "art_demo_factor_large_cap_research_slice_demo_v0_next_month_raw_47590c4f"
+        ]
+      },
+      "before_artifacts": [
+        "art_active_v0"
+      ],
+      "after_artifacts": [
+        "art_active_v0",
+        "art_demo_factor_large_cap_research_slice_demo_v0_next_month_raw_47590c4f"
+      ],
+      "result": {
+        "outcome": "proposal_emitted",
+        "gate_verdict": "promote",
+        "artifact_action": "added_challenger",
+        "derived_artifact_id": "art_demo_factor_large_cap_research_slice_demo_v0_next_month_raw_47590c4f",
+        "emitted_proposal_packet_id": "pkt_80aa57222b8415b2767716",
+        "blocking_reasons": [
+          "gate_reasons=mapped_from_factor_validation;pit=certified;spearman=0.21;quantile_spread_checked=True;pit_rule=no_lookahead_v0"
+        ],
+        "dry_run": false,
+        "dry_run_preview": null
+      },
+      "evaluation_packet_count": 1,
+      "latest_evaluation_outcome": "proposal_emitted",
+      "latest_evaluation_blocking_reasons": [
+        "gate_reasons=mapped_from_factor_validation;pit=certified;spearman=0.21;quantile_spread_checked=True;pit_rule=no_lookahead_v0"
+      ],
+      "proposal_packet_count": 1,
+      "governance_queue_job_count": 1
+    },
+    {
+      "scenario": "blocked_by_gate",
+      "expectation": "pit_certified=False -> verdict=reject; outcome=blocked_by_gate; no proposal; bundle unchanged; evaluation packet emitted with blocking_reasons=['pit_failed'].",
+      "before_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": []
+      },
+      "after_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": []
+      },
+      "before_artifacts": [
+        "art_active_v0"
+      ],
+      "after_artifacts": [
+        "art_active_v0"
+      ],
+      "result": {
+        "outcome": "blocked_by_gate",
+        "gate_verdict": "reject",
+        "artifact_action": "added_challenger",
+        "derived_artifact_id": "art_demo_factor_large_cap_research_slice_demo_v0_next_month_raw_a06b483b",
+        "emitted_proposal_packet_id": null,
+        "blocking_reasons": [
+          "pit_failed",
+          "gate_reasons=mapped_from_factor_validation;pit=not_certified_set_pit_in_summary_json;spearman=0.21;quantile_spread_checked=True;pit_rule=no_lookahead_v0"
+        ],
+        "dry_run": false,
+        "dry_run_preview": null
+      },
+      "evaluation_packet_count": 1,
+      "latest_evaluation_outcome": "blocked_by_gate",
+      "latest_evaluation_blocking_reasons": [
+        "pit_failed",
+        "gate_reasons=mapped_from_factor_validation;pit=not_certified_set_pit_in_summary_json;spearman=0.21;quantile_spread_checked=True;pit_rule=no_lookahead_v0"
+      ],
+      "proposal_packet_count": 0,
+      "governance_queue_job_count": 0
+    },
+    {
+      "scenario": "blocked_missing_evidence",
+      "expectation": "no completed factor_validation summary -> outcome=blocked_missing_evidence; no proposal; bundle unchanged; evaluation packet emitted with no_completed_factor_validation_summary blocking reason.",
+      "before_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": []
+      },
+      "after_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": []
+      },
+      "before_artifacts": [
+        "art_active_v0"
+      ],
+      "after_artifacts": [
+        "art_active_v0"
+      ],
+      "result": {
+        "outcome": "blocked_missing_evidence",
+        "gate_verdict": "hold",
+        "artifact_action": "no_change",
+        "derived_artifact_id": "art_demo_factor_large_cap_research_slice_demo_v0_next_month_raw_472a629c",
+        "emitted_proposal_packet_id": null,
+        "blocking_reasons": [
+          "no_completed_factor_validation_summary:factor=demo_factor;universe=large_cap_research_slice_demo_v0;horizon_type=next_month"
+        ],
+        "dry_run": false,
+        "dry_run_preview": null
+      },
+      "evaluation_packet_count": 1,
+      "latest_evaluation_outcome": "blocked_missing_evidence",
+      "latest_evaluation_blocking_reasons": [
+        "no_completed_factor_validation_summary:factor=demo_factor;universe=large_cap_research_slice_demo_v0;horizon_type=next_month"
+      ],
+      "proposal_packet_count": 0,
+      "governance_queue_job_count": 0
+    },
+    {
+      "scenario": "blocked_same_as_active",
+      "expectation": "derived artifact_id == active_artifact_id -> artifact_action=already_active; outcome=blocked_same_as_active; no proposal; active state untouched; validation_pointer may be refreshed on the existing active artifact.",
+      "before_registry_entry": {
+        "active_artifact_id": "art_demo_factor_large_cap_research_slice_demo_v0_next_month_raw_47590c4f",
+        "challenger_artifact_ids": []
+      },
+      "after_registry_entry": {
+        "active_artifact_id": "art_demo_factor_large_cap_research_slice_demo_v0_next_month_raw_47590c4f",
+        "challenger_artifact_ids": []
+      },
+      "before_artifacts": [
+        "art_demo_factor_large_cap_research_slice_demo_v0_next_month_raw_47590c4f"
+      ],
+      "after_artifacts": [
+        "art_demo_factor_large_cap_research_slice_demo_v0_next_month_raw_47590c4f"
+      ],
+      "result": {
+        "outcome": "blocked_same_as_active",
+        "gate_verdict": "promote",
+        "artifact_action": "already_active",
+        "derived_artifact_id": "art_demo_factor_large_cap_research_slice_demo_v0_next_month_raw_47590c4f",
+        "emitted_proposal_packet_id": null,
+        "blocking_reasons": [
+          "gate_reasons=mapped_from_factor_validation;pit=certified;spearman=0.21;quantile_spread_checked=True;pit_rule=no_lookahead_v0"
+        ],
+        "dry_run": false,
+        "dry_run_preview": null
+      },
+      "evaluation_packet_count": 1,
+      "latest_evaluation_outcome": "blocked_same_as_active",
+      "latest_evaluation_blocking_reasons": [
+        "gate_reasons=mapped_from_factor_validation;pit=certified;spearman=0.21;quantile_spread_checked=True;pit_rule=no_lookahead_v0"
+      ],
+      "proposal_packet_count": 0,
+      "governance_queue_job_count": 0
+    },
+    {
+      "scenario": "dry_run",
+      "expectation": "dry_run=True: verdict/artifact_action/derived_artifact_id reported but no packets persisted, no bundle write, dry_run_preview.would_emit_proposal=True.",
+      "before_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": []
+      },
+      "after_registry_entry": {
+        "active_artifact_id": "art_active_v0",
+        "challenger_artifact_ids": []
+      },
+      "before_artifacts": [
+        "art_active_v0"
+      ],
+      "after_artifacts": [
+        "art_active_v0"
+      ],
+      "result": {
+        "outcome": "proposal_emitted",
+        "gate_verdict": "promote",
+        "artifact_action": "added_challenger",
+        "derived_artifact_id": "art_demo_factor_large_cap_research_slice_demo_v0_next_month_raw_8420b612",
+        "emitted_proposal_packet_id": null,
+        "blocking_reasons": [
+          "gate_reasons=mapped_from_factor_validation;pit=certified;spearman=0.21;quantile_spread_checked=True;pit_rule=no_lookahead_v0"
+        ],
+        "dry_run": true,
+        "dry_run_preview": {
+          "would_emit_proposal": true,
+          "mutated_artifacts": true,
+          "mutated_registry_entries": false
+        }
+      },
+      "evaluation_packet_count": 0,
+      "latest_evaluation_outcome": null,
+      "latest_evaluation_blocking_reasons": [],
+      "proposal_packet_count": 0,
+      "governance_queue_job_count": 0
+    }
+  ],
+  "invariants_exercised": [
+    "promote: added_challenger + proposal_emitted + governance_queue job",
+    "blocked_by_gate: pit_certified=False -> no proposal, bundle unchanged, blocking_reasons include pit_failed",
+    "blocked_missing_evidence: summary missing -> no proposal, bundle unchanged, audit packet still emitted",
+    "blocked_same_as_active: derived == active -> no proposal, active state untouched",
+    "dry_run: full pipeline runs without persistence; preview reports would_emit_proposal=True",
+    "no direct active-state mutation: every scenario leaves active_artifact_id unchanged (active-state changes require harness-decide + Patch 3 apply)",
+    "ValidationPromotionEvaluationV1 is emitted for every non-dry-run path (promote + 3 blocked); dry_run persists zero packets"
+  ]
+}

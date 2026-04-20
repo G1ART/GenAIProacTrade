@@ -15,6 +15,10 @@ DEFAULT_CADENCES: dict[str, timedelta] = {
     "layer2.coverage_triage": timedelta(hours=12),
     "layer3.challenger_cycle": timedelta(days=1),
     "layer4.registry_proposal": timedelta(days=1),
+    # AGH v1 Patch 4: periodically scan completed factor_validation runs and
+    # emit RegistryUpdateProposalV1 when the metric gate clears promote. Apply
+    # remains operator-gated via harness-decide + Patch 3 executor.
+    "layer4.governance_scan": timedelta(minutes=15),
 }
 
 

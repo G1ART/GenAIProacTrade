@@ -103,6 +103,19 @@ def build_layer_cadences() -> list[LayerCadenceSpec]:
         )
     except ImportError:
         pass
+    try:
+        from agentic_harness.agents.layer4_promotion_evaluator_v1 import (
+            propose_governance_scan_cadence,
+        )
+
+        specs.append(
+            LayerCadenceSpec(
+                cadence_key="layer4.governance_scan",
+                propose_fn=propose_governance_scan_cadence,
+            )
+        )
+    except ImportError:
+        pass
     return specs
 
 

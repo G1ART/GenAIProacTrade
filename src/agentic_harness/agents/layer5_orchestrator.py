@@ -172,6 +172,14 @@ def state_reader_agent(
         _collect(
             "SpectrumRefreshRecordV1", None, allow_asset_neutral=True
         )
+        # AGH v1 Patch 4: validation -> governance bridge audit packets. Every
+        # completed factor_validation inspection emits one of these whether or
+        # not a proposal was generated, so the LLM can cite the upstream
+        # reason ("blocked_by_gate", "blocked_missing_evidence", etc.) when
+        # describing why the registry has / has not changed.
+        _collect(
+            "ValidationPromotionEvaluationV1", None, allow_asset_neutral=True
+        )
         _collect("ReplayLearningPacketV1", None, allow_asset_neutral=True)
     elif routed_kind == "research_pending":
         # Research candidates are often universe-scoped (factor / gate /
@@ -246,7 +254,25 @@ _SYSTEM_PROMPT = (
     "begins with 'carry_over_', the spectrum rationale rows still reflect "
     "the prior artifact and must be described as pending a full rebuild — "
     "do not claim the rationale text has already updated to the new "
-    "artifact."
+    "artifact. "
+    # AGH v1 Patch 4 — validation -> governance bridge vocabulary.
+    "ValidationPromotionEvaluationV1 packets come from the automatic "
+    "promotion evaluator: they summarise a completed factor_validation run "
+    "and describe whether it produced a RegistryUpdateProposalV1 or was "
+    "blocked. payload.outcome == 'proposal_emitted' pairs with "
+    "payload.emitted_proposal_packet_id and is still only a proposal — the "
+    "Today registry has NOT changed until you can cite a matching "
+    "RegistryPatchAppliedPacketV1 with payload.outcome == 'applied'. Any "
+    "other evaluation outcome ('blocked_by_gate', 'blocked_missing_evidence', "
+    "'blocked_same_as_active', 'blocked_bundle_integrity') means no proposal "
+    "was emitted; if you cite one of these you must label it as "
+    "'interpretation' in fact_vs_interpretation_map and describe the "
+    "payload.blocking_reasons honestly (e.g. 'pit_failed', "
+    "'coverage_insufficient', 'monotonicity_inconclusive') rather than "
+    "paraphrasing them as a promotion. Proposals emitted by the evaluator "
+    "still require the same operator decision (harness-decide approve) + "
+    "governed apply (RegistryPatchAppliedPacketV1) before the Today "
+    "surface is considered changed."
 )
 
 

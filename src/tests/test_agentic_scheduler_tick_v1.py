@@ -66,6 +66,9 @@ def test_default_cadences_have_four_layers():
         "layer2.coverage_triage",
         "layer3.challenger_cycle",
         "layer4.registry_proposal",
+        # AGH v1 Patch 4: validation -> governance scan tick (operator-gated
+        # apply; the tick only emits proposals, never mutates active state).
+        "layer4.governance_scan",
     }
 
 

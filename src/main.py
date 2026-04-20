@@ -8687,6 +8687,206 @@ def _cmd_harness_decide(args: argparse.Namespace) -> int:
     return 0 if ok else 1
 
 
+def _cmd_harness_evaluate_promotions(args: argparse.Namespace) -> int:
+    """Agentic Operating Harness v1 (Patch 4) - turn completed factor_validation
+    evidence into (optionally emitted) ``RegistryUpdateProposalV1(target=
+    registry_entry_artifact_promotion)`` proposals.
+
+    For each ``--spec`` tuple (or a single ad-hoc slot derived from the
+    explicit ``--registry-entry`` + validation flags), the evaluator fetches
+    the latest completed factor_validation summary, builds a deterministic
+    challenger artifact + metric-based gate record, and either emits the
+    promotion proposal (gate verdict=promote, artifact not already active) or
+    records an honest blocked ``ValidationPromotionEvaluationV1`` packet with
+    explicit blocking reasons.
+
+    ``--dry-run`` runs the full pipeline without writing any packets or
+    mutating the brain bundle and prints a stdout-only preview.
+    """
+
+    from agentic_harness.agents.layer4_promotion_evaluator_v1 import (
+        evaluate_registry_entries,
+        evaluate_validation_for_promotion,
+    )
+    from agentic_harness.runtime import build_store
+    from agentic_harness.store.protocol import now_utc_iso
+    from metis_brain.bundle import brain_bundle_path
+    from metis_brain.bundle_promotion_merge_v0 import load_bundle_json
+
+    configure_logging()
+    use_fixture = bool(getattr(args, "use_fixture", False))
+    dry_run = bool(getattr(args, "dry_run", False))
+    now_iso = now_utc_iso()
+
+    specs: list[dict[str, Any]] = []
+    # Ad-hoc single-slot mode.
+    if getattr(args, "registry_entry", None):
+        missing = [
+            k
+            for k in (
+                "registry_entry",
+                "horizon",
+                "factor",
+                "universe",
+                "horizon_type",
+                "return_basis",
+            )
+            if not str(getattr(args, k, "") or "").strip()
+        ]
+        if missing:
+            print(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "error": f"single_slot_required_args_missing:{missing}",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 1
+        specs.append(
+            {
+                "registry_entry_id": str(args.registry_entry),
+                "horizon": str(args.horizon),
+                "factor_name": str(args.factor),
+                "universe_name": str(args.universe),
+                "horizon_type": str(args.horizon_type),
+                "return_basis": str(args.return_basis),
+            }
+        )
+
+    # Spec file mode: --spec-file path to a JSON list of dicts.
+    spec_file = str(getattr(args, "spec_file", "") or "").strip()
+    if spec_file:
+        try:
+            raw = json.loads(Path(spec_file).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            print(
+                json.dumps(
+                    {"ok": False, "error": f"spec_file_load_failed:{exc}"},
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 1
+        if not isinstance(raw, list):
+            print(
+                json.dumps(
+                    {"ok": False, "error": "spec_file_root_must_be_list"},
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+            return 1
+        for i, item in enumerate(raw):
+            if not isinstance(item, dict):
+                print(
+                    json.dumps(
+                        {
+                            "ok": False,
+                            "error": f"spec_file_item_not_dict:index={i}",
+                        },
+                        indent=2,
+                        ensure_ascii=False,
+                    )
+                )
+                return 1
+            specs.append(
+                {
+                    "registry_entry_id": str(item.get("registry_entry_id") or ""),
+                    "horizon": str(item.get("horizon") or ""),
+                    "factor_name": str(item.get("factor_name") or ""),
+                    "universe_name": str(item.get("universe_name") or ""),
+                    "horizon_type": str(item.get("horizon_type") or ""),
+                    "return_basis": str(item.get("return_basis") or ""),
+                }
+            )
+
+    if not specs:
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": "no_specs:supply_--registry-entry_or_--spec-file",
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+
+    try:
+        store = build_store(use_fixture=use_fixture)
+    except RuntimeError as exc:
+        print(
+            json.dumps(
+                {"ok": False, "error": f"store_unavailable:{exc}"},
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 1
+
+    # Resolve optional Supabase client (not required for fixture store).
+    supabase_client: Any = None
+    if not use_fixture:
+        try:
+            from config import load_settings
+            from db.client import get_supabase_client
+
+            supabase_client = get_supabase_client(load_settings())
+        except Exception as exc:
+            # Honest skip: evaluator will emit blocked_missing_evidence per
+            # spec with an explicit reason instead of pretending to fetch.
+            print(
+                json.dumps(
+                    {
+                        "ok": True,
+                        "note": f"supabase_client_unavailable:{exc}",
+                        "dry_run": dry_run,
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+
+    repo_root = Path(__file__).resolve().parents[1]
+    bundle_path = brain_bundle_path(repo_root)
+
+    if len(specs) == 1:
+        spec = specs[0]
+        bundle_dict = load_bundle_json(bundle_path)
+        res = evaluate_validation_for_promotion(
+            store=store,
+            bundle_path=bundle_path,
+            bundle_dict=bundle_dict,
+            registry_entry_id=spec["registry_entry_id"],
+            horizon=spec["horizon"],
+            factor_name=spec["factor_name"],
+            universe_name=spec["universe_name"],
+            horizon_type=spec["horizon_type"],
+            return_basis=spec["return_basis"],
+            supabase_client=supabase_client,
+            now_iso=now_iso,
+            dry_run=dry_run,
+        )
+        out = {"ok": True, "dry_run": dry_run, "result": res}
+    else:
+        results = evaluate_registry_entries(
+            store=store,
+            bundle_path=bundle_path,
+            specs=specs,
+            supabase_client=supabase_client,
+            now_iso=now_iso,
+            dry_run=dry_run,
+        )
+        out = {"ok": True, "dry_run": dry_run, "results": results}
+
+    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="GenAIProacTrade SEC / XBRL worker CLI")
     sub = p.add_subparsers(dest="command", required=True)
@@ -13075,6 +13275,69 @@ def build_parser() -> argparse.ArgumentParser:
     )
     phd.add_argument("--use-fixture", action="store_true", dest="use_fixture")
     phd.set_defaults(func=_cmd_harness_decide)
+
+    phe = sub.add_parser(
+        "harness-evaluate-promotions",
+        help=(
+            "Agentic Operating Harness v1 (Patch 4): turn completed "
+            "factor_validation runs into challenger artifacts + metric-based "
+            "gate records + RegistryUpdateProposalV1(target="
+            "registry_entry_artifact_promotion) proposals. Apply stays "
+            "operator-gated via harness-decide + harness-tick."
+        ),
+    )
+    phe.add_argument(
+        "--registry-entry",
+        dest="registry_entry",
+        default="",
+        help="Ad-hoc single-slot mode: the registry_entry_id to evaluate.",
+    )
+    phe.add_argument(
+        "--horizon",
+        default="",
+        choices=("", "short", "medium", "medium_long", "long"),
+        help="Bundle horizon for the registry entry (single-slot mode).",
+    )
+    phe.add_argument("--factor", default="", help="Factor name (single-slot mode).")
+    phe.add_argument(
+        "--universe", default="", help="Universe name (single-slot mode)."
+    )
+    phe.add_argument(
+        "--horizon-type",
+        dest="horizon_type",
+        default="",
+        help=(
+            "Validation horizon_type, e.g. next_month / next_quarter / "
+            "next_half_year / next_year (single-slot mode)."
+        ),
+    )
+    phe.add_argument(
+        "--return-basis",
+        dest="return_basis",
+        default="raw",
+        help="Return basis (raw|excess); defaults to raw.",
+    )
+    phe.add_argument(
+        "--spec-file",
+        dest="spec_file",
+        default="",
+        help=(
+            "JSON file: list of {registry_entry_id, horizon, factor_name, "
+            "universe_name, horizon_type, return_basis} dicts. Evaluated in "
+            "order with fresh-bundle reloads between specs."
+        ),
+    )
+    phe.add_argument(
+        "--dry-run",
+        action="store_true",
+        dest="dry_run",
+        help=(
+            "Run the full evaluator pipeline (fetch + derive artifact + "
+            "compute gate) without persisting packets or mutating the bundle."
+        ),
+    )
+    phe.add_argument("--use-fixture", action="store_true", dest="use_fixture")
+    phe.set_defaults(func=_cmd_harness_evaluate_promotions)
 
     return p
 

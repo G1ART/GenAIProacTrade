@@ -344,6 +344,109 @@ def test_state_reader_why_changed_includes_spectrum_refresh_record():
     )
 
 
+def test_system_prompt_teaches_validation_promotion_evaluation_vocabulary():
+    """AGH v1 Patch 4: the LLM must know about ValidationPromotionEvaluationV1
+    and the upstream blocking_reasons vocabulary so it can describe blocked
+    promotion evaluations honestly (e.g. ``pit_failed``) without implying the
+    Today registry changed."""
+
+    for phrase in (
+        "ValidationPromotionEvaluationV1",
+        "proposal_emitted",
+        "blocked_by_gate",
+        "blocking_reasons",
+        "pit_failed",
+        "harness-decide approve",
+    ):
+        assert phrase in _SYSTEM_PROMPT, (
+            f"system prompt missing Patch 4 vocabulary: {phrase!r}"
+        )
+
+
+def _insert_validation_promotion_evaluation(
+    store: FixtureHarnessStore,
+    *,
+    outcome: str = "proposal_emitted",
+    emitted_proposal_packet_id: str | None = "pkt_proposal_demo_v0",
+    blocking_reasons: list[str] | None = None,
+    gate_verdict: str = "promote",
+    artifact_action: str = "added_challenger",
+) -> str:
+    pid = deterministic_packet_id(
+        packet_type="ValidationPromotionEvaluationV1",
+        created_by_agent="promotion_evaluator_v1",
+        target_scope={
+            "evaluation_id": "eval_demo_v1",
+            "registry_entry_id": "reg_short_demo_v0",
+            "horizon": "short",
+        },
+        salt="p4-eval-demo",
+    )
+    row = {
+        "packet_id": pid,
+        "packet_type": "ValidationPromotionEvaluationV1",
+        "target_layer": "layer4_governance",
+        "created_by_agent": "promotion_evaluator_v1",
+        "created_at_utc": now_utc_iso(),
+        "target_scope": {
+            "evaluation_id": "eval_demo_v1",
+            "registry_entry_id": "reg_short_demo_v0",
+            "horizon": "short",
+        },
+        "provenance_refs": ["factor_validation_run:run_demo_v0"],
+        "confidence": 0.9,
+        "blocking_reasons": list(blocking_reasons or []),
+        "status": "done",
+        "payload": {
+            "evaluation_id": "eval_demo_v1",
+            "factor_name": "demo_factor",
+            "universe_name": "large_cap_research_slice_demo_v0",
+            "horizon_type": "next_month",
+            "return_basis": "raw",
+            "validation_run_id": "run_demo_v0",
+            "validation_pointer": "factor_validation_run:run_demo_v0",
+            "registry_entry_id": "reg_short_demo_v0",
+            "horizon": "short",
+            "derived_artifact_id": "art_demo_v0",
+            "artifact_action": artifact_action,
+            "gate_verdict": gate_verdict,
+            "gate_metrics": {
+                "pit_pass": True,
+                "coverage_pass": True,
+                "monotonicity_pass": True,
+            },
+            "outcome": outcome,
+            "evidence_refs": ["factor_validation_run:run_demo_v0"],
+            "emitted_proposal_packet_id": emitted_proposal_packet_id,
+        },
+    }
+    store.upsert_packet(row)
+    return pid
+
+
+def test_state_reader_why_changed_includes_validation_promotion_evaluation():
+    """Patch 4: validation_promotion_evaluation packets are asset-neutral and
+    must surface in the why_changed bundle so the LLM can describe blocked
+    upstream gate outcomes honestly."""
+
+    store, _ = _store_with_one_asset_packet()
+    eval_id = _insert_validation_promotion_evaluation(
+        store,
+        outcome="blocked_by_gate",
+        emitted_proposal_packet_id=None,
+        blocking_reasons=["pit_failed"],
+        gate_verdict="reject",
+        artifact_action="no_change",
+    )
+    bundle = state_reader_agent(
+        store=store, asset_id="TRGP", routed_kind="why_changed"
+    )
+    ids = {str(p.get("packet_id")) for p in bundle["relevant_packets"]}
+    assert eval_id in ids, (
+        "ValidationPromotionEvaluationV1 must be surfaced in why_changed bundle"
+    )
+
+
 def test_contract_rejects_fact_map_with_unknown_key():
     with pytest.raises(Exception):
         LLMResponseContractV1.model_validate(

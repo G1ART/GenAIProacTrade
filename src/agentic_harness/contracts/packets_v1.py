@@ -102,6 +102,13 @@ PACKET_TYPES = (
     # refresh audit recorded alongside the registry_entry active/challenger
     # swap performed by registry_patch_executor).
     "SpectrumRefreshRecordV1",
+    # AGH v1 Patch 4: validation -> governance bridge closure. Emitted by
+    # ``layer4_promotion_evaluator_v1`` whenever a completed validation run is
+    # inspected for potential artifact promotion. Pairs with an automatically
+    # emitted ``RegistryUpdateProposalV1(target='registry_entry_artifact_promotion')``
+    # when the gate verdict is ``promote``; otherwise records the blocked
+    # outcome with explicit ``blocking_reasons``.
+    "ValidationPromotionEvaluationV1",
 )
 
 
@@ -806,6 +813,149 @@ class SpectrumRefreshRecordV1(AgenticPacketBaseV1):
 
 
 # -----------------------------------------------------------------------------
+# AGH v1 Patch 4 (Validation -> Governance Bridge Closure) - completed
+# factor_validation run audit + auto-proposal emission record.
+#
+# The evaluator in ``agents/layer4_promotion_evaluator_v1`` turns completed
+# validation evidence into:
+#   * a deterministic challenger ``ModelArtifactPacketV0`` (via
+#     ``metis_brain.artifact_from_validation_v1.build_artifact_from_validation_v1``)
+#   * a metric-based ``PromotionGateRecordV0`` (via
+#     ``metis_brain.validation_bridge_v0.promotion_gate_from_validation_summary``)
+#   * an automatic ``RegistryUpdateProposalV1(target='registry_entry_artifact_promotion')``
+#     when the gate verdict is ``promote`` and the artifact is not already
+#     active.
+#
+# A ``ValidationPromotionEvaluationV1`` packet is emitted for every evaluation,
+# whether or not a proposal was generated, so replay can reconstruct the full
+# validation -> artifact -> gate -> proposal chain upstream of the Patch 3
+# apply bridge.
+# -----------------------------------------------------------------------------
+
+
+VALIDATION_PROMOTION_EVALUATION_OUTCOMES = (
+    "proposal_emitted",
+    "blocked_by_gate",
+    "blocked_same_as_active",
+    "blocked_missing_evidence",
+    "blocked_bundle_integrity",
+)
+
+VALIDATION_PROMOTION_GATE_VERDICTS = ("promote", "hold", "reject")
+
+VALIDATION_PROMOTION_ARTIFACT_ACTIONS = (
+    "synced_existing",
+    "added_challenger",
+    "already_active",
+    "no_change",
+)
+
+
+class ValidationPromotionEvaluationV1(AgenticPacketBaseV1):
+    packet_type: str = "ValidationPromotionEvaluationV1"
+    target_layer: TargetLayer = "layer4_governance"
+
+    @field_validator("payload")
+    @classmethod
+    def _required_payload_fields(cls, v: dict[str, Any]) -> dict[str, Any]:
+        if not isinstance(v, dict):
+            raise ValueError("payload must be a dict")
+        for k in (
+            "evaluation_id",
+            "factor_name",
+            "universe_name",
+            "horizon_type",
+            "return_basis",
+            "validation_run_id",
+            "validation_pointer",
+            "registry_entry_id",
+            "horizon",
+            "derived_artifact_id",
+            "artifact_action",
+            "gate_verdict",
+            "gate_metrics",
+            "outcome",
+            "evidence_refs",
+        ):
+            if k not in v:
+                raise ValueError(
+                    f"ValidationPromotionEvaluationV1.payload requires '{k}'"
+                )
+        if v["horizon"] not in REGISTRY_BUNDLE_HORIZONS:
+            raise ValueError(
+                f"horizon must be one of {REGISTRY_BUNDLE_HORIZONS}"
+            )
+        if v["artifact_action"] not in VALIDATION_PROMOTION_ARTIFACT_ACTIONS:
+            raise ValueError(
+                "ValidationPromotionEvaluationV1 artifact_action must be one of "
+                f"{VALIDATION_PROMOTION_ARTIFACT_ACTIONS}"
+            )
+        if v["gate_verdict"] not in VALIDATION_PROMOTION_GATE_VERDICTS:
+            raise ValueError(
+                "ValidationPromotionEvaluationV1 gate_verdict must be one of "
+                f"{VALIDATION_PROMOTION_GATE_VERDICTS}"
+            )
+        if v["outcome"] not in VALIDATION_PROMOTION_EVALUATION_OUTCOMES:
+            raise ValueError(
+                "ValidationPromotionEvaluationV1 outcome must be one of "
+                f"{VALIDATION_PROMOTION_EVALUATION_OUTCOMES}"
+            )
+        if not isinstance(v["gate_metrics"], dict):
+            raise ValueError("gate_metrics must be a dict")
+        if not isinstance(v["evidence_refs"], list) or not v["evidence_refs"]:
+            raise ValueError("evidence_refs must be a non-empty list")
+        for k in (
+            "evaluation_id",
+            "factor_name",
+            "universe_name",
+            "horizon_type",
+            "return_basis",
+            "validation_run_id",
+            "registry_entry_id",
+            "derived_artifact_id",
+        ):
+            if not str(v[k]).strip():
+                raise ValueError(f"{k} must be non-empty")
+        # Coherence checks: an emitted proposal must cite a packet id and
+        # have verdict=promote; a non-emission must leave emitted_proposal_packet_id
+        # unset (None or missing).
+        emitted = v.get("emitted_proposal_packet_id")
+        outcome = v["outcome"]
+        if outcome == "proposal_emitted":
+            if not emitted or not str(emitted).strip():
+                raise ValueError(
+                    "outcome=proposal_emitted requires emitted_proposal_packet_id"
+                )
+            if v["gate_verdict"] != "promote":
+                raise ValueError(
+                    "outcome=proposal_emitted requires gate_verdict=promote"
+                )
+            if v["artifact_action"] == "already_active":
+                raise ValueError(
+                    "outcome=proposal_emitted is not compatible with "
+                    "artifact_action=already_active"
+                )
+        else:
+            if emitted not in (None, "", ):
+                raise ValueError(
+                    "emitted_proposal_packet_id must be empty when outcome is "
+                    "not 'proposal_emitted'"
+                )
+        if outcome == "blocked_same_as_active" and v["artifact_action"] != "already_active":
+            raise ValueError(
+                "outcome=blocked_same_as_active requires artifact_action=already_active"
+            )
+        # Audit-only: no raw registry mutation.
+        if "active_registry_mutation" in v:
+            raise ValueError(
+                "ValidationPromotionEvaluationV1 must not carry raw "
+                "active_registry_mutation; bundle writes go through the "
+                "evaluator's canonical validate + atomic write path."
+            )
+        return dict(v)
+
+
+# -----------------------------------------------------------------------------
 # Replay & User Surface
 # -----------------------------------------------------------------------------
 
@@ -883,6 +1033,7 @@ PACKET_TYPE_TO_CLASS: dict[str, type[AgenticPacketBaseV1]] = {
     "RegistryDecisionPacketV1": RegistryDecisionPacketV1,
     "RegistryPatchAppliedPacketV1": RegistryPatchAppliedPacketV1,
     "SpectrumRefreshRecordV1": SpectrumRefreshRecordV1,
+    "ValidationPromotionEvaluationV1": ValidationPromotionEvaluationV1,
 }
 
 

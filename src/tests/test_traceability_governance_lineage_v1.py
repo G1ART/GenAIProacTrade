@@ -353,3 +353,119 @@ def test_governance_lineage_rejects_missing_registry_entry_id():
     )
     assert res["ok"] is False
     assert "registry_entry_id" in (res.get("error") or "")
+
+
+# ---------------------------------------------------------------------------
+# AGH v1 Patch 4 - validation -> governance evaluator chain extension
+# ---------------------------------------------------------------------------
+
+
+def _evaluation_packet(
+    *,
+    packet_id: str,
+    registry_entry_id: str,
+    horizon: str,
+    outcome: str,
+    created_at_utc: str,
+    emitted_proposal_packet_id: str | None = None,
+    blocking_reasons: list[str] | None = None,
+    gate_verdict: str = "promote",
+    artifact_action: str = "added_challenger",
+) -> dict:
+    payload = {
+        "evaluation_id": f"eval_{packet_id}",
+        "factor_name": "demo_factor",
+        "universe_name": "large_cap_research_slice_demo_v0",
+        "horizon_type": "next_month",
+        "return_basis": "raw",
+        "validation_run_id": f"run_{packet_id}",
+        "validation_pointer": f"factor_validation_run:run_{packet_id}",
+        "registry_entry_id": registry_entry_id,
+        "horizon": horizon,
+        "derived_artifact_id": f"art_derived_{packet_id}",
+        "artifact_action": artifact_action,
+        "gate_verdict": gate_verdict,
+        "gate_metrics": {
+            "pit_pass": True,
+            "coverage_pass": True,
+            "monotonicity_pass": True,
+        },
+        "outcome": outcome,
+        "evidence_refs": [f"factor_validation_run:run_{packet_id}"],
+        "emitted_proposal_packet_id": emitted_proposal_packet_id,
+    }
+    return {
+        "packet_id": packet_id,
+        "packet_type": "ValidationPromotionEvaluationV1",
+        "target_layer": "layer4_governance",
+        "created_by_agent": "promotion_evaluator_v1",
+        "created_at_utc": created_at_utc,
+        "target_scope": {
+            "evaluation_id": f"eval_{packet_id}",
+            "registry_entry_id": registry_entry_id,
+            "horizon": horizon,
+        },
+        "provenance_refs": [f"factor_validation_run:run_{packet_id}"],
+        "confidence": 0.9,
+        "blocking_reasons": list(blocking_reasons or []),
+        "status": "done",
+        "payload": payload,
+    }
+
+
+def test_governance_lineage_includes_validation_promotion_evaluations():
+    store = FixtureHarnessStore()
+    pid, did, aid, rid = _seed_full_chain(
+        store,
+        registry_entry_id="reg_short_demo_v0",
+        horizon="short",
+        nonce="p4a",
+        created_at_utc="2026-04-19T10:00:00+00:00",
+    )
+    # Evaluator emitted its audit packet that cites the proposal just seeded.
+    store.upsert_packet(
+        _evaluation_packet(
+            packet_id="pkt_eval_p4a",
+            registry_entry_id="reg_short_demo_v0",
+            horizon="short",
+            outcome="proposal_emitted",
+            created_at_utc="2026-04-19T09:59:00+00:00",
+            emitted_proposal_packet_id=pid,
+        )
+    )
+    # An older blocked evaluation (no proposal) - must still surface in the
+    # validation_promotion_evaluations flat list.
+    store.upsert_packet(
+        _evaluation_packet(
+            packet_id="pkt_eval_blocked",
+            registry_entry_id="reg_short_demo_v0",
+            horizon="short",
+            outcome="blocked_by_gate",
+            gate_verdict="reject",
+            artifact_action="no_change",
+            created_at_utc="2026-04-18T09:00:00+00:00",
+            emitted_proposal_packet_id=None,
+            blocking_reasons=["pit_failed"],
+        )
+    )
+
+    res = api_governance_lineage_for_registry_entry(
+        store,
+        registry_entry_id="reg_short_demo_v0",
+        horizon="short",
+    )
+
+    assert res["ok"] is True
+    assert len(res["chain"]) == 1
+    link = res["chain"][0]
+    assert link["validation_promotion_evaluation"] is not None
+    assert link["validation_promotion_evaluation"]["packet_id"] == "pkt_eval_p4a"
+
+    assert len(res["validation_promotion_evaluations"]) == 2
+    # Newest first.
+    assert res["validation_promotion_evaluations"][0]["packet_id"] == "pkt_eval_p4a"
+    assert (
+        res["validation_promotion_evaluations"][1]["packet_id"] == "pkt_eval_blocked"
+    )
+    assert res["summary"]["total_evaluations"] == 2
+    assert res["summary"]["total_emitted_from_evaluator"] == 1
