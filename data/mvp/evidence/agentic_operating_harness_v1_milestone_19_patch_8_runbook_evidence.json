@@ -1,0 +1,151 @@
+{
+  "contract": "AGH_V1_PATCH_8_PRODUCTION_GRADUATION_RUNBOOK_EVIDENCE_V1",
+  "generated_at_utc": "2026-04-21T07:14:29.300184+00:00",
+  "milestone": 19,
+  "patch_nature": "production_graduation_ux_ai_wow_scale_closure",
+  "scenarios": [
+    {
+      "contract_has_what_changed_en": true,
+      "contract_has_what_changed_ko": true,
+      "guardrail_scans_what_changed": true,
+      "locale_coverage_per_lang": {
+        "en": {
+          "research_section.no_what_changed": true,
+          "research_section.what_changed": true,
+          "research_section.why_it_matters": true
+        },
+        "ko": {
+          "research_section.no_what_changed": true,
+          "research_section.what_changed": true,
+          "research_section.why_it_matters": true
+        }
+      },
+      "prompt_mentions_what_changed": true,
+      "render_has_what_changed_section": true,
+      "render_labels_why_it_matters": true,
+      "scenario": "S1_research_4_stack"
+    },
+    {
+      "jump_to_invoke_present": true,
+      "locale_coverage_per_lang": {
+        "en": {
+          "tsr.today.stack.head": true,
+          "tsr.today.why_now.empty": true,
+          "tsr.today.why_now.head": true
+        },
+        "ko": {
+          "tsr.today.stack.head": true,
+          "tsr.today.why_now.empty": true,
+          "tsr.today.why_now.head": true
+        }
+      },
+      "renderer_present": true,
+      "scenario": "S2_today_hero_stack",
+      "stack_class_present": true
+    },
+    {
+      "contract_state_slot_present": true,
+      "humanize_produced_refs_helper": true,
+      "hydrate_recent_sandbox_requests_present": true,
+      "lifecycle_state_in_route": true,
+      "locale_coverage_per_lang": {
+        "en": {
+          "research_section.invoke_state_running": true,
+          "research_section.produced_refs_summary": true,
+          "research_section.recent_requests_empty": true,
+          "research_section.recent_requests_head": true,
+          "tsr.invoke.contract.status_after": true
+        },
+        "ko": {
+          "research_section.invoke_state_running": true,
+          "research_section.produced_refs_summary": true,
+          "research_section.recent_requests_empty": true,
+          "research_section.recent_requests_head": true,
+          "tsr.invoke.contract.status_after": true
+        }
+      },
+      "scenario": "S3_invoke_lifecycle_recent_requests",
+      "ui_uses_lifecycle_state": true
+    },
+    {
+      "panel_truncation_metadata_recorded": true,
+      "records_exports": {
+        "upsert_factor_coverage_reports": true,
+        "upsert_factor_quantile_results": true,
+        "upsert_factor_validation_summaries": true
+      },
+      "runner_batch_upsert_wiring": {
+        "upsert_factor_coverage_reports": true,
+        "upsert_factor_quantile_results": true,
+        "upsert_factor_validation_summaries": true
+      },
+      "scenario": "S4_factor_batch_upsert"
+    },
+    {
+      "bundle_has_panel_cache": true,
+      "evaluator_has_reload_between_specs": true,
+      "scenario": "S5_bundle_cache_single_reload"
+    },
+    {
+      "grad_note_present": true,
+      "grad_script_present": true,
+      "locale_coverage_per_lang": {
+        "en": {
+          "tsr.bundle_tier.demo": true,
+          "tsr.bundle_tier.production": true,
+          "tsr.bundle_tier.sample": true,
+          "tsr.bundle_tier.tip": true
+        },
+        "ko": {
+          "tsr.bundle_tier.demo": true,
+          "tsr.bundle_tier.production": true,
+          "tsr.bundle_tier.sample": true,
+          "tsr.bundle_tier.tip": true
+        }
+      },
+      "scenario": "S6_production_graduation_tier",
+      "tier_inference_is_correct": true,
+      "tier_inference_matrix": {
+        "empty_path": "demo",
+        "metadata_override": "production",
+        "v0_path": "sample",
+        "v2_path": "production"
+      },
+      "ui_badge_placeholder_present": true,
+      "ui_hydrator_present": true
+    },
+    {
+      "brain_bundle_missing_in_reasons": true,
+      "degraded_reasons_count": 1,
+      "health_status": "degraded",
+      "payload_ok": true,
+      "route_maps_down_to_503": true,
+      "scenario": "S7_healthcheck_degraded_200",
+      "status_vocabulary": [
+        "ok",
+        "degraded",
+        "down"
+      ]
+    },
+    {
+      "cli_flags_present": {
+        "--loop": true,
+        "--queue": true,
+        "--sleep": true
+      },
+      "procfile": {
+        "has_web": true,
+        "has_worker": true,
+        "uses_$PORT": true,
+        "worker_uses_--loop": true
+      },
+      "railway_json": {
+        "healthcheck_on_runtime_health": true,
+        "start_cmd_uses_$PORT": true
+      },
+      "runbook_has_healthcheck_section": true,
+      "runbook_present": true,
+      "scenario": "S8_harness_queue_and_railway_deploy"
+    }
+  ]
+}

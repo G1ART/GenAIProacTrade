@@ -4,10 +4,13 @@ factor_market_validation_panels + issuer_quarter_factor_panels → Phase 5 검�
 
 from __future__ import annotations
 
+import json
 import logging
 import math
 import statistics
+import sys
 from datetime import datetime, timezone
+from time import perf_counter
 from typing import Any, Optional
 
 from db.records import (
@@ -16,9 +19,9 @@ from db.records import (
     fetch_factor_market_validation_panels_for_symbols,
     fetch_issuer_quarter_factor_panels_for_accessions,
     issuer_quarter_factor_panel_join_key,
-    insert_factor_coverage_report,
-    insert_factor_quantile_result,
-    insert_factor_validation_summary,
+    upsert_factor_coverage_reports,
+    upsert_factor_quantile_results,
+    upsert_factor_validation_summaries,
 )
 from research.metrics import (
     hit_rate_same_sign,
@@ -63,6 +66,21 @@ def _as_float(x: Any) -> Optional[float]:
     return float(x)
 
 
+def _emit_perf_log(*, fn: str, ms: float, extra: dict[str, Any] | None = None) -> None:
+    """AGH v1 Patch 8 C1b — validation-runner stderr perf log.
+
+    Mirrors the scheduler ``_emit_perf_log`` (Patch 7 C2d) so factor batch
+    upsert timings show up in the same ``metis_perf`` stream.
+    """
+    try:
+        rec = {"kind": "metis_perf", "fn": fn, "ms": round(float(ms), 3)}
+        if extra:
+            rec.update(extra)
+        sys.stderr.write(json.dumps(rec, sort_keys=True) + "\n")
+    except Exception:  # pragma: no cover - defensive
+        pass
+
+
 def run_factor_validation_research(
     client: Any,
     *,
@@ -77,11 +95,30 @@ def run_factor_validation_research(
     if horizon_type not in HORIZON_RETURN_KEYS:
         raise ValueError(f"horizon_type must be one of {list(HORIZON_RETURN_KEYS)}")
 
+    t_total = perf_counter()
     raw_key, excess_key = HORIZON_RETURN_KEYS[horizon_type]
     symbols = resolve_slice_symbols(client, universe_name)
     vpanels = fetch_factor_market_validation_panels_for_symbols(
         client, symbols=symbols, limit=panel_limit
     )
+    # AGH v1 Patch 8 C1b — truncation visibility. ``fetch_…_for_symbols``
+    # silently caps rows at ``panel_limit``. If we hit that ceiling, surface
+    # it via warning log + summary_json so operators know scale is
+    # approaching the panel fetch ceiling well before it becomes a silent
+    # correctness risk at S&P 500 scale.
+    panel_rows_fetched = len(vpanels)
+    panel_truncated = bool(panel_rows_fetched >= int(panel_limit))
+    if panel_truncated:
+        logger.warning(
+            "factor_validation: panel fetch hit limit (%d rows @ limit=%d) "
+            "for universe=%s horizon=%s — consider raising panel_limit or "
+            "narrowing universe slice before 500-ticker scale.",
+            panel_rows_fetched,
+            int(panel_limit),
+            universe_name,
+            horizon_type,
+        )
+
     accessions = sorted(
         {str(p["accession_no"]) for p in vpanels if p.get("accession_no")}
     )
@@ -93,11 +130,16 @@ def run_factor_validation_research(
 
     meta = {
         "symbol_count": len(symbols),
-        "validation_panel_rows": len(vpanels),
+        "validation_panel_rows": panel_rows_fetched,
         "factor_panel_keys": len(fp_map),
         "include_ols": include_ols,
         "apply_winsorize": apply_winsorize,
         "n_quantiles_preferred": n_quantiles,
+        # AGH v1 Patch 8 C1b — truncation flags are persisted on the run
+        # metadata so downstream review can detect silently-capped panels.
+        "panel_limit": int(panel_limit),
+        "panel_rows_fetched": panel_rows_fetched,
+        "panel_truncated_at_limit": panel_truncated,
     }
     target = len(VALIDATION_FACTORS_V1)
     run_id = factor_validation_run_insert_started(
@@ -114,6 +156,14 @@ def run_factor_validation_research(
     fail_f = 0
     errors: list[dict[str, Any]] = []
     now_iso = datetime.now(timezone.utc).isoformat()
+
+    # AGH v1 Patch 8 C1b — accumulate rows and flush once per table at end
+    # of run. Existing unique constraints (see
+    # supabase/migrations/20250406100000_phase5_factor_validation_research.sql)
+    # make these safe idempotent upserts for re-runs.
+    coverage_rows: list[dict[str, Any]] = []
+    summary_rows: list[dict[str, Any]] = []
+    quantile_rows: list[dict[str, Any]] = []
 
     def fp_for(vp: dict[str, Any]) -> Optional[dict[str, Any]]:
         k = issuer_quarter_factor_panel_join_key(
@@ -149,8 +199,7 @@ def run_factor_validation_research(
                 fp_rows_for_cov,
                 total_rows_in_slice=total_slice,
             )
-            insert_factor_coverage_report(
-                client,
+            coverage_rows.append(
                 {
                     "run_id": run_id,
                     "factor_name": spec.factor_name,
@@ -168,7 +217,7 @@ def run_factor_validation_research(
                     ],
                     "coverage_json": cov_agg["coverage_json"],
                     "created_at": now_iso,
-                },
+                }
             )
 
             for return_basis, ret_list in (
@@ -209,6 +258,11 @@ def run_factor_validation_research(
                         "signal_date; forward returns are read strictly after signal_date. "
                         "No same-day peek; no future revisions leak into this summary."
                     ),
+                    # AGH v1 Patch 8 C1b — persisted truncation flags so any
+                    # downstream consumer (bundle builder, review UI) can
+                    # see whether this run saw a capped panel slice.
+                    "panel_truncated_at_limit": panel_truncated,
+                    "panel_rows_fetched": panel_rows_fetched,
                 }
                 if include_ols and len(xs_f) >= 3:
                     zx = zscore(xs_f)
@@ -221,8 +275,7 @@ def run_factor_validation_research(
                     if ols_raw:
                         summary_json["ols_return_on_raw_factor"] = ols_raw
 
-                insert_factor_validation_summary(
-                    client,
+                summary_rows.append(
                     {
                         "run_id": run_id,
                         "factor_name": spec.factor_name,
@@ -242,7 +295,7 @@ def run_factor_validation_research(
                         "hit_rate_same_sign": hit,
                         "summary_json": summary_json,
                         "created_at": now_iso,
-                    },
+                    }
                 )
 
             # 분위: 유효 (factor, raw, excess) 동시 유한인 행만
@@ -268,8 +321,7 @@ def run_factor_validation_research(
                 for return_basis in ("raw", "excess"):
                     spread_info = bucket_descriptive_spread(buckets, return_basis=return_basis)
                     for b in buckets:
-                        insert_factor_quantile_result(
-                            client,
+                        quantile_rows.append(
                             {
                                 "run_id": run_id,
                                 "factor_name": spec.factor_name,
@@ -299,13 +351,30 @@ def run_factor_validation_research(
                                     "descriptive_spread": spread_info,
                                 },
                                 "created_at": now_iso,
-                            },
+                            }
                         )
             success_f += 1
         except Exception as ex:  # noqa: BLE001
             fail_f += 1
             errors.append({"factor": spec.factor_name, "error": str(ex)})
             logger.exception("factor validation 실패 %s", spec.factor_name)
+
+    # AGH v1 Patch 8 C1b — batch flush, one upsert per table.
+    t_flush = perf_counter()
+    coverage_written = upsert_factor_coverage_reports(client, coverage_rows)
+    summary_written = upsert_factor_validation_summaries(client, summary_rows)
+    quantile_written = upsert_factor_quantile_results(client, quantile_rows)
+    _emit_perf_log(
+        fn="research.validation_runner.flush_upserts",
+        ms=(perf_counter() - t_flush) * 1000.0,
+        extra={
+            "coverage_rows": coverage_written,
+            "summary_rows": summary_written,
+            "quantile_rows": quantile_written,
+            "universe_name": universe_name,
+            "horizon_type": horizon_type,
+        },
+    )
 
     status = "completed" if success_f > 0 else "failed"
     factor_validation_run_finalize(
@@ -315,6 +384,18 @@ def run_factor_validation_research(
         success_count=success_f,
         failure_count=fail_f,
         error_json={"errors": errors} if errors else None,
+    )
+    _emit_perf_log(
+        fn="research.validation_runner.run_factor_validation_research",
+        ms=(perf_counter() - t_total) * 1000.0,
+        extra={
+            "universe_name": universe_name,
+            "horizon_type": horizon_type,
+            "factors_ok": success_f,
+            "factors_failed": fail_f,
+            "panel_rows_fetched": panel_rows_fetched,
+            "panel_truncated_at_limit": panel_truncated,
+        },
     )
     return {
         "run_id": run_id,
@@ -326,4 +407,12 @@ def run_factor_validation_research(
         "factors_ok": success_f,
         "factors_failed": fail_f,
         "errors": errors,
+        # AGH v1 Patch 8 C1b — surface truncation + batch sizes back to the
+        # CLI caller so operator / harness tick summary can reflect real
+        # write-path state.
+        "panel_rows_fetched": panel_rows_fetched,
+        "panel_truncated_at_limit": panel_truncated,
+        "coverage_rows_written": coverage_written,
+        "summary_rows_written": summary_written,
+        "quantile_rows_written": quantile_written,
     }

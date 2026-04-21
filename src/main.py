@@ -8559,23 +8559,54 @@ def _cmd_harness_tick(args: argparse.Namespace) -> int:
     Runs cadence-based seeding for all wired layers, then drains each queue
     up to ``--max-jobs`` jobs, writing a tick summary row. With ``--dry-run``
     no packets / jobs are written.
+
+    AGH v1 Patch 8 E4 — with ``--loop`` the command runs ticks forever,
+    sleeping ``--sleep`` seconds between ticks. This is the worker
+    entry-point used by the Railway ``worker:`` Procfile process.
     """
 
     from agentic_harness.runtime import perform_tick
 
     configure_logging()
-    try:
-        summary = perform_tick(
-            use_fixture=bool(getattr(args, "use_fixture", False)),
-            max_jobs=int(getattr(args, "max_jobs", 5) or 5),
-            dry_run=bool(getattr(args, "dry_run", False)),
-        )
-    except RuntimeError as e:
-        print(json.dumps({"ok": False, "error": str(e)}, indent=2, ensure_ascii=False))
-        return 1
-    out = {"ok": True, "summary": summary}
-    print(json.dumps(out, indent=2, ensure_ascii=False, default=str))
-    return 0
+    loop = bool(getattr(args, "loop", False))
+    sleep_s = max(1, int(getattr(args, "sleep", 30) or 30))
+
+    def _one_tick() -> int:
+        try:
+            summary = perform_tick(
+                use_fixture=bool(getattr(args, "use_fixture", False)),
+                max_jobs=int(getattr(args, "max_jobs", 5) or 5),
+                dry_run=bool(getattr(args, "dry_run", False)),
+                queue_filter=(getattr(args, "queue", None) or None),
+            )
+        except RuntimeError as e:
+            print(json.dumps({"ok": False, "error": str(e)}, indent=2, ensure_ascii=False))
+            return 1
+        if isinstance(summary, dict) and summary.get("ok") is False:
+            print(json.dumps({"ok": False, **summary}, indent=2, ensure_ascii=False, default=str))
+            return 2
+        out = {"ok": True, "summary": summary}
+        print(json.dumps(out, indent=2, ensure_ascii=False, default=str), flush=True)
+        return 0
+
+    if not loop:
+        return _one_tick()
+    import time as _time
+    while True:
+        try:
+            _one_tick()
+        except KeyboardInterrupt:
+            print(json.dumps({"ok": True, "event": "harness_tick_loop_stopped"}, ensure_ascii=False), flush=True)
+            return 0
+        except Exception as exc:  # pragma: no cover — defensive
+            print(
+                json.dumps(
+                    {"ok": False, "error": "tick_loop_exception", "exc": type(exc).__name__},
+                    ensure_ascii=False,
+                ),
+                flush=True,
+            )
+        _time.sleep(sleep_s)
 
 
 def _cmd_harness_status(args: argparse.Namespace) -> int:
@@ -13286,6 +13317,33 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         dest="dry_run",
         help="Report cadence decisions and queue readiness without writing.",
+    )
+    pht.add_argument(
+        "--queue",
+        type=str,
+        default=None,
+        dest="queue",
+        help=(
+            "AGH v1 Patch 8 — drain only the named queue class (e.g. "
+            "'sandbox_queue'). Matches the cli_hint returned by the bounded "
+            "invoke API. Default: drain all queue classes."
+        ),
+    )
+    pht.add_argument(
+        "--loop",
+        action="store_true",
+        dest="loop",
+        help=(
+            "AGH v1 Patch 8 E4 — run ticks forever with --sleep between "
+            "iterations. Used by the Railway worker Procfile entry."
+        ),
+    )
+    pht.add_argument(
+        "--sleep",
+        type=int,
+        default=30,
+        dest="sleep",
+        help="Seconds to sleep between iterations when --loop is set (default 30).",
     )
     pht.set_defaults(func=_cmd_harness_tick)
 

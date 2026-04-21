@@ -101,8 +101,13 @@ def make_handler(state: CockpitRuntimeState):
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Phase 47 founder cockpit HTTP server")
-    ap.add_argument("--host", default=os.environ.get("PHASE47_HOST", "127.0.0.1"))
-    ap.add_argument("--port", type=int, default=int(os.environ.get("PHASE47_PORT", "8765")))
+    # AGH v1 Patch 8 E4 — honor Railway's $PORT convention so the same
+    # entry-point works locally (8765), in CI, and on the hosted web
+    # service. Explicit --host/--port / PHASE47_* still take priority.
+    _default_host = os.environ.get("PHASE47_HOST") or ("0.0.0.0" if os.environ.get("PORT") else "127.0.0.1")
+    _default_port = int(os.environ.get("PHASE47_PORT") or os.environ.get("PORT") or "8765")
+    ap.add_argument("--host", default=_default_host)
+    ap.add_argument("--port", type=int, default=_default_port)
     ap.add_argument(
         "--phase46-bundle",
         default=os.environ.get(

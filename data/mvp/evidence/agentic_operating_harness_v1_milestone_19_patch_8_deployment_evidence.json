@@ -1,0 +1,79 @@
+{
+  "contract": "AGH_V1_PATCH_8_DEPLOYMENT_EVIDENCE_V1",
+  "milestone": 19,
+  "patch_nature": "production_graduation_ux_ai_wow_scale_closure",
+  "not_a_demo_theater_patch": true,
+  "scope": "Scope E — hardened runtime healthcheck + Railway/Supabase deployment footprint.",
+  "workorder_reference": "docs/plan/METIS_Patch_8_Workorder_Production_Graduation_UX_AI_Wow_Scale_Closure.md#scope e",
+  "changes": {
+    "e2_healthcheck_degraded_200": {
+      "file": "src/phase51_runtime/cockpit_health_surface.py",
+      "status_vocabulary": ["ok", "degraded", "down"],
+      "status_vocabulary_const": "RUNTIME_HEALTH_STATUS_VALUES",
+      "guarded_sub_steps": [
+        "build_runtime_health_summary",
+        "try_load_brain_bundle_v0",
+        "summarize_overlays_for_runtime",
+        "build_mvp_spec_survey_v0",
+        "cockpit_health_public_text"
+      ],
+      "degradation_signals_caught": [
+        "runtime_health_summary_failed",
+        "brain_bundle_load_failed",
+        "brain_bundle_missing",
+        "brain_overlays_summary_failed",
+        "mvp_spec_survey_failed",
+        "cockpit_health_text_failed"
+      ],
+      "payload_fields": [
+        "ok",
+        "health_status",
+        "degraded_reasons",
+        "mvp_brain_gate",
+        "mvp_product_spec_survey_v0",
+        "advanced"
+      ],
+      "route_file": "src/phase47_runtime/routes.py",
+      "route_mapping": {
+        "ok": 200,
+        "degraded": 200,
+        "down": 503
+      }
+    },
+    "e3_railway_supabase_runbook": {
+      "file": "docs/ops/METIS_Railway_Supabase_Deployment_Runbook_v1.md",
+      "sections": [
+        "0. Topology",
+        "1. Prerequisites",
+        "2. Create the Railway project",
+        "3. Configure env vars",
+        "4. First deploy + smoke test (web)",
+        "5. First worker tick (worker)",
+        "6. Rollback procedure",
+        "7. Observability",
+        "8. Known limitations"
+      ]
+    },
+    "e4_procfile_railwayjson_env": {
+      "procfile": "Procfile",
+      "procfile_commands": {
+        "web": "python3 src/phase47_runtime/app.py --host 0.0.0.0 --port $PORT",
+        "worker": "python3 src/main.py harness-tick --loop --sleep 30"
+      },
+      "railway_json": "railway.json",
+      "railway_start_cmd_uses_port_env": true,
+      "railway_healthcheck_path": "/api/runtime/health",
+      "env_example_file": ".env.example",
+      "worker_cli_flags_added": [
+        "--loop",
+        "--sleep"
+      ],
+      "app_py_port_handling": "src/phase47_runtime/app.py honors $PORT (Railway default) + PHASE47_PORT (local default 8765)."
+    }
+  },
+  "smoke_test_contract": {
+    "step_1": "curl https://<domain>/api/runtime/health?lang=ko  →  200, {ok:true, health_status:ok|degraded, mvp_brain_gate.brain_bundle_tier:∈{demo,sample,production}}",
+    "step_2": "curl /api/locale?lang=ko | jq '.strings[\"home.sample.card_title\"]'  →  non-null and does not contain '(데모)' / '(demo)'",
+    "step_3": "curl /api/sandbox/requests?entry_id=<id>  →  rows carry lifecycle_state ∈ {queued, running, completed, blocked}"
+  }
+}

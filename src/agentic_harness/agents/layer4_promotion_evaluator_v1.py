@@ -1123,6 +1123,16 @@ def evaluate_validation_for_promotion(
 # ---------------------------------------------------------------------------
 
 
+_MUTATING_ACTIONS = frozenset(
+    {
+        "added_challenger",
+        "promoted",
+        "promoted_active",
+        "bundle_mutated",
+    }
+)
+
+
 def evaluate_registry_entries(
     *,
     store: HarnessStoreProtocol,
@@ -1133,20 +1143,37 @@ def evaluate_registry_entries(
     fetch_validation_summary: Optional[FetchValidationSummary] = None,
     fetch_quantiles: Optional[FetchQuantiles] = None,
     dry_run: bool = False,
+    reload_between_specs: bool = False,
 ) -> list[dict[str, Any]]:
-    """Re-load the bundle from disk between specs so cross-spec mutations
-    compose safely (adding a challenger on one call must be visible to the
-    next call).  ``specs`` is a list of dicts with keys:
+    """Evaluate every spec against a single shared bundle snapshot.
 
-    ``registry_entry_id, horizon, factor_name, universe_name, horizon_type,
-    return_basis``.
+    AGH v1 Patch 8 C2b — ``reload_between_specs`` controls the reload policy:
+
+    * ``False`` (default, Patch 8): load the bundle **once** at the start.
+      After each spec we only reload if the previous evaluation actually
+      mutated the bundle (``artifact_action`` in ``_MUTATING_ACTIONS``) so
+      subsequent specs see the fresh composed state. For a typical
+      ``no_change`` / ``already_active`` sweep across ~25 registry entries
+      this removes ~24 disk reads without changing the semantic guarantee
+      that mutations stack deterministically.
+    * ``True`` (legacy): reload every iteration (pre-Patch 8 behaviour).
+      Used by tests pinning the old contract and for explicit
+      defensive-mode runs.
+
+    ``specs`` is a list of dicts with keys ``registry_entry_id, horizon,
+    factor_name, universe_name, horizon_type, return_basis``.
     """
 
     now = str(now_iso or _now_iso())
     results: list[dict[str, Any]] = []
+    bundle_dict = load_bundle_json(bundle_path) if specs else None
+    bundle_reloads = 1 if specs else 0
+    last_mutated = False
     for spec in specs:
-        # Fresh bundle each spec so mutations stack deterministically.
-        bundle_dict = load_bundle_json(bundle_path)
+        if reload_between_specs or last_mutated:
+            bundle_dict = load_bundle_json(bundle_path)
+            bundle_reloads += 1
+            last_mutated = False
         res = evaluate_validation_for_promotion(
             store=store,
             bundle_path=bundle_path,
@@ -1165,6 +1192,16 @@ def evaluate_registry_entries(
         )
         res["spec"] = dict(spec)
         results.append(res)
+        # AGH v1 Patch 8 C2b — detect mutation so the next iteration reloads.
+        if not dry_run and str(res.get("artifact_action") or "") in _MUTATING_ACTIONS:
+            last_mutated = True
+    # Stash a single aggregate marker on the last result so runbooks /
+    # evidence scripts can verify single-reload mode without parsing stderr.
+    if results:
+        results[-1]["_bundle_reloads_total"] = bundle_reloads
+        results[-1]["_reload_policy"] = (
+            "legacy_reload_every_spec" if reload_between_specs else "single_reload_with_mutation_reload"
+        )
     return results
 
 

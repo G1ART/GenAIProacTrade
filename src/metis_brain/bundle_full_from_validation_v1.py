@@ -31,6 +31,8 @@ Real Bundle Generalization v1 extensions:
 from __future__ import annotations
 
 import json
+import sys
+from time import perf_counter
 from typing import Any, Callable
 
 from metis_brain.artifact_from_validation_v1 import (
@@ -48,6 +50,81 @@ from metis_brain.spectrum_rows_from_validation_v1 import (
 
 GateFetchFn = Callable[[Any, dict[str, Any]], dict[str, Any]]
 JoinedFetchFn = Callable[[Any, dict[str, Any]], dict[str, Any]]
+
+
+def _emit_perf_log(*, fn: str, ms: float, extra: dict[str, Any] | None = None) -> None:
+    """AGH v1 Patch 8 C2a — bundle-builder stderr perf log."""
+    try:
+        rec = {"kind": "metis_perf", "fn": fn, "ms": round(float(ms), 3)}
+        if extra:
+            rec.update(extra)
+        sys.stderr.write(json.dumps(rec, sort_keys=True) + "\n")
+    except Exception:  # pragma: no cover - defensive
+        pass
+
+
+def _resolve_shared_panels(
+    client: Any,
+    *,
+    universe_name: str,
+    limit: int,
+    cache: dict[tuple[str, int], dict[str, Any]],
+) -> dict[str, Any]:
+    """Return ``(symbols, vpanels, fp_map)`` for ``(universe_name, limit)``.
+
+    AGH v1 Patch 8 C2a — during ``build_bundle_full_from_validation_v1`` the
+    same universe / panel limit is fetched once per ``(universe, limit)`` and
+    reused across every gate spec that targets that universe. This removes
+    the Patch 7 F3 bottleneck where each factor·horizon·basis spec fetched
+    the full panel slice independently (~N× cost at 200 specs).
+
+    The cache is per builder invocation (instantiated inside
+    ``build_bundle_full_from_validation_v1``) so we never leak panel snapshots
+    across batch boundaries / runs.
+    """
+
+    key = (str(universe_name).strip(), int(limit))
+    cached = cache.get(key)
+    if cached is not None:
+        cached["cache_hit"] = True
+        return cached
+
+    from db.records import (
+        fetch_factor_market_validation_panels_for_symbols,
+        fetch_issuer_quarter_factor_panels_for_accessions,
+    )
+    from research.universe_slices import resolve_slice_symbols
+
+    t0 = perf_counter()
+    symbols = resolve_slice_symbols(client, key[0])
+    vpanels = fetch_factor_market_validation_panels_for_symbols(
+        client, symbols=symbols, limit=key[1]
+    )
+    accessions = sorted(
+        {str(p.get("accession_no")) for p in vpanels if p.get("accession_no")}
+    )
+    fp_map = fetch_issuer_quarter_factor_panels_for_accessions(
+        client, accession_nos=accessions, limit_per_batch=key[1]
+    )
+    entry = {
+        "symbols": symbols,
+        "vpanels": vpanels,
+        "fp_map": fp_map,
+        "cache_hit": False,
+    }
+    cache[key] = entry
+    _emit_perf_log(
+        fn="bundle_full_from_validation_v1._resolve_shared_panels",
+        ms=(perf_counter() - t0) * 1000.0,
+        extra={
+            "universe_name": key[0],
+            "limit": key[1],
+            "symbol_count": len(symbols),
+            "vpanel_count": len(vpanels),
+            "fp_map_size": len(fp_map),
+        },
+    )
+    return entry
 
 
 def _replace_artifact_in_bundle(
@@ -217,12 +294,41 @@ def build_bundle_full_from_validation_v1(
         - ``joined_rows`` (list)
         - ``run_id`` (str)
     """
+    _build_t0 = perf_counter()
     merged: dict[str, Any] = json.loads(json.dumps(template_bundle, default=str))
     steps: list[dict[str, Any]] = []
 
     optional_set = {str(k).strip() for k in (auto_degrade_optional_gates or [])}
     aliases = display_aliases or {}
     fallbacks = dict(horizon_fallback_labels or {})
+
+    # AGH v1 Patch 8 C2a — shared panel cache per builder invocation. If
+    # ``fetch_joined`` is our canonical DB adapter (accepts ``panel_cache``),
+    # we wrap it so all specs on the same universe share one fetch. If the
+    # caller injected a legacy fixture-style callable without that kwarg,
+    # the wrapper quietly falls back to the original semantics. The cache
+    # is in-process only and dies with this call.
+    _panel_cache: dict[tuple[str, int], dict[str, Any]] = {}
+    _panel_cache_hits = 0
+    _panel_cache_misses = 0
+    _original_fetch_joined = fetch_joined
+
+    def _cached_fetch_joined(c: Any, s: dict[str, Any]) -> dict[str, Any]:
+        nonlocal _panel_cache_hits, _panel_cache_misses
+        try:
+            before = len(_panel_cache)
+            res = _original_fetch_joined(c, s, panel_cache=_panel_cache)  # type: ignore[call-arg]
+            after = len(_panel_cache)
+            if after > before:
+                _panel_cache_misses += 1
+            else:
+                _panel_cache_hits += 1
+            return res
+        except TypeError:
+            # Legacy / test fixture fetch_joined without panel_cache kwarg.
+            return _original_fetch_joined(c, s)
+
+    fetch_joined = _cached_fetch_joined
 
     # horizon_provenance entries aggregated per bundle_horizon.
     provenance: dict[str, dict[str, Any]] = {}
@@ -584,7 +690,26 @@ def build_bundle_full_from_validation_v1(
         "errors": errs,
         "steps": steps,
         "horizon_provenance": provenance,
+        # AGH v1 Patch 8 C2a — surface panel cache metrics so the runbook /
+        # evidence JSON can quantify the before-after improvement.
+        "panel_cache": {
+            "distinct_universes": len(_panel_cache),
+            "hits": _panel_cache_hits,
+            "misses": _panel_cache_misses,
+            "spec_count": len(gate_specs),
+        },
     }
+    _emit_perf_log(
+        fn="bundle_full_from_validation_v1.build_bundle_full_from_validation_v1",
+        ms=(perf_counter() - _build_t0) * 1000.0,
+        extra={
+            "spec_count": len(gate_specs),
+            "panel_cache_hits": _panel_cache_hits,
+            "panel_cache_misses": _panel_cache_misses,
+            "distinct_universes": len(_panel_cache),
+            "integrity_ok": bool(integrity_ok),
+        },
+    )
     if not integrity_ok:
         report["aborted_reason"] = "integrity_failed"
         return None, report
@@ -593,9 +718,19 @@ def build_bundle_full_from_validation_v1(
 
 
 def fetch_joined_rows_for_factor_db(
-    client: Any, spec: dict[str, Any]
+    client: Any,
+    spec: dict[str, Any],
+    *,
+    panel_cache: dict[tuple[str, int], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """DB adapter: fetches summary_row + quantile_rows + joined_rows for one gate spec.
+
+    AGH v1 Patch 8 C2a — ``panel_cache`` is an optional, caller-owned dict
+    keyed by ``(universe_name, panel_limit)``. When provided, panel / factor
+    fetches are cached so multiple specs on the same universe reuse one fetch
+    instead of re-hitting the DB. Passing ``None`` preserves legacy
+    standalone-call semantics for any outside caller that's not the bundle
+    builder.
 
     Reuses the primitives in ``research.validation_runner``:
       * ``resolve_slice_symbols(client, universe_name)``
@@ -603,13 +738,10 @@ def fetch_joined_rows_for_factor_db(
       * ``fetch_issuer_quarter_factor_panels_for_accessions(...)``
     """
     from db.records import (
-        fetch_factor_market_validation_panels_for_symbols,
         fetch_factor_quantiles_for_run,
-        fetch_issuer_quarter_factor_panels_for_accessions,
         fetch_latest_factor_validation_summaries,
         issuer_quarter_factor_panel_join_key,
     )
-    from research.universe_slices import resolve_slice_symbols
 
     factor = str(spec.get("factor_name") or "").strip()
     universe = str(spec.get("universe_name") or "").strip()
@@ -641,14 +773,13 @@ def fetch_joined_rows_for_factor_db(
         return_basis=basis,
     ) or []
 
-    symbols = resolve_slice_symbols(client, universe)
-    vpanels = fetch_factor_market_validation_panels_for_symbols(
-        client, symbols=symbols, limit=8000
+    if panel_cache is None:
+        panel_cache = {}
+    panels = _resolve_shared_panels(
+        client, universe_name=universe, limit=8000, cache=panel_cache
     )
-    accessions = sorted({str(p.get("accession_no")) for p in vpanels if p.get("accession_no")})
-    fp_map = fetch_issuer_quarter_factor_panels_for_accessions(
-        client, accession_nos=accessions, limit_per_batch=8000
-    )
+    vpanels = panels["vpanels"]
+    fp_map = panels["fp_map"]
 
     joined: list[dict[str, Any]] = []
     for vp in vpanels:

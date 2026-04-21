@@ -1,0 +1,63 @@
+{
+  "contract": "AGH_V1_PATCH_8_SCALE_CLOSURE_EVIDENCE_V1",
+  "milestone": 19,
+  "patch_nature": "production_graduation_ux_ai_wow_scale_closure",
+  "not_a_demo_theater_patch": true,
+  "scope": "Scope C — scale closure, targeting the two top bottlenecks identified in Scale Readiness Note Patch 7 (F1 factor validation write path and F3 bundle panel fetch + evaluator reload).",
+  "workorder_reference": "docs/plan/METIS_Patch_8_Workorder_Production_Graduation_UX_AI_Wow_Scale_Closure.md#scope c",
+  "changes": {
+    "c1a_records_batch_upsert_helpers": {
+      "file": "src/db/records.py",
+      "new_functions": [
+        "upsert_factor_validation_summaries",
+        "upsert_factor_quantile_results",
+        "upsert_factor_coverage_reports"
+      ],
+      "on_conflict_constants": [
+        "_FACTOR_VALIDATION_SUMMARY_CONFLICT",
+        "_FACTOR_QUANTILE_RESULT_CONFLICT",
+        "_FACTOR_COVERAGE_REPORT_CONFLICT"
+      ],
+      "behavior": "Each helper issues a single upsert per table per factor-validation run (N+1 → 1)."
+    },
+    "c1b_runner_accumulate_then_flush": {
+      "file": "src/research/validation_runner.py",
+      "fn": "run_factor_validation_research",
+      "before": "per-row insert inside the per-factor loop (3 write calls per factor × N factors)",
+      "after": "accumulate into three in-memory buffers, then call the batch upsert helpers once per table per run",
+      "panel_truncation_visibility": {
+        "new_metadata_fields": [
+          "panel_truncated_at_limit",
+          "panel_rows_fetched"
+        ]
+      }
+    },
+    "c2a_bundle_panel_cache": {
+      "file": "src/metis_brain/bundle_full_from_validation_v1.py",
+      "cache_name": "_panel_cache",
+      "resolver_fn": "_resolve_shared_panels",
+      "scope": "per-invocation (deduplicates redundant fetch_joined calls for the same panel across horizons)"
+    },
+    "c2b_evaluator_single_reload": {
+      "file": "src/agentic_harness/agents/layer4_promotion_evaluator_v1.py",
+      "fn": "evaluate_registry_entries",
+      "new_parameter": "reload_between_specs",
+      "default_behavior": "Bundle is loaded once up front and reloaded only after a spec produced a bundle mutation."
+    },
+    "e1_harness_tick_queue_filter": {
+      "file": "src/main.py",
+      "cli_flag": "--queue",
+      "scheduler_file": "src/agentic_harness/scheduler/tick.py",
+      "runtime_file": "src/agentic_harness/runtime.py",
+      "behavior": "When provided, only the named queue class is drained this tick. Unknown queue classes produce an ok:false CLI contract error.",
+      "use_case": "Railway worker can drain only sandbox_queue on a tight cadence without retouching all queues."
+    }
+  },
+  "companion_docs": [
+    "docs/plan/METIS_Scale_Readiness_Note_Patch8_v1.md"
+  ],
+  "test_coverage": {
+    "surface_tests_file": "src/tests/test_agh_v1_patch8_production_graduation_surface.py",
+    "runner_regression": "src/tests/test_research_phase5.py::test_run_factor_validation_mock_rerun_shape (green after _MemQuery.upsert wiring)"
+  }
+}

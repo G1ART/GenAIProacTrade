@@ -78,6 +78,15 @@ class ResearchAnswerStructureV1(BaseModel):
 
     summary_bullets_ko: list[str] = Field(default_factory=list, max_length=6)
     summary_bullets_en: list[str] = Field(default_factory=list, max_length=6)
+    # AGH v1 Patch 8 A1a — ``what_changed_bullets_*`` are the distinct
+    # "what is new since last the user saw this" layer of the 4-stack
+    # research answer. Separate from ``summary_bullets_*`` (which stays
+    # as "why this matters" rationale) so the Today / Research UI can
+    # surface the two ideas side by side without re-interpreting one
+    # list.  Capped identically at 6 bullets × 280 chars so the on-screen
+    # budget stays tight.
+    what_changed_bullets_ko: list[str] = Field(default_factory=list, max_length=6)
+    what_changed_bullets_en: list[str] = Field(default_factory=list, max_length=6)
     residual_uncertainty_bullets: list[str] = Field(default_factory=list, max_length=6)
     what_to_watch_bullets: list[str] = Field(default_factory=list, max_length=6)
     evidence_cited: list[str] = Field(default_factory=list)
@@ -91,6 +100,8 @@ class ResearchAnswerStructureV1(BaseModel):
     @field_validator(
         "summary_bullets_ko",
         "summary_bullets_en",
+        "what_changed_bullets_ko",
+        "what_changed_bullets_en",
         "residual_uncertainty_bullets",
         "what_to_watch_bullets",
     )
@@ -197,6 +208,31 @@ class ResearchAnswerStructureV1(BaseModel):
                     "locale_claim_mismatch: locale_coverage='degraded' "
                     "requires both summary bullet lists to be empty"
                 )
+        # AGH v1 Patch 8 A1a — the ``what_changed_bullets_*`` lists inherit
+        # the same locale honesty: a ``ko_only`` / ``en_only`` claim that
+        # publishes the excluded side on the what_changed row is just as
+        # dishonest as doing it on the summary row, so we reject it
+        # symmetrically. ``dual`` / ``degraded`` impose no extra claim
+        # on this field — an honest ``dual`` answer is allowed to have an
+        # empty what_changed list (e.g. nothing meaningfully changed since
+        # last view) so we do not demand both locales here.
+        wc_ko_has = bool(self.what_changed_bullets_ko)
+        wc_en_has = bool(self.what_changed_bullets_en)
+        if cov == "ko_only" and wc_en_has:
+            raise ValueError(
+                "locale_claim_mismatch: locale_coverage='ko_only' requires "
+                "what_changed_bullets_en to be empty"
+            )
+        if cov == "en_only" and wc_ko_has:
+            raise ValueError(
+                "locale_claim_mismatch: locale_coverage='en_only' requires "
+                "what_changed_bullets_ko to be empty"
+            )
+        if cov == "degraded" and (wc_ko_has or wc_en_has):
+            raise ValueError(
+                "locale_claim_mismatch: locale_coverage='degraded' requires "
+                "both what_changed_bullets lists to be empty"
+            )
         return self
 
 

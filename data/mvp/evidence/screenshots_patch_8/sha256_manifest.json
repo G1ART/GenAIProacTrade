@@ -1,0 +1,48 @@
+{
+  "contract": "AGH_V1_PATCH_8_PRODUCTION_GRADUATION_SNAPSHOTS_MANIFEST_V1",
+  "generated_at_utc": "2026-04-21T07:15:35.994513+00:00",
+  "milestone": 19,
+  "patch_nature": "production_graduation_ux_ai_wow_scale_closure",
+  "snapshot_count": 7,
+  "snapshots": [
+    {
+      "bytes": 42139,
+      "path": "data/mvp/evidence/screenshots_patch_8/freeze_spa_index_patch_8.html",
+      "sha256": "807bb137d938fe6c5f970765fa9c4eb5ae8e33c18e44bcc5f71b96480ce3bdba"
+    },
+    {
+      "bytes": 11385,
+      "path": "data/mvp/evidence/screenshots_patch_8/freeze_today_object_detail_ko_patch_8.html",
+      "sha256": "2be3da9a109851b8e7da69e9d0b3663e2fcb8a22be1d14fcfc2b470e5e3cd223"
+    },
+    {
+      "bytes": 11274,
+      "path": "data/mvp/evidence/screenshots_patch_8/freeze_today_object_detail_en_patch_8.html",
+      "sha256": "c01b412e1829d1b1354308040756f50d19d1f316ce96153871523bdbfe5ee832"
+    },
+    {
+      "bytes": 1999,
+      "path": "data/mvp/evidence/screenshots_patch_8/freeze_replay_governance_lineage_sample_patch_8.html",
+      "sha256": "27541ed38d60ec463d6d08833b2513e82e4650599a836e396b6b11862d7690ac"
+    },
+    {
+      "bytes": 13623,
+      "path": "data/mvp/evidence/screenshots_patch_8/freeze_runtime_health_ko_patch_8.html",
+      "sha256": "c2e12b0596aef53a4dd9d2619f2a50fc768d0c99131ce143a67b3455c0989ada"
+    },
+    {
+      "bytes": 13594,
+      "path": "data/mvp/evidence/screenshots_patch_8/freeze_runtime_health_en_patch_8.html",
+      "sha256": "3fd62b641c99cebe896eb1063e8ee776c6f1267f0170a5f722084ea6fefb5767"
+    },
+    {
+      "bytes": 4767,
+      "path": "data/mvp/evidence/screenshots_patch_8/freeze_research_answer_structure_contract_patch_8.html",
+      "sha256": "7a263e5b29933d3eb096927dbad234bf7ba5c6a0207adde8a75d9983eda1abe8"
+    }
+  ],
+  "spa_shell_source_sha256": {
+    "app.js": "730599fc89b08f3a7ebc52b99bd9b36e477dfa57e2c6f963ab8c42bea9499425",
+    "index.html": "807bb137d938fe6c5f970765fa9c4eb5ae8e33c18e44bcc5f71b96480ce3bdba"
+  }
+}

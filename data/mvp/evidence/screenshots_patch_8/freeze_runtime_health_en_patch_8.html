@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>/api/runtime/health (EN) · Patch 8 graduation freeze</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;margin:0;padding:1.5rem;background:#0f1115;color:#e6e6e6;line-height:1.5;}
+h1{font-size:1.1rem;margin:0 0 0.6rem;color:#fff;}
+h2{font-size:0.9rem;margin:1.4rem 0 0.4rem;color:#8ab4f8;text-transform:uppercase;letter-spacing:0.08em;}
+.meta{font-size:0.8rem;color:#9aa0a6;margin-bottom:1rem;}
+pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem;overflow:auto;font-size:0.78rem;white-space:pre-wrap;word-break:break-word;}
+.note{color:#b9b9b9;font-size:0.82rem;margin-top:0.8rem;}
+</style>
+</head>
+<body>
+<h1>/api/runtime/health (EN) · Patch 8 graduation freeze</h1>
+<div class="meta">captured_at_utc=2026-04-21T07:15:35.989069+00:00 · patch=8</div>
+<div class="note">Hardened health envelope: ok=True + health_status ∈ {ok, degraded, down}, degraded_reasons[], mvp_brain_gate.brain_bundle_tier ∈ {demo, sample, production}. The UI tier chip hydrates from this payload; Railway&#x27;s healthcheckPath targets this URL.</div>
+<h2>canonical payload</h2>
+<pre>{
+  &quot;advanced&quot;: {
+    &quot;audit_tail_summary&quot;: {
+      &quot;last_entry&quot;: {
+        &quot;controls_applied&quot;: {
+          &quot;external_supplemental_count&quot;: 3,
+          &quot;timing&quot;: {
+            &quot;detail&quot;: &quot;governed_webhook&quot;,
+            &quot;profile&quot;: &quot;manual_debug&quot;,
+            &quot;reason&quot;: &quot;phase52_smoke_bypass_timing&quot;,
+            &quot;run&quot;: true
+          },
+          &quot;trigger_controls&quot;: {
+            &quot;allowed_trigger_types_config&quot;: [
+              &quot;changed_artifact_bundle&quot;,
+              &quot;operator_research_signal&quot;,
+              &quot;closeout_reopen_candidate&quot;,
+              &quot;named_source_signal&quot;,
+              &quot;manual_watchlist&quot;
+            ],
+            &quot;allowed_trigger_types_effective&quot;: [
+              &quot;changed_artifact_bundle&quot;,
+              &quot;closeout_reopen_candidate&quot;,
+              &quot;manual_watchlist&quot;,
+              &quot;named_source_signal&quot;,
+              &quot;operator_research_signal&quot;
+            ],
+            &quot;disabled_trigger_types_config&quot;: []
+          }
+        },
+        &quot;cycle_id&quot;: &quot;81395afa-235b-4598-952d-52b973a49358&quot;,
+        &quot;cycle_skipped&quot;: false,
+        &quot;jobs_created_count&quot;: 3,
+        &quot;jobs_executed_count&quot;: 3,
+        &quot;lease_acquired&quot;: true,
+        &quot;operator_override&quot;: null,
+        &quot;timestamp&quot;: &quot;2026-04-14T05:03:19.382786+00:00&quot;,
+        &quot;triggers_evaluated_count&quot;: 3,
+        &quot;why_cycle_started&quot;: &quot;phase52_governed_webhook_smoke&quot;,
+        &quot;why_cycle_stopped&quot;: &quot;phase48_completed&quot;
+      },
+      &quot;skipped_in_tail&quot;: 0,
+      &quot;tail_count&quot;: 9,
+      &quot;total_entries&quot;: 9
+    },
+    &quot;control_plane_excerpt&quot;: {
+      &quot;enabled&quot;: true,
+      &quot;maintenance_mode&quot;: false,
+      &quot;max_cycles_per_window&quot;: 120,
+      &quot;window_seconds&quot;: 3600
+    },
+    &quot;external_ingest_counts&quot;: {
+      &quot;accepted_pending&quot;: 0,
+      &quot;consumed&quot;: 0,
+      &quot;deduped&quot;: 0,
+      &quot;rejected&quot;: 0,
+      &quot;total_entries&quot;: 0
+    },
+    &quot;external_ingress_phase53&quot;: {
+      &quot;dead_letter_by_failure_stage&quot;: {},
+      &quot;dead_letter_total_entries&quot;: 0,
+      &quot;registry_path_used&quot;: &quot;/Users/hyunminkim/GenAIProacTrade/data/research_runtime/external_source_registry_v1.json&quot;,
+      &quot;replay_guard_active_entries&quot;: 0,
+      &quot;signed_ingress_configured&quot;: false,
+      &quot;sources_with_rotation_keys&quot;: 0
+    },
+    &quot;health_status&quot;: &quot;healthy&quot;,
+    &quot;last_accepted_trigger&quot;: null,
+    &quot;last_cycle_audit_excerpt&quot;: {
+      &quot;cycle_id&quot;: &quot;81395afa-235b-4598-952d-52b973a49358&quot;,
+      &quot;jobs_created&quot;: 3,
+      &quot;jobs_executed&quot;: 3,
+      &quot;skipped&quot;: false,
+      &quot;timestamp&quot;: &quot;2026-04-14T05:03:19.382786+00:00&quot;,
+      &quot;why_stopped&quot;: &quot;phase48_completed&quot;
+    },
+    &quot;last_rejected_trigger&quot;: null,
+    &quot;legacy_ingest_status&quot;: {
+      &quot;allowed&quot;: false,
+      &quot;note&quot;: &quot;Unauthenticated legacy path; disabled by default (control plane).&quot;,
+      &quot;path&quot;: &quot;POST /api/runtime/external-ingest&quot;
+    },
+    &quot;recent_skip_reasons&quot;: [],
+    &quot;schema_version&quot;: 1,
+    &quot;trigger_controls&quot;: {
+      &quot;allowed_trigger_types_config&quot;: [
+        &quot;changed_artifact_bundle&quot;,
+        &quot;operator_research_signal&quot;,
+        &quot;closeout_reopen_candidate&quot;,
+        &quot;named_source_signal&quot;,
+        &quot;manual_watchlist&quot;
+      ],
+      &quot;allowed_trigger_types_effective&quot;: [
+        &quot;changed_artifact_bundle&quot;,
+        &quot;closeout_reopen_candidate&quot;,
+        &quot;manual_watchlist&quot;,
+        &quot;named_source_signal&quot;,
+        &quot;operator_research_signal&quot;
+      ],
+      &quot;disabled_trigger_types_config&quot;: []
+    }
+  },
+  &quot;degraded_reasons&quot;: [],
+  &quot;effective_trigger_types&quot;: [
+    &quot;changed_artifact_bundle&quot;,
+    &quot;closeout_reopen_candidate&quot;,
+    &quot;manual_watchlist&quot;,
+    &quot;named_source_signal&quot;,
+    &quot;operator_research_signal&quot;
+  ],
+  &quot;headline&quot;: &quot;Runtime looks healthy.&quot;,
+  &quot;health_status&quot;: &quot;healthy&quot;,
+  &quot;lang&quot;: &quot;en&quot;,
+  &quot;mvp_brain_gate&quot;: {
+    &quot;active_artifact_by_horizon&quot;: {
+      &quot;long&quot;: {
+        &quot;active_artifact_id&quot;: &quot;art_long_demo_v0&quot;,
+        &quot;active_model_family_name&quot;: &quot;owner_earnings_growth_v0&quot;,
+        &quot;challenger_artifact_ids&quot;: [],
+        &quot;display_family_name_en&quot;: &quot;&quot;,
+        &quot;display_family_name_ko&quot;: &quot;&quot;,
+        &quot;display_id&quot;: &quot;&quot;,
+        &quot;registry_entry_id&quot;: &quot;reg_long_demo_v0&quot;
+      },
+      &quot;medium&quot;: {
+        &quot;active_artifact_id&quot;: &quot;art_medium_demo_v0&quot;,
+        &quot;active_model_family_name&quot;: &quot;quality_earnings_bridge_v0&quot;,
+        &quot;challenger_artifact_ids&quot;: [],
+        &quot;display_family_name_en&quot;: &quot;&quot;,
+        &quot;display_family_name_ko&quot;: &quot;&quot;,
+        &quot;display_id&quot;: &quot;&quot;,
+        &quot;registry_entry_id&quot;: &quot;reg_medium_demo_v0&quot;
+      },
+      &quot;medium_long&quot;: {
+        &quot;active_artifact_id&quot;: &quot;art_medium_long_demo_v0&quot;,
+        &quot;active_model_family_name&quot;: &quot;cycle_positioning_v0&quot;,
+        &quot;challenger_artifact_ids&quot;: [],
+        &quot;display_family_name_en&quot;: &quot;&quot;,
+        &quot;display_family_name_ko&quot;: &quot;&quot;,
+        &quot;display_id&quot;: &quot;&quot;,
+        &quot;registry_entry_id&quot;: &quot;reg_medium_long_demo_v0&quot;
+      },
+      &quot;short&quot;: {
+        &quot;active_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
+        &quot;active_model_family_name&quot;: &quot;shallow_value_blend_v0&quot;,
+        &quot;challenger_artifact_ids&quot;: [
+          &quot;art_short_challenger_momentum_v0&quot;
+        ],
+        &quot;display_family_name_en&quot;: &quot;&quot;,
+        &quot;display_family_name_ko&quot;: &quot;&quot;,
+        &quot;display_id&quot;: &quot;&quot;,
+        &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;
+      }
+    },
+    &quot;brain_bundle_tier&quot;: &quot;sample&quot;,
+    &quot;brain_overlays_summary&quot;: {
+      &quot;contract&quot;: &quot;METIS_BRAIN_OVERLAYS_SUMMARY_V1&quot;,
+      &quot;count_by_type&quot;: {},
+      &quot;items&quot;: [],
+      &quot;total&quot;: 0
+    },
+    &quot;bundle_as_of_utc&quot;: &quot;2026-04-01T12:00:00+00:00&quot;,
+    &quot;bundle_errors&quot;: [],
+    &quot;bundle_path&quot;: &quot;/Users/hyunminkim/GenAIProacTrade/data/mvp/metis_brain_bundle_v0.json&quot;,
+    &quot;contract&quot;: &quot;MVP_RUNTIME_BRAIN_GATE_V1&quot;,
+    &quot;horizon_provenance&quot;: {},
+    &quot;horizon_state_v1&quot;: {
+      &quot;long&quot;: &quot;insufficient_evidence&quot;,
+      &quot;medium&quot;: &quot;insufficient_evidence&quot;,
+      &quot;medium_long&quot;: &quot;insufficient_evidence&quot;,
+      &quot;short&quot;: &quot;insufficient_evidence&quot;
+    },
+    &quot;horizons_ready&quot;: {
+      &quot;long&quot;: true,
+      &quot;medium&quot;: true,
+      &quot;medium_long&quot;: true,
+      &quot;short&quot;: true
+    },
+    &quot;registry_bundle_ok&quot;: true
+  },
+  &quot;mvp_product_spec_survey_v0&quot;: {
+    &quot;all_automated_ok&quot;: true,
+    &quot;brain_bundle_errors&quot;: [],
+    &quot;brain_bundle_ok&quot;: true,
+    &quot;brain_bundle_path&quot;: &quot;/Users/hyunminkim/GenAIProacTrade/data/mvp/metis_brain_bundle_v0.json&quot;,
+    &quot;contract&quot;: &quot;METIS_MVP_SPEC_SURVEY_V0&quot;,
+    &quot;doc_ref&quot;: &quot;METIS_MVP_Unified_Product_Spec_KR_v1.md §10&quot;,
+    &quot;horizons_ready&quot;: {
+      &quot;long&quot;: true,
+      &quot;medium&quot;: true,
+      &quot;medium_long&quot;: true,
+      &quot;short&quot;: true
+    },
+    &quot;manual_or_runtime_proof&quot;: [],
+    &quot;questions&quot;: [
+      {
+        &quot;detail&quot;: &quot;METIS_TODAY_SOURCE=&#x27;registry&#x27;; bundle_valid=True&quot;,
+        &quot;id&quot;: &quot;Q1_today_registry_only&quot;,
+        &quot;ok&quot;: true,
+        &quot;spec&quot;: &quot;Today가 registry만 읽는가?&quot;
+      },
+      {
+        &quot;detail&quot;: &quot;active_horizons=[&#x27;long&#x27;, &#x27;medium&#x27;, &#x27;medium_long&#x27;, &#x27;short&#x27;]&quot;,
+        &quot;id&quot;: &quot;Q2_active_family_per_horizon&quot;,
+        &quot;ok&quot;: true,
+        &quot;spec&quot;: &quot;각 시간축에 active family가 존재하는가?&quot;
+      },
+      {
+        &quot;detail&quot;: &quot;at least one registry entry has challenger_artifact_ids&quot;,
+        &quot;id&quot;: &quot;Q3_challenger_active_distinction&quot;,
+        &quot;ok&quot;: true,
+        &quot;spec&quot;: &quot;challenger/active 구분이 존재하는가?&quot;
+      },
+      {
+        &quot;detail&quot;: &quot;each active_artifact_id resolves in bundle.artifacts&quot;,
+        &quot;id&quot;: &quot;Q4_artifact_required_for_active&quot;,
+        &quot;ok&quot;: true,
+        &quot;spec&quot;: &quot;artifact packet 없이 모델이 Today에 올라갈 수 없는가?&quot;
+      },
+      {
+        &quot;detail&quot;: &quot;/Users/hyunminkim/GenAIProacTrade/data/mvp&quot;,
+        &quot;id&quot;: &quot;Q5_message_store_path&quot;,
+        &quot;ok&quot;: true,
+        &quot;spec&quot;: &quot;message snapshot 1급 저장 경로 준비&quot;
+      },
+      {
+        &quot;detail&quot;: &quot;horizon=short;asset_id=DEMO_KR_B&quot;,
+        &quot;id&quot;: &quot;Q6_message_headline_why_now_rationale&quot;,
+        &quot;ok&quot;: true,
+        &quot;spec&quot;: &quot;spectrum row가 headline + why_now + rationale_summary 를 모두 채우는가?&quot;
+      },
+      {
+        &quot;detail&quot;: &quot;asset_id=DEMO_KR_B;horizons=[&#x27;long&#x27;, &#x27;medium&#x27;, &#x27;short&#x27;]&quot;,
+        &quot;id&quot;: &quot;Q7_same_ticker_different_horizon_position&quot;,
+        &quot;ok&quot;: true,
+        &quot;spec&quot;: &quot;동일 ticker가 horizon별로 다른 spectrum_position 을 갖는가?&quot;
+      },
+      {
+        &quot;detail&quot;: &quot;horizon=short;asset_id=DEMO_KR_A;movement=up&quot;,
+        &quot;id&quot;: &quot;Q8_rank_movement_on_mock_price_tick&quot;,
+        &quot;ok&quot;: true,
+        &quot;spec&quot;: &quot;mock_price_tick=1 실행 시 rank_movement 에 up 또는 down 이 1건 이상 등장하는가?&quot;
+      },
+      {
+        &quot;detail&quot;: &quot;horizon=short;asset_id=DEMO_KR_B&quot;,
+        &quot;id&quot;: &quot;Q9_information_and_research_layers_present&quot;,
+        &quot;ok&quot;: true,
+        &quot;spec&quot;: &quot;object 단면에 information.supporting_signals &gt;=1 + research.deeper_rationale 가 존재하는가?&quot;
+      },
+      {
+        &quot;detail&quot;: &quot;snapshot_id=msg_snap:v1:1d9c061751cb543bc6657378;registry_entry_id=reg_short_demo_v0&quot;,
+        &quot;id&quot;: &quot;Q10_replay_lineage_join_present&quot;,
+        &quot;ok&quot;: true,
+        &quot;spec&quot;: &quot;persisted snapshot에 message_snapshot_id + registry_entry_id 가 동시에 존재하는가?&quot;
+      }
+    ],
+    &quot;today_source_mode&quot;: &quot;registry&quot;
+  },
+  &quot;ok&quot;: true,
+  &quot;plain_lines&quot;: [
+    &quot;Last audit: 2026-04-14T05:03:19.382786+00:00&quot;,
+    &quot;Last cycle skipped: no&quot;,
+    &quot;External ingest: total 0 · pending 0 · consumed 0 · rejected 0 · deduped 0&quot;,
+    &quot;Signed ingress: configured=False · dead-letter 0 · guard 0&quot;,
+    &quot;Legacy unauthenticated ingest: off — use authenticated&quot;
+  ],
+  &quot;recent_skips_plain&quot;: [],
+  &quot;subtext&quot;: &quot;Audit tail and external ingest are summarized below.&quot;
+}</pre>
+
+</body>
+</html>

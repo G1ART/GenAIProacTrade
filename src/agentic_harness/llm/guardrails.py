@@ -136,6 +136,10 @@ def validate_research_structured_v1(
     for key in (
         "summary_bullets_ko",
         "summary_bullets_en",
+        # AGH v1 Patch 8 A1b — what_changed bullets pass the same
+        # forbidden-copy scan as the rest of the 4-stack.
+        "what_changed_bullets_ko",
+        "what_changed_bullets_en",
         "residual_uncertainty_bullets",
         "what_to_watch_bullets",
     ):
@@ -190,6 +194,27 @@ def validate_research_structured_v1(
     else:
         blocking.append(
             f"research_structured_v1.locale_coverage_unknown:{cov}"
+        )
+
+    # AGH v1 Patch 8 A1b — what_changed locale honesty (mirrors the
+    # contract-side model_validator so the surface packet never loses the
+    # blocked context to silent coercion).
+    wc_ko_has = bool(research_structured.get("what_changed_bullets_ko"))
+    wc_en_has = bool(research_structured.get("what_changed_bullets_en"))
+    if cov == "ko_only" and wc_en_has:
+        blocking.append(
+            "research_structured_v1.locale_claim_mismatch:"
+            "ko_only_claim_invariant_broken_on_what_changed"
+        )
+    if cov == "en_only" and wc_ko_has:
+        blocking.append(
+            "research_structured_v1.locale_claim_mismatch:"
+            "en_only_claim_invariant_broken_on_what_changed"
+        )
+    if cov == "degraded" and (wc_ko_has or wc_en_has):
+        blocking.append(
+            "research_structured_v1.locale_claim_mismatch:"
+            "degraded_claim_but_what_changed_bullets_present"
         )
 
     return blocking

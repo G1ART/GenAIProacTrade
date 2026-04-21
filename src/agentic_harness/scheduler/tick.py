@@ -108,10 +108,30 @@ def run_one_tick(
     now: Optional[datetime] = None,
     max_jobs_per_queue: int = 5,
     dry_run: bool = False,
+    queue_filter: Optional[str] = None,
 ) -> dict[str, Any]:
+    """Run one tick.
+
+    AGH v1 Patch 8 E1/B1 — ``queue_filter`` restricts queue draining to the
+    named queue class (e.g. ``"sandbox_queue"``) so the operator CLI hint
+    ``harness-tick --queue sandbox_queue`` actually corresponds to a real CLI
+    contract. ``None`` (default) preserves the legacy "drain all queues"
+    behaviour.
+    """
     t0 = perf_counter()
     now_iso = _utc_iso(now)
     summary = TickSummary(tick_at_utc=now_iso, dry_run=bool(dry_run))
+    filter_norm = (queue_filter or "").strip() or None
+    if filter_norm is not None and filter_norm not in QUEUE_CLASSES:
+        return {
+            "ok": False,
+            "error": f"unknown_queue_class:{filter_norm}",
+            "allowed_queue_classes": list(QUEUE_CLASSES),
+            "tick_at_utc": now_iso,
+        }
+    queues_to_drain = (
+        [filter_norm] if filter_norm is not None else list(QUEUE_CLASSES)
+    )
 
     # --- 1) cadence-based seeding ------------------------------------------
     for spec in layer_cadences:
@@ -142,10 +162,10 @@ def run_one_tick(
 
     # --- 2) drain queues ---------------------------------------------------
     if dry_run:
-        summary.queue_runs = {qc: {"dry_run": True} for qc in QUEUE_CLASSES}
+        summary.queue_runs = {qc: {"dry_run": True} for qc in queues_to_drain}
     else:
         worker_by_queue = {qs.queue_class: qs.worker_fn for qs in queue_specs}
-        for qc in QUEUE_CLASSES:
+        for qc in queues_to_drain:
             worker = worker_by_queue.get(qc)
             if worker is None:
                 summary.queue_runs[qc] = {"claimed": 0, "reason": "no_worker_registered"}
@@ -216,8 +236,11 @@ def run_one_tick(
                 1 for v in summary.cadence_decisions.values() if v == "ran"
             ),
             "queues": list(summary.queue_runs.keys()),
+            "queue_filter": filter_norm,
         },
     )
+    if filter_norm is not None:
+        result["queue_filter"] = filter_norm
     return result
 
 

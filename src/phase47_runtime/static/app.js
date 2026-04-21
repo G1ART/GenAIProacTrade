@@ -607,6 +607,18 @@
         showPanel(btn.getAttribute("data-jump"));
       });
     });
+    // AGH v1 Patch 8 A2 — Today hero-stack "Next step" CTA scrolls to the
+    // Research bounded_next invoke card on the same page. No state is
+    // mutated, no panel switch is forced if the card is already visible.
+    root.querySelectorAll("[data-tsr-jump-to-invoke]").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        const target = document.querySelector(".tsr-research-invoke");
+        if (target && typeof target.scrollIntoView === "function") {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      });
+    });
   }
 
   function readSpectrumTablePrefs(wrap) {
@@ -863,7 +875,7 @@
     const regHeroInner = registrySurfaceStripInnerHtml(json.registry_surface_v1 || {});
     wrap.innerHTML =
       `<div class="feed-card today-hero-card"><h3>${escapeHtml(tr("spectrum.hero_title"))}</h3>` +
-      `<p class="sub">${escapeHtml(tr("spectrum.demo_meta"))}</p>` +
+      `<p class="sub">${escapeHtml(tr("spectrum.sample_meta"))}</p>` +
       `<p class="meta">${escapeHtml(tr("spectrum.as_of"))}: ${escapeHtml(json.as_of_utc || "—")} · ${escapeHtml(tr("spectrum.model_family"))}: <span class="mono">${escapeHtml(
         json.active_model_family || ""
       )}</span></p>` +
@@ -1110,6 +1122,11 @@
 
     const sumKo = Array.isArray(rs.summary_bullets_ko) ? rs.summary_bullets_ko : [];
     const sumEn = Array.isArray(rs.summary_bullets_en) ? rs.summary_bullets_en : [];
+    // AGH v1 Patch 8 A1c — what_changed_bullets are the new first layer of
+    // the 4-stack. Prefer the requested locale, fall back to the other
+    // locale honestly (still badged via covBadge).
+    const wcKo = Array.isArray(rs.what_changed_bullets_ko) ? rs.what_changed_bullets_ko : [];
+    const wcEn = Array.isArray(rs.what_changed_bullets_en) ? rs.what_changed_bullets_en : [];
     const residual = Array.isArray(rs.residual_uncertainty_bullets)
       ? rs.residual_uncertainty_bullets
       : [];
@@ -1127,6 +1144,13 @@
       ? sumEn
       : sumKo;
     const summaryEmpty = tr("research_section.no_bullets");
+    const whatChanged = isKo
+      ? wcKo.length
+        ? wcKo
+        : wcEn
+      : wcEn.length
+      ? wcEn
+      : wcKo;
 
     // AGH v1 Patch 7 A3 — evidence chips grouped by packet kind so
     // operators scan by source-of-truth class (apply / proposal / eval /
@@ -1237,12 +1261,46 @@
         `<li data-tsr-contract-line="after_enqueue">${escapeHtml(
           tr("tsr.invoke.contract.after_enqueue")
         )}</li>` +
+        // AGH v1 Patch 8 B4 — 4th contract line + a dedicated 4-state
+        // chip slot directly under the contract. Keeping the visible
+        // state *inside* the contract block makes the promise
+        // ("after run you will see these 4 states") testable by the
+        // operator at a glance.
+        `<li data-tsr-contract-line="status_after">${escapeHtml(
+          tr("tsr.invoke.contract.status_after")
+        )}</li>` +
         `</ul>` +
+        `<div class="tsr-contract-state-slot" data-tsr-contract-state-slot="1">` +
+        `<span class="tsr-chip tsr-chip--neutral" data-tsr-contract-state-chip="1">${escapeHtml(
+          tr("research_section.invoke_state_unknown")
+        )}</span>` +
+        `</div>` +
+        `</div>`;
+      const recentSid = `tsr-recent-sbx-${Math.random().toString(36).slice(2, 9)}`;
+      // AGH v1 Patch 8 B3 — per-registry-entry recent sandbox requests
+      // (newest-first, 5 rows). Hydrated async so the first render is
+      // fast and the list refreshes on every post-invoke auto-refresh.
+      setTimeout(
+        () => hydrateRecentSandboxRequests(recentSid, rid, hz, lang),
+        0
+      );
+      const recentBlockHtml =
+        `<div class="tsr-recent-sandbox-requests" id="${recentSid}" ` +
+        `data-tsr-recent-sandbox="1" data-tsr-rid="${escapeHtml(rid)}" ` +
+        `data-tsr-hz="${escapeHtml(hz)}">` +
+        `<div class="tsr-recent-head">${escapeHtml(
+          tr("research_section.recent_requests_head")
+        )}</div>` +
+        `<div class="tsr-recent-body ev-faint" data-tsr-recent-loading="1">${escapeHtml(
+          tr("research_section.invoke_state_loading")
+        )}</div>` +
         `</div>`;
       invokeSec = (
         `<div class="tsr-research-invoke" data-tsr-rid="${escapeHtml(
           rid
-        )}" data-tsr-hz="${escapeHtml(hz)}">` +
+        )}" data-tsr-hz="${escapeHtml(hz)}" data-tsr-recent-mount="${escapeHtml(
+          recentSid
+        )}">` +
         contractCard +
         `<div class="invoke-label">${escapeHtml(
           tr("research_section.bounded_next")
@@ -1264,6 +1322,7 @@
         )}</button>` +
         `</div>` +
         `<div data-tsr-enqueue-result="1" class="invoke-inline-msg" style="margin-top:0.3rem"></div>` +
+        recentBlockHtml +
         `</div>`
       );
     }
@@ -1271,10 +1330,21 @@
     return (
       `<div class="tsr-research" data-tsr-research="1">` +
       `<h4>${escapeHtml(tr("research_section.head"))} ${covBadge}</h4>` +
+      // AGH v1 Patch 8 A1c — 4-stack stable order inside the current_read
+      // cluster: (1) what_changed new (first, may be empty), (2)
+      // why_it_matters (relabeled from "current read"), (3) evidence
+      // chips. Two additional sections under open_questions cluster
+      // (unproven / watch) + bounded_next stay as-is.
       `<div class="tsr-research-cluster" data-tsr-cluster="current_read">` +
+      `<div class="tsr-research-sec" data-tsr-sec="what_changed">` +
+      `<div class="sec-title">${escapeHtml(
+        tr("research_section.what_changed")
+      )}</div>` +
+      bulletList(whatChanged, tr("research_section.no_what_changed")) +
+      `</div>` +
       `<div class="tsr-research-sec" data-tsr-sec="current_read">` +
       `<div class="sec-title">${escapeHtml(
-        tr("research_section.current_read")
+        tr("research_section.why_it_matters")
       )}</div>` +
       bulletList(summary, summaryEmpty) +
       `</div>` +
@@ -1319,6 +1389,43 @@
     );
   }
 
+  // AGH v1 Patch 8 A5 — shared helper that derives the two "what-is-new"
+  // facts used across rail / lineage / plot tooltips:
+  //   * what_changed_one_line  — first what_changed bullet (locale-aware,
+  //     falling back to the other locale if empty) from research_structured_v1
+  //   * confidence_band        — from message.confidence_band
+  // Returns an object with pre-trimmed, ≤160-char fragments plus a
+  // ready-to-use sub suffix joined with SUB_SEP (" · ").
+  function extractTooltipContextFromTsr(j, isKo) {
+    const rsS = (j && j.research_structured_v1) || {};
+    const ko = Array.isArray(rsS.what_changed_bullets_ko)
+      ? rsS.what_changed_bullets_ko
+      : [];
+    const en = Array.isArray(rsS.what_changed_bullets_en)
+      ? rsS.what_changed_bullets_en
+      : [];
+    const primary = isKo ? (ko.length ? ko : en) : (en.length ? en : ko);
+    const whatChanged = String((primary && primary[0]) || "").trim();
+    const msg = (j && j.message) || {};
+    const confidence = String(msg.confidence_band || "").trim();
+    const parts = [];
+    if (whatChanged) {
+      const snip =
+        whatChanged.length > 160 ? whatChanged.slice(0, 157) + "…" : whatChanged;
+      parts.push(snip);
+    }
+    if (confidence) {
+      parts.push(
+        (isKo ? "신뢰도 " : "Confidence ") + confidence
+      );
+    }
+    return {
+      what_changed_one_line: whatChanged,
+      confidence_band: confidence,
+      sub_suffix: parts.join(" · "),
+    };
+  }
+
   // AGH v1 Patch 6 — Replay governance lineage compact renderer (B3).
   // Loads /api/replay/governance-lineage asynchronously and writes into
   // the placeholder container (returned by the sync renderer).
@@ -1331,8 +1438,14 @@
       return "";
     }
     const sid = `tsr-lineage-${Math.random().toString(36).slice(2, 9)}`;
-    // Queue an async fetch after render.
-    setTimeout(() => hydrateReplayGovernanceLineageCompact(sid, rid, hz, isKo), 0);
+    // AGH v1 Patch 8 A5 — extract the same "what changed" one-liner +
+    // confidence band used by the rail/primary panel, so the lineage /
+    // plot tooltips can carry that context without a second fetch.
+    const ttCtx = extractTooltipContextFromTsr(j, isKo);
+    setTimeout(
+      () => hydrateReplayGovernanceLineageCompact(sid, rid, hz, isKo, ttCtx),
+      0
+    );
     return (
       `<div id="${sid}" class="tsr-replay-lineage" data-tsr-replay-lineage="1">` +
       `<h4>${escapeHtml(
@@ -1345,7 +1458,7 @@
     );
   }
 
-  async function hydrateReplayGovernanceLineageCompact(containerId, rid, hz, isKo) {
+  async function hydrateReplayGovernanceLineageCompact(containerId, rid, hz, isKo, ttCtx) {
     const el = document.getElementById(containerId);
     if (!el) return;
     try {
@@ -1440,13 +1553,54 @@
       const doneSummaryHtml = `<div class="tsr-step-summary tsr-foot" data-tsr-step-summary="1">${escapeHtml(
         doneSummaryText
       )}</div>`;
+      // AGH v1 Patch 8 A3 — single-line "step note" describing the current
+      // frontier of the lineage (last done step, or first pending). This
+      // gives operators an instant status read without scanning the four
+      // step chips. Keeps the DOM contract stable (tsr-step-note is the
+      // new data key).
+      let currentStep = null;
+      for (let i = steps.length - 1; i >= 0; i--) {
+        if (stepClass(steps[i].outcome) === "done") {
+          currentStep = steps[i];
+          break;
+        }
+      }
+      if (!currentStep) {
+        for (let i = 0; i < steps.length; i++) {
+          if (steps[i].outcome) {
+            currentStep = steps[i];
+            break;
+          }
+        }
+      }
+      let stepNoteText;
+      if (currentStep) {
+        stepNoteText = tr("lineage.step_note.current")
+          .replace("{label}", currentStep.label)
+          .replace(
+            "{outcome}",
+            currentStep.outcome || tr("lineage.step_pending")
+          );
+      } else {
+        stepNoteText = tr("lineage.step_note.not_started");
+      }
+      const stepNoteHtml = `<div class="tsr-step-note tsr-foot" data-tsr-step-note="1">${escapeHtml(
+        stepNoteText
+      )}</div>`;
       const stepsHtml = steps
         .map((s, i) => {
           const cls = `tsr-step ${stepClass(s.outcome)}`;
           const sub = s.outcome ? s.outcome : tr("lineage.step_pending");
           const prevAt = i > 0 ? steps[i - 1].at : "";
           const deltaLabel = tsrStepDeltaLabel(prevAt, s.at, isKo ? "ko" : "en");
-          const tipSub = deltaLabel ? `${sub} · ${deltaLabel}` : sub;
+          const subBase = deltaLabel ? `${sub} · ${deltaLabel}` : sub;
+          // AGH v1 Patch 8 A5 — append the shared "what changed" / "confidence"
+          // context (same tokens used on the rail chip / plot event tooltips)
+          // so every lineage step hover carries a consistent one-glance read.
+          const tipSub =
+            ttCtx && ttCtx.sub_suffix
+              ? `${subBase} · ${ttCtx.sub_suffix}`
+              : subBase;
           const arrow =
             i < steps.length - 1
               ? `<span class="tsr-step-arrow">${
@@ -1492,12 +1646,13 @@
             isKo ? "DB 재빌드 필요" : "DB rebuild needed"
           )}</span>`
         : "";
-      const timeline = renderReplayTimelinePlotSvg(latest, followups, isKo);
+      const timeline = renderReplayTimelinePlotSvg(latest, followups, isKo, ttCtx);
       el.innerHTML =
         `<h4>${escapeHtml(isKo ? "거버넌스 계보 · Governance lineage" : "Governance lineage")}</h4>` +
         `<div class="row" style="gap:0.35rem">${chipTotal}${chipCompleted}${chipRebuild}</div>` +
         doneSummaryHtml +
         `<div class="tsr-step-indicator">${stepsHtml}</div>` +
+        stepNoteHtml +
         timeline +
         followupsHtml;
     } catch (_e) {
@@ -1518,7 +1673,7 @@
   // Each lane has a left-side label in the user's locale. Events still
   // carry tooltip label/sub via data-tsr-tt-* so the existing shared
   // tooltip wiring keeps working unchanged.
-  function renderReplayTimelinePlotSvg(latestChain, followups, isKo) {
+  function renderReplayTimelinePlotSvg(latestChain, followups, isKo, ttCtx) {
     // AGH v1 Patch 7 A5 — plot sub lines now carry **multiple** facts,
     // joined by " · " so the shared tooltip splits them into separate
     // rows (outcome / delta / from→to). This gives the hover a richer
@@ -1625,6 +1780,40 @@
         );
       })
       .join("");
+    // AGH v1 Patch 8 A3 — annotate any ≥30-day gap between consecutive
+    // chronological events. We sort by ``at`` and emit a tspan text label
+    // ("Gap · 45d") midway between the two event x-positions when the
+    // delta exceeds the 30-day threshold. Kept subtle (muted color /
+    // small font) so it narrates without overpowering the lane dots.
+    const GAP_THRESHOLD_MS = 30 * 86400 * 1000;
+    const sortedEvents = events
+      .map((e) => ({ e, t: Date.parse(e.at) }))
+      .filter((x) => !isNaN(x.t))
+      .sort((a, b) => a.t - b.t);
+    const gapAnnotationsSvg = sortedEvents
+      .map((cur, i) => {
+        if (i === 0) return "";
+        const prev = sortedEvents[i - 1];
+        const dt = cur.t - prev.t;
+        if (dt < GAP_THRESHOLD_MS) return "";
+        const midX = (xOf(prev.t) + xOf(cur.t)) / 2;
+        const yTop = laneTopPad - 2;
+        const days = Math.round(dt / 86400000);
+        const label = `${tr("lineage.gap_annotation_prefix")} · ${days}d`;
+        return (
+          `<text class="plot-gap-annotation" x="${midX}" y="${yTop}" ` +
+          `text-anchor="middle" data-tsr-tt-label="${escapeHtml(
+            tr("lineage.gap_30d_plus")
+          )}" data-tsr-tt-sub="${escapeHtml(label)}">${escapeHtml(
+            label
+          )}</text>`
+        );
+      })
+      .join("");
+    // AGH v1 Patch 8 A5 — append the shared what_changed / confidence
+    // suffix (same tokens rail + lineage use) so timeline-plot hovers
+    // stay consistent with the rest of the TSR tooltip surface.
+    const ttSuffix = ttCtx && ttCtx.sub_suffix ? ttCtx.sub_suffix : "";
     const eventsSvg = events
       .map((e) => {
         const t = Date.parse(e.at);
@@ -1633,7 +1822,12 @@
         const y = laneY(e.lane);
         const dayLabel = e.at.slice(0, 10);
         const tipLabel = `${e.label} · ${dayLabel}`;
-        const tipSub = e.sub || "";
+        const baseSub = e.sub || "";
+        const tipSub = ttSuffix
+          ? baseSub
+            ? `${baseSub} · ${ttSuffix}`
+            : ttSuffix
+          : baseSub;
         if (e.type === "governed_apply") {
           return (
             `<line class="plot-govern-apply" x1="${x}" y1="${y - 10}" x2="${x}" y2="${y + 10}" data-tsr-tt-label="${escapeHtml(
@@ -1670,6 +1864,7 @@
       legend +
       laneGuidesSvg +
       `<line class="plot-axis" x1="${plotLeft}" y1="${axisY}" x2="${plotRight}" y2="${axisY}" />` +
+      gapAnnotationsSvg +
       eventsSvg +
       axisLabels +
       `</svg>`;
@@ -1693,9 +1888,23 @@
     const row = wrap.querySelector("[data-tsr-invoke-state-row]");
     const chip = wrap.querySelector("[data-tsr-invoke-state-chip]");
     if (!row || !chip) return;
+    // AGH v1 Patch 8 B4 — mirror the 4-state into the contract card
+    // slot so the operator sees the same chip under the "what this
+    // action does" list. We set both via a helper.
+    const mirrorChip = wrap.querySelector("[data-tsr-contract-state-chip]");
+    function applyChip(cls, text) {
+      chip.className = cls;
+      chip.textContent = text;
+      if (mirrorChip) {
+        mirrorChip.className = cls;
+        mirrorChip.textContent = text;
+      }
+    }
     row.hidden = false;
-    chip.className = "tsr-chip tsr-chip--neutral";
-    chip.textContent = tr("research_section.invoke_state_loading");
+    applyChip(
+      "tsr-chip tsr-chip--neutral",
+      tr("research_section.invoke_state_loading")
+    );
     const rid = wrap.getAttribute("data-tsr-rid") || "";
     const hz = wrap.getAttribute("data-tsr-hz") || "";
     try {
@@ -1711,33 +1920,188 @@
         return String(req.packet_id || "") === String(requestPacketId);
       });
       if (!match) {
-        chip.className = "tsr-chip tsr-chip--neutral";
-        chip.textContent = tr("research_section.invoke_state_unknown");
+        applyChip(
+          "tsr-chip tsr-chip--neutral",
+          tr("research_section.invoke_state_unknown")
+        );
         return;
       }
+      // AGH v1 Patch 8 B2 — prefer the server-computed `lifecycle_state`
+      // 4-state (queued / running / completed / blocked), which now
+      // joins the sandbox_queue job row; fall back to legacy result-only
+      // inference if the field is missing (older API / fixture runs).
       const resultPkt = match.result || null;
       const resultPayload = (resultPkt && resultPkt.payload) || {};
-      const outcome = String(resultPayload.outcome || resultPayload.state || "").toLowerCase();
-      if (!resultPkt) {
-        chip.className = "tsr-chip tsr-chip--warn tsr-invoke-state-queued";
-        chip.textContent = tr("research_section.invoke_state_queued");
-      } else if (outcome === "blocked" || outcome === "dlq" || outcome === "failed") {
-        chip.className = "tsr-chip tsr-chip--degraded tsr-invoke-state-blocked";
+      const outcome = String(
+        resultPayload.outcome || resultPayload.state || ""
+      ).toLowerCase();
+      const life = String(match.lifecycle_state || "").toLowerCase();
+      const producedSuffix = (() => {
+        const refs = humanizeProducedRefs(resultPayload);
+        if (!refs) return "";
+        return ` · ${refs}`;
+      })();
+      if (life === "running") {
+        applyChip(
+          "tsr-chip tsr-chip--warn tsr-invoke-state-running",
+          tr("research_section.invoke_state_running")
+        );
+      } else if (life === "blocked" || outcome === "blocked" || outcome === "dlq" || outcome === "failed") {
         const reasons = Array.isArray(resultPayload.blocking_reasons)
           ? resultPayload.blocking_reasons
           : [];
         const reason = reasons.length ? String(reasons[0]).slice(0, 160) : "";
-        chip.textContent =
+        applyChip(
+          "tsr-chip tsr-chip--degraded tsr-invoke-state-blocked",
           tr("research_section.invoke_state_blocked") +
-          (reason ? ` — ${reason}` : "");
+            (reason ? ` — ${reason}` : "")
+        );
+      } else if (life === "completed" || resultPkt) {
+        applyChip(
+          "tsr-chip tsr-chip--info tsr-invoke-state-completed",
+          tr("research_section.invoke_state_completed") + producedSuffix
+        );
       } else {
-        chip.className = "tsr-chip tsr-chip--info tsr-invoke-state-completed";
-        chip.textContent = tr("research_section.invoke_state_completed");
+        applyChip(
+          "tsr-chip tsr-chip--warn tsr-invoke-state-queued",
+          tr("research_section.invoke_state_queued")
+        );
       }
     } catch (_e) {
-      chip.className = "tsr-chip tsr-chip--neutral";
-      chip.textContent = tr("research_section.invoke_state_unknown");
+      applyChip(
+        "tsr-chip tsr-chip--neutral",
+        tr("research_section.invoke_state_unknown")
+      );
     }
+  }
+
+  // AGH v1 Patch 8 B2 — derive a compact, locale-aware summary of the
+  // artifact-like refs a SandboxResult produced (e.g. rerun_ref,
+  // factor_validation_run_id, produced_artifact_ids). Returns an empty
+  // string if there is nothing to summarize.
+  // AGH v1 Patch 8 B3 — per-registry-entry recent sandbox requests.
+  // Pulls /api/sandbox/requests (server now joins the sandbox_queue job),
+  // renders a compact, newest-first 5-row list with 4-state chips,
+  // human-readable target_spec labels, and a <details> audit expander.
+  // Kept dumb: no auto-poll. The caller triggers re-hydration after an
+  // explicit enqueue so the operator gate is preserved.
+  async function hydrateRecentSandboxRequests(containerId, rid, hz, lang) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    const body = el.querySelector("[data-tsr-recent-loading], .tsr-recent-body");
+    if (body) body.textContent = tr("research_section.invoke_state_loading");
+    try {
+      const qs =
+        "?limit=5" +
+        (rid ? `&registry_entry_id=${encodeURIComponent(rid)}` : "") +
+        (hz ? `&horizon=${encodeURIComponent(hz)}` : "");
+      const { ok, json } = await api("/api/sandbox/requests" + qs);
+      if (!ok || !json || json.ok === false) {
+        if (body) {
+          body.className = "tsr-recent-body tsr-empty";
+          body.textContent = tr("research_section.recent_requests_empty");
+        }
+        return;
+      }
+      const items = Array.isArray(json.requests) ? json.requests : [];
+      if (!items.length) {
+        if (body) {
+          body.className = "tsr-recent-body tsr-empty";
+          body.textContent = tr("research_section.recent_requests_empty");
+        }
+        return;
+      }
+      const rows = items
+        .slice(0, 5)
+        .map((it) => {
+          const req = (it && it.request) || {};
+          const reqPayload = req.payload || {};
+          const life = String(it.lifecycle_state || "queued").toLowerCase();
+          const chipMap = {
+            queued: "tsr-chip tsr-chip--warn",
+            running: "tsr-chip tsr-chip--warn",
+            completed: "tsr-chip tsr-chip--info",
+            blocked: "tsr-chip tsr-chip--degraded",
+          };
+          const chipCls = chipMap[life] || "tsr-chip tsr-chip--neutral";
+          const chipLabelKey =
+            life === "running"
+              ? "research_section.invoke_state_running"
+              : life === "completed"
+              ? "research_section.invoke_state_completed"
+              : life === "blocked"
+              ? "research_section.invoke_state_blocked"
+              : "research_section.invoke_state_queued";
+          const ts = reqPayload.target_spec || {};
+          const fn = String(ts.factor_name || "");
+          const un = String(ts.universe_name || "");
+          const htp = String(ts.horizon_type || "");
+          const rb = String(ts.return_basis || "");
+          const targetLabel = [fn, un, htp, rb].filter(Boolean).join(" · ");
+          const when = String(req.created_at_utc || "").slice(0, 16).replace("T", " ");
+          const rationale = String(reqPayload.rationale || "").slice(0, 160);
+          const resultPayload = (it.result && it.result.payload) || {};
+          const produced = humanizeProducedRefs(resultPayload);
+          const auditJson = JSON.stringify(
+            { request: req, result: it.result || null, job: it.job || null },
+            null,
+            2
+          );
+          return (
+            `<li class="tsr-recent-row" data-tsr-life="${escapeHtml(life)}">` +
+            `<span class="${chipCls}">${escapeHtml(tr(chipLabelKey))}</span> ` +
+            `<span class="mono" style="font-size:0.74rem">${escapeHtml(when)}</span> ` +
+            (targetLabel
+              ? `<span class="meta-sub"> · ${escapeHtml(targetLabel)}</span>`
+              : "") +
+            (produced
+              ? ` <span class="ev-faint" style="font-size:0.72rem">· ${escapeHtml(produced)}</span>`
+              : "") +
+            (rationale
+              ? `<div class="meta-sub" style="margin-top:0.2rem">${escapeHtml(rationale)}</div>`
+              : "") +
+            `<details style="margin-top:0.2rem"><summary>${escapeHtml(
+              isKo ? "감사 로그" : "Audit"
+            )}</summary><pre class="raw-ids" style="white-space:pre-wrap">${escapeHtml(
+              auditJson
+            )}</pre></details>` +
+            `</li>`
+          );
+        })
+        .join("");
+      if (body) {
+        body.className = "tsr-recent-body";
+        body.innerHTML = `<ul class="tsr-recent-list">${rows}</ul>`;
+      }
+    } catch (_e) {
+      if (body) {
+        body.className = "tsr-recent-body tsr-empty";
+        body.textContent = tr("research_section.recent_requests_empty");
+      }
+    }
+  }
+
+  function humanizeProducedRefs(resultPayload) {
+    if (!resultPayload || typeof resultPayload !== "object") return "";
+    const refs = [];
+    const collect = (val) => {
+      if (!val) return;
+      if (Array.isArray(val)) {
+        val.forEach((v) => collect(v));
+      } else if (typeof val === "string" && val.trim()) {
+        refs.push(val.trim());
+      }
+    };
+    collect(resultPayload.produced_artifact_ids);
+    collect(resultPayload.produced_refs);
+    collect(resultPayload.rerun_ref);
+    collect(resultPayload.factor_validation_run_id);
+    if (!refs.length) return "";
+    return tr("research_section.produced_refs_summary").replace(
+      "{count}",
+      String(refs.length)
+    );
   }
 
   document.addEventListener("click", async (ev) => {
@@ -1834,6 +2198,25 @@
           if (wrap && rpid) {
             window.setTimeout(() => tsrInvokePollState(wrap, rpid), 1500);
           }
+          // AGH v1 Patch 8 B3 — auto-refresh the per-entry recent list
+          // exactly ONCE after a successful enqueue, so the new request
+          // shows up without the operator clicking a manual refresh.
+          // Kept to a single shot to preserve the operator gate (no
+          // background polling loop).
+          if (wrap) {
+            const recentSid = wrap.getAttribute("data-tsr-recent-mount") || "";
+            const rid2 = wrap.getAttribute("data-tsr-rid") || "";
+            const hz2 = wrap.getAttribute("data-tsr-hz") || "";
+            if (recentSid) {
+              const langAttr =
+                document.documentElement.getAttribute("data-lang") || "ko";
+              window.setTimeout(
+                () =>
+                  hydrateRecentSandboxRequests(recentSid, rid2, hz2, langAttr),
+                1500
+              );
+            }
+          }
         }
       } catch (e) {
         if (res)
@@ -1917,6 +2300,11 @@
       if (delta) subParts.push(delta);
       if (fromAid && toAid) subParts.push(`${fromAid} → ${toAid}`);
       else if (toAid) subParts.push(`→ ${toAid}`);
+      // AGH v1 Patch 8 A5 — enrich the rail tooltip sub content with
+      // the shared what_changed one-liner + confidence_band, so the hover
+      // preview gives operators "why this matters" without click-through.
+      const ttCtx = extractTooltipContextFromTsr(j, isKo);
+      if (ttCtx && ttCtx.sub_suffix) subParts.push(ttCtx.sub_suffix);
       const sub = subParts.join(" · ");
       const chipClass = needsRebuild
         ? "tsr-chip tsr-chip--warn"
@@ -1984,12 +2372,112 @@
           isKo ? "무엇이 바뀌었나" : "What changed"
         )}</div><p class="tsr-body" data-tsr-body="what_changed">${escapeHtml(whatChanged)}</p>`
       : "";
+    // AGH v1 Patch 8 A2 — hero stack (why_now / confidence / caveat / next).
+    const stackHtml = renderTodayWhyNowConfidenceCaveatNextHtml(j, lang);
     return (
       `<div class="tsr-primary">` +
       heroHeadline +
       `<div class="tsr-foot meta-sub" data-tsr-foot="primary_meta">${foot}</div>` +
       whyNowBlock +
       whatChangedBlock +
+      stackHtml +
+      `</div>`
+    );
+  }
+
+  // AGH v1 Patch 8 A2 — Today hero-stack renderer.
+  //
+  // Surfaces the 4 things a user needs to decide, directly below the hero
+  // headline, without drilling into `<details>`:
+  //   1. why_now    — from `message.why_now`
+  //   2. confidence — from `message.confidence_band`
+  //   3. caveat     — from `message.what_remains_unproven`
+  //   4. next_step  — from `sandbox_options_v1.options[0]` (bounded CTA)
+  //
+  // No autonomy copy. The "next step" is a visible CTA that scrolls to
+  // the Research bounded_next invoke card — it NEVER mutates registry
+  // state. If there is no active bounded option, we render an empty
+  // note rather than fabricating one.
+  function renderTodayWhyNowConfidenceCaveatNextHtml(j, lang) {
+    const isKo = String(lang || "ko").toLowerCase().startsWith("ko");
+    const msg = (j && j.message) || {};
+    const whyNow = String(msg.why_now || "").trim();
+    const confidenceBand = String(msg.confidence_band || "").trim();
+    const caveat = String(msg.what_remains_unproven || "").trim();
+    const so = (j && j.sandbox_options_v1) || {};
+    const soOpts = Array.isArray(so.options) ? so.options : [];
+    const firstOpt = soOpts.length ? soOpts[0] : null;
+    function row(key, headKey, body, emptyKey) {
+      const content = body
+        ? `<div class="tsr-why-now-body" data-tsr-stack-body="${escapeHtml(key)}">${escapeHtml(body)}</div>`
+        : `<div class="tsr-why-now-body ev-faint" data-tsr-stack-empty="${escapeHtml(key)}">${escapeHtml(
+            tr(emptyKey)
+          )}</div>`;
+      return (
+        `<div class="tsr-why-now-row" data-tsr-stack-row="${escapeHtml(key)}">` +
+        `<div class="tsr-why-now-head" data-tsr-stack-head="${escapeHtml(key)}">${escapeHtml(
+          tr(headKey)
+        )}</div>` +
+        content +
+        `</div>`
+      );
+    }
+    const whyNowRow = row(
+      "why_now",
+      "tsr.today.why_now.head",
+      whyNow,
+      "tsr.today.why_now.empty"
+    );
+    const confidenceRow = row(
+      "confidence",
+      "tsr.today.confidence.head",
+      confidenceBand,
+      "tsr.today.confidence.empty"
+    );
+    const caveatRow = row(
+      "caveat",
+      "tsr.today.caveat.head",
+      caveat,
+      "tsr.today.caveat.empty"
+    );
+    let nextBody = "";
+    if (firstOpt && typeof firstOpt === "object") {
+      const label = String(
+        (isKo ? firstOpt.label_ko : firstOpt.label_en) || ""
+      ).trim();
+      const ctaLabel = label
+        ? `${tr("tsr.today.next.cta_prefix")} · ${label}`
+        : tr("tsr.today.next.cta_prefix");
+      nextBody =
+        `<div class="tsr-why-now-body" data-tsr-stack-body="next_step">` +
+        `<button type="button" class="btn btn-xs" data-tsr-jump-to-invoke="1">${escapeHtml(
+          ctaLabel
+        )}</button>` +
+        `<div class="tsr-why-now-operator-note" data-tsr-stack-op-note="1">${escapeHtml(
+          tr("tsr.today.next.operator_note")
+        )}</div>` +
+        `</div>`;
+    } else {
+      nextBody = `<div class="tsr-why-now-body ev-faint" data-tsr-stack-empty="next_step">${escapeHtml(
+        tr("tsr.today.next.empty")
+      )}</div>`;
+    }
+    const nextRow =
+      `<div class="tsr-why-now-row" data-tsr-stack-row="next_step">` +
+      `<div class="tsr-why-now-head" data-tsr-stack-head="next_step">${escapeHtml(
+        tr("tsr.today.next.head")
+      )}</div>` +
+      nextBody +
+      `</div>`;
+    return (
+      `<div class="tsr-why-now-stack" data-tsr-why-now-stack="1">` +
+      `<div class="tsr-subhead" data-tsr-subhead="today_stack">${escapeHtml(
+        tr("tsr.today.stack.head")
+      )}</div>` +
+      whyNowRow +
+      confidenceRow +
+      caveatRow +
+      nextRow +
       `</div>`
     );
   }
@@ -2503,12 +2991,12 @@
       const disc = String(pk.disclaimer || "").slice(0, 360);
       parts.push(
         `<div class="feed-card" style="border-color:#3d5a80">` +
-          `<h3>${escapeHtml(tr("home.demo.pack_title"))}</h3>` +
+          `<h3>${escapeHtml(tr("home.sample.pack_title"))}</h3>` +
           `<p class="meta"><span class="mono">${escapeHtml(String(pk.pack_id || ""))}</span> · ${escapeHtml(String(pk.as_of_utc || ""))}</p>` +
-          `<p class="sub">${escapeHtml(tr("home.demo.pack_intro"))}</p>` +
-          `<div class="brief-label" style="margin-top:0.5rem">${escapeHtml(tr("home.demo.investor_route"))}</div>` +
+          `<p class="sub">${escapeHtml(tr("home.sample.pack_intro"))}</p>` +
+          `<div class="brief-label" style="margin-top:0.5rem">${escapeHtml(tr("home.sample.investor_route"))}</div>` +
           stepsHtml +
-          `<p class="meta" style="margin-top:0.5rem">${escapeHtml(tr("home.demo.price_overlay"))}: ` +
+          `<p class="meta" style="margin-top:0.5rem">${escapeHtml(tr("home.sample.price_overlay"))}: ` +
           `<span class="mono">${escapeHtml(String(pod.query_param || "mock_price_tick"))}=` +
           `${escapeHtml(String(pod.baseline_value || "0"))}</span> / ` +
           `<span class="mono">${escapeHtml(String(pod.shock_value || "1"))}</span></p>` +
@@ -3477,8 +3965,45 @@
     refreshAskContextStrip();
     refreshSandboxTodayStrip();
     refreshJournalLineageHint();
+    hydrateBundleTierChip();
     pollNotif();
     setInterval(pollNotif, 8000);
+  }
+
+  // AGH v1 Patch 8 D3 — bundle-tier badge (demo / sample / production) in
+  // the utility nav row. One-shot hydration from /api/runtime/health on
+  // startup; no background polling. The chip is hidden until the tier is
+  // known so we never flash a default label.
+  async function hydrateBundleTierChip() {
+    const el = document.getElementById("tsr-bundle-tier");
+    if (!el) return;
+    try {
+      const { ok, json } = await api(
+        "/api/runtime/health?lang=" + encodeURIComponent(cockpitLang() || "ko")
+      );
+      if (!ok || !json || json.ok === false) return;
+      const tier = String(
+        (((json || {}).mvp_brain_gate || {}).brain_bundle_tier || "")
+      ).toLowerCase();
+      if (!tier) return;
+      const key =
+        tier === "production"
+          ? "tsr.bundle_tier.production"
+          : tier === "sample"
+          ? "tsr.bundle_tier.sample"
+          : "tsr.bundle_tier.demo";
+      el.textContent = tr(key);
+      const cls =
+        tier === "production"
+          ? "tsr-chip tsr-chip--info tsr-bundle-tier-chip"
+          : tier === "sample"
+          ? "tsr-chip tsr-chip--neutral tsr-bundle-tier-chip"
+          : "tsr-chip tsr-chip--warn tsr-bundle-tier-chip";
+      el.className = cls;
+      el.setAttribute("title", tr("tsr.bundle_tier.tip"));
+      el.setAttribute("data-tier", tier);
+      el.hidden = false;
+    } catch (_e) {}
   }
 
   initCockpit();

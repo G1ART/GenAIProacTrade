@@ -1308,15 +1308,94 @@ def factor_validation_run_finalize(
 
 
 def insert_factor_validation_summary(client: Client, row: dict[str, Any]) -> None:
+    """Single-row legacy insert. Prefer ``upsert_factor_validation_summaries``
+    for batch write paths (AGH v1 Patch 8 C1a).
+    """
     client.table("factor_validation_summaries").insert(row).execute()
 
 
 def insert_factor_quantile_result(client: Client, row: dict[str, Any]) -> None:
+    """Single-row legacy insert. Prefer ``upsert_factor_quantile_results``
+    for batch write paths (AGH v1 Patch 8 C1a).
+    """
     client.table("factor_quantile_results").insert(row).execute()
 
 
 def insert_factor_coverage_report(client: Client, row: dict[str, Any]) -> None:
+    """Single-row legacy insert. Prefer ``upsert_factor_coverage_reports``
+    for batch write paths (AGH v1 Patch 8 C1a).
+    """
     client.table("factor_coverage_reports").insert(row).execute()
+
+
+# ---------------------------------------------------------------------------
+# AGH v1 Patch 8 C1a — batched upserts for factor validation write-path.
+# These use the unique indices defined in
+# ``supabase/migrations/20250406100000_phase5_factor_validation_research.sql``
+# so ``validation_runner.run_factor_validation_research`` can write one
+# network round-trip per table per run instead of N inserts per factor
+# / quantile / coverage combination. Empty payloads no-op.
+# ---------------------------------------------------------------------------
+
+
+_FACTOR_VALIDATION_SUMMARY_CONFLICT = (
+    "run_id,factor_name,horizon_type,universe_name,return_basis"
+)
+_FACTOR_QUANTILE_RESULT_CONFLICT = (
+    "run_id,factor_name,horizon_type,universe_name,quantile_index,return_basis"
+)
+_FACTOR_COVERAGE_REPORT_CONFLICT = "run_id,factor_name,universe_name"
+
+
+def upsert_factor_validation_summaries(
+    client: Client, rows: list[dict[str, Any]]
+) -> int:
+    """Batch upsert into ``factor_validation_summaries``.
+
+    Returns the number of rows sent. No-op on empty input. AGH v1 Patch 8 C1a.
+    """
+
+    payload = [r for r in (rows or []) if r]
+    if not payload:
+        return 0
+    client.table("factor_validation_summaries").upsert(
+        payload, on_conflict=_FACTOR_VALIDATION_SUMMARY_CONFLICT
+    ).execute()
+    return len(payload)
+
+
+def upsert_factor_quantile_results(
+    client: Client, rows: list[dict[str, Any]]
+) -> int:
+    """Batch upsert into ``factor_quantile_results``.
+
+    Returns the number of rows sent. No-op on empty input. AGH v1 Patch 8 C1a.
+    """
+
+    payload = [r for r in (rows or []) if r]
+    if not payload:
+        return 0
+    client.table("factor_quantile_results").upsert(
+        payload, on_conflict=_FACTOR_QUANTILE_RESULT_CONFLICT
+    ).execute()
+    return len(payload)
+
+
+def upsert_factor_coverage_reports(
+    client: Client, rows: list[dict[str, Any]]
+) -> int:
+    """Batch upsert into ``factor_coverage_reports``.
+
+    Returns the number of rows sent. No-op on empty input. AGH v1 Patch 8 C1a.
+    """
+
+    payload = [r for r in (rows or []) if r]
+    if not payload:
+        return 0
+    client.table("factor_coverage_reports").upsert(
+        payload, on_conflict=_FACTOR_COVERAGE_REPORT_CONFLICT
+    ).execute()
+    return len(payload)
 
 
 def smoke_research_tables(client: Client) -> None:

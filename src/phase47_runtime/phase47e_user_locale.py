@@ -108,7 +108,7 @@ SHELL: dict[str, dict[str, str]] = {
         "sandbox.label_pit_mode": "시점 모드",
         "sandbox.pit_snapshot": "현재 스냅샷",
         "sandbox.pit_stub": "PIT 스텁 (정직한 자리표시자)",
-        "sandbox.label_mock_tick": "데모 가격 오버레이",
+        "sandbox.label_mock_tick": "샘플 가격 오버레이",
         "sandbox.btn_run": "경계 분석 실행",
         "sandbox.result_title": "구조화 결과",
         "sandbox.scan_title": "지평별 스캔 (동일 자산)",
@@ -222,15 +222,20 @@ SHELL: dict[str, dict[str, str]] = {
         "replay.now_then.body_then": "그때: 스펙트럼에 묶인 활성 모델군「{family}」. 메시지 스냅샷 id「{snapshot_id}」는 저널·타임라인이 같은 키로 조인합니다.",
         "replay.now_then.body_now": "지금: 권위 번들 복기 프레임 — 입장 코드「{stance}」. 헤드라인 발췌: {headline}",
         "replay.now_then.disclaimer": "미래 수익·최적 타이밍을 보장하지 않습니다. outcome은 별도 평가 프레임입니다.",
-        "home.demo.pack_title": "투자자 데모 — 동결 스냅샷 팩",
-        "home.demo.pack_intro": "같은 시드·번들·스냅샷 저장소를 가리키는 매니페스트입니다. 번들 리로드와 mock_price_tick 0/1로 재현합니다.",
-        "home.demo.investor_route": "권장 데모 순서",
-        "home.demo.price_overlay": "가격 오버레이(데모)",
-        "demo.route.home_today": "홈에서 Today 스펙트럼·시간축 확인",
-        "demo.route.object_detail": "종목 상세 — 메시지 → 정보 → 연구",
-        "demo.route.journal_log": "저널에서 결정 기록(가능하면 Today 상세 직후)",
-        "demo.route.replay_timeline": "Replay 타임라인·그때/지금 프레임",
-        "demo.route.counterfactual": "반사실 검토실 — 템플릿 스텁 미리보기",
+        # AGH v1 Patch 8 A4+D1 — "demo" is being graduated to "sample" as the
+        # user-facing name for the frozen investor seed pack. The *.sample.*
+        # keys below are canonical; the *.demo.* keys are kept as aliases
+        # (see LEGACY_LOCALE_ALIASES) with a 3-month grace window so in-flight
+        # snapshots and tests do not break. New code MUST use *.sample.*.
+        "home.sample.pack_title": "투자자 샘플 — 동결 스냅샷 팩",
+        "home.sample.pack_intro": "같은 시드·번들·스냅샷 저장소를 가리키는 매니페스트입니다. 번들 리로드와 mock_price_tick 0/1로 재현합니다.",
+        "home.sample.investor_route": "권장 샘플 순서",
+        "home.sample.price_overlay": "가격 오버레이(샘플)",
+        "sample.route.home_today": "홈에서 Today 스펙트럼·시간축 확인",
+        "sample.route.object_detail": "종목 상세 — 메시지 → 정보 → 연구",
+        "sample.route.journal_log": "저널에서 결정 기록(가능하면 Today 상세 직후)",
+        "sample.route.replay_timeline": "Replay 타임라인·그때/지금 프레임",
+        "sample.route.counterfactual": "반사실 검토실 — 템플릿 스텁 미리보기",
         "advanced.filter_status": "상태",
         "advanced.filter_asset": "자산",
         "advanced.btn_refresh": "새로고침",
@@ -248,8 +253,8 @@ SHELL: dict[str, dict[str, str]] = {
         "home.jump.open_ask_ai": "Ask AI 열기",
         "home.jump.open_replay": "리플레이 전체 열기",
         "home.research.no_threads": "잡 레지스트리에 최근 행이 없습니다.",
-        "spectrum.demo_title": "Today 스펙트럼 (데모 시드)",
-        "spectrum.demo_meta": "MVP Sprint 1 스텁 — 시간축마다 다른 모델군·순위를 보여 줍니다. 투자 권유가 아닙니다.",
+        "spectrum.sample_title": "Today 스펙트럼 (샘플 시드)",
+        "spectrum.sample_meta": "MVP Sprint 1 스텁 — 시간축마다 다른 모델군·순위를 보여 줍니다. 투자 권유가 아닙니다.",
         "spectrum.as_of": "기준 시각",
         "spectrum.model_family": "활성 모델군",
         "spectrum.col_asset": "종목",
@@ -284,7 +289,7 @@ SHELL: dict[str, dict[str, str]] = {
         "spectrum.h_medium_long": "중장기",
         "spectrum.h_long": "장기",
         "spectrum.horizon_picker": "시간축",
-        "spectrum.mock_tick_note": "데모: 가격 충격을 0–1 스펙트럼 축 반전으로 모사했습니다(실시간 시세 아님).",
+        "spectrum.mock_tick_note": "샘플: 가격 충격을 0–1 스펙트럼 축 반전으로 모사했습니다(실시간 시세 아님).",
         "spectrum.mock_mode": "가격 오버레이(모형)",
         "spectrum.mock_base": "기본 시드",
         "spectrum.mock_shock": "모의 충격(축 반전)",
@@ -370,8 +375,24 @@ SHELL: dict[str, dict[str, str]] = {
         "tsr.recent.apply": "적용",
         "tsr.audit.head": "감사 · 원본 식별자",
         "tsr.audit.note": "아래 값은 개발/감사용 원본 식별자입니다.",
+        # AGH v1 Patch 8 A2 — Today hero-stack (why_now / confidence /
+        # caveat / next) rendered directly below the one-line headline so
+        # the four things a user needs to act show up without a drill-in.
+        "tsr.today.stack.head": "오늘의 요지 · Today at a glance",
+        "tsr.today.why_now.head": "지금 보는 이유 · Why now",
+        "tsr.today.why_now.empty": "오늘은 특별히 주목할 이유가 잡히지 않았어요.",
+        "tsr.today.confidence.head": "확신 구간 · Confidence band",
+        "tsr.today.confidence.empty": "확신 구간이 아직 계산되지 않았습니다.",
+        "tsr.today.caveat.head": "미증명 · Caveat",
+        "tsr.today.caveat.empty": "지금 플래그된 미증명 항목은 없어요.",
+        "tsr.today.next.head": "다음 한 걸음 · Next step",
+        "tsr.today.next.empty": "이 종목에 연결된 바운드 액션이 아직 없습니다.",
+        "tsr.today.next.cta_prefix": "샌드박스 재검증",
+        "tsr.today.next.operator_note": "이 버튼은 요청만 큐잉합니다. 활성 상태는 operator가 harness-decide approve 로 승인해야 바뀝니다.",
         "research_section.head": "연구 해석 · Research read",
-        "research_section.current_read": "현재 해석 · Current read",
+        "research_section.what_changed": "이번에 바뀐 것 · What changed",
+        "research_section.why_it_matters": "왜 중요한가 · Why it matters",
+        "research_section.current_read": "왜 중요한가 · Why it matters",
         "research_section.why_plausible": "해석 근거 · Why plausible",
         "research_section.unproven": "아직 미증명 · What remains unproven",
         "research_section.watch": "계속 볼 것 · What to watch",
@@ -379,6 +400,7 @@ SHELL: dict[str, dict[str, str]] = {
         "research_section.empty_head": "해당 종목 · 수평선에 연결된 질의 없음",
         "research_section.empty_body": "Ask AI에서 질의하면 이 영역에 구조화된 해석이 표시됩니다.",
         "research_section.no_bullets": "요약 없음",
+        "research_section.no_what_changed": "직전 조회 대비 의미 있는 변화 없음",
         "research_section.no_evidence": "인용 증거 없음",
         "research_section.no_unproven": "미증명 항목 없음",
         "research_section.no_watch": "관찰 항목 없음",
@@ -394,10 +416,20 @@ SHELL: dict[str, dict[str, str]] = {
         "research_section.invoke_enqueue_btn": "UI로 대기열 추가 (운영자 게이트)",
         "research_section.invoke_queue_poll": "큐 상태 새로고침",
         "research_section.invoke_state_queued": "큐에 적재됨 — 운영자가 harness-tick 실행 대기",
+        "research_section.invoke_state_running": "샌드박스 실행 중 — harness-tick이 집어감",
         "research_section.invoke_state_completed": "샌드박스 실행 완료",
         "research_section.invoke_state_blocked": "차단됨",
         "research_section.invoke_state_unknown": "상태 확인 불가",
         "research_section.invoke_state_loading": "상태 확인 중…",
+        "research_section.produced_refs_summary": "생성된 결과 참조 {count}건",
+        # AGH v1 Patch 8 B3 — per-registry-entry recent sandbox requests (최근 5건)
+        "research_section.recent_requests_head": "이 엔트리의 최근 샌드박스 요청",
+        "research_section.recent_requests_empty": "최근 요청 없음",
+        # AGH v1 Patch 8 D3 — 3-tier 브레인 번들 배지 (utility 행)
+        "tsr.bundle_tier.tip": "브레인 번들 등급 (demo=내장 대체, sample=투자자 시드, production=R-브랜치 라이브 빌드)",
+        "tsr.bundle_tier.demo": "번들: 데모",
+        "tsr.bundle_tier.sample": "번들: 샘플",
+        "tsr.bundle_tier.production": "번들: 프로덕션",
         "research_section.invoke_error_disabled": "UI 대기열 추가가 비활성화되어 있습니다. 운영자가 터미널에서 복사한 명령을 실행해야 합니다.",
         "research_section.invoke_error_validation": "요청 내용이 검증을 통과하지 못했습니다.",
         "research_section.invoke_error_server": "서버에서 요청을 처리하지 못했습니다.",
@@ -408,6 +440,8 @@ SHELL: dict[str, dict[str, str]] = {
         "tsr.invoke.contract.will_do": "수행: 샌드박스 큐에 bounded validation_rerun 요청 1건을 적재합니다.",
         "tsr.invoke.contract.will_not_do": "수행하지 않음: 활성 레지스트리 변경·아티팩트 승격·Today 화면 갱신은 하지 않습니다.",
         "tsr.invoke.contract.after_enqueue": "적재 후: 운영자가 터미널에서 `harness-tick --queue sandbox_queue` 를 실행해야 샌드박스 워커가 돌아갑니다.",
+        # AGH v1 Patch 8 B4 — contract card 4번째 줄: 실행 후 관찰 가능한 상태
+        "tsr.invoke.contract.status_after": "실행 후: 아래 4-state 칩(queued / running / completed / blocked)이 실시간 상태를 보여 줍니다.",
         "tsr.nav.primary.aria": "주요 작업",
         "tsr.nav.utility.aria": "보조 작업",
         "tsr.nav.utility.note": "감사·원본 데이터·번들 재로드",
@@ -436,8 +470,13 @@ SHELL: dict[str, dict[str, str]] = {
         "lineage.step_count": "4단계 중 {done}단계 완료",
         "lineage.step_after": "이전 대비 +{delta}",
         "lineage.step_pending": "대기",
+        # AGH v1 Patch 8 A3 — lineage step note (현재 어느 단계에 머물러 있는지 1줄) + 30일+ gap 표시
+        "lineage.step_note.current": "현재: {label} · {outcome}",
+        "lineage.step_note.not_started": "아직 시작되지 않은 계보",
+        "lineage.gap_30d_plus": "30일 이상 공백",
+        "lineage.gap_annotation_prefix": "공백",
         "home.spectrum.card_title": "Today 스펙트럼 — 상위 메시지",
-        "home.spectrum.card_meta": "단기 렌즈 기준 상위 2건. 전체 보드는 아래 데모 표에서 시간축을 바꿔 확인하세요.",
+        "home.spectrum.card_meta": "단기 렌즈 기준 상위 2건. 전체 보드는 아래 샘플 표에서 시간축을 바꿔 확인하세요.",
     },
     "en": {
         "shell.title": "Investment operating cockpit",
@@ -476,7 +515,7 @@ SHELL: dict[str, dict[str, str]] = {
         "sandbox.label_pit_mode": "Time mode",
         "sandbox.pit_snapshot": "Current snapshot",
         "sandbox.pit_stub": "PIT stub (honest placeholder)",
-        "sandbox.label_mock_tick": "Demo price overlay",
+        "sandbox.label_mock_tick": "Sample price overlay",
         "sandbox.btn_run": "Run bounded analysis",
         "sandbox.result_title": "Structured result",
         "sandbox.scan_title": "Per-horizon scan (same asset)",
@@ -590,15 +629,15 @@ SHELL: dict[str, dict[str, str]] = {
         "replay.now_then.body_then": "Then: active model family on the spectrum row is “{family}”. Message snapshot id “{snapshot_id}” is the same key joined from Journal and timeline.",
         "replay.now_then.body_now": "Now: authoritative bundle review frame — stance code “{stance}”. Headline excerpt: {headline}",
         "replay.now_then.disclaimer": "Does not guarantee future returns or optimal timing; outcome is a separate evaluation frame.",
-        "home.demo.pack_title": "Investor demo — frozen snapshot pack",
-        "home.demo.pack_intro": "Manifest pointing at the same seed, bundle, and snapshot store. Reload bundle and use mock_price_tick 0/1 to reproduce.",
-        "home.demo.investor_route": "Suggested demo order",
-        "home.demo.price_overlay": "Price overlay (demo)",
-        "demo.route.home_today": "Home — confirm Today spectrum and horizon",
-        "demo.route.object_detail": "Object detail — message → information → research",
-        "demo.route.journal_log": "Journal — log a decision (ideally right after Today detail)",
-        "demo.route.replay_timeline": "Replay timeline — then / now framing",
-        "demo.route.counterfactual": "Counterfactual lab — template stub preview",
+        "home.sample.pack_title": "Investor sample — frozen snapshot pack",
+        "home.sample.pack_intro": "Manifest pointing at the same seed, bundle, and snapshot store. Reload bundle and use mock_price_tick 0/1 to reproduce.",
+        "home.sample.investor_route": "Suggested sample order",
+        "home.sample.price_overlay": "Price overlay (sample)",
+        "sample.route.home_today": "Home — confirm Today spectrum and horizon",
+        "sample.route.object_detail": "Object detail — message → information → research",
+        "sample.route.journal_log": "Journal — log a decision (ideally right after Today detail)",
+        "sample.route.replay_timeline": "Replay timeline — then / now framing",
+        "sample.route.counterfactual": "Counterfactual lab — template stub preview",
         "advanced.filter_status": "Status",
         "advanced.filter_asset": "Asset",
         "advanced.btn_refresh": "Refresh",
@@ -616,8 +655,8 @@ SHELL: dict[str, dict[str, str]] = {
         "home.jump.open_ask_ai": "Open Ask AI",
         "home.jump.open_replay": "Open full Replay",
         "home.research.no_threads": "No recent thread rows in the job registry.",
-        "spectrum.demo_title": "Today spectrum (demo seed)",
-        "spectrum.demo_meta": "MVP Sprint 1 stub — different model families per horizon (not investment advice).",
+        "spectrum.sample_title": "Today spectrum (sample seed)",
+        "spectrum.sample_meta": "MVP Sprint 1 stub — different model families per horizon (not investment advice).",
         "spectrum.as_of": "As of",
         "spectrum.model_family": "Active model family",
         "spectrum.col_asset": "Asset",
@@ -652,7 +691,7 @@ SHELL: dict[str, dict[str, str]] = {
         "spectrum.h_medium_long": "Medium-long",
         "spectrum.h_long": "Long-term",
         "spectrum.horizon_picker": "Horizon",
-        "spectrum.mock_tick_note": "Demo: price shock simulated by inverting the 0–1 spectrum axis (not live quotes).",
+        "spectrum.mock_tick_note": "Sample: price shock simulated by inverting the 0–1 spectrum axis (not live quotes).",
         "spectrum.mock_mode": "Price overlay (mock)",
         "spectrum.mock_base": "Base seed",
         "spectrum.mock_shock": "Mock shock (axis invert)",
@@ -703,7 +742,7 @@ SHELL: dict[str, dict[str, str]] = {
         "today_detail.tension_prefix": "Valuation tension",
         "today_detail.fallback_opposing": "Short-horizon noise and liquidity events always remain.",
         "today_detail.fallback_evidence": "When the seed has no information_layer: showing spectrum row summary only.",
-        "today_detail.fallback_data_note": "This build uses snapshot / demo data.",
+        "today_detail.fallback_data_note": "This build uses snapshot / sample data.",
         "today_detail.fallback_deeper": "Extend seed research_layer for richer narrative.",
         "today_detail.model_stub_prefix": "Model context (stub):",
         "today_detail.prefill_ranked_here": "Why is this asset placed here on this horizon?",
@@ -739,7 +778,20 @@ SHELL: dict[str, dict[str, str]] = {
         "tsr.audit.head": "Audit · raw identifiers",
         "tsr.audit.note": "Values below are raw engineering identifiers for audit.",
         "research_section.head": "Research read",
-        "research_section.current_read": "Current read",
+        "tsr.today.stack.head": "Today at a glance",
+        "tsr.today.why_now.head": "Why now",
+        "tsr.today.why_now.empty": "Nothing specifically pulled this into view today.",
+        "tsr.today.confidence.head": "Confidence band",
+        "tsr.today.confidence.empty": "Confidence band not computed for this view.",
+        "tsr.today.caveat.head": "Caveat",
+        "tsr.today.caveat.empty": "No unproven items flagged right now.",
+        "tsr.today.next.head": "Next step",
+        "tsr.today.next.empty": "No bounded next step is wired to this asset yet.",
+        "tsr.today.next.cta_prefix": "Sandbox rerun",
+        "tsr.today.next.operator_note": "This button only queues the request. Active state does not move until an operator runs harness-decide approve.",
+        "research_section.what_changed": "What changed",
+        "research_section.why_it_matters": "Why it matters",
+        "research_section.current_read": "Why it matters",
         "research_section.why_plausible": "Why plausible",
         "research_section.unproven": "What remains unproven",
         "research_section.watch": "What to watch",
@@ -747,6 +799,7 @@ SHELL: dict[str, dict[str, str]] = {
         "research_section.empty_head": "No structured research attached to this asset & horizon",
         "research_section.empty_body": "Ask a question in Ask AI; a structured read will land here.",
         "research_section.no_bullets": "No summary available",
+        "research_section.no_what_changed": "Nothing materially new since last view",
         "research_section.no_evidence": "No cited evidence",
         "research_section.no_unproven": "Nothing flagged unproven",
         "research_section.no_watch": "Nothing flagged to watch",
@@ -762,10 +815,18 @@ SHELL: dict[str, dict[str, str]] = {
         "research_section.invoke_enqueue_btn": "Enqueue via UI (operator-gated)",
         "research_section.invoke_queue_poll": "Refresh queue state",
         "research_section.invoke_state_queued": "Queued — waiting for operator to run harness-tick",
+        "research_section.invoke_state_running": "Running — harness-tick picked it up",
         "research_section.invoke_state_completed": "Sandbox run completed",
         "research_section.invoke_state_blocked": "Blocked",
         "research_section.invoke_state_unknown": "State unavailable",
         "research_section.invoke_state_loading": "Checking state…",
+        "research_section.produced_refs_summary": "Produced {count} result ref(s)",
+        "research_section.recent_requests_head": "Recent sandbox requests for this entry",
+        "research_section.recent_requests_empty": "No recent requests",
+        "tsr.bundle_tier.tip": "Brain bundle tier (demo = built-in fallback, sample = investor seed, production = R-branch live build)",
+        "tsr.bundle_tier.demo": "Bundle: demo",
+        "tsr.bundle_tier.sample": "Bundle: sample",
+        "tsr.bundle_tier.production": "Bundle: production",
         "research_section.invoke_error_disabled": "UI enqueue is disabled; the operator must run the copied terminal command instead.",
         "research_section.invoke_error_validation": "Request did not pass validation.",
         "research_section.invoke_error_server": "The server could not process this request.",
@@ -776,6 +837,7 @@ SHELL: dict[str, dict[str, str]] = {
         "tsr.invoke.contract.will_do": "Will do: Enqueue one bounded validation_rerun request onto the sandbox queue.",
         "tsr.invoke.contract.will_not_do": "Will NOT do: Does not modify the active registry, promote artifacts, or refresh Today.",
         "tsr.invoke.contract.after_enqueue": "After enqueue: Operator must run `harness-tick --queue sandbox_queue` for the worker to execute.",
+        "tsr.invoke.contract.status_after": "After run: the 4-state chip below (queued / running / completed / blocked) reflects the live state.",
         "tsr.nav.primary.aria": "Primary actions",
         "tsr.nav.utility.aria": "Utility actions",
         "tsr.nav.utility.note": "Audit, raw data, bundle reload",
@@ -804,8 +866,12 @@ SHELL: dict[str, dict[str, str]] = {
         "lineage.step_count": "{done} of 4 steps complete",
         "lineage.step_after": "+{delta} after previous",
         "lineage.step_pending": "pending",
+        "lineage.step_note.current": "At step: {label} · {outcome}",
+        "lineage.step_note.not_started": "Lineage not started yet",
+        "lineage.gap_30d_plus": "30+ day gap",
+        "lineage.gap_annotation_prefix": "Gap",
         "home.spectrum.card_title": "Today spectrum — top messages",
-        "home.spectrum.card_meta": "Short lens, top two rows. Use the demo table below to change horizon.",
+        "home.spectrum.card_meta": "Short lens, top two rows. Use the sample table below to change horizon.",
     },
 }
 
@@ -1044,19 +1110,41 @@ def normalize_lang(lang: str | None) -> str:
     return lg if lg in SUPPORTED_LANGS else "ko"
 
 
+# AGH v1 Patch 8 A4+D1 — legacy "demo" → canonical "sample" alias table.
+# We renamed the user-facing bucket from "demo" to "sample" so the copy does
+# not imply a throwaway preview when the underlying bundle is frozen seed data.
+# Any caller still passing a legacy *.demo.* / demo.route.* key will be
+# transparently routed to the *.sample.* key for a 3-month grace window, at
+# which point this table (and this comment) should be deleted.
+LEGACY_LOCALE_ALIASES: dict[str, str] = {
+    "home.demo.pack_title": "home.sample.pack_title",
+    "home.demo.pack_intro": "home.sample.pack_intro",
+    "home.demo.investor_route": "home.sample.investor_route",
+    "home.demo.price_overlay": "home.sample.price_overlay",
+    "demo.route.home_today": "sample.route.home_today",
+    "demo.route.object_detail": "sample.route.object_detail",
+    "demo.route.journal_log": "sample.route.journal_log",
+    "demo.route.replay_timeline": "sample.route.replay_timeline",
+    "demo.route.counterfactual": "sample.route.counterfactual",
+    "spectrum.demo_title": "spectrum.sample_title",
+    "spectrum.demo_meta": "spectrum.sample_meta",
+}
+
+
 def t(lang: str | None, key: str) -> str:
     lg = normalize_lang(lang)
+    canonical = LEGACY_LOCALE_ALIASES.get(key, key)
     return (
-        SHELL.get(lg, {}).get(key)
-        or HOME_FEED.get(lg, {}).get(key)
-        or SECTION_PAYLOAD.get(lg, {}).get(key)
-        or SHELL["en"].get(key)
-        or HOME_FEED["en"].get(key)
-        or SECTION_PAYLOAD["en"].get(key)
-        or SHELL["ko"].get(key)
-        or HOME_FEED["ko"].get(key)
-        or SECTION_PAYLOAD["ko"].get(key)
-        or key
+        SHELL.get(lg, {}).get(canonical)
+        or HOME_FEED.get(lg, {}).get(canonical)
+        or SECTION_PAYLOAD.get(lg, {}).get(canonical)
+        or SHELL["en"].get(canonical)
+        or HOME_FEED["en"].get(canonical)
+        or SECTION_PAYLOAD["en"].get(canonical)
+        or SHELL["ko"].get(canonical)
+        or HOME_FEED["ko"].get(canonical)
+        or SECTION_PAYLOAD["ko"].get(canonical)
+        or canonical
     )
 
 

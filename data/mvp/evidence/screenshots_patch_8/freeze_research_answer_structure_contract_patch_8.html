@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>ResearchAnswerStructureV1 JSON schema · Patch 8 graduation freeze</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;margin:0;padding:1.5rem;background:#0f1115;color:#e6e6e6;line-height:1.5;}
+h1{font-size:1.1rem;margin:0 0 0.6rem;color:#fff;}
+h2{font-size:0.9rem;margin:1.4rem 0 0.4rem;color:#8ab4f8;text-transform:uppercase;letter-spacing:0.08em;}
+.meta{font-size:0.8rem;color:#9aa0a6;margin-bottom:1rem;}
+pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem;overflow:auto;font-size:0.78rem;white-space:pre-wrap;word-break:break-word;}
+.note{color:#b9b9b9;font-size:0.82rem;margin-top:0.8rem;}
+</style>
+</head>
+<body>
+<h1>ResearchAnswerStructureV1 JSON schema · Patch 8 graduation freeze</h1>
+<div class="meta">captured_at_utc=2026-04-21T07:15:35.994293+00:00 · patch=8</div>
+<div class="note">Pydantic JSON schema for the LLM research response contract. Patch 8 adds ``what_changed_bullets_ko`` / ``what_changed_bullets_en`` with max_length + locale consistency validators and an orchestrator prompt + guardrail pair that refuse responses missing this field.</div>
+<h2>canonical payload</h2>
+<pre>{
+  &quot;description&quot;: &quot;AGH v1 Patch 5 - structured research answer extension.\n\nAttached to ``LLMResponseContractV1.research_structured_v1`` when the\nrouted intent is one of ``RESEARCH_STRUCTURED_KINDS``. The extension\ncarries bounded bullet lists + a single optional\n``proposed_sandbox_request`` so Layer 5 can surface a \&quot;file a sandbox\nrerun\&quot; CTA without ever emitting a raw registry mutation.\n\nStrict invariants (enforced by validators):\n  * ``evidence_cited`` is a subset of the enclosing contract&#x27;s\n    ``cited_packet_ids`` (the enclosing contract cross-checks; this\n    class only shape-validates its own keys).\n  * ``proposed_sandbox_request.sandbox_kind`` must be in\n    ``SANDBOX_KINDS``.\n  * ``proposed_sandbox_request.target_spec`` must contain the\n    Patch 5 required fields for ``validation_rerun``.&quot;,
+  &quot;properties&quot;: {
+    &quot;evidence_cited&quot;: {
+      &quot;items&quot;: {
+        &quot;type&quot;: &quot;string&quot;
+      },
+      &quot;title&quot;: &quot;Evidence Cited&quot;,
+      &quot;type&quot;: &quot;array&quot;
+    },
+    &quot;locale_coverage&quot;: {
+      &quot;default&quot;: &quot;dual&quot;,
+      &quot;enum&quot;: [
+        &quot;dual&quot;,
+        &quot;ko_only&quot;,
+        &quot;en_only&quot;,
+        &quot;degraded&quot;
+      ],
+      &quot;title&quot;: &quot;Locale Coverage&quot;,
+      &quot;type&quot;: &quot;string&quot;
+    },
+    &quot;proposed_sandbox_request&quot;: {
+      &quot;anyOf&quot;: [
+        {
+          &quot;additionalProperties&quot;: true,
+          &quot;type&quot;: &quot;object&quot;
+        },
+        {
+          &quot;type&quot;: &quot;null&quot;
+        }
+      ],
+      &quot;default&quot;: null,
+      &quot;title&quot;: &quot;Proposed Sandbox Request&quot;
+    },
+    &quot;residual_uncertainty_bullets&quot;: {
+      &quot;items&quot;: {
+        &quot;type&quot;: &quot;string&quot;
+      },
+      &quot;maxItems&quot;: 6,
+      &quot;title&quot;: &quot;Residual Uncertainty Bullets&quot;,
+      &quot;type&quot;: &quot;array&quot;
+    },
+    &quot;summary_bullets_en&quot;: {
+      &quot;items&quot;: {
+        &quot;type&quot;: &quot;string&quot;
+      },
+      &quot;maxItems&quot;: 6,
+      &quot;title&quot;: &quot;Summary Bullets En&quot;,
+      &quot;type&quot;: &quot;array&quot;
+    },
+    &quot;summary_bullets_ko&quot;: {
+      &quot;items&quot;: {
+        &quot;type&quot;: &quot;string&quot;
+      },
+      &quot;maxItems&quot;: 6,
+      &quot;title&quot;: &quot;Summary Bullets Ko&quot;,
+      &quot;type&quot;: &quot;array&quot;
+    },
+    &quot;what_changed_bullets_en&quot;: {
+      &quot;items&quot;: {
+        &quot;type&quot;: &quot;string&quot;
+      },
+      &quot;maxItems&quot;: 6,
+      &quot;title&quot;: &quot;What Changed Bullets En&quot;,
+      &quot;type&quot;: &quot;array&quot;
+    },
+    &quot;what_changed_bullets_ko&quot;: {
+      &quot;items&quot;: {
+        &quot;type&quot;: &quot;string&quot;
+      },
+      &quot;maxItems&quot;: 6,
+      &quot;title&quot;: &quot;What Changed Bullets Ko&quot;,
+      &quot;type&quot;: &quot;array&quot;
+    },
+    &quot;what_to_watch_bullets&quot;: {
+      &quot;items&quot;: {
+        &quot;type&quot;: &quot;string&quot;
+      },
+      &quot;maxItems&quot;: 6,
+      &quot;title&quot;: &quot;What To Watch Bullets&quot;,
+      &quot;type&quot;: &quot;array&quot;
+    }
+  },
+  &quot;title&quot;: &quot;ResearchAnswerStructureV1&quot;,
+  &quot;type&quot;: &quot;object&quot;
+}</pre>
+
+</body>
+</html>

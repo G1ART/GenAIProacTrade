@@ -403,7 +403,14 @@ def perform_tick(
     max_jobs: int = 5,
     dry_run: bool = False,
     store: Optional[HarnessStoreProtocol] = None,
+    queue_filter: Optional[str] = None,
 ) -> dict[str, Any]:
+    """Run one harness tick.
+
+    AGH v1 Patch 8 E1/B1 — ``queue_filter`` limits queue drain to a single
+    queue class, matching the ``cli_hint`` returned by
+    ``api_sandbox_enqueue_v1`` (``harness-tick --queue sandbox_queue``).
+    """
     s = store if store is not None else build_store(use_fixture=use_fixture)
     _maybe_bootstrap_layer1_production(s, use_fixture=use_fixture)
     _maybe_bootstrap_layer1_live_fetch(s, use_fixture=use_fixture)
@@ -415,6 +422,7 @@ def perform_tick(
         queue_specs=build_queue_specs(),
         max_jobs_per_queue=max_jobs,
         dry_run=dry_run,
+        queue_filter=queue_filter,
     )
 
 

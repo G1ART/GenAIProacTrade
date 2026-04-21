@@ -1,0 +1,53 @@
+{
+  "contract": "AGH_V1_PATCH_8_BUNDLE_GRADUATION_EVIDENCE_V1",
+  "milestone": 19,
+  "patch_nature": "production_graduation_ux_ai_wow_scale_closure",
+  "not_a_demo_theater_patch": true,
+  "scope": "Scope D — production bundle graduation (3-tier vocabulary demo/sample/production, D2 build script, D3 health tier + UI tier badge, D1 locale rename).",
+  "workorder_reference": "docs/plan/METIS_Patch_8_Workorder_Production_Graduation_UX_AI_Wow_Scale_Closure.md#scope d",
+  "changes": {
+    "d1_locale_graduation": {
+      "canonical_note": "data/mvp/evidence/agentic_operating_harness_v1_milestone_19_patch_8_ux_ai_wow_evidence.json#changes.a4_d1_locale_graduation_demo_to_sample"
+    },
+    "d2_v2_bundle_build_script": {
+      "file": "scripts/agh_v1_patch_8_production_bundle_graduation.py",
+      "input_config": "data/mvp/metis_brain_bundle_build_v2.json",
+      "output_bundle": "data/mvp/metis_brain_bundle_v2.json",
+      "evidence_file": "data/mvp/evidence/pragmatic_brain_absorption_v1_production_bundle_v2_evidence.json",
+      "modes": [
+        "live (Supabase R-branch via build_bundle_full_from_validation_v1)",
+        "template (fallback when credentials are missing; evidence records build_mode='template')"
+      ],
+      "integrity_guarantees": [
+        "validate_active_registry_integrity() must return [] before the bundle is written.",
+        "Atomic write via Path.replace() (writes to .tmp then renames).",
+        "SHA256 + byte size recorded alongside the bundle."
+      ]
+    },
+    "d3_3_tier_vocabulary": {
+      "canonical_doc": "docs/plan/METIS_Production_Bundle_Graduation_Note_v1.md",
+      "tier_values": ["demo", "sample", "production"],
+      "inference_fn_file": "src/phase51_runtime/cockpit_health_surface.py",
+      "inference_fn": "_infer_brain_bundle_tier",
+      "inference_rule": {
+        "1_metadata": "bundle.metadata.graduation_tier wins if ∈ {demo, sample, production}.",
+        "2_filename": "metis_brain_bundle_v2.json → production; metis_brain_bundle_v0.json → sample.",
+        "3_horizon_provenance": "all real_derived* with no missing → production; any real_derived* → sample; else demo."
+      },
+      "health_payload_field": "mvp_brain_gate.brain_bundle_tier",
+      "ui_badge_id": "tsr-bundle-tier",
+      "ui_hydrator_fn": "hydrateBundleTierChip",
+      "locale_keys_added": [
+        "tsr.bundle_tier.tip",
+        "tsr.bundle_tier.demo",
+        "tsr.bundle_tier.sample",
+        "tsr.bundle_tier.production"
+      ]
+    }
+  },
+  "non_goals": [
+    "No automatic promotion from sample → production. The graduation script must be invoked explicitly by an operator.",
+    "No LLM direct writes to the bundle. Promotion continues to ride harness-decide + harness-tick.",
+    "Tier change does not refresh a running server's active registry entries; operator must reload the bundle or restart the worker."
+  ]
+}

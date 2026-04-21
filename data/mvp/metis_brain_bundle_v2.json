@@ -1,0 +1,471 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "art_short_demo_v0",
+      "banding_rule": "tertiary_band:v0",
+      "confidence_rule": "band_from_validation_pointer:v0",
+      "created_at": "2026-04-01T12:00:00+00:00",
+      "created_by": "deterministic_kernel:v0",
+      "evidence_requirements": "validation_pointer_required:v0",
+      "expected_holding_horizon": "short",
+      "feature_set": "stub_feature_set:v0",
+      "feature_transforms": "identity_v0",
+      "horizon": "short",
+      "invalidation_conditions": "pit_or_coverage_fail:v0",
+      "notes_for_message_layer": "aligned_to_seed_horizon=short",
+      "ranking_direction": "higher_more_stretched:v0",
+      "replay_eligibility": "eligible_when_lineage_present:v0",
+      "score_formula": "spectrum_position_from_kernel:v0",
+      "sector_scope": "multi_sector_v0",
+      "thesis_family": "shallow_value_blend_v0",
+      "universe": "large_cap_research_slice_demo_v0",
+      "validation_pointer": "pit:demo:short:v0",
+      "weighting_rule": "equal_weight:v0"
+    },
+    {
+      "artifact_id": "art_short_challenger_momentum_v0",
+      "banding_rule": "tertiary_band:v0",
+      "confidence_rule": "band_from_validation_pointer:v0",
+      "created_at": "2026-04-01T12:00:00+00:00",
+      "created_by": "deterministic_kernel:v0",
+      "evidence_requirements": "validation_pointer_required:v0",
+      "expected_holding_horizon": "short",
+      "feature_set": "stub_feature_set:v0",
+      "feature_transforms": "identity_v0",
+      "horizon": "short",
+      "invalidation_conditions": "pit_or_coverage_fail:v0",
+      "notes_for_message_layer": "challenger_family_for_short_horizon_registry_v0",
+      "ranking_direction": "higher_more_stretched:v0",
+      "replay_eligibility": "eligible_when_lineage_present:v0",
+      "score_formula": "spectrum_position_from_kernel:v0",
+      "sector_scope": "multi_sector_v0",
+      "thesis_family": "short_momentum_reversion_probe_v0",
+      "universe": "large_cap_research_slice_demo_v0",
+      "validation_pointer": "pit:demo:short_challenger:v0",
+      "weighting_rule": "equal_weight:v0"
+    },
+    {
+      "artifact_id": "art_medium_demo_v0",
+      "banding_rule": "tertiary_band:v0",
+      "confidence_rule": "band_from_validation_pointer:v0",
+      "created_at": "2026-04-01T12:00:00+00:00",
+      "created_by": "deterministic_kernel:v0",
+      "evidence_requirements": "validation_pointer_required:v0",
+      "expected_holding_horizon": "medium",
+      "feature_set": "stub_feature_set:v0",
+      "feature_transforms": "identity_v0",
+      "horizon": "medium",
+      "invalidation_conditions": "pit_or_coverage_fail:v0",
+      "notes_for_message_layer": "aligned_to_seed_horizon=medium",
+      "ranking_direction": "higher_more_stretched:v0",
+      "replay_eligibility": "eligible_when_lineage_present:v0",
+      "score_formula": "spectrum_position_from_kernel:v0",
+      "sector_scope": "multi_sector_v0",
+      "thesis_family": "quality_earnings_bridge_v0",
+      "universe": "large_cap_research_slice_demo_v0",
+      "validation_pointer": "pit:demo:medium:v0",
+      "weighting_rule": "equal_weight:v0"
+    },
+    {
+      "artifact_id": "art_medium_long_demo_v0",
+      "banding_rule": "tertiary_band:v0",
+      "confidence_rule": "band_from_validation_pointer:v0",
+      "created_at": "2026-04-01T12:00:00+00:00",
+      "created_by": "deterministic_kernel:v0",
+      "evidence_requirements": "validation_pointer_required:v0",
+      "expected_holding_horizon": "medium_long",
+      "feature_set": "stub_feature_set:v0",
+      "feature_transforms": "identity_v0",
+      "horizon": "medium_long",
+      "invalidation_conditions": "pit_or_coverage_fail:v0",
+      "notes_for_message_layer": "aligned_to_seed_horizon=medium_long",
+      "ranking_direction": "higher_more_stretched:v0",
+      "replay_eligibility": "eligible_when_lineage_present:v0",
+      "score_formula": "spectrum_position_from_kernel:v0",
+      "sector_scope": "multi_sector_v0",
+      "thesis_family": "cycle_positioning_v0",
+      "universe": "large_cap_research_slice_demo_v0",
+      "validation_pointer": "pit:demo:medium_long:v0",
+      "weighting_rule": "equal_weight:v0"
+    },
+    {
+      "artifact_id": "art_long_demo_v0",
+      "banding_rule": "tertiary_band:v0",
+      "confidence_rule": "band_from_validation_pointer:v0",
+      "created_at": "2026-04-01T12:00:00+00:00",
+      "created_by": "deterministic_kernel:v0",
+      "evidence_requirements": "validation_pointer_required:v0",
+      "expected_holding_horizon": "long",
+      "feature_set": "stub_feature_set:v0",
+      "feature_transforms": "identity_v0",
+      "horizon": "long",
+      "invalidation_conditions": "pit_or_coverage_fail:v0",
+      "notes_for_message_layer": "aligned_to_seed_horizon=long",
+      "ranking_direction": "higher_more_stretched:v0",
+      "replay_eligibility": "eligible_when_lineage_present:v0",
+      "score_formula": "spectrum_position_from_kernel:v0",
+      "sector_scope": "multi_sector_v0",
+      "thesis_family": "owner_earnings_growth_v0",
+      "universe": "large_cap_research_slice_demo_v0",
+      "validation_pointer": "pit:demo:long:v0",
+      "weighting_rule": "equal_weight:v0"
+    }
+  ],
+  "as_of_utc": "2026-04-01T12:00:00+00:00",
+  "metadata": {
+    "gate_spec_count": 6,
+    "graduated_at_utc": "2026-04-21T07:01:56.415174+00:00",
+    "graduated_from_config": "data/mvp/metis_brain_bundle_build_v2.json",
+    "graduation_tier": "production"
+  },
+  "price_layer_note": "metis_brain_bundle_v0_aligned_to_today_spectrum_seed_v1",
+  "promotion_gates": [
+    {
+      "approved_at": "2026-04-01T12:00:00+00:00",
+      "approved_by_rule": "bundle_v0_smoke_gate",
+      "artifact_id": "art_short_demo_v0",
+      "challenger_or_active": "active",
+      "coverage_pass": true,
+      "evaluation_run_id": "eval_short_demo_v0",
+      "expiry_or_recheck_rule": "recheck_on_next_artifact_drop:v0",
+      "monotonicity_pass": true,
+      "pit_pass": true,
+      "reasons": "demo_bundle_integrity:v0",
+      "regime_notes": "demo_regime_neutral:v0",
+      "sector_override_notes": "",
+      "supersedes_registry_entry": ""
+    },
+    {
+      "approved_at": "2026-04-01T12:00:00+00:00",
+      "approved_by_rule": "bundle_v0_challenger_smoke_gate",
+      "artifact_id": "art_short_challenger_momentum_v0",
+      "challenger_or_active": "challenger",
+      "coverage_pass": true,
+      "evaluation_run_id": "eval_short_challenger_demo_v0",
+      "expiry_or_recheck_rule": "recheck_when_active_supersedes:v0",
+      "monotonicity_pass": true,
+      "pit_pass": true,
+      "reasons": "demo_challenger_family_registered:v0",
+      "regime_notes": "demo_challenger_neutral:v0",
+      "sector_override_notes": "",
+      "supersedes_registry_entry": ""
+    },
+    {
+      "approved_at": "2026-04-01T12:00:00+00:00",
+      "approved_by_rule": "bundle_v0_smoke_gate",
+      "artifact_id": "art_medium_demo_v0",
+      "challenger_or_active": "active",
+      "coverage_pass": true,
+      "evaluation_run_id": "eval_medium_demo_v0",
+      "expiry_or_recheck_rule": "recheck_on_next_artifact_drop:v0",
+      "monotonicity_pass": true,
+      "pit_pass": true,
+      "reasons": "demo_bundle_integrity:v0",
+      "regime_notes": "demo_regime_neutral:v0",
+      "sector_override_notes": "",
+      "supersedes_registry_entry": ""
+    },
+    {
+      "approved_at": "2026-04-01T12:00:00+00:00",
+      "approved_by_rule": "bundle_v0_smoke_gate",
+      "artifact_id": "art_medium_long_demo_v0",
+      "challenger_or_active": "active",
+      "coverage_pass": true,
+      "evaluation_run_id": "eval_medium_long_demo_v0",
+      "expiry_or_recheck_rule": "recheck_on_next_artifact_drop:v0",
+      "monotonicity_pass": true,
+      "pit_pass": true,
+      "reasons": "demo_bundle_integrity:v0",
+      "regime_notes": "demo_regime_neutral:v0",
+      "sector_override_notes": "",
+      "supersedes_registry_entry": ""
+    },
+    {
+      "approved_at": "2026-04-01T12:00:00+00:00",
+      "approved_by_rule": "bundle_v0_smoke_gate",
+      "artifact_id": "art_long_demo_v0",
+      "challenger_or_active": "active",
+      "coverage_pass": true,
+      "evaluation_run_id": "eval_long_demo_v0",
+      "expiry_or_recheck_rule": "recheck_on_next_artifact_drop:v0",
+      "monotonicity_pass": true,
+      "pit_pass": true,
+      "reasons": "demo_bundle_integrity:v0",
+      "regime_notes": "demo_regime_neutral:v0",
+      "sector_override_notes": "",
+      "supersedes_registry_entry": ""
+    }
+  ],
+  "registry_entries": [
+    {
+      "active_artifact_id": "art_short_demo_v0",
+      "active_model_family_name": "shallow_value_blend_v0",
+      "challenger_artifact_ids": [
+        "art_short_challenger_momentum_v0"
+      ],
+      "effective_from": "2026-04-01T00:00:00+00:00",
+      "effective_to": "",
+      "horizon": "short",
+      "message_contract_version": "v1",
+      "registry_entry_id": "reg_short_demo_v0",
+      "replay_lineage_pointer": "lineage:registry:short:demo_v0",
+      "research_factor_bindings_v1": [
+        {
+          "factor_name": "earnings_quality_composite",
+          "return_basis": "raw"
+        },
+        {
+          "factor_name": "earnings_quality_composite",
+          "return_basis": "excess"
+        }
+      ],
+      "scoring_endpoint_contract": "inline_spectrum_rows_v0",
+      "sector_scope": "multi_sector_v0",
+      "status": "active",
+      "universe": "large_cap_research_slice_demo_v0"
+    },
+    {
+      "active_artifact_id": "art_medium_demo_v0",
+      "active_model_family_name": "quality_earnings_bridge_v0",
+      "challenger_artifact_ids": [],
+      "effective_from": "2026-04-01T00:00:00+00:00",
+      "effective_to": "",
+      "horizon": "medium",
+      "message_contract_version": "v1",
+      "registry_entry_id": "reg_medium_demo_v0",
+      "replay_lineage_pointer": "lineage:registry:medium:demo_v0",
+      "research_factor_bindings_v1": [
+        {
+          "factor_name": "quality_earnings_bridge",
+          "return_basis": "raw"
+        }
+      ],
+      "scoring_endpoint_contract": "inline_spectrum_rows_v0",
+      "sector_scope": "multi_sector_v0",
+      "status": "active",
+      "universe": "large_cap_research_slice_demo_v0"
+    },
+    {
+      "active_artifact_id": "art_medium_long_demo_v0",
+      "active_model_family_name": "cycle_positioning_v0",
+      "challenger_artifact_ids": [],
+      "effective_from": "2026-04-01T00:00:00+00:00",
+      "effective_to": "",
+      "horizon": "medium_long",
+      "message_contract_version": "v1",
+      "registry_entry_id": "reg_medium_long_demo_v0",
+      "replay_lineage_pointer": "lineage:registry:medium_long:demo_v0",
+      "research_factor_bindings_v1": [],
+      "scoring_endpoint_contract": "inline_spectrum_rows_v0",
+      "sector_scope": "multi_sector_v0",
+      "status": "active",
+      "universe": "large_cap_research_slice_demo_v0"
+    },
+    {
+      "active_artifact_id": "art_long_demo_v0",
+      "active_model_family_name": "owner_earnings_growth_v0",
+      "challenger_artifact_ids": [],
+      "effective_from": "2026-04-01T00:00:00+00:00",
+      "effective_to": "",
+      "horizon": "long",
+      "message_contract_version": "v1",
+      "registry_entry_id": "reg_long_demo_v0",
+      "replay_lineage_pointer": "lineage:registry:long:demo_v0",
+      "research_factor_bindings_v1": [],
+      "scoring_endpoint_contract": "inline_spectrum_rows_v0",
+      "sector_scope": "multi_sector_v0",
+      "status": "active",
+      "universe": "large_cap_research_slice_demo_v0"
+    }
+  ],
+  "schema_version": 1,
+  "spectrum_rows_by_horizon": {
+    "long": [
+      {
+        "asset_id": "DEMO_KR_A",
+        "confidence_band": "high",
+        "rationale_summary": {
+          "en": "Long horizon: still defensive vs owner-earnings growth path.",
+          "ko": "장기 현금흐름 관점에서는 여전히 방어적 밴드."
+        },
+        "spectrum_position": 0.28,
+        "valuation_tension": "compressed",
+        "what_changed": {
+          "en": "Long-run capex plan reaffirmed.",
+          "ko": "장기 캐픽스 계획 재확인."
+        }
+      },
+      {
+        "asset_id": "DEMO_KR_B",
+        "confidence_band": "medium",
+        "rationale_summary": {
+          "en": "Strong long story but valuation load is heavy.",
+          "ko": "장기 성장 스토리는 강하지만 밸류에이션 부담."
+        },
+        "spectrum_position": 0.81,
+        "valuation_tension": "stretched",
+        "what_changed": {
+          "en": "TAM narrative expanded.",
+          "ko": "TAM 서사 확장."
+        }
+      }
+    ],
+    "medium": [
+      {
+        "asset_id": "DEMO_KR_A",
+        "confidence_band": "medium",
+        "rationale_summary": {
+          "en": "Medium lens: quality vs price looks roughly fair.",
+          "ko": "중기 렌즈에서는 품질 대비 가격이 중립에 가깝습니다."
+        },
+        "spectrum_position": 0.55,
+        "valuation_tension": "balanced",
+        "what_changed": {
+          "en": "Earnings estimates nudged up.",
+          "ko": "이익 추정치 소폭 상향."
+        }
+      },
+      {
+        "asset_id": "DEMO_KR_B",
+        "confidence_band": "medium",
+        "rationale_summary": {
+          "en": "Some cooling vs the short-term stretch.",
+          "ko": "중기 기준으로는 과열이 일부 완화된 모습."
+        },
+        "spectrum_position": 0.38,
+        "valuation_tension": "compressed",
+        "what_changed": {
+          "en": "Margin guide turned more conservative.",
+          "ko": "마진 가이던스 보수화."
+        }
+      }
+    ],
+    "medium_long": [
+      {
+        "asset_id": "DEMO_KR_A",
+        "confidence_band": "low",
+        "rationale_summary": {
+          "en": "Cycle positioning still leaves upside optionality.",
+          "ko": "사이클 상단 구간에서 옵션성이 남아 있습니다."
+        },
+        "spectrum_position": 0.62,
+        "valuation_tension": "asymmetric",
+        "what_changed": {
+          "en": "Policy sensitivity increased.",
+          "ko": "정책 민감도 상승."
+        }
+      }
+    ],
+    "short": [
+      {
+        "asset_id": "DEMO_KR_A",
+        "confidence_band": "medium",
+        "information_layer": {
+          "data_layer_note": {
+            "en": "Filings/prints are point-in-time snapshot-grade (demo).",
+            "ko": "공시·실적은 PIT 스냅샷 기준(데모)."
+          },
+          "evidence_summary": {
+            "en": "Seed snapshot: lower band + catalyst gap + no guidance drift.",
+            "ko": "시드 기준: 밸류 하단 + 촉매 공백 + 가이던스 변화 없음."
+          },
+          "opposing_signals": [
+            {
+              "en": "Macro headlines can still lift sector beta abruptly.",
+              "ko": "거시 뉴스가 섹터 베타를 순간적으로 올릴 수 있음."
+            }
+          ],
+          "supporting_signals": [
+            {
+              "en": "Near the short-horizon quantile lower band — consistent with the compression message.",
+              "ko": "단기 퀀타일에서 밴드 하단 근접 — 메시지(압축)와 정합."
+            },
+            {
+              "en": "Spreads vs realized vol are not excessively dislocated.",
+              "ko": "변동성 대비 스프레드가 과도하게 벌어지지 않은 구간."
+            }
+          ]
+        },
+        "message": {
+          "action_frame": {
+            "en": "Keep on radar — no urgent allocation shift.",
+            "ko": "관심 유지 — 급한 배분 변경은 보류."
+          },
+          "headline": {
+            "en": "Short lens: valuation stays defensive and tight",
+            "ko": "단기 렌즈: 방어적으로 붙어 있는 밸류"
+          },
+          "linked_evidence_summary": {
+            "en": "Summary: lower valuation band + catalyst gap (seed).",
+            "ko": "요약: 밸류 밴드 하단 + 촉매 공백 (시드)."
+          },
+          "message_id": "msg_demo_short_kr_a",
+          "one_line_take": {
+            "en": "Reads less ‘cheap’ and more ‘no fresh reason to chase yet.’",
+            "ko": "지금은 ‘싸다’기보다 ‘기다릴 이유가 아직 없다’에 가깝습니다."
+          },
+          "what_remains_unproven": {
+            "en": "Whether margin defense holds into the next print.",
+            "ko": "다음 실적에서 마진 방어가 지속되는지."
+          },
+          "what_to_watch": {
+            "en": "Turnover vs average; strength vs sector beta.",
+            "ko": "거래대금·스프레드, 업종 베타 대비 상대 강도."
+          },
+          "why_now": {
+            "en": "Catalyst calendar is thin while the band sits compressed.",
+            "ko": "촉매 일정이 비어 있고, 밴드는 하단에 붙어 있습니다."
+          }
+        },
+        "rationale_summary": {
+          "en": "Short window: valuation is tight; catalysts are still thin.",
+          "ko": "단기 구간에서는 밸류에이션이 타이트하고, 촉매는 아직 약합니다."
+        },
+        "research_layer": {
+          "deeper_rationale": {
+            "en": "Quality vs price looks roughly fair on a medium lens, but the short band still weights toward wait. Whether that gap closes next print is the key test.",
+            "ko": "품질 대비 가격은 중기에서 중립인데, 단기 밴드만 보면 ‘기다림’ 쪽에 무게가 실립니다. 이 괴리가 다음 실적에서 줄어드는지가 핵심 검증 포인트입니다."
+          },
+          "model_family_context": {
+            "en": "Active family shallow_value_blend_v0: short-horizon value/momentum blend stub.",
+            "ko": "활성 모델군 shallow_value_blend_v0: 단기 밸류·모멘텀 블렌드 스텁."
+          }
+        },
+        "spectrum_position": 0.18,
+        "valuation_tension": "compressed",
+        "what_changed": {
+          "en": "No recent guidance change.",
+          "ko": "최근 가이던스 변화 없음."
+        }
+      },
+      {
+        "asset_id": "DEMO_KR_B",
+        "confidence_band": "low",
+        "rationale_summary": {
+          "en": "Momentum is pressing the short-horizon band upward.",
+          "ko": "모멘텀이 단기 밴드를 위로 밀고 있습니다."
+        },
+        "spectrum_position": 0.72,
+        "valuation_tension": "stretched",
+        "what_changed": {
+          "en": "Volume spike in the last sessions.",
+          "ko": "거래량 급증 구간."
+        }
+      },
+      {
+        "asset_id": "DEMO_KR_C",
+        "confidence_band": "medium",
+        "rationale_summary": {
+          "en": "Mid-pack on the short horizon — wait-and-verify.",
+          "ko": "단기 스펙트럼 중앙 — 기다림과 확인이 공존."
+        },
+        "spectrum_position": 0.45,
+        "valuation_tension": "balanced",
+        "what_changed": {
+          "en": "Sector beta drift only.",
+          "ko": "섹터 베타만 변동."
+        }
+      }
+    ]
+  }
+}

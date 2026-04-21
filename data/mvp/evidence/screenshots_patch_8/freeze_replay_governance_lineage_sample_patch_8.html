@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>Replay governance lineage · Patch 8 production-graduation freeze</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;margin:0;padding:1.5rem;background:#0f1115;color:#e6e6e6;line-height:1.5;}
+h1{font-size:1.1rem;margin:0 0 0.6rem;color:#fff;}
+h2{font-size:0.9rem;margin:1.4rem 0 0.4rem;color:#8ab4f8;text-transform:uppercase;letter-spacing:0.08em;}
+.meta{font-size:0.8rem;color:#9aa0a6;margin-bottom:1rem;}
+pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem;overflow:auto;font-size:0.78rem;white-space:pre-wrap;word-break:break-word;}
+.note{color:#b9b9b9;font-size:0.82rem;margin-top:0.8rem;}
+</style>
+</head>
+<body>
+<h1>Replay governance lineage · Patch 8 production-graduation freeze</h1>
+<div class="meta">captured_at_utc=2026-04-21T07:15:35.253385+00:00 · patch=8</div>
+<div class="note">Canonical payload of GET /api/replay/governance-lineage for reg_short_demo_v0 / short horizon. The Patch 8 Replay surface renders the same 3-lane SVG timeline + a new step-note (&#x27;N of 4 complete · current frontier: X&#x27;) + 30-day+ gap annotations from this payload.</div>
+<h2>canonical payload</h2>
+<pre>{
+  &quot;chain&quot;: [],
+  &quot;horizon&quot;: &quot;short&quot;,
+  &quot;ok&quot;: true,
+  &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+  &quot;sandbox_followups&quot;: [],
+  &quot;summary&quot;: {
+    &quot;latest_applied_needs_db_rebuild&quot;: null,
+    &quot;latest_applied_packet_id&quot;: &quot;&quot;,
+    &quot;total_applied&quot;: 0,
+    &quot;total_emitted_from_evaluator&quot;: 0,
+    &quot;total_evaluations&quot;: 0,
+    &quot;total_proposals&quot;: 0,
+    &quot;total_sandbox_blocked&quot;: 0,
+    &quot;total_sandbox_completed&quot;: 0,
+    &quot;total_sandbox_requests&quot;: 0,
+    &quot;total_spectrum_refreshed&quot;: 0
+  },
+  &quot;validation_promotion_evaluations&quot;: []
+}</pre>
+
+</body>
+</html>

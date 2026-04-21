@@ -1,0 +1,109 @@
+{
+  "contract": "AGH_V1_PATCH_8_UX_AI_WOW_EVIDENCE_V1",
+  "milestone": 19,
+  "patch_nature": "production_graduation_ux_ai_wow_scale_closure",
+  "not_a_demo_theater_patch": true,
+  "scope": "Scope A — UX × AI usefulness wow (Research 4-stack, Today hero stack, Lineage step note + gap annotation, graduation locale, tooltip density).",
+  "workorder_reference": "docs/plan/METIS_Patch_8_Workorder_Production_Graduation_UX_AI_Wow_Scale_Closure.md#scope a",
+  "changes": {
+    "a1_research_4_stack": {
+      "contract_file": "src/agentic_harness/llm/contract.py",
+      "added_fields": [
+        "what_changed_bullets_ko",
+        "what_changed_bullets_en"
+      ],
+      "invariants": [
+        "max_length=3 per locale list",
+        "locale-consistency: both empty or both non-empty"
+      ],
+      "guardrail_file": "src/agentic_harness/llm/guardrails.py",
+      "guardrail_scans_forbidden_copy_in": [
+        "what_changed_bullets_ko",
+        "what_changed_bullets_en"
+      ],
+      "prompt_file": "src/agentic_harness/agents/layer5_orchestrator.py",
+      "prompt_mentions_what_changed": true,
+      "renderer_file": "src/phase47_runtime/static/app.js",
+      "renderer_section_order": [
+        "what_changed",
+        "why_it_matters",
+        "open_questions",
+        "bounded_next"
+      ],
+      "locale_keys_added": [
+        "research_section.what_changed",
+        "research_section.why_it_matters",
+        "research_section.no_what_changed"
+      ]
+    },
+    "a2_today_hero_stack": {
+      "renderer_file": "src/phase47_runtime/static/app.js",
+      "renderer_fn": "renderTodayWhyNowConfidenceCaveatNextHtml",
+      "rows": [
+        "why_now",
+        "confidence_band",
+        "caveat",
+        "next_step"
+      ],
+      "jump_to_invoke": {
+        "affordance": "data-tsr-jump-to-invoke",
+        "target": "research_section.invoke_card"
+      },
+      "locale_keys_added": [
+        "tsr.today.stack.head",
+        "tsr.today.why_now.head",
+        "tsr.today.why_now.empty"
+      ]
+    },
+    "a3_lineage_step_note_and_gap_annotation": {
+      "step_note": {
+        "renderer_file": "src/phase47_runtime/static/app.js",
+        "fn": "hydrateReplayGovernanceLineageCompact",
+        "class": "tsr-step-note",
+        "locale_keys_added": [
+          "lineage.step_note.current",
+          "lineage.step_note.not_started"
+        ]
+      },
+      "gap_annotation": {
+        "renderer_file": "src/phase47_runtime/static/app.js",
+        "fn": "renderReplayTimelinePlotSvg",
+        "threshold_ms_constant": "GAP_THRESHOLD_MS",
+        "threshold_days": 30,
+        "svg_class": "plot-gap-annotation",
+        "locale_keys_added": [
+          "lineage.gap_30d_plus",
+          "lineage.gap_annotation_prefix"
+        ]
+      }
+    },
+    "a4_d1_locale_graduation_demo_to_sample": {
+      "file": "src/phase47_runtime/phase47e_user_locale.py",
+      "summary": "All user-facing locale values that read '(demo)' / '(데모)' have been renamed to their sample equivalents. The demo-prefixed keys survive as LEGACY_LOCALE_ALIASES for a 3-month grace window.",
+      "canonical_keys": [
+        "home.sample.card_title",
+        "spectrum.sample_title",
+        "spectrum.sample_meta",
+        "sample.route.*"
+      ],
+      "legacy_aliases_map": "LEGACY_LOCALE_ALIASES",
+      "no_leak_test": "src/tests/test_agh_v1_patch8_locale_graduation_no_leak.py"
+    },
+    "a5_tooltip_ttctx_threading": {
+      "helper_fn": "extractTooltipContextFromTsr",
+      "derived_fields": [
+        "what_changed_one_line",
+        "confidence_band"
+      ],
+      "consumers": [
+        "hydrateReplayGovernanceLineageCompact",
+        "renderReplayTimelinePlotSvg",
+        "renderTodaySummaryRailHtml"
+      ]
+    }
+  },
+  "test_coverage": {
+    "surface_tests_file": "src/tests/test_agh_v1_patch8_production_graduation_surface.py",
+    "no_leak_test_file": "src/tests/test_agh_v1_patch8_locale_graduation_no_leak.py"
+  }
+}

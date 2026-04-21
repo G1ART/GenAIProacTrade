@@ -114,6 +114,7 @@ class _MemQuery:
         self._order: tuple[str, bool] | None = None
         self._update_payload: dict[str, Any] | None = None
         self._insert_row: dict[str, Any] | None = None
+        self._upsert_rows: list[dict[str, Any]] = []
 
     def select(self, *_a: Any, **_k: Any) -> _MemQuery:
         return self
@@ -138,6 +139,20 @@ class _MemQuery:
         self._insert_row = dict(row)
         return self
 
+    def upsert(
+        self,
+        rows: list[dict[str, Any]] | dict[str, Any],
+        *,
+        on_conflict: str | None = None,  # noqa: ARG002 — recorded for parity
+    ) -> _MemQuery:
+        # AGH v1 Patch 8 C1a — batch upsert path. In-memory mock treats
+        # each payload row as an insert; the real Supabase backend
+        # resolves conflicts via ``on_conflict``.
+        if isinstance(rows, dict):
+            rows = [rows]
+        self._upsert_rows = [dict(r) for r in rows]
+        return self
+
     def update(self, upd: dict[str, Any]) -> _MemQuery:
         self._update_payload = dict(upd)
         return self
@@ -150,6 +165,16 @@ class _MemQuery:
             self._store.setdefault(self._table, []).append(r)
             self._insert_row = None
             return _MemResult([r])
+        if getattr(self, "_upsert_rows", None):
+            bucket = self._store.setdefault(self._table, [])
+            for r in self._upsert_rows:
+                rr = dict(r)
+                if "id" not in rr:
+                    rr["id"] = str(uuid.uuid4())
+                bucket.append(rr)
+            out = list(self._upsert_rows)
+            self._upsert_rows = []
+            return _MemResult(out)
         if self._update_payload is not None:
             rows = self._store.get(self._table, [])
             for row in rows:

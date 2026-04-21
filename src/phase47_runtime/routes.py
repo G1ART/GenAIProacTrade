@@ -295,6 +295,29 @@ def api_sandbox_requests_list(
             "contract": "AGH_V1_SANDBOX_REQUESTS_LIST",
         }
 
+    # AGH v1 Patch 8 B2 — join the sandbox_queue job record (if any) for
+    # each request so the UI can render the true 4-state lifecycle
+    # (queued / running / completed / blocked) rather than inferring state
+    # from the presence of a result packet alone. A blocked request (DLQ
+    # or expired) still has no SandboxResultPacketV1, but now the
+    # operator can see that it is NOT merely queued.
+    try:
+        all_jobs = list(
+            store.list_jobs(queue_class="sandbox_queue", limit=max(limit, 1) * 4) or []
+        )
+    except Exception:
+        all_jobs = []
+    jobs_by_packet: dict[str, dict[str, Any]] = {}
+    for job in all_jobs:
+        pid = str((job or {}).get("packet_id") or "")
+        if not pid:
+            continue
+        prev = jobs_by_packet.get(pid)
+        if prev is None or str(job.get("enqueued_at_utc") or "") > str(
+            prev.get("enqueued_at_utc") or ""
+        ):
+            jobs_by_packet[pid] = job
+
     rid = (registry_entry_id or "").strip()
     hz = (horizon or "").strip()
 
@@ -317,10 +340,37 @@ def api_sandbox_requests_list(
                 return r
         return None
 
+    def _life_state(job: dict[str, Any] | None, result: dict[str, Any] | None) -> str:
+        # AGH v1 Patch 8 B2 — deterministic 4-state mapping. Precedence:
+        # result packet present → completed; job dlq/expired → blocked;
+        # job running → running; otherwise → queued. This is the SINGLE
+        # source of truth for the TSR invoke chip + per-entry recent list.
+        if result:
+            return "completed"
+        if job:
+            js = str(job.get("status") or "").lower()
+            if js in ("dlq", "expired"):
+                return "blocked"
+            if js == "running":
+                return "running"
+            if js == "done":
+                return "completed"
+        return "queued"
+
     items: list[dict[str, Any]] = []
     for req in matched:
         req_pid = str(req.get("packet_id") or "")
-        items.append({"request": req, "result": _result_for(req_pid)})
+        job = jobs_by_packet.get(req_pid)
+        result = _result_for(req_pid)
+        items.append(
+            {
+                "request": req,
+                "result": result,
+                "job": job,
+                "job_status": str((job or {}).get("status") or "") or None,
+                "lifecycle_state": _life_state(job, result),
+            }
+        )
 
     return {
         "ok": True,
@@ -624,7 +674,20 @@ def api_replay_micro_brief(state: CockpitRuntimeState, event_id: str, q: dict[st
 
 
 def api_runtime_health(state: CockpitRuntimeState, lang: str) -> dict[str, Any]:
-    return build_cockpit_runtime_health_payload(repo_root=state.repo_root, lang=lang)
+    # AGH v1 Patch 8 E2 — the payload builder never raises for recoverable
+    # sub-failures; it returns health_status='degraded' + reasons. The
+    # only exception path that lands here is a catastrophic import /
+    # filesystem failure, in which case we return an 'ok:false' shape
+    # the HTTP layer maps to 503.
+    try:
+        return build_cockpit_runtime_health_payload(repo_root=state.repo_root, lang=lang)
+    except Exception as exc:  # pragma: no cover — guarded path
+        return {
+            "ok": False,
+            "health_status": "down",
+            "degraded_reasons": [f"runtime_health_exception: {type(exc).__name__}"],
+            "lang": lang,
+        }
 
 
 def api_locale(_state: CockpitRuntimeState, lang: str) -> dict[str, Any]:
@@ -907,7 +970,13 @@ def dispatch_json(
         r = api_demo_frozen_snapshot_pack(state, lang)
         return (200 if r.get("ok") else 404), r
     if method == "GET" and p == "/api/runtime/health":
-        return 200, api_runtime_health(state, lang)
+        # AGH v1 Patch 8 E2 — 'degraded' is a 200 (operator still needs
+        # to navigate); only 'down' (catastrophic) is 503. The payload
+        # always carries health_status + degraded_reasons.
+        hr = api_runtime_health(state, lang)
+        status = str((hr or {}).get("health_status") or "")
+        code = 503 if status == "down" else 200
+        return code, hr
     if method == "GET" and p == "/api/locale":
         return 200, api_locale(state, lang)
     if method == "GET" and p == "/api/today/spectrum":
