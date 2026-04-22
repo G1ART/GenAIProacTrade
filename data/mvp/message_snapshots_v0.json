@@ -101,7 +101,7 @@
           ]
         }
       },
-      "stored_at_utc": "2026-04-21T07:12:13.498590+00:00"
+      "stored_at_utc": "2026-04-21T18:19:12.585834+00:00"
     },
     "msg_snap:v1:41859c06eb77c044d06adf88": {
       "asset_id": "DEMO_KR_A",
@@ -37718,7 +37718,7 @@
         "scoring_endpoint_contract": "seed_inline_v0",
         "replay_lineage_pointer": "seed:replay_lineage_v0"
       },
-      "stored_at_utc": "2026-04-21T07:12:18.716754+00:00"
+      "stored_at_utc": "2026-04-21T18:19:16.264461+00:00"
     },
     "msg_snap:v1:904f4ba2245ed42f9f0daf57": {
       "asset_id": "DEMO_KR_C",
@@ -37856,7 +37856,7 @@
         "scoring_endpoint_contract": "seed_inline_v0",
         "replay_lineage_pointer": "seed:replay_lineage_v0"
       },
-      "stored_at_utc": "2026-04-21T07:12:18.734286+00:00"
+      "stored_at_utc": "2026-04-21T18:19:16.927745+00:00"
     },
     "msg_snap:v1:55a16023a2e8e9c93821c0fa": {
       "asset_id": "DEMO_KR_A",
@@ -38289,7 +38289,7 @@
           "labels": []
         }
       },
-      "stored_at_utc": "2026-04-21T07:15:35.876593+00:00"
+      "stored_at_utc": "2026-04-21T18:24:29.243056+00:00"
     },
     "msg_snap:v1:f0af6072f8ec0b81264831cc": {
       "asset_id": "DEMO_KR_C",

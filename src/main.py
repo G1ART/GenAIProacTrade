@@ -8609,6 +8609,71 @@ def _cmd_harness_tick(args: argparse.Namespace) -> int:
         _time.sleep(sleep_s)
 
 
+def _cmd_harness_retention_archive(args: argparse.Namespace) -> int:
+    """AGH v1 Patch 9 C·A2 — archive aged packets + terminal-state jobs.
+
+    Moves rows older than ``--days`` from the two active harness tables
+    into their matching ``*_archive`` tables. ``--dry-run`` previews the
+    selection without writing. No live jobs (``enqueued``/``running``)
+    are ever archived.
+    """
+
+    from agentic_harness.retention.archive_v1 import (
+        archive_jobs_older_than,
+        archive_packets_older_than,
+    )
+    from db.client import get_supabase_client
+
+    configure_logging()
+    days = int(getattr(args, "days", 180) or 180)
+    batch = int(getattr(args, "batch_size", 500) or 500)
+    dry_run = bool(getattr(args, "dry_run", False))
+    skip_packets = bool(getattr(args, "skip_packets", False))
+    skip_jobs = bool(getattr(args, "skip_jobs", False))
+
+    try:
+        client = get_supabase_client()
+    except Exception as exc:
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": f"supabase_client_unavailable: {type(exc).__name__}",
+                    "days": days,
+                    "dry_run": dry_run,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 1
+
+    out: dict[str, Any] = {
+        "ok": True,
+        "contract": "AGH_V1_PATCH_9_C_A_RETENTION_ARCHIVE",
+        "days": days,
+        "batch_size": batch,
+        "dry_run": dry_run,
+        "reports": {},
+    }
+    if not skip_packets:
+        rep = archive_packets_older_than(
+            client, days=days, batch_size=batch, dry_run=dry_run
+        )
+        out["reports"]["packets"] = rep.to_dict()
+        if rep.errors:
+            out["ok"] = False
+    if not skip_jobs:
+        rep = archive_jobs_older_than(
+            client, days=days, batch_size=batch, dry_run=dry_run
+        )
+        out["reports"]["jobs"] = rep.to_dict()
+        if rep.errors:
+            out["ok"] = False
+    print(json.dumps(out, ensure_ascii=False, indent=2, default=str))
+    return 0 if out["ok"] else 2
+
+
 def _cmd_harness_status(args: argparse.Namespace) -> int:
     """Agentic Operating Harness v1 - queue depth + layer packet counts."""
 
@@ -13346,6 +13411,46 @@ def build_parser() -> argparse.ArgumentParser:
         help="Seconds to sleep between iterations when --loop is set (default 30).",
     )
     pht.set_defaults(func=_cmd_harness_tick)
+
+    phra = sub.add_parser(
+        "harness-retention-archive",
+        help=(
+            "AGH v1 Patch 9 C·A2: archive aged packets + terminal-state jobs "
+            "into the *_archive tables. --dry-run previews the selection."
+        ),
+    )
+    phra.add_argument(
+        "--days",
+        type=int,
+        default=180,
+        help="Rows older than this many days become eligible (default 180).",
+    )
+    phra.add_argument(
+        "--batch-size",
+        type=int,
+        default=500,
+        dest="batch_size",
+        help="Rows fetched + written per batch (default 500).",
+    )
+    phra.add_argument(
+        "--dry-run",
+        action="store_true",
+        dest="dry_run",
+        help="Preview selection only. No rows are copied or deleted.",
+    )
+    phra.add_argument(
+        "--skip-packets",
+        action="store_true",
+        dest="skip_packets",
+        help="Skip the packets archive pass.",
+    )
+    phra.add_argument(
+        "--skip-jobs",
+        action="store_true",
+        dest="skip_jobs",
+        help="Skip the queue-jobs archive pass.",
+    )
+    phra.set_defaults(func=_cmd_harness_retention_archive)
 
     phs = sub.add_parser(
         "harness-status",

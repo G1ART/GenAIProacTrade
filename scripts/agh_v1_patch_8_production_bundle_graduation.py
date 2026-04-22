@@ -190,7 +190,14 @@ def main() -> int:
     except Exception as exc:
         print(f"bundle schema validation failed: {exc}", file=sys.stderr)
         return 3
-    integrity_errors = validate_active_registry_integrity(parsed_bundle)
+    # AGH v1 Patch 9 A2 — run production-tier hardening only when the
+    # build was actually backed by live Supabase evidence. In template
+    # fallback we still produce a bundle (useful as a sample/demo) but
+    # we refuse to claim "production" unless the integrity hardening
+    # passes; the resulting metadata therefore accurately reflects the
+    # path the build took.
+    integrity_tier = "production" if build_mode == "live" else None
+    integrity_errors = validate_active_registry_integrity(parsed_bundle, tier=integrity_tier)
     if integrity_errors:
         print(
             "validate_active_registry_integrity FAILED:\n  "

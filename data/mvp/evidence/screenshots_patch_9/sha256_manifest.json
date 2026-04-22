@@ -1,0 +1,48 @@
+{
+  "contract": "AGH_V1_PATCH_9_PRODUCTIONIZE_SELF_SERVE_SCALE_SNAPSHOTS_MANIFEST_V1",
+  "generated_at_utc": "2026-04-21T18:24:29.415750+00:00",
+  "milestone": 20,
+  "patch_nature": "productionize_self_serve_scale_closure",
+  "snapshot_count": 7,
+  "snapshots": [
+    {
+      "bytes": 45694,
+      "path": "data/mvp/evidence/screenshots_patch_9/freeze_spa_index_patch_9.html",
+      "sha256": "7d90fc8b3c51845737eed4992216100052fda2cbb14bbbbad91fd57250bfd36d"
+    },
+    {
+      "bytes": 12253,
+      "path": "data/mvp/evidence/screenshots_patch_9/freeze_today_spectrum_short_patch_9.html",
+      "sha256": "072e39de16a1b72cf4f2504c2c192835e6c0fb35da44514fea8844a6aeb712d8"
+    },
+    {
+      "bytes": 11263,
+      "path": "data/mvp/evidence/screenshots_patch_9/freeze_today_object_detail_ko_patch_9.html",
+      "sha256": "3a96cde4b81b462fdb6c69681ff40dc6f80c508969f09eac35a1742aa20dfccd"
+    },
+    {
+      "bytes": 11122,
+      "path": "data/mvp/evidence/screenshots_patch_9/freeze_today_object_detail_en_patch_9.html",
+      "sha256": "3a0f9aef337c1f2c6c47b4d34b6523a9fbbd639c194aac054ab16b2c84f1d914"
+    },
+    {
+      "bytes": 13997,
+      "path": "data/mvp/evidence/screenshots_patch_9/freeze_runtime_health_ko_patch_9.html",
+      "sha256": "e83eefb67e6805d0d70e1312a6f6cdf13b19d15249188d5a4dd2d07b4354d01c"
+    },
+    {
+      "bytes": 13968,
+      "path": "data/mvp/evidence/screenshots_patch_9/freeze_runtime_health_en_patch_9.html",
+      "sha256": "163389da004115e94168d2ab94b2082f5d37ad535abb593f90bee46ca18b9ea2"
+    },
+    {
+      "bytes": 1443,
+      "path": "data/mvp/evidence/screenshots_patch_9/freeze_bundle_integrity_report_patch_9.html",
+      "sha256": "a4a5cec885e84314812efb426550945a45e812626679fc073c037b226dcf6952"
+    }
+  ],
+  "spa_shell_source_sha256": {
+    "app.js": "6aefba6c535c29750b5d9a67eab7e34aebec730c4d938440cf57751cbeedfb95",
+    "index.html": "7d90fc8b3c51845737eed4992216100052fda2cbb14bbbbad91fd57250bfd36d"
+  }
+}

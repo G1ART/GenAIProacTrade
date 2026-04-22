@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>Today spectrum (short, KO) · Patch 9 scale-closure freeze</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;margin:0;padding:1.5rem;background:#0f1115;color:#e6e6e6;line-height:1.5;}
+h1{font-size:1.1rem;margin:0 0 0.6rem;color:#fff;}
+h2{font-size:0.9rem;margin:1.4rem 0 0.4rem;color:#8ab4f8;text-transform:uppercase;letter-spacing:0.08em;}
+.meta{font-size:0.8rem;color:#9aa0a6;margin-bottom:1rem;}
+pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem;overflow:auto;font-size:0.78rem;white-space:pre-wrap;word-break:break-word;}
+.note{color:#b9b9b9;font-size:0.82rem;margin-top:0.8rem;}
+</style>
+</head>
+<body>
+<h1>Today spectrum (short, KO) · Patch 9 scale-closure freeze</h1>
+<div class="meta">captured_at_utc=2026-04-21T18:24:28.213833+00:00 · patch=9</div>
+<div class="note">Canonical payload of GET /api/today/spectrum?horizon=short. Patch 9 C·C: this build path no longer pre-persists message snapshots; snapshot IO moves to the object-detail entry.</div>
+<h2>canonical payload</h2>
+<pre>{
+  &quot;active_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
+  &quot;active_model_family&quot;: &quot;shallow_value_blend_v0&quot;,
+  &quot;allowed_horizons&quot;: [
+    &quot;short&quot;,
+    &quot;medium&quot;,
+    &quot;medium_long&quot;,
+    &quot;long&quot;
+  ],
+  &quot;as_of_utc&quot;: &quot;2026-04-01T12:00:00+00:00&quot;,
+  &quot;horizon&quot;: &quot;short&quot;,
+  &quot;horizon_label&quot;: &quot;단기&quot;,
+  &quot;horizon_options&quot;: [
+    {
+      &quot;id&quot;: &quot;short&quot;,
+      &quot;label&quot;: &quot;단기&quot;
+    },
+    {
+      &quot;id&quot;: &quot;medium&quot;,
+      &quot;label&quot;: &quot;중기&quot;
+    },
+    {
+      &quot;id&quot;: &quot;medium_long&quot;,
+      &quot;label&quot;: &quot;중장기&quot;
+    },
+    {
+      &quot;id&quot;: &quot;long&quot;,
+      &quot;label&quot;: &quot;장기&quot;
+    }
+  ],
+  &quot;lang&quot;: &quot;ko&quot;,
+  &quot;message_layer_keys&quot;: [
+    &quot;message_id&quot;,
+    &quot;asset_id&quot;,
+    &quot;horizon&quot;,
+    &quot;headline&quot;,
+    &quot;one_line_take&quot;,
+    &quot;why_now&quot;,
+    &quot;what_changed&quot;,
+    &quot;what_remains_unproven&quot;,
+    &quot;what_to_watch&quot;,
+    &quot;action_frame&quot;,
+    &quot;confidence_band&quot;,
+    &quot;linked_model_family&quot;,
+    &quot;linked_evidence_summary&quot;,
+    &quot;linked_registry_entry_id&quot;,
+    &quot;linked_artifact_id&quot;,
+    &quot;linked_evidence&quot;
+  ],
+  &quot;message_layer_version&quot;: 1,
+  &quot;message_object_contract&quot;: &quot;METIS_PRODUCT_SPEC_6_4_V1&quot;,
+  &quot;mock_price_tick&quot;: &quot;0&quot;,
+  &quot;mock_price_tick_note&quot;: &quot;&quot;,
+  &quot;ok&quot;: true,
+  &quot;price_layer_note&quot;: &quot;metis_brain_bundle_v0_aligned_to_today_spectrum_seed_v1&quot;,
+  &quot;product_stream&quot;: &quot;METIS_BRAIN_REGISTRY_V0&quot;,
+  &quot;recent_governed_applies_for_horizon&quot;: [],
+  &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+  &quot;registry_surface_v1&quot;: {
+    &quot;active_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
+    &quot;active_model_family_name&quot;: &quot;shallow_value_blend_v0&quot;,
+    &quot;active_thesis_family&quot;: &quot;shallow_value_blend_v0&quot;,
+    &quot;brain_overlay_ids&quot;: [],
+    &quot;brain_overlay_summary&quot;: {
+      &quot;contract&quot;: &quot;TODAY_BRAIN_OVERLAY_SUMMARY_V1&quot;,
+      &quot;count_by_type&quot;: {},
+      &quot;labels&quot;: [],
+      &quot;total&quot;: 0
+    },
+    &quot;challenger_artifact_ids&quot;: [
+      &quot;art_short_challenger_momentum_v0&quot;
+    ],
+    &quot;challengers_resolved&quot;: [
+      {
+        &quot;artifact_id&quot;: &quot;art_short_challenger_momentum_v0&quot;,
+        &quot;created_by&quot;: &quot;deterministic_kernel:v0&quot;,
+        &quot;horizon&quot;: &quot;short&quot;,
+        &quot;thesis_family&quot;: &quot;short_momentum_reversion_probe_v0&quot;
+      }
+    ],
+    &quot;contract&quot;: &quot;TODAY_REGISTRY_SURFACE_V1&quot;,
+    &quot;display_family_name_en&quot;: &quot;&quot;,
+    &quot;display_family_name_ko&quot;: &quot;&quot;,
+    &quot;display_id&quot;: &quot;&quot;,
+    &quot;horizon&quot;: &quot;short&quot;,
+    &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+    &quot;replay_lineage_pointer&quot;: &quot;lineage:registry:short:demo_v0&quot;,
+    &quot;scoring_endpoint_contract&quot;: &quot;inline_spectrum_rows_v0&quot;,
+    &quot;status&quot;: &quot;active&quot;,
+    &quot;universe&quot;: &quot;large_cap_research_slice_demo_v0&quot;
+  },
+  &quot;replay_lineage_join_contract&quot;: &quot;REPLAY_LINEAGE_JOIN_V1&quot;,
+  &quot;replay_lineage_pointer&quot;: &quot;lineage:registry:short:demo_v0&quot;,
+  &quot;rows&quot;: [
+    {
+      &quot;asset_id&quot;: &quot;DEMO_KR_B&quot;,
+      &quot;confidence_band&quot;: &quot;low&quot;,
+      &quot;message&quot;: {
+        &quot;action_frame&quot;: &quot;&quot;,
+        &quot;asset_id&quot;: &quot;DEMO_KR_B&quot;,
+        &quot;confidence_band&quot;: &quot;low&quot;,
+        &quot;headline&quot;: &quot;모멘텀이 단기 밴드를 위로 밀고 있습니다.&quot;,
+        &quot;horizon&quot;: &quot;short&quot;,
+        &quot;linked_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
+        &quot;linked_evidence&quot;: [
+          {
+            &quot;kind&quot;: &quot;validation&quot;,
+            &quot;pointer&quot;: &quot;spectrum_row:DEMO_KR_B:short:v1&quot;,
+            &quot;summary&quot;: &quot;모멘텀이 단기 밴드를 위로 밀고 있습니다.&quot;
+          }
+        ],
+        &quot;linked_evidence_summary&quot;: &quot;모멘텀이 단기 밴드를 위로 밀고 있습니다.&quot;,
+        &quot;linked_model_family&quot;: &quot;shallow_value_blend_v0&quot;,
+        &quot;linked_registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+        &quot;message_id&quot;: &quot;demo_short_DEMO_KR_B&quot;,
+        &quot;one_line_take&quot;: &quot;모멘텀이 단기 밴드를 위로 밀고 있습니다.&quot;,
+        &quot;what_changed&quot;: &quot;거래량 급증 구간.&quot;,
+        &quot;what_remains_unproven&quot;: &quot;&quot;,
+        &quot;what_to_watch&quot;: &quot;&quot;,
+        &quot;why_now&quot;: &quot;모멘텀이 단기 밴드를 위로 밀고 있습니다.&quot;
+      },
+      &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:bb7d63beeb5b4eda89c7bb2c&quot;,
+      &quot;rank_index&quot;: 1,
+      &quot;rank_movement&quot;: &quot;steady&quot;,
+      &quot;rank_total&quot;: 3,
+      &quot;rationale_summary&quot;: &quot;모멘텀이 단기 밴드를 위로 밀고 있습니다.&quot;,
+      &quot;replay_lineage_pointer&quot;: &quot;lineage:registry:short:demo_v0&quot;,
+      &quot;spectrum_band&quot;: &quot;right&quot;,
+      &quot;spectrum_position&quot;: 0.72,
+      &quot;spectrum_quintile&quot;: &quot;overpriced&quot;,
+      &quot;valuation_tension&quot;: &quot;stretched&quot;,
+      &quot;what_changed&quot;: &quot;거래량 급증 구간.&quot;
+    },
+    {
+      &quot;asset_id&quot;: &quot;DEMO_KR_C&quot;,
+      &quot;confidence_band&quot;: &quot;medium&quot;,
+      &quot;message&quot;: {
+        &quot;action_frame&quot;: &quot;&quot;,
+        &quot;asset_id&quot;: &quot;DEMO_KR_C&quot;,
+        &quot;confidence_band&quot;: &quot;medium&quot;,
+        &quot;headline&quot;: &quot;단기 스펙트럼 중앙 — 기다림과 확인이 공존.&quot;,
+        &quot;horizon&quot;: &quot;short&quot;,
+        &quot;linked_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
+        &quot;linked_evidence&quot;: [
+          {
+            &quot;kind&quot;: &quot;validation&quot;,
+            &quot;pointer&quot;: &quot;spectrum_row:DEMO_KR_C:short:v1&quot;,
+            &quot;summary&quot;: &quot;단기 스펙트럼 중앙 — 기다림과 확인이 공존.&quot;
+          }
+        ],
+        &quot;linked_evidence_summary&quot;: &quot;단기 스펙트럼 중앙 — 기다림과 확인이 공존.&quot;,
+        &quot;linked_model_family&quot;: &quot;shallow_value_blend_v0&quot;,
+        &quot;linked_registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+        &quot;message_id&quot;: &quot;demo_short_DEMO_KR_C&quot;,
+        &quot;one_line_take&quot;: &quot;단기 스펙트럼 중앙 — 기다림과 확인이 공존.&quot;,
+        &quot;what_changed&quot;: &quot;섹터 베타만 변동.&quot;,
+        &quot;what_remains_unproven&quot;: &quot;&quot;,
+        &quot;what_to_watch&quot;: &quot;&quot;,
+        &quot;why_now&quot;: &quot;단기 스펙트럼 중앙 — 기다림과 확인이 공존.&quot;
+      },
+      &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:f0af6072f8ec0b81264831cc&quot;,
+      &quot;rank_index&quot;: 2,
+      &quot;rank_movement&quot;: &quot;steady&quot;,
+      &quot;rank_total&quot;: 3,
+      &quot;rationale_summary&quot;: &quot;단기 스펙트럼 중앙 — 기다림과 확인이 공존.&quot;,
+      &quot;replay_lineage_pointer&quot;: &quot;lineage:registry:short:demo_v0&quot;,
+      &quot;spectrum_band&quot;: &quot;center&quot;,
+      &quot;spectrum_position&quot;: 0.45,
+      &quot;spectrum_quintile&quot;: &quot;neutral&quot;,
+      &quot;valuation_tension&quot;: &quot;balanced&quot;,
+      &quot;what_changed&quot;: &quot;섹터 베타만 변동.&quot;
+    },
+    {
+      &quot;asset_id&quot;: &quot;DEMO_KR_A&quot;,
+      &quot;confidence_band&quot;: &quot;medium&quot;,
+      &quot;message&quot;: {
+        &quot;action_frame&quot;: &quot;관심 유지 — 급한 배분 변경은 보류.&quot;,
+        &quot;asset_id&quot;: &quot;DEMO_KR_A&quot;,
+        &quot;confidence_band&quot;: &quot;medium&quot;,
+        &quot;headline&quot;: &quot;단기 렌즈: 방어적으로 붙어 있는 밸류&quot;,
+        &quot;horizon&quot;: &quot;short&quot;,
+        &quot;linked_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
+        &quot;linked_evidence&quot;: [
+          {
+            &quot;kind&quot;: &quot;validation&quot;,
+            &quot;pointer&quot;: &quot;spectrum_row:DEMO_KR_A:short:v1&quot;,
+            &quot;summary&quot;: &quot;요약: 밸류 밴드 하단 + 촉매 공백 (시드).&quot;
+          }
+        ],
+        &quot;linked_evidence_summary&quot;: &quot;요약: 밸류 밴드 하단 + 촉매 공백 (시드).&quot;,
+        &quot;linked_model_family&quot;: &quot;shallow_value_blend_v0&quot;,
+        &quot;linked_registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+        &quot;message_id&quot;: &quot;msg_demo_short_kr_a&quot;,
+        &quot;one_line_take&quot;: &quot;지금은 ‘싸다’기보다 ‘기다릴 이유가 아직 없다’에 가깝습니다.&quot;,
+        &quot;what_changed&quot;: &quot;최근 가이던스 변화 없음.&quot;,
+        &quot;what_remains_unproven&quot;: &quot;다음 실적에서 마진 방어가 지속되는지.&quot;,
+        &quot;what_to_watch&quot;: &quot;거래대금·스프레드, 업종 베타 대비 상대 강도.&quot;,
+        &quot;why_now&quot;: &quot;촉매 일정이 비어 있고, 밴드는 하단에 붙어 있습니다.&quot;
+      },
+      &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:4c4bc51ca6c3d83e4f9af5df&quot;,
+      &quot;rank_index&quot;: 3,
+      &quot;rank_movement&quot;: &quot;steady&quot;,
+      &quot;rank_total&quot;: 3,
+      &quot;rationale_summary&quot;: &quot;단기 구간에서는 밸류에이션이 타이트하고, 촉매는 아직 약합니다.&quot;,
+      &quot;replay_lineage_pointer&quot;: &quot;lineage:registry:short:demo_v0&quot;,
+      &quot;spectrum_band&quot;: &quot;left&quot;,
+      &quot;spectrum_position&quot;: 0.18,
+      &quot;spectrum_quintile&quot;: &quot;underpriced&quot;,
+      &quot;valuation_tension&quot;: &quot;compressed&quot;,
+      &quot;what_changed&quot;: &quot;최근 가이던스 변화 없음.&quot;
+    }
+  ],
+  &quot;rows_limit&quot;: 200,
+  &quot;scoring_endpoint_contract&quot;: &quot;inline_spectrum_rows_v0&quot;,
+  &quot;spectrum_scoring_surface&quot;: &quot;underpriced_overpriced_index_v1&quot;,
+  &quot;today_input_source&quot;: &quot;active_horizon_model_registry_v0&quot;,
+  &quot;total_rows&quot;: 3,
+  &quot;truncated&quot;: false
+}</pre>
+
+</body>
+</html>

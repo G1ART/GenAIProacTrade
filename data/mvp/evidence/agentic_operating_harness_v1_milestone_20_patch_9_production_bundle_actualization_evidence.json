@@ -1,0 +1,98 @@
+{
+  "contract": "AGH_V1_PATCH_9_PRODUCTION_BUNDLE_ACTUALIZATION_EVIDENCE_V1",
+  "milestone": 20,
+  "patch_nature": "productionize_self_serve_scale_closure",
+  "not_a_demo_theater_patch": true,
+  "scope": "Scope A — promote the v2 brain bundle to be the primary runtime production bundle with a quick integrity gate, fallback-aware observability, and production-tier integrity hardening.",
+  "workorder_reference": "docs/plan/METIS_Patch_9_Workorder_Productionize_SelfServe_Scale.md#scope a",
+  "changes": {
+    "a1_brain_bundle_path_env_v2_v0_auto_detect": {
+      "file": "src/metis_brain/bundle.py",
+      "priority_order": [
+        "env_override_METIS_BRAIN_BUNDLE",
+        "metis_brain_bundle_v2.json_if_quick_integrity_ok",
+        "metis_brain_bundle_v0.json_fallback"
+      ],
+      "quick_integrity_gate_fn": "_quick_integrity_ok",
+      "quick_integrity_rules": [
+        "file is valid JSON",
+        "root is an object",
+        "required root keys present (artifacts, promotion_gates, registry_entries, spectrum_rows_by_horizon)",
+        "schema_version is int when present"
+      ],
+      "observability_fn": "brain_bundle_integrity_report_for_path",
+      "report_fields": [
+        "override_used",
+        "resolved_path",
+        "v2_exists",
+        "v2_quick_integrity_ok",
+        "v2_integrity_failed",
+        "fallback_to_v0"
+      ],
+      "health_surface_file": "src/phase51_runtime/cockpit_health_surface.py",
+      "health_fields_added": [
+        "mvp_brain_gate.brain_bundle_path_resolved",
+        "mvp_brain_gate.brain_bundle_integrity_ok",
+        "mvp_brain_gate.brain_bundle_v2_exists",
+        "mvp_brain_gate.brain_bundle_v2_integrity_failed",
+        "mvp_brain_gate.brain_bundle_fallback_to_v0",
+        "mvp_brain_gate.brain_bundle_override_used"
+      ],
+      "health_degraded_reason_added": "v2_integrity_failed",
+      "ui_chip_file": "src/phase47_runtime/static/app.js",
+      "ui_chip_fallback_variant": {
+        "locale_key_label": "tsr.bundle_tier.fallback",
+        "locale_key_tip": "tsr.bundle_tier.fallback_tip",
+        "css_classes": [
+          "tsr-chip--degraded",
+          "tsr-tier-chip--fallback"
+        ]
+      }
+    },
+    "a2_production_tier_integrity_hardening": {
+      "file": "src/metis_brain/bundle.py",
+      "opt_in_signature": "validate_active_registry_integrity(bundle, *, tier='production')",
+      "checks": [
+        "active/challenger consistency (no self-challenger, challenger ids resolvable)",
+        "spectrum rows per horizon (active horizon must ship >= 1 row)",
+        "tier metadata coherence (no pit:demo:* / stub_feature_set / deterministic_kernel fingerprints)",
+        "write-evidence coherence (as_of_utc, metadata.source_run_ids, metadata.built_at_utc)"
+      ],
+      "graduation_script_file": "scripts/agh_v1_patch_8_production_bundle_graduation.py",
+      "graduation_script_change": "passes tier='production' to validate_active_registry_integrity only when build_mode='live'",
+      "pydantic_field_added": "BrainBundleV0.metadata: dict[str, Any]"
+    },
+    "a3_production_graduation_runbook": {
+      "file": "docs/ops/METIS_Production_Bundle_Graduation_Runbook_v1.md",
+      "sections": [
+        "What graduation means in Patch 9",
+        "Three-tier vocabulary (demo / sample / production)",
+        "Pre-flight checks",
+        "Graduation build + verify",
+        "Rollback (disk restore or env override)",
+        "Failure modes and recovery table",
+        "Known limitations",
+        "Sign-off checklist"
+      ],
+      "rollback_paths": [
+        "restore previous metis_brain_bundle_v2.json from git",
+        "set METIS_BRAIN_BUNDLE env to known-good bundle path",
+        "delete v2 file to silently fall back to v0"
+      ]
+    }
+  },
+  "test_coverage": {
+    "surface_tests_file": "src/tests/test_agh_v1_patch9_production_surface.py",
+    "surface_tests": [
+      "test_a1_brain_bundle_path_env_override_wins",
+      "test_a1_brain_bundle_path_picks_v2_when_valid",
+      "test_a1_brain_bundle_path_falls_back_when_v2_corrupt",
+      "test_a1_brain_bundle_integrity_report_flags_v2_failure",
+      "test_a1_brain_bundle_integrity_report_clean_v2",
+      "test_a2_production_tier_clean_bundle_has_no_errors",
+      "test_a2_production_tier_rejects_demo_fingerprints",
+      "test_a2_sample_tier_does_not_raise_production_errors",
+      "test_a2_production_rejects_self_challenger"
+    ]
+  }
+}

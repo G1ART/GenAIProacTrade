@@ -118,13 +118,37 @@ def build_cockpit_runtime_health_payload(
     except Exception as exc:  # pragma: no cover — guarded path
         raw = {"health_status": "degraded"}
         degraded_reasons.append(f"runtime_health_summary_failed: {type(exc).__name__}")
-    from metis_brain.bundle import brain_bundle_path, bundle_ready_for_horizon, try_load_brain_bundle_v0
+    from metis_brain.bundle import (
+        brain_bundle_integrity_report_for_path,
+        brain_bundle_path,
+        bundle_ready_for_horizon,
+        try_load_brain_bundle_v0,
+    )
 
     try:
         _b, brain_errs = try_load_brain_bundle_v0(root)
     except Exception as exc:  # pragma: no cover — guarded path
         _b, brain_errs = None, [f"brain_bundle_exception: {type(exc).__name__}"]
         degraded_reasons.append(f"brain_bundle_load_failed: {type(exc).__name__}")
+    # AGH v1 Patch 9 A1 — detect the "v2 exists but is structurally
+    # broken" case and degrade loudly. Silent fallback to v0 is still the
+    # runtime behaviour (Today must keep working), but the operator sees
+    # the reason through the health surface rather than through a hidden
+    # path resolution.
+    try:
+        bundle_integrity = brain_bundle_integrity_report_for_path(root)
+    except Exception as exc:  # pragma: no cover — guarded path
+        bundle_integrity = {
+            "override_used": False,
+            "resolved_path": "",
+            "v2_exists": False,
+            "v2_quick_integrity_ok": False,
+            "v2_integrity_failed": False,
+            "fallback_to_v0": False,
+            "error": type(exc).__name__,
+        }
+    if bundle_integrity.get("v2_integrity_failed"):
+        degraded_reasons.append("v2_integrity_failed")
     _hz = ("short", "medium", "medium_long", "long")
     horizons_ready = (
         {h: bundle_ready_for_horizon(_b, h) for h in _hz}
@@ -207,6 +231,18 @@ def build_cockpit_runtime_health_payload(
         # AGH v1 Patch 8 D3 — production graduation tier surfaced to the
         # UI so the tier badge can render without duplicating the rule.
         "brain_bundle_tier": brain_bundle_tier,
+        # AGH v1 Patch 9 A1 — v2-first auto-detect observability. The UI
+        # tier chip can turn into a "fallback to sample" variant when
+        # v2 exists on disk but is structurally broken, without us
+        # silently hiding which bundle actually serves Today.
+        "brain_bundle_path_resolved": str(bundle_integrity.get("resolved_path") or ""),
+        "brain_bundle_integrity_ok": _b is not None,
+        "brain_bundle_v2_exists": bool(bundle_integrity.get("v2_exists")),
+        "brain_bundle_v2_integrity_failed": bool(
+            bundle_integrity.get("v2_integrity_failed")
+        ),
+        "brain_bundle_fallback_to_v0": bool(bundle_integrity.get("fallback_to_v0")),
+        "brain_bundle_override_used": bool(bundle_integrity.get("override_used")),
     }
     from metis_brain.mvp_spec_survey_v0 import build_mvp_spec_survey_v0
 

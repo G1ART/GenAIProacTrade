@@ -1,0 +1,103 @@
+{
+  "contract": "AGH_V1_PATCH_9_SURFACE_POLISH_EVIDENCE_V1",
+  "milestone": 20,
+  "patch_nature": "productionize_self_serve_scale_closure",
+  "not_a_demo_theater_patch": true,
+  "scope": "Scope D — wording + surface polish. No feature is removed; utility actions stay one click away but step visually back so first-time operators land on the primary path.",
+  "workorder_reference": "docs/plan/METIS_Patch_9_Workorder_Productionize_SelfServe_Scale.md#scope d",
+  "changes": {
+    "d1_tier_chip_product_tone": {
+      "renderer_file": "src/phase47_runtime/static/app.js",
+      "renderer_fn": "hydrateBundleTierChip",
+      "fallback_variant_trigger": "mvp_brain_gate.brain_bundle_v2_integrity_failed",
+      "labels": {
+        "production": "tsr.bundle_tier.production",
+        "sample": "tsr.bundle_tier.sample",
+        "demo": "tsr.bundle_tier.demo",
+        "fallback": "tsr.bundle_tier.fallback"
+      },
+      "tooltip_includes": [
+        "resolved bundle path",
+        "tsr.bundle_tier.tip",
+        "tsr.bundle_tier.fallback_tip (when v2 integrity failed)"
+      ],
+      "css_classes_added": [
+        "tsr-chip--degraded",
+        "tsr-tier-chip--fallback"
+      ]
+    },
+    "d2_primary_nav_polish": {
+      "file": "src/phase47_runtime/static/index.html",
+      "primary_actions_retained": [
+        "home",
+        "watchlist",
+        "research",
+        "replay",
+        "ask_ai"
+      ],
+      "utility_actions_retained": [
+        "journal",
+        "advanced",
+        "reload_bundle"
+      ],
+      "visual_changes": [
+        "utility row opacity 0.78 → 0.62 (hover boosts to 0.92)",
+        "utility row padding-top 0.3rem → 0.45rem, margin-top 0.15rem → 0.35rem",
+        "utility button font-size 0.74rem → 0.7rem",
+        "primary button font-size 0.8rem → 0.82rem with font-weight 500",
+        "utility note copy explicitly labelled as '운영 유틸' / 'Ops utilities'"
+      ],
+      "feature_removals": 0
+    },
+    "d3_ko_en_wording_review_and_no_leak_scanner_extension": {
+      "scanner_file": "src/tests/test_agh_v1_patch9_copy_no_leak.py",
+      "forbidden_tokens_added": [
+        "brain_bundle_v2_integrity_failed",
+        "brain_bundle_path_resolved",
+        "brain_bundle_integrity_ok",
+        "brain_bundle_fallback_to_v0",
+        "brain_bundle_override_used",
+        "count_packets_by_layer_v1",
+        "agentic_harness_count_packets_by_layer_v1",
+        "target_asset_id",
+        "target_horizon",
+        "archived_at_utc",
+        "agentic_harness_packets_v1_archive",
+        "agentic_harness_queue_jobs_v1_archive",
+        "archive_packets_older_than",
+        "archive_jobs_older_than",
+        "persist_message_snapshot_for_spectrum_row",
+        "persist_message_snapshots_for_spectrum_payload"
+      ],
+      "required_locale_keys_patch9": [
+        "tsr.bundle_tier.fallback",
+        "tsr.bundle_tier.fallback_tip",
+        "research_section.recent_request_kind_head",
+        "research_section.recent_request_result_head",
+        "research_section.recent_request_blocking_head",
+        "research_section.recent_request_next_head",
+        "research_section.recent_request_next_queued",
+        "research_section.recent_request_next_running",
+        "research_section.recent_request_next_completed",
+        "research_section.recent_request_next_blocked",
+        "research_section.invoke_worker_tick_hint",
+        "tsr.invoke.contract.cell_head.will_do",
+        "tsr.invoke.contract.cell_head.will_not_do",
+        "tsr.invoke.contract.cell_head.after_enqueue",
+        "tsr.invoke.contract.cell_head.status_after",
+        "tsr.nav.utility.note"
+      ],
+      "real_user_wording_checks": [
+        "research_section.invoke_copy_hint must mention 운영자 / operator",
+        "research_section.invoke_enqueue_btn must mention 대기열 / queue",
+        "research_section.invoke_worker_tick_hint must mention 워커 / worker",
+        "tsr.bundle_tier.fallback_tip must mention degraded_reasons"
+      ]
+    }
+  },
+  "test_coverage": {
+    "surface_tests_file": "src/tests/test_agh_v1_patch9_production_surface.py",
+    "copy_no_leak_tests_file": "src/tests/test_agh_v1_patch9_copy_no_leak.py",
+    "regression_checks": "Patch 5 + Patch 6 + Patch 8 surface/no-leak suites remain green."
+  }
+}

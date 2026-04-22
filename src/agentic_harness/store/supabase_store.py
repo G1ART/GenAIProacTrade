@@ -122,6 +122,8 @@ class SupabaseHarnessStore(HarnessStoreProtocol):
         target_layer: Optional[str] = None,
         status: Optional[str] = None,
         since_utc: Optional[str] = None,
+        target_asset_id: Optional[str] = None,
+        target_horizon: Optional[str] = None,
         limit: int = 200,
     ) -> list[dict[str, Any]]:
         q = self._c.table(_PACKETS).select("*")
@@ -133,10 +135,34 @@ class SupabaseHarnessStore(HarnessStoreProtocol):
             q = q.eq("status", status)
         if since_utc:
             q = q.gte("created_at_utc", since_utc)
+        # AGH v1 Patch 9 C·B2 — JSONB equality filter pushed to Postgres.
+        # Backed by the indexes in
+        # ``20260420010000_agentic_harness_packets_target_scope_index_v1.sql``.
+        if target_asset_id:
+            q = q.eq("target_scope->>asset_id", str(target_asset_id))
+        if target_horizon:
+            q = q.eq("target_scope->>horizon", str(target_horizon))
         r = q.order("created_at_utc", desc=True).limit(max(1, int(limit))).execute()
         return [dict(x) for x in (r.data or [])]
 
     def count_packets_by_layer(self) -> dict[str, int]:
+        # AGH v1 Patch 9 C·A3 — prefer the server-side RPC
+        # ``agentic_harness_count_packets_by_layer_v1`` so we don't pull
+        # every packet row into Python just to count by layer. On any
+        # RPC failure (older DB without the function, RLS mismatch,
+        # transient network) fall back to the legacy pull-and-count path
+        # so the cockpit never goes dark.
+        try:
+            r = self._c.rpc(
+                "agentic_harness_count_packets_by_layer_v1", {}
+            ).execute()
+            data = r.data
+            if isinstance(data, dict):
+                by_layer = data.get("by_layer") or {}
+                if isinstance(by_layer, dict):
+                    return {str(k): int(v or 0) for k, v in by_layer.items()}
+        except Exception:
+            pass
         r = self._c.table(_PACKETS).select("target_layer").execute()
         counts: dict[str, int] = {}
         for row in r.data or []:

@@ -1251,24 +1251,50 @@
         `<div class="tsr-contract-head">${escapeHtml(
           tr("tsr.invoke.contract.head")
         )}</div>` +
-        `<ul class="tsr-contract-list">` +
-        `<li data-tsr-contract-line="will_do">${escapeHtml(
-          tr("tsr.invoke.contract.will_do")
-        )}</li>` +
-        `<li data-tsr-contract-line="will_not_do">${escapeHtml(
-          tr("tsr.invoke.contract.will_not_do")
-        )}</li>` +
-        `<li data-tsr-contract-line="after_enqueue">${escapeHtml(
-          tr("tsr.invoke.contract.after_enqueue")
-        )}</li>` +
+        // AGH v1 Patch 9 B3 — refactor the 4-line contract list into a
+        // 2-column grid so the "will_do / will_not_do" promise pair reads
+        // at a glance above the "after_enqueue / status_after" behaviour
+        // pair. Each grid cell keeps its own contract head chip so the
+        // scan order (promise → behaviour) is visually stable in both
+        // Korean and English (the English copy is wider).
+        `<ul class="tsr-contract-list tsr-contract-grid">` +
+        `<li data-tsr-contract-line="will_do" class="tsr-contract-cell tsr-contract-cell--promise">` +
+          `<span class="tsr-contract-cell-head">${escapeHtml(
+            tr("tsr.invoke.contract.cell_head.will_do")
+          )}</span>` +
+          `<span class="tsr-contract-cell-body">${escapeHtml(
+            tr("tsr.invoke.contract.will_do")
+          )}</span>` +
+        `</li>` +
+        `<li data-tsr-contract-line="will_not_do" class="tsr-contract-cell tsr-contract-cell--promise">` +
+          `<span class="tsr-contract-cell-head">${escapeHtml(
+            tr("tsr.invoke.contract.cell_head.will_not_do")
+          )}</span>` +
+          `<span class="tsr-contract-cell-body">${escapeHtml(
+            tr("tsr.invoke.contract.will_not_do")
+          )}</span>` +
+        `</li>` +
+        `<li data-tsr-contract-line="after_enqueue" class="tsr-contract-cell tsr-contract-cell--behaviour">` +
+          `<span class="tsr-contract-cell-head">${escapeHtml(
+            tr("tsr.invoke.contract.cell_head.after_enqueue")
+          )}</span>` +
+          `<span class="tsr-contract-cell-body">${escapeHtml(
+            tr("tsr.invoke.contract.after_enqueue")
+          )}</span>` +
+        `</li>` +
         // AGH v1 Patch 8 B4 — 4th contract line + a dedicated 4-state
         // chip slot directly under the contract. Keeping the visible
         // state *inside* the contract block makes the promise
         // ("after run you will see these 4 states") testable by the
         // operator at a glance.
-        `<li data-tsr-contract-line="status_after">${escapeHtml(
-          tr("tsr.invoke.contract.status_after")
-        )}</li>` +
+        `<li data-tsr-contract-line="status_after" class="tsr-contract-cell tsr-contract-cell--behaviour">` +
+          `<span class="tsr-contract-cell-head">${escapeHtml(
+            tr("tsr.invoke.contract.cell_head.status_after")
+          )}</span>` +
+          `<span class="tsr-contract-cell-body">${escapeHtml(
+            tr("tsr.invoke.contract.status_after")
+          )}</span>` +
+        `</li>` +
         `</ul>` +
         `<div class="tsr-contract-state-slot" data-tsr-contract-state-slot="1">` +
         `<span class="tsr-chip tsr-chip--neutral" data-tsr-contract-state-chip="1">${escapeHtml(
@@ -1320,6 +1346,12 @@
         `<button type="button" class="btn btn-xs" data-tsr-invoke-refresh="1">${escapeHtml(
           tr("research_section.invoke_queue_poll")
         )}</button>` +
+        // AGH v1 Patch 9 B2 — honest worker-tick hint. Shown only when
+        // the chip is in queued / running state so the operator is not
+        // misled into thinking the system is doing nothing or, worse,
+        // that it acted autonomously. When completed / blocked the hint
+        // is hidden — the chip itself is the final state.
+        `<span class="invoke-worker-hint" data-tsr-invoke-worker-hint="1" hidden></span>` +
         `</div>` +
         `<div data-tsr-enqueue-result="1" class="invoke-inline-msg" style="margin-top:0.3rem"></div>` +
         recentBlockHtml +
@@ -1892,12 +1924,27 @@
     // slot so the operator sees the same chip under the "what this
     // action does" list. We set both via a helper.
     const mirrorChip = wrap.querySelector("[data-tsr-contract-state-chip]");
+    const workerHint = wrap.querySelector("[data-tsr-invoke-worker-hint]");
     function applyChip(cls, text) {
       chip.className = cls;
       chip.textContent = text;
       if (mirrorChip) {
         mirrorChip.className = cls;
         mirrorChip.textContent = text;
+      }
+    }
+    // AGH v1 Patch 9 B2 — the hint line sits beside the chip and fades
+    // in only for in-flight states. It never claims the worker "just ran";
+    // it explains that the worker process polls at a cadence, which is
+    // what actually happens on Railway (--loop --sleep 30).
+    function applyWorkerHint(life) {
+      if (!workerHint) return;
+      if (life === "queued" || life === "running") {
+        workerHint.hidden = false;
+        workerHint.textContent = tr("research_section.invoke_worker_tick_hint");
+      } else {
+        workerHint.hidden = true;
+        workerHint.textContent = "";
       }
     }
     row.hidden = false;
@@ -1924,6 +1971,7 @@
           "tsr-chip tsr-chip--neutral",
           tr("research_section.invoke_state_unknown")
         );
+        applyWorkerHint("unknown");
         return;
       }
       // AGH v1 Patch 8 B2 — prefer the server-computed `lifecycle_state`
@@ -1946,6 +1994,7 @@
           "tsr-chip tsr-chip--warn tsr-invoke-state-running",
           tr("research_section.invoke_state_running")
         );
+        applyWorkerHint("running");
       } else if (life === "blocked" || outcome === "blocked" || outcome === "dlq" || outcome === "failed") {
         const reasons = Array.isArray(resultPayload.blocking_reasons)
           ? resultPayload.blocking_reasons
@@ -1956,22 +2005,26 @@
           tr("research_section.invoke_state_blocked") +
             (reason ? ` — ${reason}` : "")
         );
+        applyWorkerHint("blocked");
       } else if (life === "completed" || resultPkt) {
         applyChip(
           "tsr-chip tsr-chip--info tsr-invoke-state-completed",
           tr("research_section.invoke_state_completed") + producedSuffix
         );
+        applyWorkerHint("completed");
       } else {
         applyChip(
           "tsr-chip tsr-chip--warn tsr-invoke-state-queued",
           tr("research_section.invoke_state_queued")
         );
+        applyWorkerHint("queued");
       }
     } catch (_e) {
       applyChip(
         "tsr-chip tsr-chip--neutral",
         tr("research_section.invoke_state_unknown")
       );
+      applyWorkerHint("unknown");
     }
   }
 
@@ -2014,61 +2067,7 @@
       }
       const rows = items
         .slice(0, 5)
-        .map((it) => {
-          const req = (it && it.request) || {};
-          const reqPayload = req.payload || {};
-          const life = String(it.lifecycle_state || "queued").toLowerCase();
-          const chipMap = {
-            queued: "tsr-chip tsr-chip--warn",
-            running: "tsr-chip tsr-chip--warn",
-            completed: "tsr-chip tsr-chip--info",
-            blocked: "tsr-chip tsr-chip--degraded",
-          };
-          const chipCls = chipMap[life] || "tsr-chip tsr-chip--neutral";
-          const chipLabelKey =
-            life === "running"
-              ? "research_section.invoke_state_running"
-              : life === "completed"
-              ? "research_section.invoke_state_completed"
-              : life === "blocked"
-              ? "research_section.invoke_state_blocked"
-              : "research_section.invoke_state_queued";
-          const ts = reqPayload.target_spec || {};
-          const fn = String(ts.factor_name || "");
-          const un = String(ts.universe_name || "");
-          const htp = String(ts.horizon_type || "");
-          const rb = String(ts.return_basis || "");
-          const targetLabel = [fn, un, htp, rb].filter(Boolean).join(" · ");
-          const when = String(req.created_at_utc || "").slice(0, 16).replace("T", " ");
-          const rationale = String(reqPayload.rationale || "").slice(0, 160);
-          const resultPayload = (it.result && it.result.payload) || {};
-          const produced = humanizeProducedRefs(resultPayload);
-          const auditJson = JSON.stringify(
-            { request: req, result: it.result || null, job: it.job || null },
-            null,
-            2
-          );
-          return (
-            `<li class="tsr-recent-row" data-tsr-life="${escapeHtml(life)}">` +
-            `<span class="${chipCls}">${escapeHtml(tr(chipLabelKey))}</span> ` +
-            `<span class="mono" style="font-size:0.74rem">${escapeHtml(when)}</span> ` +
-            (targetLabel
-              ? `<span class="meta-sub"> · ${escapeHtml(targetLabel)}</span>`
-              : "") +
-            (produced
-              ? ` <span class="ev-faint" style="font-size:0.72rem">· ${escapeHtml(produced)}</span>`
-              : "") +
-            (rationale
-              ? `<div class="meta-sub" style="margin-top:0.2rem">${escapeHtml(rationale)}</div>`
-              : "") +
-            `<details style="margin-top:0.2rem"><summary>${escapeHtml(
-              isKo ? "감사 로그" : "Audit"
-            )}</summary><pre class="raw-ids" style="white-space:pre-wrap">${escapeHtml(
-              auditJson
-            )}</pre></details>` +
-            `</li>`
-          );
-        })
+        .map((it) => renderRecentSandboxRequestRow(it, isKo))
         .join("");
       if (body) {
         body.className = "tsr-recent-body";
@@ -2080,6 +2079,136 @@
         body.textContent = tr("research_section.recent_requests_empty");
       }
     }
+  }
+
+  // AGH v1 Patch 9 B1 — product-grade expand drawer for recent sandbox
+  // requests. The compact row still shows (chip · when · target · produced
+  // count); the drawer now surfaces the same information the operator
+  // would otherwise have to extract from the raw JSON audit pane —
+  // request kind, humanized result summary, blocking reasons, request
+  // input, and the honest "next step" hint ("worker 가 처리" / "이미 완료,
+  // Replay 에서 확인" / "차단 — 위 이유 해결 필요"). No fake autonomy — the
+  // hint does not pretend that the system has already acted.
+  function renderRecentSandboxRequestRow(it, isKo) {
+    const req = (it && it.request) || {};
+    const reqPayload = req.payload || {};
+    const life = String(it.lifecycle_state || "queued").toLowerCase();
+    const chipMap = {
+      queued: "tsr-chip tsr-chip--warn",
+      running: "tsr-chip tsr-chip--warn",
+      completed: "tsr-chip tsr-chip--info",
+      blocked: "tsr-chip tsr-chip--degraded",
+    };
+    const chipCls = chipMap[life] || "tsr-chip tsr-chip--neutral";
+    const chipLabelKey =
+      life === "running"
+        ? "research_section.invoke_state_running"
+        : life === "completed"
+        ? "research_section.invoke_state_completed"
+        : life === "blocked"
+        ? "research_section.invoke_state_blocked"
+        : "research_section.invoke_state_queued";
+    const ts = reqPayload.target_spec || {};
+    const fn = String(ts.factor_name || "");
+    const un = String(ts.universe_name || "");
+    const htp = String(ts.horizon_type || "");
+    const rb = String(ts.return_basis || "");
+    const targetLabel = [fn, un, htp, rb].filter(Boolean).join(" · ");
+    const when = String(req.created_at_utc || "").slice(0, 16).replace("T", " ");
+    const rationale = String(reqPayload.rationale || "").slice(0, 160);
+    const resultPayload = (it.result && it.result.payload) || {};
+    const produced = humanizeProducedRefs(resultPayload);
+    const kind = String(reqPayload.sandbox_kind || "").trim();
+    const kindLabel = kind
+      ? tr("research_section.recent_request_kind_value").replace("{kind}", kind)
+      : "";
+    const blockingRaw = resultPayload.blocking_reasons;
+    const blocking = Array.isArray(blockingRaw)
+      ? blockingRaw.filter((x) => typeof x === "string" && x.trim()).slice(0, 3)
+      : [];
+    const inputLines = [];
+    if (targetLabel) inputLines.push(targetLabel);
+    if (String(reqPayload.horizon || "").trim())
+      inputLines.push(
+        tr("research_section.recent_request_input_horizon").replace(
+          "{horizon}",
+          String(reqPayload.horizon)
+        )
+      );
+    if (rationale) inputLines.push(rationale);
+    let nextKey;
+    if (life === "completed") {
+      nextKey = "research_section.recent_request_next_completed";
+    } else if (life === "blocked") {
+      nextKey = "research_section.recent_request_next_blocked";
+    } else if (life === "running") {
+      nextKey = "research_section.recent_request_next_running";
+    } else {
+      nextKey = "research_section.recent_request_next_queued";
+    }
+    const headRowCompact =
+      `<span class="${chipCls}">${escapeHtml(tr(chipLabelKey))}</span> ` +
+      `<span class="mono" style="font-size:0.74rem">${escapeHtml(when)}</span>` +
+      (targetLabel
+        ? ` <span class="meta-sub"> · ${escapeHtml(targetLabel)}</span>`
+        : "") +
+      (produced
+        ? ` <span class="ev-faint" style="font-size:0.72rem">· ${escapeHtml(produced)}</span>`
+        : "");
+    const drawerBlocks = [];
+    if (kindLabel) {
+      drawerBlocks.push(
+        `<div class="tsr-req-drawer-block"><div class="tsr-req-drawer-head">${escapeHtml(
+          tr("research_section.recent_request_kind_head")
+        )}</div><div class="tsr-req-drawer-body">${escapeHtml(kindLabel)}</div></div>`
+      );
+    }
+    if (inputLines.length) {
+      drawerBlocks.push(
+        `<div class="tsr-req-drawer-block"><div class="tsr-req-drawer-head">${escapeHtml(
+          tr("research_section.recent_request_input_head")
+        )}</div><div class="tsr-req-drawer-body">` +
+          inputLines.map((l) => `<div>${escapeHtml(l)}</div>`).join("") +
+          `</div></div>`
+      );
+    }
+    if (life === "completed") {
+      const summary =
+        produced ||
+        tr("research_section.recent_request_result_empty");
+      drawerBlocks.push(
+        `<div class="tsr-req-drawer-block"><div class="tsr-req-drawer-head">${escapeHtml(
+          tr("research_section.recent_request_result_head")
+        )}</div><div class="tsr-req-drawer-body">${escapeHtml(summary)}</div></div>`
+      );
+    }
+    if (life === "blocked" && blocking.length) {
+      drawerBlocks.push(
+        `<div class="tsr-req-drawer-block"><div class="tsr-req-drawer-head">${escapeHtml(
+          tr("research_section.recent_request_blocking_head")
+        )}</div><ul class="tsr-req-drawer-list">` +
+          blocking.map((r) => `<li>${escapeHtml(r)}</li>`).join("") +
+          `</ul></div>`
+      );
+    }
+    drawerBlocks.push(
+      `<div class="tsr-req-drawer-block"><div class="tsr-req-drawer-head">${escapeHtml(
+        tr("research_section.recent_request_next_head")
+      )}</div><div class="tsr-req-drawer-body">${escapeHtml(
+        tr(nextKey)
+      )}</div></div>`
+    );
+    const drawerHtml = drawerBlocks.join("");
+    const summaryLabel = isKo ? "세부" : "Details";
+    return (
+      `<li class="tsr-recent-row tsr-req-row" data-tsr-life="${escapeHtml(life)}">` +
+      `<div class="tsr-req-row-head">${headRowCompact}</div>` +
+      `<details class="tsr-req-drawer-details" style="margin-top:0.25rem">` +
+      `<summary class="tsr-req-drawer-summary">${escapeHtml(summaryLabel)}</summary>` +
+      `<div class="tsr-req-drawer">${drawerHtml}</div>` +
+      `</details>` +
+      `</li>`
+    );
   }
 
   function humanizeProducedRefs(resultPayload) {
@@ -3982,26 +4111,46 @@
         "/api/runtime/health?lang=" + encodeURIComponent(cockpitLang() || "ko")
       );
       if (!ok || !json || json.ok === false) return;
-      const tier = String(
-        (((json || {}).mvp_brain_gate || {}).brain_bundle_tier || "")
-      ).toLowerCase();
+      const gate = (json || {}).mvp_brain_gate || {};
+      const tier = String(gate.brain_bundle_tier || "").toLowerCase();
       if (!tier) return;
-      const key =
-        tier === "production"
-          ? "tsr.bundle_tier.production"
-          : tier === "sample"
-          ? "tsr.bundle_tier.sample"
-          : "tsr.bundle_tier.demo";
+      // AGH v1 Patch 9 A1/D1 — when v2 physically exists but failed the
+      // quick integrity gate we silently fell back to v0. The chip must
+      // not pretend we're still on production in that case, so we render
+      // a dedicated "fallback → sample" variant, with a richer tooltip
+      // explaining which path actually served Today.
+      const v2IntegrityFailed = Boolean(gate.brain_bundle_v2_integrity_failed);
+      const pathResolved = String(gate.brain_bundle_path_resolved || "");
+      let key;
+      let cls;
+      if (v2IntegrityFailed) {
+        key = "tsr.bundle_tier.fallback";
+        cls = "tsr-chip tsr-chip--degraded tsr-bundle-tier-chip tsr-tier-chip--fallback";
+      } else if (tier === "production") {
+        key = "tsr.bundle_tier.production";
+        cls = "tsr-chip tsr-chip--info tsr-bundle-tier-chip";
+      } else if (tier === "sample") {
+        key = "tsr.bundle_tier.sample";
+        cls = "tsr-chip tsr-chip--neutral tsr-bundle-tier-chip";
+      } else {
+        key = "tsr.bundle_tier.demo";
+        cls = "tsr-chip tsr-chip--warn tsr-bundle-tier-chip";
+      }
       el.textContent = tr(key);
-      const cls =
-        tier === "production"
-          ? "tsr-chip tsr-chip--info tsr-bundle-tier-chip"
-          : tier === "sample"
-          ? "tsr-chip tsr-chip--neutral tsr-bundle-tier-chip"
-          : "tsr-chip tsr-chip--warn tsr-bundle-tier-chip";
       el.className = cls;
-      el.setAttribute("title", tr("tsr.bundle_tier.tip"));
+      let tip = tr("tsr.bundle_tier.tip");
+      if (pathResolved) {
+        tip += "\n" + pathResolved;
+      }
+      if (v2IntegrityFailed) {
+        tip += "\n" + tr("tsr.bundle_tier.fallback_tip");
+      }
+      el.setAttribute("title", tip);
       el.setAttribute("data-tier", tier);
+      el.setAttribute(
+        "data-fallback",
+        v2IntegrityFailed ? "v2_integrity_failed" : ""
+      );
       el.hidden = false;
     } catch (_e) {}
   }

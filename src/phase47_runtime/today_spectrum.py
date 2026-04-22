@@ -602,7 +602,16 @@ def _message_snapshot_pair_v0(
 
 
 def persist_message_snapshots_for_spectrum_payload(repo_root: Path, spectrum_payload: dict[str, Any]) -> None:
-    """Persist all row snapshots so Replay can resolve IDs without opening object detail first."""
+    """Persist all row snapshots so Replay can resolve IDs without opening object detail first.
+
+    AGH v1 Patch 9 C·C — callers are encouraged to persist lazily via
+    ``persist_message_snapshot_for_spectrum_row`` when the operator
+    actually opens an object detail. This full-sweep helper is retained
+    for backfill / one-shot evidence scripts (so the Replay ID space can
+    be primed deliberately) but is no longer called from the Today
+    spectrum build path, which at 500-ticker scale paid the write cost
+    on every /api/today/spectrum hit.
+    """
     if not spectrum_payload.get("ok"):
         return
     lg = normalize_lang(str(spectrum_payload.get("lang") or "en"))
@@ -613,6 +622,31 @@ def persist_message_snapshots_for_spectrum_payload(repo_root: Path, spectrum_pay
         if pair:
             sid, rec = pair
             upsert_message_snapshot(repo_root, sid, rec)
+
+
+def persist_message_snapshot_for_spectrum_row(
+    repo_root: Path,
+    spectrum_payload: dict[str, Any],
+    row: dict[str, Any],
+) -> str | None:
+    """AGH v1 Patch 9 C·C — persist exactly one row's snapshot.
+
+    Called from ``build_today_object_detail_payload`` when an operator
+    opens a specific asset; the rest of the spectrum remains untouched
+    on disk. Returns the snapshot id on success, or ``None`` when the
+    pair cannot be built (identical to the full-sweep contract).
+    """
+    if not spectrum_payload.get("ok"):
+        return None
+    if not isinstance(row, dict):
+        return None
+    lg = normalize_lang(str(spectrum_payload.get("lang") or "en"))
+    pair = _message_snapshot_pair_v0(spectrum_payload=spectrum_payload, row=row, lang=lg)
+    if not pair:
+        return None
+    sid, rec = pair
+    upsert_message_snapshot(repo_root, sid, rec)
+    return sid
 
 
 def build_today_spectrum_payload(
@@ -685,7 +719,9 @@ def build_today_spectrum_payload(
                 },
                 rows_limit=effective_limit,
             )
-            persist_message_snapshots_for_spectrum_payload(repo_root, out)
+            # AGH v1 Patch 9 C·C — snapshot persistence moved to
+            # ``build_today_object_detail_payload``. The spectrum build
+            # no longer issues N disk writes per /api/today/spectrum hit.
             _emit_perf_log(
                 fn="today_spectrum.build_today_spectrum_payload",
                 ms=(perf_counter() - t0) * 1000.0,
@@ -759,7 +795,8 @@ def build_today_spectrum_payload(
         extra=extra,
         rows_limit=effective_limit,
     )
-    persist_message_snapshots_for_spectrum_payload(repo_root, out)
+    # AGH v1 Patch 9 C·C — snapshot persistence moved to
+    # ``build_today_object_detail_payload`` (lazy, per-row).
     _emit_perf_log(
         fn="today_spectrum.build_today_spectrum_payload",
         ms=(perf_counter() - t0) * 1000.0,
@@ -1285,6 +1322,14 @@ def build_today_object_detail_payload(
             "horizon": hz,
             "allowed_hint": "Pick an asset_id from GET /api/today/spectrum rows for this horizon.",
         }
+    # AGH v1 Patch 9 C·C — snapshot lazy generation. Only at the moment
+    # an operator opens an object detail do we persist that row's
+    # message snapshot. The Today spectrum build path no longer pays
+    # this IO cost for every row on every hit.
+    try:
+        persist_message_snapshot_for_spectrum_row(repo_root, sp, row)
+    except Exception:  # pragma: no cover — snapshot IO must not break detail
+        pass
     raw_row = _raw_spectrum_row(repo_root, hz, aid)
     fam = str(sp.get("active_model_family") or "")
     info = _information_from_seed_or_fallback(raw_row, row, lg)

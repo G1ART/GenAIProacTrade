@@ -1,0 +1,92 @@
+{
+  "contract": "AGH_V1_PATCH_9_BOUNDED_SELF_SERVE_ACTUALIZATION_EVIDENCE_V1",
+  "milestone": 20,
+  "patch_nature": "productionize_self_serve_scale_closure",
+  "not_a_demo_theater_patch": true,
+  "scope": "Scope B — elevate the user experience inside the product to be more self-serve (request / track / understand) while preserving the operator-assisted flow; no LLM direct writes, no auto-promotion.",
+  "workorder_reference": "docs/plan/METIS_Patch_9_Workorder_Productionize_SelfServe_Scale.md#scope b",
+  "changes": {
+    "b1_recent_requests_drawer": {
+      "renderer_file": "src/phase47_runtime/static/app.js",
+      "renderer_fn": "renderRecentSandboxRequestRow",
+      "hydrator_fn": "hydrateRecentSandboxRequests",
+      "drawer_blocks": [
+        "kind (humanized sandbox_kind)",
+        "result (produced refs summary or empty state)",
+        "blocking reasons",
+        "input (target, horizon, rationale)",
+        "next step (contextual, aware of lifecycle state)"
+      ],
+      "css_file": "src/phase47_runtime/static/index.html",
+      "css_class": "tsr-req-drawer",
+      "empty_state_copy": {
+        "ko": "research_section.recent_requests_empty",
+        "en": "research_section.recent_requests_empty"
+      },
+      "locale_keys_added": [
+        "research_section.recent_request_kind_head",
+        "research_section.recent_request_kind_value",
+        "research_section.recent_request_input_head",
+        "research_section.recent_request_input_horizon",
+        "research_section.recent_request_result_head",
+        "research_section.recent_request_result_empty",
+        "research_section.recent_request_blocking_head",
+        "research_section.recent_request_next_head",
+        "research_section.recent_request_next_queued",
+        "research_section.recent_request_next_running",
+        "research_section.recent_request_next_completed",
+        "research_section.recent_request_next_blocked"
+      ]
+    },
+    "b2_worker_tick_hint": {
+      "renderer_file": "src/phase47_runtime/static/app.js",
+      "helper_fn": "applyWorkerHint",
+      "hint_visible_for_states": ["queued", "running"],
+      "hint_hidden_for_states": ["completed", "blocked"],
+      "data_attribute": "data-tsr-invoke-worker-hint",
+      "css_class": "invoke-worker-hint",
+      "locale_key": "research_section.invoke_worker_tick_hint",
+      "honest_note": "Clarifies the async, operator-gated cadence — no pretence that execution is instant or autonomous."
+    },
+    "b3_contract_card_grid": {
+      "renderer_file": "src/phase47_runtime/static/app.js",
+      "css_file": "src/phase47_runtime/static/index.html",
+      "grid_class": "tsr-contract-grid",
+      "cell_classes": [
+        "tsr-contract-cell",
+        "tsr-contract-cell-head",
+        "tsr-contract-cell-body"
+      ],
+      "layout": "2-column CSS grid with responsive fallback to single column on narrow screens",
+      "locale_keys_added": [
+        "tsr.invoke.contract.cell_head.will_do",
+        "tsr.invoke.contract.cell_head.will_not_do",
+        "tsr.invoke.contract.cell_head.after_enqueue",
+        "tsr.invoke.contract.cell_head.status_after"
+      ]
+    },
+    "b4_self_serve_copy_hardening": {
+      "file": "src/phase47_runtime/phase47e_user_locale.py",
+      "hardened_keys": {
+        "research_section.invoke_copy_hint": "operator-gated language (운영자 / operator) retained",
+        "research_section.invoke_ui_hint": "explicit queue + no-auto-promotion framing",
+        "research_section.invoke_enqueue_btn": "대기열에 적재 (운영자 게이트, 자동 승격 없음) / Enqueue (operator-gated, no auto-promotion)"
+      },
+      "no_leak_scanner_extension": "src/tests/test_agh_v1_patch9_copy_no_leak.py (REAL_USER_WORDING_REQUIREMENTS)"
+    }
+  },
+  "test_coverage": {
+    "surface_tests_file": "src/tests/test_agh_v1_patch9_production_surface.py",
+    "surface_tests": [
+      "test_d1_bundle_tier_chip_has_fallback_css_variant",
+      "test_d2_nav_keeps_primary_and_utility_rows_with_all_features"
+    ],
+    "copy_no_leak_tests_file": "src/tests/test_agh_v1_patch9_copy_no_leak.py",
+    "real_user_wording_checks": [
+      "research_section.invoke_copy_hint contains 운영자/operator",
+      "research_section.invoke_enqueue_btn contains 대기열/queue",
+      "research_section.invoke_worker_tick_hint contains 워커/worker",
+      "tsr.bundle_tier.fallback_tip mentions degraded_reasons"
+    ]
+  }
+}

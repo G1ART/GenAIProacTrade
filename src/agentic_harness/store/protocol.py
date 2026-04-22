@@ -40,8 +40,15 @@ class HarnessStoreProtocol(Protocol):
         target_layer: Optional[str] = None,
         status: Optional[str] = None,
         since_utc: Optional[str] = None,
+        target_asset_id: Optional[str] = None,
+        target_horizon: Optional[str] = None,
         limit: int = 200,
     ) -> list[dict[str, Any]]:
+        """AGH v1 Patch 9 C·B2 — ``target_asset_id`` / ``target_horizon``
+        push the JSONB equality filter into the DB so routers no longer
+        have to pull the full packet set and filter in Python. Backends
+        that can't push the filter server-side must still apply it
+        (fixture store filters in-memory)."""
         ...
 
     def count_packets_by_layer(self) -> dict[str, int]:

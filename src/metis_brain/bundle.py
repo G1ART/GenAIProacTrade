@@ -16,11 +16,78 @@ from metis_brain.schemas_v0 import (
 )
 
 
+# AGH v1 Patch 9 A1 — production-first auto-detect.
+#
+# Priority, top first:
+#   1. ``METIS_BRAIN_BUNDLE`` env override (operator-explicit path; never
+#      silently replaced).
+#   2. ``data/mvp/metis_brain_bundle_v2.json`` (production tier) if the file
+#      exists AND passes a cheap structural integrity gate (valid JSON +
+#      root schema keys present + ``bundle_schema_version`` plausible).
+#   3. ``data/mvp/metis_brain_bundle_v0.json`` (sample/demo fallback). Never
+#      removed — this is the documented rollback target.
+#
+# The full ``validate_active_registry_integrity`` check is intentionally
+# NOT run here. It is re-run downstream by ``try_load_brain_bundle_v0`` so
+# the two costs don't compound on every path resolution (health poll,
+# spectrum build, etc.). The quick gate is only meant to stop us handing
+# back a v2 path that is structurally broken (e.g. half-written, truncated
+# JSON) — in that case we silently fall back to v0 so Today keeps working,
+# and the health surface separately reports the v2 integrity failure via
+# ``brain_bundle_integrity_report_for_path``.
+def _quick_integrity_ok(p: Path) -> bool:
+    try:
+        raw = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    if not isinstance(raw, dict):
+        return False
+    required_root_keys = (
+        "artifacts",
+        "promotion_gates",
+        "registry_entries",
+        "spectrum_rows_by_horizon",
+    )
+    for k in required_root_keys:
+        if k not in raw:
+            return False
+    schema_version = raw.get("schema_version")
+    if schema_version is not None and not isinstance(schema_version, int):
+        return False
+    return True
+
+
 def brain_bundle_path(repo_root: Path) -> Path:
     override = (os.environ.get("METIS_BRAIN_BUNDLE") or "").strip()
     if override:
         return Path(override)
+    v2 = repo_root / "data" / "mvp" / "metis_brain_bundle_v2.json"
+    if v2.is_file() and _quick_integrity_ok(v2):
+        return v2
     return repo_root / "data" / "mvp" / "metis_brain_bundle_v0.json"
+
+
+def brain_bundle_integrity_report_for_path(repo_root: Path) -> dict[str, Any]:
+    """Report the resolved bundle path and whether v2 quick-integrity failed.
+
+    AGH v1 Patch 9 A1 — surfaced by ``/api/runtime/health`` so the operator
+    can see when we are running on v0 fallback because v2 is structurally
+    broken (not just missing). ``v2_integrity_failed`` is emitted only
+    when the v2 file physically exists but the quick gate rejects it.
+    """
+    override = (os.environ.get("METIS_BRAIN_BUNDLE") or "").strip()
+    resolved = brain_bundle_path(repo_root)
+    v2 = repo_root / "data" / "mvp" / "metis_brain_bundle_v2.json"
+    v2_exists = v2.is_file()
+    v2_quick_ok = v2_exists and _quick_integrity_ok(v2)
+    return {
+        "override_used": bool(override),
+        "resolved_path": str(resolved),
+        "v2_exists": v2_exists,
+        "v2_quick_integrity_ok": v2_quick_ok,
+        "v2_integrity_failed": v2_exists and not v2_quick_ok and not override,
+        "fallback_to_v0": (not override) and (not v2_quick_ok),
+    }
 
 
 class BrainBundleV0(BaseModel):
@@ -56,6 +123,13 @@ class BrainBundleV0(BaseModel):
     #   (optional), ``applied_at_utc``, ``spectrum_refresh_needs_db_rebuild``
     #   (bool, optional).
     recent_governed_applies: list[dict[str, Any]] = Field(default_factory=list)
+    # AGH v1 Patch 9 A2 — optional build-fingerprint block. Written by the
+    # production graduation script (graduation_tier, graduated_at_utc,
+    # source_run_ids, built_at_utc, gate_spec_count) so the cockpit + A2
+    # integrity checks can tell apart real-graduated bundles from demo
+    # templates without inspecting every artifact. Legacy bundles omit
+    # this field entirely — empty dict = no claim.
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="before")
     @classmethod
@@ -110,9 +184,23 @@ def try_load_brain_bundle_v0(repo_root: Path) -> tuple[BrainBundleV0 | None, lis
     return bundle, []
 
 
-def validate_active_registry_integrity(bundle: BrainBundleV0) -> list[str]:
-    """Return human-readable errors; empty list means Today may consume this bundle."""
+def validate_active_registry_integrity(
+    bundle: BrainBundleV0,
+    *,
+    tier: str | None = None,
+) -> list[str]:
+    """Return human-readable errors; empty list means Today may consume this bundle.
+
+    AGH v1 Patch 9 A2 — when ``tier='production'`` is passed explicitly,
+    additional checks run (active/challenger consistency, spectrum rows
+    per horizon, tier metadata coherence, write-evidence coherence). Under
+    the default ``tier=None`` / ``tier='sample'`` / ``tier='demo'`` the
+    historical (Patch 8 and earlier) minimum-check behaviour is preserved,
+    so legacy callers that call this unconditionally (e.g. overlay
+    loaders) keep their existing semantics.
+    """
     errors: list[str] = []
+    tier_norm = (tier or "").strip().lower()
     by_art = {a.artifact_id: a for a in bundle.artifacts}
     gates_by_artifact: dict[str, list[PromotionGateRecordV0]] = {}
     for g in bundle.promotion_gates:
@@ -195,7 +283,133 @@ def validate_active_registry_integrity(bundle: BrainBundleV0) -> list[str]:
                 )
             )
 
+    if tier_norm == "production":
+        errors.extend(_production_tier_integrity_checks(bundle))
+
     return errors
+
+
+# AGH v1 Patch 9 A2 — production tier integrity hardening.
+#
+# These checks run in addition to the universal checks above, but only
+# when a caller opts in by passing ``tier='production'``. They encode the
+# extra invariants we promise to operators whenever the cockpit claims a
+# bundle is at production tier (vs. sample / demo). Each check appends
+# plain-language reasons; no check raises.
+_PRODUCTION_HORIZONS = ("short", "medium", "medium_long", "long")
+
+
+def _production_tier_integrity_checks(bundle: BrainBundleV0) -> list[str]:
+    out: list[str] = []
+
+    # Check 1: active / challenger consistency. Every active registry
+    # entry's ``active_artifact_id`` must be in ``artifacts``, AND every
+    # referenced challenger id must also be in ``artifacts``, AND no
+    # challenger may point to its own active_artifact_id (would be a
+    # self-promotion loop).
+    art_ids = {a.artifact_id for a in bundle.artifacts}
+    for ent in bundle.registry_entries:
+        if ent.status != "active":
+            continue
+        aid = str(getattr(ent, "active_artifact_id", "") or "")
+        if aid and aid not in art_ids:
+            out.append(
+                f"production: registry {ent.registry_entry_id!r} active_artifact_id {aid!r} absent from artifacts"
+            )
+        seen_challengers: set[str] = set()
+        for cid in (ent.challenger_artifact_ids or []):
+            c = str(cid or "")
+            if not c:
+                continue
+            if c in seen_challengers:
+                out.append(
+                    f"production: registry {ent.registry_entry_id!r} duplicate challenger {c!r}"
+                )
+            seen_challengers.add(c)
+            if c == aid:
+                out.append(
+                    f"production: registry {ent.registry_entry_id!r} challenger_artifact_id equals active_artifact_id {c!r}"
+                )
+            if c not in art_ids:
+                out.append(
+                    f"production: registry {ent.registry_entry_id!r} challenger_artifact_id {c!r} absent from artifacts"
+                )
+
+    # Check 2: spectrum rows per horizon. Production bundles must ship
+    # at least one spectrum row for each of the four MVP horizons. A
+    # sample/demo bundle is allowed to be partial; a production bundle
+    # that claims a horizon via registry_entries but ships zero rows is
+    # misleading to Today.
+    for hz in _PRODUCTION_HORIZONS:
+        rows = bundle.spectrum_rows_by_horizon.get(hz)
+        has_active_for_hz = any(
+            ent.status == "active" and ent.horizon == hz for ent in bundle.registry_entries
+        )
+        if has_active_for_hz and not rows:
+            out.append(
+                f"production: horizon {hz!r} has an active registry entry but zero spectrum rows"
+            )
+        if rows is not None and not isinstance(rows, list):  # pragma: no cover — schema guard
+            out.append(f"production: spectrum_rows_by_horizon[{hz!r}] is not a list")
+
+    # Check 3: tier metadata coherence. If the bundle carries a
+    # ``graduation_tier`` hint in its metadata block, that hint must be
+    # ``production`` when we are being asked to validate at production
+    # tier. And every active artifact's ``validation_pointer`` + ``created_by``
+    # must look production-shaped (not the demo/stub fingerprints). This
+    # closes "v2 file exists, loads fine, but internally still points at
+    # ``pit:demo:*`` / ``stub_feature_set`` / ``deterministic_kernel``".
+    meta = getattr(bundle, "metadata", None)
+    if isinstance(meta, dict):
+        mt = str(meta.get("graduation_tier") or "").strip().lower()
+        if mt and mt != "production":
+            out.append(
+                f"production: bundle.metadata.graduation_tier={mt!r} contradicts production-tier check"
+            )
+    active_artifact_ids: set[str] = set()
+    for ent in bundle.registry_entries:
+        if ent.status != "active":
+            continue
+        aid = str(getattr(ent, "active_artifact_id", "") or "")
+        if aid:
+            active_artifact_ids.add(aid)
+        active_artifact_ids.update(str(c) for c in (ent.challenger_artifact_ids or []) if c)
+    for art in bundle.artifacts:
+        if art.artifact_id not in active_artifact_ids:
+            continue
+        vp = str(getattr(art, "validation_pointer", "") or "")
+        cb = str(getattr(art, "created_by", "") or "")
+        fs = str(getattr(art, "feature_set", "") or "")
+        if vp.startswith("pit:demo:") or vp.startswith("demo:") or vp == "":
+            out.append(
+                f"production: artifact {art.artifact_id!r} has non-production validation_pointer={vp!r}"
+            )
+        if cb in ("deterministic_kernel", "stub", "") or cb.startswith("demo"):
+            out.append(
+                f"production: artifact {art.artifact_id!r} has non-production created_by={cb!r}"
+            )
+        if fs in ("stub_feature_set", "") or fs.startswith("demo"):
+            out.append(
+                f"production: artifact {art.artifact_id!r} has non-production feature_set={fs!r}"
+            )
+
+    # Check 4: hash / write-evidence coherence. Production bundles should
+    # carry a non-empty ``as_of_utc`` and, when metadata is present, a
+    # ``source_run_ids`` or equivalent build fingerprint so the graduation
+    # runbook can point a rollback at the prior build. Missing fingerprints
+    # are reported but never block (we still return the bundle) — the
+    # health surface will flag them.
+    if not str(bundle.as_of_utc or "").strip():
+        out.append("production: bundle.as_of_utc is empty")
+    if isinstance(meta, dict):
+        src_runs = meta.get("source_run_ids")
+        if src_runs is None or (isinstance(src_runs, list) and not src_runs):
+            out.append("production: bundle.metadata.source_run_ids missing or empty")
+        built_at = str(meta.get("built_at_utc") or "").strip()
+        if not built_at:
+            out.append("production: bundle.metadata.built_at_utc missing")
+
+    return out
 
 
 def bundle_ready_for_horizon(bundle: BrainBundleV0, horizon: str) -> bool:

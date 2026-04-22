@@ -1,0 +1,49 @@
+{
+  "contract": "AGH_V1_PATCH_9_TESTS_EVIDENCE_V1",
+  "milestone": 20,
+  "patch_nature": "productionize_self_serve_scale_closure",
+  "not_a_demo_theater_patch": true,
+  "scope": "Patch 9 introduced ~20 new tests covering production bundle auto-detect, production-tier integrity checks, retention archive, JSONB list_packets filters, snapshot lazy generation, UI polish, and extended no-leak scanning. Patch 5–8 regression suites remain green.",
+  "test_files": {
+    "src/tests/test_agh_v1_patch9_production_surface.py": [
+      "test_a1_brain_bundle_path_env_override_wins",
+      "test_a1_brain_bundle_path_picks_v2_when_valid",
+      "test_a1_brain_bundle_path_falls_back_when_v2_corrupt",
+      "test_a1_brain_bundle_integrity_report_flags_v2_failure",
+      "test_a1_brain_bundle_integrity_report_clean_v2",
+      "test_a2_production_tier_clean_bundle_has_no_errors",
+      "test_a2_production_tier_rejects_demo_fingerprints",
+      "test_a2_sample_tier_does_not_raise_production_errors",
+      "test_a2_production_rejects_self_challenger",
+      "test_ca_archive_packets_copy_then_delete",
+      "test_ca_archive_packets_dry_run_does_not_write",
+      "test_ca_archive_jobs_only_terminal_statuses",
+      "test_cb_list_packets_filters_by_target_asset_id",
+      "test_cb_list_packets_filters_by_target_horizon",
+      "test_cb_list_packets_combined_filter",
+      "test_cb_list_packets_no_filter_returns_all",
+      "test_cc_spectrum_build_does_not_persist_snapshots",
+      "test_cc_persist_row_helper_writes_exactly_one_snapshot",
+      "test_d1_bundle_tier_chip_has_fallback_css_variant",
+      "test_d2_nav_keeps_primary_and_utility_rows_with_all_features"
+    ],
+    "src/tests/test_agh_v1_patch9_copy_no_leak.py": [
+      "test_patch9_required_keys_present_ko_en",
+      "test_patch9_no_eng_token_leak_in_tsr_locale",
+      "test_patch9_real_user_wording_contains_required_phrase[research_section.invoke_copy_hint]",
+      "test_patch9_real_user_wording_contains_required_phrase[research_section.invoke_enqueue_btn]",
+      "test_patch9_real_user_wording_contains_required_phrase[research_section.invoke_worker_tick_hint]",
+      "test_patch9_real_user_wording_contains_required_phrase[tsr.bundle_tier.fallback_tip]"
+    ]
+  },
+  "pre_existing_tests_adjusted_for_patch_9_contract_changes": {
+    "src/tests/test_metis_brain_v0.py::test_today_registry_only_no_seed": "Now asserts that the snapshot store stays empty after spectrum build and is populated only after object-detail entry (Patch 9 C·C).",
+    "src/tests/test_metis_brain_v0.py::test_today_row_message_has_contract_fields": "Same contract adjustment as above."
+  },
+  "new_test_count": 26,
+  "regression_status": {
+    "patch_5_today_surface": "green",
+    "patch_6_copy_no_leak": "green",
+    "patch_8_production_graduation_surface": "green"
+  }
+}

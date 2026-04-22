@@ -1,0 +1,94 @@
+{
+  "contract": "AGH_V1_PATCH_9_PRODUCTIONIZE_SELF_SERVE_SCALE_RUNBOOK_EVIDENCE_V1",
+  "generated_at_utc": "2026-04-22T23:54:49Z",
+  "milestone": 20,
+  "patch_nature": "productionize_self_serve_scale_closure",
+  "scenarios": [
+    {
+      "env_override_literal_present": true,
+      "quick_integrity_helper_present": true,
+      "resolver_callable": true,
+      "scenario": "S1_bundle_env_v2_v0_auto_detect",
+      "v0_fallback_literal_present": true,
+      "v2_path_literal_present": true
+    },
+    {
+      "health_degraded_reason_for_v2_failure": true,
+      "health_emits_brain_bundle_path_resolved": true,
+      "health_emits_fallback_to_v0": true,
+      "health_emits_v2_integrity_failed": true,
+      "report_callable": true,
+      "scenario": "S2_integrity_report_and_health_fields"
+    },
+    {
+      "check_active_challenger_wording": true,
+      "check_spectrum_rows_wording": true,
+      "check_tier_metadata_wording": true,
+      "check_write_evidence_wording": true,
+      "function_defined": true,
+      "scenario": "S3_production_tier_4_checks",
+      "tier_argument_present": true
+    },
+    {
+      "doc_present": true,
+      "mentions_degraded_reasons": true,
+      "mentions_env_override": true,
+      "mentions_rollback": true,
+      "scenario": "S4_graduation_runbook_doc"
+    },
+    {
+      "drawer_class_in_css": true,
+      "locale_keys_ko_en_ok": true,
+      "renderer_present": true,
+      "scenario": "S5_recent_request_drawer"
+    },
+    {
+      "css_class_in_index": true,
+      "data_attr_in_html": true,
+      "helper_present": true,
+      "locale_en_has_worker": true,
+      "locale_ko_has_worker": true,
+      "scenario": "S6_worker_tick_hint"
+    },
+    {
+      "cell_class_css": true,
+      "grid_class_css": true,
+      "locale_cell_heads_ok": true,
+      "renderer_uses_grid": true,
+      "scenario": "S7_contract_card_grid"
+    },
+    {
+      "en_copy_mentions_operator": true,
+      "en_enqueue_mentions_queue": true,
+      "en_has_no_auto_promotion_note": true,
+      "ko_copy_mentions_operator": true,
+      "ko_enqueue_mentions_queue": true,
+      "ko_has_no_auto_promotion_note": true,
+      "scenario": "S8_self_serve_copy_hardened"
+    },
+    {
+      "archive_init_exports": true,
+      "archive_module_present": true,
+      "cli_dry_run_flag_present": true,
+      "cli_subcommand_wired": true,
+      "count_rpc_migration_present": true,
+      "migration_present": true,
+      "scenario": "S9_retention_archive"
+    },
+    {
+      "fixture_applies_filter": true,
+      "layer5_pushes_filter": true,
+      "migration_present": true,
+      "protocol_declares_params": true,
+      "scenario": "S10_jsonb_lookup",
+      "supabase_store_uses_filter": true
+    },
+    {
+      "detail_calls_lazy_helper": true,
+      "lazy_helper_defined": true,
+      "scenario": "S11_snapshot_lazy_generation",
+      "spectrum_build_does_not_call_sweep": true,
+      "sweep_helper_still_defined": true
+    }
+  ]
+}

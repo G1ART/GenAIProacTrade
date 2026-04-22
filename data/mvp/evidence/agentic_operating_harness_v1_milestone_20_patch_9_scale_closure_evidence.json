@@ -1,0 +1,100 @@
+{
+  "contract": "AGH_V1_PATCH_9_SCALE_CLOSURE_EVIDENCE_V1",
+  "milestone": 20,
+  "patch_nature": "productionize_self_serve_scale_closure",
+  "not_a_demo_theater_patch": true,
+  "scope": "Scope C — close three of the remaining top scale bottlenecks identified in the Patch 8 Scale Readiness Note: retention/archive, packet lookup (JSONB indexing), and message snapshot IO cost (lazy-gen).",
+  "workorder_reference": "docs/plan/METIS_Patch_9_Workorder_Productionize_SelfServe_Scale.md#scope c",
+  "bottlenecks_addressed": [
+    {
+      "id": "CF-8·A",
+      "name": "retention / unbounded packet + queue_jobs growth",
+      "closure": "C·A (archive_v1 + migration + CLI + count_packets_by_layer RPC)"
+    },
+    {
+      "id": "CF-8·B",
+      "name": "packet lookup cost at 500-ticker scale",
+      "closure": "C·B (target_scope JSONB indexes + list_packets filter push-down)"
+    },
+    {
+      "id": "CF-8·C",
+      "name": "message snapshot write cost on every Today spectrum hit",
+      "closure": "C·C (lazy snapshot generation on object-detail entry)"
+    }
+  ],
+  "changes": {
+    "ca1_retention_archive_migration": {
+      "file": "supabase/migrations/20260420000000_agentic_harness_retention_archive_v1.sql",
+      "tables_added": [
+        "public.agentic_harness_packets_v1_archive",
+        "public.agentic_harness_queue_jobs_v1_archive"
+      ],
+      "indexes_added_per_archive_table": [
+        "created_at_utc desc",
+        "archived_at_utc desc"
+      ],
+      "rpc_added": "public.agentic_harness_count_packets_by_layer_v1()"
+    },
+    "ca2_retention_python_and_cli": {
+      "module": "src/agentic_harness/retention/archive_v1.py",
+      "exports": [
+        "ArchiveReport",
+        "archive_packets_older_than",
+        "archive_jobs_older_than"
+      ],
+      "design_invariants": [
+        "copy-then-delete, never copy-or-delete",
+        "dry-run always available",
+        "jobs archival is status-gated (done/dlq/expired only)",
+        "small batches (default 500)"
+      ],
+      "cli_subcommand": "python3 -m src.main harness-retention-archive",
+      "cli_flags": [
+        "--days",
+        "--batch-size",
+        "--dry-run",
+        "--skip-packets",
+        "--skip-jobs"
+      ]
+    },
+    "ca3_count_packets_by_layer_rpc_wiring": {
+      "file": "src/agentic_harness/store/supabase_store.py",
+      "behaviour": "Prefer RPC ``agentic_harness_count_packets_by_layer_v1`` when available; fall back to previous Python-side row counting on any failure (missing function, RLS error)."
+    },
+    "cb1_jsonb_index_migration": {
+      "file": "supabase/migrations/20260420010000_agentic_harness_packets_target_scope_index_v1.sql",
+      "indexes_added": [
+        "agentic_harness_packets_v1_target_asset_id_idx on (target_scope->>'asset_id')",
+        "agentic_harness_packets_v1_target_horizon_idx on (target_scope->>'horizon')"
+      ]
+    },
+    "cb2_list_packets_filter_push_down": {
+      "protocol_file": "src/agentic_harness/store/protocol.py",
+      "params_added": ["target_asset_id: Optional[str]", "target_horizon: Optional[str]"],
+      "supabase_store_file": "src/agentic_harness/store/supabase_store.py",
+      "supabase_filters_used": [
+        "q.eq('target_scope->>asset_id', str(target_asset_id))",
+        "q.eq('target_scope->>horizon', str(target_horizon))"
+      ],
+      "fixture_store_file": "src/agentic_harness/store/fixture_store.py",
+      "layer5_caller_file": "src/agentic_harness/agents/layer5_orchestrator.py",
+      "layer5_caller_behaviour": "Pushes target_asset_id to the DB only when allow_asset_neutral=False; keeps OR semantics in Python when the broader population is required."
+    },
+    "cc1_snapshot_lazy_generation": {
+      "file": "src/phase47_runtime/today_spectrum.py",
+      "full_sweep_helper_retained": "persist_message_snapshots_for_spectrum_payload (for backfill / one-shot evidence scripts)",
+      "new_per_row_helper": "persist_message_snapshot_for_spectrum_row",
+      "contract_change": "build_today_spectrum_payload no longer writes snapshots; build_today_object_detail_payload persists the opened row's snapshot.",
+      "tests_updated": [
+        "src/tests/test_metis_brain_v0.py::test_today_registry_only_no_seed",
+        "src/tests/test_metis_brain_v0.py::test_today_row_message_has_contract_fields",
+        "src/tests/test_agh_v1_patch9_production_surface.py::test_cc_spectrum_build_does_not_persist_snapshots",
+        "src/tests/test_agh_v1_patch9_production_surface.py::test_cc_persist_row_helper_writes_exactly_one_snapshot"
+      ]
+    }
+  },
+  "still_open": [
+    "Horizon lens compare cost at high fan-out — a warm per-asset cache is a candidate for Patch 10.",
+    "Retention archive cron — a scheduled harness-retention-archive run is not yet wired; operators trigger it manually for now."
+  ]
+}

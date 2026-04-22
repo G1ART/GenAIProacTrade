@@ -21,7 +21,10 @@ from metis_brain.message_object_v1 import (
 )
 from metis_brain.message_snapshots_store import message_snapshots_path
 from metis_brain.schemas_v0 import ModelArtifactPacketV0
-from phase47_runtime.today_spectrum import build_today_spectrum_payload
+from phase47_runtime.today_spectrum import (
+    build_today_object_detail_payload,
+    build_today_spectrum_payload,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -77,10 +80,25 @@ def test_today_registry_only_no_seed(monkeypatch: pytest.MonkeyPatch, tmp_path: 
     assert isinstance(m0.get("linked_evidence"), list)
     assert (out.get("rows") or [{}])[0].get("message_snapshot_id", "").startswith("msg_snap:v1:")
     assert (out.get("rows") or [{}])[0].get("replay_lineage_pointer", "").startswith("lineage:")
+    # AGH v1 Patch 9 C·C — the Today spectrum build no longer pre-writes
+    # snapshots for every row. They are now persisted lazily when an
+    # operator opens the object detail for a specific asset.
     snap_path = message_snapshots_path(tmp_path)
-    assert snap_path.is_file()
+    assert not snap_path.is_file(), (
+        "Patch 9 contract: snapshot store must stay empty until object-detail is opened"
+    )
+    row0 = (out.get("rows") or [{}])[0]
+    aid0 = str(row0.get("asset_id") or "")
+    sid0 = str(row0.get("message_snapshot_id") or "")
+    detail = build_today_object_detail_payload(
+        repo_root=tmp_path,
+        asset_id=aid0,
+        horizon="short",
+        lang="ko",
+    )
+    assert detail.get("ok") is True
+    assert snap_path.is_file(), "object-detail entry must lazy-persist the row snapshot"
     store = json.loads(snap_path.read_text(encoding="utf-8"))
-    sid0 = (out.get("rows") or [{}])[0].get("message_snapshot_id")
     assert sid0 and isinstance(store.get("snapshots"), dict) and sid0 in store["snapshots"]
 
 
@@ -158,7 +176,17 @@ def test_today_row_message_has_contract_fields(tmp_path: Path) -> None:
     assert isinstance(msg.get("linked_evidence"), list) and msg["linked_evidence"]
     assert row_a.get("message_snapshot_id", "").startswith("msg_snap:v1:")
     assert row_a.get("replay_lineage_pointer") == "seed:replay_lineage_v0"
+    # AGH v1 Patch 9 C·C — lazy snapshot persistence. Spectrum build does
+    # not write snapshots; opening the object detail for the row does.
     snap_path = message_snapshots_path(tmp_path)
+    assert not snap_path.is_file()
+    detail = build_today_object_detail_payload(
+        repo_root=tmp_path,
+        asset_id="DEMO_KR_A",
+        horizon="short",
+        lang="ko",
+    )
+    assert detail.get("ok") is True
     assert snap_path.is_file()
     store = json.loads(snap_path.read_text(encoding="utf-8"))
     sid = row_a.get("message_snapshot_id")

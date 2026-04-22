@@ -53,6 +53,8 @@ class FixtureHarnessStore(HarnessStoreProtocol):
         target_layer: Optional[str] = None,
         status: Optional[str] = None,
         since_utc: Optional[str] = None,
+        target_asset_id: Optional[str] = None,
+        target_horizon: Optional[str] = None,
         limit: int = 200,
     ) -> list[dict[str, Any]]:
         out: list[dict[str, Any]] = []
@@ -65,6 +67,15 @@ class FixtureHarnessStore(HarnessStoreProtocol):
                 continue
             if since_utc and str(p.get("created_at_utc") or "") < since_utc:
                 continue
+            # AGH v1 Patch 9 C·B2 — mirror the DB-side JSONB filter.
+            if target_asset_id or target_horizon:
+                ts = p.get("target_scope") or {}
+                if not isinstance(ts, dict):
+                    continue
+                if target_asset_id and str(ts.get("asset_id") or "") != str(target_asset_id):
+                    continue
+                if target_horizon and str(ts.get("horizon") or "") != str(target_horizon):
+                    continue
             out.append(copy.deepcopy(p))
         out.sort(key=lambda r: str(r.get("created_at_utc") or ""), reverse=True)
         return out[: max(1, int(limit))]

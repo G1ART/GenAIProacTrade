@@ -116,8 +116,22 @@ def state_reader_agent(
           authoritative citation for that transition).
         """
 
+        # AGH v1 Patch 9 C·B2 — when the caller requires an exact
+        # ``target_scope.asset_id`` match (``allow_asset_neutral=False``)
+        # and we have a concrete asset, push the JSONB equality filter
+        # into Postgres so this scales with N tickers. When asset-neutral
+        # rows are allowed we still have to fetch the broader set because
+        # the equality filter cannot express "asset_id = X OR missing".
+        push_asset = (
+            bool(asset_id)
+            and not allow_asset_neutral
+            and packet_type not in (None, "")
+        )
         rows = store.list_packets(
-            packet_type=packet_type, target_layer=layer, limit=limit
+            packet_type=packet_type,
+            target_layer=layer,
+            target_asset_id=asset_id if push_asset else None,
+            limit=limit,
         )
         for r in rows:
             if status_in is not None:
