@@ -1,0 +1,55 @@
+{
+  "contract": "PATCH_10A_VISUAL_SYSTEM_EVIDENCE_V1",
+  "milestone": "10A",
+  "patch_nature": "product_shell_rebuild_v1",
+  "scope": "Scope C — introduce a first-class visual system (design tokens + 8 priority components) under a new product_shell.css file, independent of legacy ops cockpit styles.",
+  "workorder_reference": "docs/plan/METIS_Product_Shell_Rebuild_v1_Patch_10A_Plan_KR.md#\ube44\uc8fc\uc5bc \uc2dc\uc2a4\ud15c",
+  "css_file": "src/phase47_runtime/static/product_shell.css",
+  "design_token_families": [
+    "--ps-color-surface-*",
+    "--ps-color-text-*",
+    "--ps-color-semantic-* (success / warning / danger / neutral)",
+    "--ps-sp-* (spacing scale)",
+    "--ps-fw-* / --ps-fz-* (typography)",
+    "--ps-radius-*",
+    "--ps-elev-*"
+  ],
+  "priority_components_declared": [
+    ".ps-hero-card",
+    ".ps-grade-chip",
+    ".ps-stance-label",
+    ".ps-confidence-badge",
+    ".ps-change-bullet",
+    ".ps-mini-sparkline",
+    ".ps-mover-card",
+    ".ps-watchlist-chip",
+    ".ps-disclosure-drawer"
+  ],
+  "taxonomy_data_attributes": {
+    "grade_chip": "[data-grade=\"A+|A|B|C|D|F\"]",
+    "stance_label": "[data-stance=\"strong_long|long|neutral|short|strong_short\"]",
+    "confidence_badge": "[data-source=\"live|live_with_caveat|sample|preparing\"]",
+    "tier_chip": "[data-tier=\"production|sample|degraded\"]"
+  },
+  "no_raw_engineering_taxonomy_in_css": {
+    "real_derived_enum_leak": false,
+    "template_fallback_enum_leak": false,
+    "insufficient_evidence_enum_leak": false,
+    "horizon_provenance_token_leak": false
+  },
+  "sparkline_implementation": {
+    "rendering": "SVG hand-rolled inside product_shell.js",
+    "external_chart_library_used": false,
+    "degraded_placeholder_rendered_when_data_missing": true
+  },
+  "font_stack_choice": "system UI stack (-apple-system, Segoe UI, sans-serif) — no external font network request",
+  "legacy_ops_css_isolation": {
+    "ops_cockpit_inline_styles_untouched": true,
+    "ops_has_no_reference_to_product_shell_css": true,
+    "product_shell_has_no_reference_to_ops_js_or_ops_html": true
+  },
+  "tests": [
+    "src/tests/test_agh_v1_patch_10a_visual_system.py",
+    "src/tests/test_agh_v1_patch_10a_copy_no_leak.py"
+  ]
+}

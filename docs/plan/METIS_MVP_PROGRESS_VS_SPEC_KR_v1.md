@@ -38,8 +38,24 @@
 | 2 Message v1 | 1급 객체·스냅샷 | **거의 닫힘**(저장·해석·Ask 스레드) |
 | 3 Research 최소 | 계층·Ask·샌드박스 | **최소 닫힘** |
 | 4 Replay | lineage·counterfactual·결정 | **대부분 닫힘 (AGH v1 Patch 8 강화)** — Patch 7 3-lane SVG + step count summary + time-delta tooltip 위에, Patch 8 이 **step note (각 step 의 작업/범위/결과 요약) + 30 일 이상 lineage gap annotation** 을 추가해 "공백 = 사건 없음" 을 명시적으로 선언. |
-| 5 Shell/KO-EN/데모 동결 | — | **Patch 9 production actualization 으로 상향**: Patch 8 의 `demo`→`sample` 로캘 graduation + bundle-tier chip 위에, Patch 9 가 (a) **D1 — bundle-tier chip fallback variant** (`tsr-chip--degraded` + `tsr-tier-chip--fallback`) 로 "번들: 폴백 (v0)" 을 운영자에게 상시 노출 + tooltip 에 `degraded_reasons` 언급, (b) **D2 — primary nav 강조 / utility demote** (feature 제거 0, 폰트·opacity 차등), (c) **B4 — invoke copy 에 "운영자 게이트 · 대기열 · 자동 승격 없음"** 명시 (no-leak 스캐너 `test_agh_v1_patch9_copy_no_leak.py` 가 이 문구들의 실존을 파라미터 테스트로 강제), (d) `screenshots_patch_9/freeze_*.html` + `sha256_manifest.json` 7 개 snapshot. playwright 기반 실 브라우저 스크린샷은 여전히 이월. |
+| 5 Shell/KO-EN/데모 동결 | — | **Patch 10A Product Shell 분리로 상향 (2026-04-23)** — 사용자용 `/` 와 운영자용 `/ops` 를 **하드 2-파일 분리** (`METIS_OPS_SHELL=1` env 게이트, 미설정 시 /ops 404), 신규 `product_shell.css` design tokens + 8 priority components + SVG hand-roll 스파크라인, `product_shell.*` 46 키 KO/EN parity, HTML/JS/CSS/DTO 4 면 no-leak regex 스캐너로 엔지니어링 ID 누수 차단. 여전히 Patch 9 production actualization 으로 상향된 기반: **Patch 9 production actualization 으로 상향**: Patch 8 의 `demo`→`sample` 로캘 graduation + bundle-tier chip 위에, Patch 9 가 (a) **D1 — bundle-tier chip fallback variant** (`tsr-chip--degraded` + `tsr-tier-chip--fallback`) 로 "번들: 폴백 (v0)" 을 운영자에게 상시 노출 + tooltip 에 `degraded_reasons` 언급, (b) **D2 — primary nav 강조 / utility demote** (feature 제거 0, 폰트·opacity 차등), (c) **B4 — invoke copy 에 "운영자 게이트 · 대기열 · 자동 승격 없음"** 명시 (no-leak 스캐너 `test_agh_v1_patch9_copy_no_leak.py` 가 이 문구들의 실존을 파라미터 테스트로 강제), (d) `screenshots_patch_9/freeze_*.html` + `sha256_manifest.json` 7 개 snapshot. playwright 기반 실 브라우저 스크린샷은 여전히 이월. |
 | 6 Trust | — | **부분 닫힘 (AGH v1 Patch 9)** — Patch 7/8 의 bounded contract card + operator gate + cli_hint + 3-tier bundle chip + degraded 200 위에, Patch 9 가 (a) **B1 recent sandbox requests 드로어** (humanize 된 kind·result·blocking·input·lifecycle-aware next step hint) 로 운영자가 액션을 요청한 뒤 "내 요청이 어디까지 갔는지" 를 SPA 안에서 확인 가능, (b) **B2 워커 tick hint** 로 "워커가 주기적으로 큐를 확인합니다" 를 queued/running 에서만 노출 (자동 승격 환상 제거), (c) **A1 A2 — production bundle integrity 4 체크 + v2 integrity fail 시 `degraded_reasons`** 로 프로덕션 번들이 은밀히 demo fingerprint 로 오용되는 리스크 차단. 전용 Trust 패널 / surface-level signature 는 후속. |
+
+---
+
+## 3.5 Product Shell vs Ops Cockpit (Patch 10A, 2026-04-23)
+
+스펙 §5 (Today/Research/Replay) 는 **사용자 표면** 에 대한 계약이다. Patch 10A 이전까지 이 표면은 운영자용 Cockpit UI 와 물리적으로 같은 번들에 묶여 있었고, 그 결과 엔지니어링 ID (`art_*`, `reg_*`, `factor_*`, `horizon_provenance` 등) 가 사용자에게 노출되는 구조적 누수가 상존했다.
+
+Patch 10A 는 이 누수를 **UI 튜닝이 아닌 아키텍처 분리**로 닫는다:
+
+- **하드 2-파일 분리**: `/` → `static/index.html` + `product_shell.js` + `product_shell.css` (사용자용). `/ops` → `static/ops.html` + `static/ops.js` (운영자용, `METIS_OPS_SHELL=1` 환경변수 게이트, 미설정 시 404).
+- **/api/product/* 접두어**: 사용자 DTO 는 `src/phase47_runtime/product_shell/view_models.py` 의 mapper 레이어를 지나 `strip_engineering_ids` 재귀 스크러버 → `PRODUCT_TODAY_V1` 계약으로 내보낸다. 기존 `/api/*` 는 Cockpit 전용으로 보존.
+- **Today 계약 (스펙 §5.1 강화)**: `trust strip → today-at-a-glance → hero horizon cards ×4 → selected movers → watchlist strip (subdued) → advanced disclosure` 레이아웃, hero 카드에 **grade chip (신호 강도 A+~F) + stance label (방향성) + confidence badge (데이터 품질)** 3축 분리 병치, CTA 주 "근거 보기" 는 **Today 내부 inline evidence drawer** 로 확장 (Research 하드 네비 없음), SVG hand-roll 스파크라인, 샘플 시 honest degraded 문구.
+- **언어 계약**: `product_shell.*` 46 키 KO/EN parity + `test_agh_v1_patch_10a_copy_no_leak.py` 가 HTML/JS/CSS/DTO 4 면을 regex 스캔해 엔지니어링 토큰 / 권유 명령형 부재를 강제.
+- **Research / Replay / Ask AI**: 10A 에서는 "곧 도착" 제품 톤 스텁 카드만 — 매수/매도 권유 문구 없음, 과장된 예측 확신 없음 (Spec §4.3, §5.1 준수). 10B 에서 정식 재설계.
+
+상세: [`docs/plan/METIS_Product_Shell_Rebuild_v1_Spec_KR.md`](./METIS_Product_Shell_Rebuild_v1_Spec_KR.md), 운영 절차: [`docs/ops/METIS_Product_Shell_vs_Ops_Cockpit_Split_Runbook_v1.md`](../ops/METIS_Product_Shell_vs_Ops_Cockpit_Split_Runbook_v1.md).
 
 ---
 

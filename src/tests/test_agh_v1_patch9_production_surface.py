@@ -502,7 +502,7 @@ def test_cc_persist_row_helper_writes_exactly_one_snapshot(
 # ---------------------------------------------------------------------------
 
 
-INDEX_HTML = REPO_ROOT / "src" / "phase47_runtime" / "static" / "index.html"
+INDEX_HTML = REPO_ROOT / "src" / "phase47_runtime" / "static" / "ops.html"
 
 
 def test_d1_bundle_tier_chip_has_fallback_css_variant() -> None:

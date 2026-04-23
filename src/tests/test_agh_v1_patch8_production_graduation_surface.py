@@ -32,8 +32,8 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-APP_JS = REPO_ROOT / "src" / "phase47_runtime" / "static" / "app.js"
-INDEX_HTML = REPO_ROOT / "src" / "phase47_runtime" / "static" / "index.html"
+APP_JS = REPO_ROOT / "src" / "phase47_runtime" / "static" / "ops.js"
+INDEX_HTML = REPO_ROOT / "src" / "phase47_runtime" / "static" / "ops.html"
 LOCALE_PY = REPO_ROOT / "src" / "phase47_runtime" / "phase47e_user_locale.py"
 ROUTES_PY = REPO_ROOT / "src" / "phase47_runtime" / "routes.py"
 HEALTH_PY = REPO_ROOT / "src" / "phase51_runtime" / "cockpit_health_surface.py"

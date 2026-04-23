@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Decision cockpit — Phase 47e</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --text: #e7ecf3;
+      --muted: #8b9bb4;
+      --accent: #5b8cff;
+      --warn: #c9a227;
+      --fixture: #7c6f9e;
+      --ok: #3d9a6e;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.5; font-size: 15px; }
+    header { padding: 1rem 1.25rem; border-bottom: 1px solid #2a3544; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; justify-content: space-between; }
+    h1 { font-size: 1.15rem; font-weight: 600; margin: 0 0 0.25rem 0; }
+    .subtitle { font-size: 0.85rem; color: var(--muted); max-width: 38rem; margin: 0; }
+    .meta { font-size: 0.8rem; color: var(--muted); max-width: 42rem; margin-top: 0.35rem; }
+    .stale { color: var(--warn); font-weight: 600; }
+    /* AGH v1 Patch 7 A1 — 2-tier nav: primary row (high-frequency product
+       entry points) + utility row (audit / advanced / reload, muted).
+       Feature set unchanged; only visual weight is re-distributed. */
+    nav#nav { display: flex; flex-direction: column; align-items: stretch; gap: 0.35rem; }
+    .nav-row { display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
+    /* AGH v1 Patch 9 D2 — primary actions stay prominent, utility row is pushed
+       one step further back (smaller text, lower contrast, extra top gap) so
+       first-time operators land on Home/Watchlist/Research/Replay/Ask AI
+       without Journal/Advanced/Reload competing for attention. No feature is
+       removed — everything remains clickable. */
+    .nav-primary { gap: 0.4rem; }
+    .nav-utility { border-top: 1px solid #1f2a3a; padding-top: 0.45rem; margin-top: 0.35rem; justify-content: flex-end; opacity: 0.62; gap: 0.3rem; }
+    .nav-utility:hover, .nav-utility:focus-within { opacity: 0.92; }
+    .nav-utility-note { font-size: 0.66rem; color: var(--muted); margin-right: auto; align-self: center; letter-spacing: 0.02em; }
+    nav button.nav-main { background: var(--card); color: var(--text); border: 1px solid #2a3544; padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 500; }
+    nav button.nav-main.active { border-color: var(--accent); color: var(--accent); }
+    nav button.nav-utility-btn { background: transparent; color: var(--muted); border: 1px solid #1f2a3a; padding: 0.22rem 0.5rem; border-radius: 5px; cursor: pointer; font-size: 0.7rem; letter-spacing: 0.01em; }
+    nav button.nav-utility-btn:hover { color: var(--text); border-color: #2a3544; }
+    nav button.nav-utility-btn.active { color: var(--accent); border-color: rgba(91,140,255,0.45); }
+    nav button.reload { background: #243044; color: var(--accent); border: 1px solid var(--accent); }
+    nav button.nav-utility-btn.reload { background: transparent; color: var(--accent); border-color: rgba(91,140,255,0.45); }
+    main { padding: 1rem 1.25rem 3rem; max-width: 960px; margin: 0 auto; }
+    .panel { display: none; background: var(--card); border: 1px solid #2a3544; border-radius: 10px; padding: 1.1rem 1.2rem; margin-bottom: 1rem; }
+    .panel.visible { display: block; }
+    h2 { font-size: 0.95rem; margin: 0 0 0.65rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+    .feed-stack { display: flex; flex-direction: column; gap: 1rem; }
+    .feed-card {
+      background: #0f1419;
+      border: 1px solid #2a3544;
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+    }
+    .feed-card h3 { margin: 0 0 0.5rem; font-size: 0.88rem; font-weight: 600; color: var(--text); letter-spacing: 0.02em; }
+    .feed-card .body { font-size: 0.92rem; color: var(--text); white-space: pre-wrap; }
+    .feed-card .sub { font-size: 0.82rem; color: var(--muted); margin-top: 0.45rem; }
+    .feed-card .action-flag { font-size: 0.78rem; font-weight: 600; color: var(--ok); margin-top: 0.5rem; }
+    .feed-card .action-flag.passive { color: var(--muted); font-weight: 500; }
+    .feed-list { margin: 0.35rem 0 0; padding-left: 1.1rem; color: var(--text); font-size: 0.88rem; }
+    .feed-list li { margin: 0.35rem 0; }
+    /* AGH v1 Patch 7 A1 — demoted home feed jump link (Journal / Advanced).
+       Equal function, lighter visual weight than the primary CTA row. */
+    .feed-utility-link { display: inline-block; margin-top: 0.55rem; color: var(--muted); font-size: 0.78rem; text-decoration: underline; text-decoration-color: #2a3544; }
+    .feed-utility-link:hover { color: var(--text); text-decoration-color: var(--accent); }
+    .badge { display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.55rem; border-radius: 4px; margin-bottom: 0.75rem; }
+    .badge.fixture { background: rgba(124, 111, 158, 0.25); color: #c4b8e0; border: 1px solid #5c4f7a; }
+    .badge.watch { background: rgba(201, 162, 39, 0.2); color: var(--warn); border: 1px solid #8a7020; }
+    .badge.default { background: #243044; color: var(--muted); border: 1px solid #3d4f66; }
+    .brief-block { margin: 0.6rem 0; padding: 0.65rem 0; border-bottom: 1px solid #2a3544; }
+    .brief-block:last-child { border-bottom: none; }
+    .brief-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.25rem; }
+    .brief-value { font-size: 0.95rem; }
+    .six-q { font-size: 0.8rem; color: var(--muted); margin-top: 1rem; padding: 0.75rem; background: #0f1419; border-radius: 6px; border: 1px dashed #2a3544; }
+    .six-q ul { margin: 0.35rem 0 0 1rem; padding: 0; }
+    pre, .mono { font-family: ui-monospace, monospace; font-size: 0.78rem; white-space: pre-wrap; word-break: break-word; }
+    .row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.35rem 0; align-items: center; }
+    label { font-size: 0.8rem; color: var(--muted); }
+    input, select, textarea { background: #0f1419; color: var(--text); border: 1px solid #2a3544; border-radius: 4px; padding: 0.35rem 0.5rem; font-size: 0.85rem; }
+    textarea { width: 100%; min-height: 3.5rem; }
+    .btn { background: #243044; color: var(--text); border: 1px solid #3d4f66; padding: 0.4rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; margin: 0.2rem 0.35rem 0.2rem 0; }
+    .btn-primary { border-color: var(--accent); color: var(--accent); }
+    .tabs { display: flex; gap: 0.15rem; flex-wrap: wrap; margin-bottom: 0.85rem; border-bottom: 1px solid #2a3544; padding-bottom: 0.35rem; }
+    .tabs button { background: transparent; color: var(--muted); border: none; padding: 0.35rem 0.55rem; cursor: pointer; font-size: 0.82rem; border-radius: 4px 4px 0 0; }
+    .tabs button.on { color: var(--accent); background: rgba(91, 140, 255, 0.08); font-weight: 600; }
+    #object-section-body { min-height: 8rem; font-size: 0.9rem; }
+    #object-section-body ul { margin: 0.35rem 0 0.5rem 1.1rem; }
+    #object-section-body .intro { color: var(--muted); margin-bottom: 0.75rem; }
+    .shortcut-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.5rem 0 0.75rem; }
+    .shortcut-row button { font-size: 0.78rem; }
+    .ask-brief-strip { background: #0f1419; border: 1px solid #2a3544; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.45; }
+    .ask-brief-strip .brief-label { margin-bottom: 0.35rem; }
+    .ask-context-strip { background: #121a24; border: 1px solid #2d4a6a; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.88rem; line-height: 1.45; }
+    .ask-context-strip .brief-label { margin-bottom: 0.35rem; color: #8ab4e8; }
+    .sandbox-card { background: #0f1419; border: 1px solid #2a3544; border-radius: 8px; padding: 1rem 1.1rem; margin-bottom: 1.25rem; font-size: 0.88rem; }
+    .sandbox-card h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+    .sandbox-card textarea { width: 100%; max-width: 48rem; margin: 0.35rem 0 0.75rem; min-height: 4.5rem; }
+    .sandbox-card table { width: 100%; max-width: 48rem; border-collapse: collapse; font-size: 0.82rem; margin-top: 0.5rem; }
+    .sandbox-card th, .sandbox-card td { border: 1px solid #2a3544; padding: 0.35rem 0.5rem; text-align: left; }
+    .sandbox-card th { background: #121820; color: var(--muted); font-weight: 600; }
+    #conv-out { min-height: 5rem; }
+    #conv-out .md { white-space: pre-wrap; font-size: 0.88rem; line-height: 1.45; }
+    .intent-tag { font-size: 0.72rem; color: var(--accent); margin-bottom: 0.35rem; }
+    ul.alerts { list-style: none; padding: 0; margin: 0; }
+    ul.alerts li { border-bottom: 1px solid #2a3544; padding: 0.65rem 0; font-size: 0.85rem; }
+    .empty { color: var(--muted); font-size: 0.88rem; padding: 0.75rem; background: #0f1419; border-radius: 6px; margin: 0.5rem 0; }
+    .empty strong { color: var(--text); }
+    footer { font-size: 0.72rem; color: var(--muted); margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #2a3544; }
+    .lang-bar { display: flex; gap: 0.35rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; }
+    .lang-bar .meta { margin: 0; }
+    .replay-layout { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; }
+    .replay-main { flex: 1 1 320px; min-width: 0; }
+    .replay-aside { flex: 0 1 280px; background: #0f1419; border: 1px solid #2a3544; border-radius: 8px; padding: 0.85rem; font-size: 0.88rem; }
+    .replay-aside h3 { margin: 0 0 0.5rem; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    #replay-svg { width: 100%; height: 120px; display: block; }
+    ul.replay-events { list-style: none; padding: 0; margin: 0.5rem 0 0; max-height: 14rem; overflow: auto; }
+    ul.replay-events li { padding: 0.45rem 0.35rem; border-bottom: 1px solid #2a3544; cursor: pointer; font-size: 0.82rem; border-radius: 4px; }
+    ul.replay-events li:hover, ul.replay-events li.selected { background: rgba(91, 140, 255, 0.08); }
+    ul.replay-events li.replay-asset-hit { box-shadow: inset 3px 0 0 var(--accent); background: rgba(91, 140, 255, 0.06); }
+    .replay-events .ev-type { font-size: 0.7rem; color: var(--accent); }
+    .cf-branch { padding: 0.35rem 0; border-bottom: 1px dashed #2a3544; font-size: 0.85rem; }
+    .cf-branch.stub { color: var(--muted); }
+    .spectrum-dot { display: inline-block; width: 0.55rem; height: 0.55rem; border-radius: 50%; margin-right: 0.35rem; vertical-align: middle; }
+    .spectrum-dot--left { background: #3d9a6e; box-shadow: 0 0 0 1px rgba(61,154,110,0.35); }
+    .spectrum-dot--center { background: #c9a227; box-shadow: 0 0 0 1px rgba(201,162,39,0.35); }
+    .spectrum-dot--right { background: #c45c5c; box-shadow: 0 0 0 1px rgba(196,92,92,0.35); }
+    .spectrum-msg-head { font-weight: 600; color: var(--text); font-size: 0.86rem; display: block; margin-bottom: 0.2rem; }
+    .spectrum-msg-sub { font-size: 0.78rem; color: var(--muted); line-height: 1.35; }
+    .spectrum-asset-btn { background: none; border: none; color: var(--accent); cursor: pointer; font: inherit; padding: 0; text-decoration: underline; text-align: left; }
+    .spectrum-asset-btn:hover { color: #7aa3ff; }
+    .mir-block { margin: 0.85rem 0 1rem; padding-bottom: 0.85rem; border-bottom: 1px solid #2a3544; }
+    .mir-block:last-of-type { border-bottom: none; }
+    .mir-block h4 { margin: 0 0 0.45rem; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+    .mir-kv { margin: 0.35rem 0; font-size: 0.88rem; }
+    .mir-kv .k { color: var(--muted); font-size: 0.76rem; display: block; margin-bottom: 0.15rem; }
+    .today-hero { margin-bottom: 1.15rem; padding-bottom: 0.35rem; border-bottom: 1px solid #2a3544; }
+    .today-hero-card { border-color: #3d4f66; }
+    .spectrum-toolbar { display: flex; flex-wrap: wrap; gap: 0.65rem 1rem; align-items: center; margin: 0.5rem 0 0.35rem; font-size: 0.8rem; color: var(--muted); }
+    .spectrum-legend { display: flex; flex-wrap: wrap; gap: 0.75rem 1.1rem; align-items: center; margin: 0.35rem 0 0.15rem; font-size: 0.76rem; color: var(--muted); }
+    .spectrum-legend span { display: inline-flex; align-items: center; gap: 0.25rem; }
+    .wc-chip { display: inline-block; max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; padding: 0.1rem 0.4rem; border-radius: 4px; background: #243044; font-size: 0.74rem; color: var(--text); border: 1px solid #2a3544; }
+    details.spectrum-rationale { margin-top: 0.35rem; font-size: 0.74rem; color: var(--muted); }
+    details.spectrum-rationale summary { cursor: pointer; color: var(--accent); }
+    .spectrum-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 0.5rem; max-width: 100%; }
+    .spectrum-table-scroll table { min-width: 36rem; }
+    .spectrum-context-line { font-size: 0.74rem; color: var(--muted); margin: 0.25rem 0 0.15rem; }
+    .spectrum-hint-warn { font-size: 0.74rem; color: var(--warn); margin: 0.35rem 0 0; max-width: 42rem; }
+
+    /* AGH v1 Patch 7 A2 — Today typography hierarchy tokens. Keeps the
+       4-block structure from Patch 6, but introduces explicit levels so
+       the hero headline reads like a product surface rather than an
+       internal log line. Single token set, shared across blocks. */
+    :root {
+      --tsr-type-hero: 1.25rem;
+      --tsr-type-subhead: 0.9rem;
+      --tsr-type-body: 0.9rem;
+      --tsr-type-foot: 0.72rem;
+      --tsr-apply-color: var(--warn);
+      --tsr-refresh-color: var(--ok);
+      --tsr-sandbox-color: var(--accent);
+    }
+    .tsr-hero { font-size: var(--tsr-type-hero); font-weight: 600; line-height: 1.3; margin: 0 0 0.25rem; color: var(--text); }
+    .tsr-subhead { font-size: var(--tsr-type-subhead); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin: 0.5rem 0 0.25rem; }
+    .tsr-body { font-size: var(--tsr-type-body); color: var(--text); line-height: 1.55; margin: 0 0 0.35rem; }
+    .tsr-foot { font-size: var(--tsr-type-foot); color: var(--muted); letter-spacing: 0.02em; }
+    /* AGH v1 Patch 8 A2 — Today hero-stack (why_now / confidence / caveat / next) */
+    .tsr-why-now-stack { margin-top: 0.75rem; padding: 0.55rem 0.75rem; background: #0f1419; border: 1px solid #1f2a3a; border-radius: 8px; }
+    .tsr-why-now-row { display: grid; grid-template-columns: 8.5rem 1fr; gap: 0.5rem 0.75rem; padding: 0.35rem 0; border-bottom: 1px dotted #1f2a3a; }
+    .tsr-why-now-row:last-child { border-bottom: none; }
+    .tsr-why-now-head { font-size: 0.72rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.04em; font-weight: 600; padding-top: 0.15rem; }
+    .tsr-why-now-body { font-size: 0.88rem; color: var(--text); line-height: 1.5; }
+    .tsr-why-now-body.ev-faint { color: var(--muted); }
+    .tsr-why-now-operator-note { font-size: 0.72rem; color: var(--muted); margin-top: 0.3rem; line-height: 1.4; }
+    /* AGH v1 Patch 7 A2 — unified audit block (recent activity + raw IDs) */
+    .tsr-audit { margin-top: 1rem; padding: 0.55rem 0.75rem; background: #0f1419; border: 1px solid #1f2a3a; border-radius: 8px; font-size: 0.78rem; color: var(--muted); }
+    .tsr-audit > summary { cursor: pointer; color: var(--muted); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+    .tsr-audit[open] > summary { color: var(--accent); }
+    .tsr-audit .tsr-audit-section { margin-top: 0.5rem; padding-top: 0.45rem; border-top: 1px dashed #1f2a3a; }
+    .tsr-audit .tsr-audit-section:first-of-type { border-top: none; padding-top: 0; margin-top: 0.4rem; }
+    .tsr-audit .tsr-audit-head { font-size: 0.68rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.04em; margin-bottom: 0.25rem; }
+    /* Recent activity mini-list (governance apply deltas) */
+    .tsr-recent-activity { margin-top: 0.55rem; }
+    .tsr-recent-activity .tsr-mini-row { display: flex; gap: 0.4rem; align-items: center; font-size: 0.8rem; color: var(--muted); padding: 0.2rem 0; border-bottom: 1px dotted #1f2a3a; }
+    .tsr-recent-activity .tsr-mini-row:last-child { border-bottom: none; }
+    .tsr-recent-activity .tsr-mini-time { font-family: ui-monospace, monospace; font-size: 0.72rem; color: var(--muted); min-width: 4rem; }
+    .tsr-recent-activity .tsr-mini-flow { color: var(--text); }
+    .tsr-recent-activity .tsr-mini-arrow { color: var(--accent); opacity: 0.6; }
+    /* AGH v1 Patch 6 — Today product-surface renderer (tsr-*) */
+    .tsr-rail { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; align-items: center; padding: 0.65rem 0.75rem; background: #0f1419; border: 1px solid #2a3544; border-radius: 8px; margin-bottom: 1rem; }
+    .tsr-chip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.55rem; font-size: 0.76rem; border-radius: 999px; background: #243044; color: var(--text); border: 1px solid #3d4f66; line-height: 1.2; }
+    .tsr-chip--info { background: rgba(91,140,255,0.12); color: #a8c2ff; border-color: rgba(91,140,255,0.4); }
+    .tsr-chip--warn { background: rgba(201,162,39,0.15); color: var(--warn); border-color: #8a7020; }
+    .tsr-chip--neutral { background: #1a2332; color: var(--muted); border-color: #2a3544; }
+    /* AGH v1 Patch 9 A1/D1 — degraded chip variant for "v2 present but integrity gate failed; v0 served" */
+    .tsr-chip--degraded { background: rgba(220,90,90,0.12); color: #f2a8a8; border-color: rgba(220,90,90,0.45); }
+    .tsr-tier-chip--fallback { font-weight: 600; }
+    .tsr-chip--degraded { background: rgba(196,92,92,0.14); color: #e39292; border-color: #8a4040; }
+    .tsr-chip--change { background: rgba(61,154,110,0.16); color: #8fd4af; border-color: rgba(61,154,110,0.45); }
+    .tsr-chip--apply { background: var(--tsr-apply-color, rgba(61,154,110,0.16)); color: #8fd4af; border-color: rgba(61,154,110,0.45); font-size: 0.7rem; padding: 0.15rem 0.4rem; }
+    .tsr-chip .chip-dot { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: currentColor; opacity: 0.7; }
+    .tsr-primary { padding: 1rem 1.1rem; background: var(--card); border: 1px solid #2a3544; border-radius: 10px; margin-bottom: 1rem; }
+    .tsr-primary h3 { margin: 0 0 0.35rem; font-size: 1.05rem; font-weight: 600; color: var(--text); }
+    .tsr-primary .meta-sub { color: var(--muted); font-size: 0.78rem; margin-bottom: 0.65rem; letter-spacing: 0.02em; }
+    .tsr-primary .why-now { font-size: 0.92rem; margin: 0.25rem 0; line-height: 1.55; }
+    .tsr-primary .what-changed { font-size: 0.86rem; color: var(--muted); margin: 0.15rem 0 0.25rem; }
+    .tsr-decision { padding: 0.9rem 1.05rem; background: #0f1419; border: 1px solid #2a3544; border-radius: 10px; margin-bottom: 1rem; }
+    .tsr-decision .one-line { font-size: 0.95rem; font-weight: 500; color: var(--text); margin: 0 0 0.4rem; }
+    .tsr-decision details { margin: 0.35rem 0; border-top: 1px solid #1f2a3a; padding-top: 0.4rem; }
+    .tsr-decision details > summary { cursor: pointer; color: var(--muted); font-size: 0.8rem; list-style: none; padding: 0.2rem 0; }
+    .tsr-decision details > summary::-webkit-details-marker { display: none; }
+    .tsr-decision details > summary::before { content: "▸ "; color: var(--accent); display: inline-block; width: 1em; transition: transform 180ms ease; }
+    .tsr-decision details[open] > summary::before { content: "▾ "; }
+    .tsr-decision details[open] > summary { color: var(--accent); }
+    .tsr-decision .tsr-drill { padding: 0.35rem 0 0.35rem 1em; font-size: 0.86rem; color: var(--text); }
+    .tsr-decision .tsr-drill .k { display: block; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.45rem; margin-bottom: 0.15rem; }
+    .tsr-decision .tsr-drill ul { margin: 0 0 0.4rem 1rem; padding: 0; font-size: 0.85rem; }
+    .tsr-evidence { padding: 0.75rem 0.9rem; background: #0f1419; border: 1px solid #2a4a62; border-radius: 10px; margin-bottom: 1rem; font-size: 0.82rem; line-height: 1.5; }
+    .tsr-evidence h4 { margin: 0 0 0.45rem; font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+    .tsr-evidence .ev-label { color: var(--text); font-weight: 500; }
+    .tsr-evidence .ev-faint { color: var(--muted); }
+    .tsr-evidence details { margin-top: 0.45rem; }
+    .tsr-evidence details summary { cursor: pointer; color: var(--muted); font-size: 0.76rem; }
+    .tsr-evidence .raw-ids { font-family: ui-monospace, monospace; font-size: 0.72rem; color: var(--muted); word-break: break-all; }
+    .tsr-empty { font-size: 0.85rem; color: var(--muted); padding: 0.65rem 0.75rem; background: #121820; border-radius: 6px; border: 1px dashed #2a3544; }
+    .tsr-empty .tsr-empty-head { color: var(--text); font-weight: 500; }
+    /* Research 5-section renderer */
+    .tsr-research { padding: 0.85rem 1rem; background: var(--card); border: 1px solid #2a3544; border-radius: 10px; margin-bottom: 1rem; }
+    .tsr-research h4 { margin: 0 0 0.65rem; font-size: 0.82rem; color: var(--text); font-weight: 600; }
+    .tsr-research-sec { padding: 0.45rem 0 0.6rem; border-bottom: 1px solid #1f2a3a; }
+    .tsr-research-sec:last-child { border-bottom: none; }
+    .tsr-research-sec .sec-title { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 0.3rem; }
+    .tsr-research-sec ul { margin: 0 0 0 1.15rem; padding: 0; font-size: 0.86rem; }
+    .tsr-research-sec ul li { margin: 0.25rem 0; }
+    .tsr-research-coverage { display: inline-flex; align-items: center; gap: 0.3rem; margin-left: 0.5rem; padding: 0.15rem 0.5rem; font-size: 0.7rem; border-radius: 4px; }
+    .tsr-research-coverage.dual { background: rgba(61,154,110,0.14); color: #8fd4af; border: 1px solid rgba(61,154,110,0.4); }
+    .tsr-research-coverage.ko_only, .tsr-research-coverage.en_only { background: rgba(201,162,39,0.16); color: var(--warn); border: 1px solid #8a7020; }
+    .tsr-research-coverage.degraded { background: rgba(196,92,92,0.14); color: #e39292; border: 1px solid #8a4040; }
+    .tsr-research-invoke { margin-top: 0.55rem; padding: 0.55rem 0.7rem; background: #0f1419; border: 1px solid #2a3544; border-radius: 8px; }
+    .tsr-research-invoke .invoke-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.3rem; }
+    .tsr-research-invoke .invoke-cli { font-family: ui-monospace, monospace; font-size: 0.74rem; white-space: pre-wrap; word-break: break-all; padding: 0.45rem 0.55rem; background: #070b10; border: 1px solid #1f2a3a; border-radius: 6px; color: #c6d4ec; }
+    .tsr-research-invoke .invoke-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.4rem; align-items: center; }
+    .tsr-research-invoke .invoke-inline-msg { font-size: 0.76rem; color: var(--muted); }
+    /* Replay governance lineage compact */
+    .tsr-replay-lineage { padding: 0.7rem 0.9rem; background: #0f1419; border: 1px solid #2a3544; border-radius: 10px; margin: 0.75rem 0 1rem; }
+    .tsr-replay-lineage h4 { margin: 0 0 0.4rem; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+    .tsr-step-indicator { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; margin: 0.45rem 0 0.55rem; }
+    .tsr-step { display: flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.6rem; font-size: 0.76rem; border-radius: 6px; background: #1a2332; border: 1px solid #2a3544; color: var(--muted); }
+    .tsr-step.done { color: #8fd4af; border-color: rgba(61,154,110,0.45); background: rgba(61,154,110,0.1); }
+    .tsr-step.pending { color: var(--muted); }
+    .tsr-step.blocked { color: #e39292; border-color: #8a4040; background: rgba(196,92,92,0.1); }
+    .tsr-step .step-num { font-size: 0.7rem; opacity: 0.7; }
+    .tsr-step-arrow { color: var(--muted); font-size: 0.72rem; }
+    .tsr-lineage-followups { margin-top: 0.4rem; font-size: 0.78rem; color: var(--muted); }
+    .tsr-lineage-followups ul { margin: 0.25rem 0 0 1.1rem; padding: 0; }
+    /* SVG Replay timeline plot */
+    .tsr-timeline-plot { width: 100%; background: #0f1419; border: 1px solid #2a3544; border-radius: 8px; margin: 0.55rem 0; }
+    .tsr-timeline-plot .plot-axis { stroke: #2a3544; stroke-width: 1; }
+    .tsr-timeline-plot .plot-event { fill: var(--accent); opacity: 0.65; }
+    .tsr-timeline-plot .plot-event:hover { opacity: 1; }
+    .tsr-timeline-plot .plot-govern-apply { stroke: var(--tsr-apply-color, var(--warn)); stroke-width: 1.5; }
+    .tsr-timeline-plot .plot-govern-apply-dot { fill: var(--tsr-apply-color, var(--warn)); }
+    .tsr-timeline-plot .plot-govern-apply-label { fill: var(--tsr-apply-color, var(--warn)); font-size: 9px; }
+    .tsr-timeline-plot .plot-spectrum-tick { fill: var(--tsr-refresh-color, #5b8cff); stroke: var(--tsr-refresh-color, #5b8cff); stroke-width: 1; opacity: 0.85; }
+    .tsr-timeline-plot .plot-spectrum-tick:hover { opacity: 1; }
+    .tsr-timeline-plot .plot-sandbox-tick { fill: var(--tsr-sandbox-color, var(--accent)); stroke: var(--tsr-sandbox-color, var(--accent)); stroke-width: 1; }
+    .tsr-timeline-plot .plot-lane-guide { stroke: #1f2a3a; stroke-width: 1; stroke-dasharray: 2 3; }
+    .tsr-timeline-plot .plot-lane-label { fill: var(--muted); font-size: 9px; letter-spacing: 0.02em; }
+    .tsr-timeline-plot .plot-axis-label { fill: var(--muted); font-size: 9px; }
+    .tsr-timeline-plot .plot-gap-annotation { fill: var(--muted); font-size: 8.5px; font-style: italic; opacity: 0.75; }
+    .tsr-timeline-plot text { font-family: ui-monospace, monospace; fill: var(--muted); font-size: 9px; }
+    .tsr-step-summary { margin: 0.35rem 0 0.2rem; font-size: 0.74rem; color: var(--muted); letter-spacing: 0.02em; }
+    .tsr-step-note { margin: 0.2rem 0 0.35rem; font-size: 0.78rem; color: var(--text); line-height: 1.35; }
+    .tsr-recent-sandbox-requests { margin-top: 0.75rem; padding: 0.5rem 0.65rem; background: #0f1419; border: 1px solid #1f2a3a; border-radius: 6px; }
+    .tsr-recent-head { font-size: 0.74rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.03em; font-weight: 600; margin-bottom: 0.35rem; }
+    .tsr-recent-list { list-style: none; padding: 0; margin: 0; }
+    /* AGH v1 Patch 9 B2 — honest in-flight worker-tick hint next to the
+       invoke state chip. Small, muted, never a call to action. */
+    .invoke-worker-hint {
+      display: inline-block; margin-left: 0.45rem; font-size: 0.72rem;
+      color: var(--muted); line-height: 1.35;
+    }
+    /* AGH v1 Patch 9 B3 — contract card 2-column grid. Two rows, two
+       columns: (row 1) will_do · will_not_do = promise pair;
+       (row 2) after_enqueue · status_after = behaviour pair. */
+    .tsr-contract-grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.45rem; list-style: none; padding: 0; margin: 0.3rem 0 0;
+    }
+    .tsr-contract-cell {
+      display: flex; flex-direction: column; padding: 0.4rem 0.55rem;
+      background: #0c1016; border: 1px solid #1f2a3a; border-radius: 5px;
+      font-size: 0.78rem; line-height: 1.4;
+    }
+    .tsr-contract-cell-head {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em;
+      color: var(--muted); font-weight: 600; margin-bottom: 0.2rem;
+    }
+    .tsr-contract-cell-body { color: var(--text); }
+    .tsr-contract-cell--promise .tsr-contract-cell-head { color: var(--accent); }
+    @media (max-width: 700px) {
+      .tsr-contract-grid { grid-template-columns: 1fr; }
+    }
+    .tsr-recent-row { padding: 0.35rem 0; border-bottom: 1px dotted #1f2a3a; font-size: 0.8rem; }
+    .tsr-recent-row:last-child { border-bottom: none; }
+    /* AGH v1 Patch 9 B1 — per-request product-grade drawer. Replaces the
+       raw-JSON <details> audit with a structured block list (kind / input
+       / result / blocking reasons / next step). */
+    .tsr-req-row .tsr-req-row-head { display: block; }
+    .tsr-req-drawer-details { margin-top: 0.25rem; }
+    .tsr-req-drawer-details > summary.tsr-req-drawer-summary {
+      cursor: pointer; font-size: 0.74rem; color: var(--muted);
+      list-style: none; user-select: none;
+    }
+    .tsr-req-drawer-details > summary.tsr-req-drawer-summary::-webkit-details-marker {
+      display: none;
+    }
+    .tsr-req-drawer-details > summary.tsr-req-drawer-summary::before {
+      content: "▸ "; color: var(--muted);
+    }
+    .tsr-req-drawer-details[open] > summary.tsr-req-drawer-summary::before {
+      content: "▾ "; color: var(--accent);
+    }
+    .tsr-req-drawer {
+      margin-top: 0.3rem; padding: 0.45rem 0.6rem; background: #0c1016;
+      border: 1px solid #1f2a3a; border-radius: 5px; display: grid;
+      grid-template-columns: 1fr; gap: 0.4rem;
+    }
+    .tsr-req-drawer-block {
+      display: block; font-size: 0.78rem; line-height: 1.4;
+    }
+    .tsr-req-drawer-head {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em;
+      color: var(--muted); font-weight: 600; margin-bottom: 0.15rem;
+    }
+    .tsr-req-drawer-body { color: var(--text); }
+    .tsr-req-drawer-list {
+      margin: 0.1rem 0 0 1rem; padding: 0; color: var(--text);
+      font-size: 0.78rem;
+    }
+    .tsr-contract-state-slot { margin-top: 0.45rem; padding-top: 0.35rem; border-top: 1px dotted #1f2a3a; }
+    /* Tooltip primitive (C2) */
+    .tsr-tooltip { position: fixed; z-index: 9999; pointer-events: none; background: #070b10; color: var(--text); border: 1px solid #3d4f66; border-radius: 6px; padding: 0.45rem 0.6rem; font-size: 0.78rem; line-height: 1.35; max-width: 22rem; box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+    .tsr-tooltip .tt-label { color: var(--accent); font-weight: 600; margin-bottom: 0.2rem; }
+    .tsr-tooltip .tt-sub { color: var(--muted); font-size: 0.72rem; }
+    /* Motion honoring reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .tsr-decision details > summary::before { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1 data-i18n="shell.title">Investment operating cockpit</h1>
+      <p class="subtitle" data-i18n="shell.subtitle">Premium daily surface: attention triage, watchlist, live research activity, decisions, and bounded AI — not an internal research-object viewer.</p>
+      <div class="lang-bar">
+        <span class="meta" data-i18n="shell.lang_switch">Language</span>
+        <button type="button" class="btn" id="lang-ko" aria-pressed="true">KO</button>
+        <button type="button" class="btn" id="lang-en" aria-pressed="false">EN</button>
+      </div>
+      <div id="hdr-meta" class="meta">Loading…</div>
+    </div>
+    <nav id="nav" aria-label="METIS navigation">
+      <div class="nav-row nav-primary" role="group" data-nav-tier="primary" aria-label="Primary actions" data-i18n-aria-label="tsr.nav.primary.aria">
+        <button type="button" data-panel="home" class="nav-main active" data-i18n="nav.home">Home</button>
+        <button type="button" data-panel="watchlist" class="nav-main" data-i18n="nav.watchlist">Watchlist</button>
+        <button type="button" data-panel="research" class="nav-main" data-i18n="nav.research">Research</button>
+        <button type="button" data-panel="replay" class="nav-main" data-i18n="nav.replay">Replay</button>
+        <button type="button" data-panel="ask_ai" class="nav-main" data-i18n="nav.ask_ai">Ask AI</button>
+      </div>
+      <div class="nav-row nav-utility" role="group" data-nav-tier="utility" aria-label="Utility actions" data-i18n-aria-label="tsr.nav.utility.aria">
+        <span class="nav-utility-note" data-i18n="tsr.nav.utility.note">Audit, raw data, bundle reload</span>
+        <!-- AGH v1 Patch 8 D3 — bundle-tier badge (demo / sample / production), hydrated from /api/runtime/health -->
+        <span class="tsr-chip tsr-chip--neutral tsr-bundle-tier-chip" id="tsr-bundle-tier" hidden data-i18n-title="tsr.bundle_tier.tip" title=""></span>
+        <button type="button" data-panel="journal" class="nav-utility-btn" data-i18n="nav.journal">Journal</button>
+        <button type="button" data-panel="advanced" class="nav-utility-btn" data-i18n="nav.advanced">Advanced</button>
+        <button type="button" class="nav-utility-btn reload" id="btn-reload" data-i18n="nav.reload">Reload bundle</button>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <section id="panel-home" class="panel visible">
+      <h2 data-i18n="panel.home.title">Home — daily surface</h2>
+      <p class="meta" style="margin:0 0 0.35rem" data-i18n="panel.home.meta">Blocks are governed summaries only; raw machine JSON stays under Advanced.</p>
+      <p class="meta" style="margin:0 0 1rem" data-i18n="panel.home.today_hero_meta">Today board first — Sprint 3 productization.</p>
+      <div id="home-today-hero" class="today-hero">
+        <div id="home-spectrum-demo-wrap"></div>
+      </div>
+      <div id="home-feed-root" class="feed-stack"><p class="empty">Loading feed…</p></div>
+      <div class="six-q">
+        <strong data-i18n="six_q.title">This surface should answer:</strong>
+        <ul>
+          <li data-i18n="six_q.1">What matters right now?</li>
+          <li data-i18n="six_q.2">What changed?</li>
+          <li data-i18n="six_q.3">What am I tracking?</li>
+          <li data-i18n="six_q.4">What research is in motion?</li>
+          <li data-i18n="six_q.5">What did I decide?</li>
+          <li data-i18n="six_q.6">What should the copilot help me review next?</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="panel-today_detail" class="panel">
+      <button type="button" class="btn" id="today-detail-back" data-i18n="today_detail.back">← Back to Home</button>
+      <h2 data-i18n="panel.today_detail.title">Today — object detail</h2>
+      <p class="meta" style="margin:0 0 1rem" data-i18n="panel.today_detail.meta">MVP Sprint 4 order.</p>
+      <div id="today-detail-root"><p class="empty">Loading…</p></div>
+    </section>
+
+    <section id="panel-watchlist" class="panel">
+      <h2 data-i18n="panel.watchlist.title">Watchlist</h2>
+      <p class="meta" style="margin:0 0 0.75rem" data-i18n="panel.watchlist.meta">Cohorts and names you are tracking — stance and evidence limits in plain language.</p>
+      <div id="watchlist-root" class="feed-stack"><p class="empty">Open this tab to load.</p></div>
+    </section>
+
+    <section id="panel-research" class="panel">
+      <h2 data-i18n="panel.research.title">Research</h2>
+      <p class="meta" style="margin:0 0 0.75rem" data-i18n="panel.research.meta">Cohort detail, evidence, and archive context — closed fixtures live here, not as the Home hero.</p>
+      <div id="research-registry-strip" class="meta" style="display:none;margin:0 0 1rem;padding:0.65rem 0.85rem;background:#101820;border:1px solid #2a4a62;border-radius:8px;font-size:0.86rem"></div>
+      <p class="meta" id="research-deferred-empty" style="margin:0 0 0.75rem" data-i18n="panel.research.deferred_empty">Open Today detail on a symbol (or set Asset ID in the sandbox), then return here — the same message → registry → information → research contract loads read-only.</p>
+      <div id="research-deferred-context" class="sandbox-card" style="display:none;margin:0 0 1rem;padding:0.85rem 1rem">
+        <h3 style="margin-top:0" data-i18n="panel.research.deferred_title">Deferred research context</h3>
+        <p class="meta" style="margin:0 0 0.65rem" data-i18n="panel.research.deferred_meta">Same payload as Today object detail — Stage 3 minimum surface (no extra telemetry).</p>
+        <div id="research-deferred-inner"></div>
+        <div class="row" style="flex-wrap:wrap;gap:0.45rem;margin-top:0.75rem;align-items:center" id="research-ask-chips"></div>
+      </div>
+      <div class="sandbox-card" id="research-sandbox-root">
+        <h3 data-i18n="panel.research.sandbox_title">Custom Research Sandbox v1</h3>
+        <p class="meta" style="margin:0 0 0.65rem" data-i18n="panel.research.sandbox_meta">Bounded hypothesis run vs bundle + Today seed.</p>
+        <div id="sandbox-today-strip" class="ask-context-strip" style="display:none">
+          <div class="brief-label" data-i18n="sandbox.strip_from_today">Context from Today detail</div>
+          <div id="sandbox-today-line" class="brief-value"></div>
+        </div>
+        <label for="sandbox-hypothesis" class="brief-label" data-i18n="sandbox.label_hypothesis">Hypothesis or question</label>
+        <textarea id="sandbox-hypothesis" placeholder="e.g. What would falsify the short-term stance?"></textarea>
+        <div class="row" style="flex-wrap:wrap;gap:0.75rem;align-items:flex-end;margin-bottom:0.75rem">
+          <label><span data-i18n="sandbox.label_asset">Asset ID</span> <input type="text" id="sandbox-asset-id" class="mono" style="min-width:10rem" placeholder="DEMO_KR_A" /></label>
+          <label><span data-i18n="sandbox.label_horizon">Horizon</span>
+            <select id="sandbox-horizon">
+              <option value="short">short</option>
+              <option value="medium">medium</option>
+              <option value="medium_long">medium_long</option>
+              <option value="long">long</option>
+            </select>
+          </label>
+          <label><span data-i18n="sandbox.label_pit_mode">Time mode</span>
+            <select id="sandbox-pit-mode">
+              <option value="snapshot" data-i18n="sandbox.pit_snapshot">Current snapshot</option>
+              <option value="pit_stub" data-i18n="sandbox.pit_stub">PIT stub</option>
+            </select>
+          </label>
+          <label><span data-i18n="sandbox.label_mock_tick">Demo price overlay</span>
+            <select id="sandbox-mock-tick"><option value="0">0</option><option value="1">1</option></select>
+          </label>
+        </div>
+        <label style="display:flex;align-items:center;gap:0.45rem;margin:0.35rem 0 0.5rem;cursor:pointer">
+          <input type="checkbox" id="sandbox-save" checked />
+          <span data-i18n="sandbox.save_label">Save this run to the ledger</span>
+        </label>
+        <button type="button" class="btn btn-primary" id="btn-sandbox-run" data-i18n="sandbox.btn_run">Run bounded analysis</button>
+        <div id="sandbox-result" style="margin-top:1rem"></div>
+        <div id="sandbox-ledger-detail" style="display:none;margin-top:0.85rem;padding:0.85rem 1rem;background:#121820;border:1px solid #2d4a6a;border-radius:8px;font-size:0.86rem"></div>
+        <div id="sandbox-runs-wrap" style="margin-top:1.1rem;padding-top:1rem;border-top:1px solid #2a3544">
+          <div class="brief-label" data-i18n="sandbox.recent_title">Recent saved runs</div>
+          <ul id="sandbox-runs-list" class="feed-list" style="margin-top:0.35rem;font-size:0.82rem"></ul>
+        </div>
+      </div>
+      <div class="tabs" id="object-tabs"></div>
+      <div id="object-section-body"></div>
+    </section>
+
+    <section id="panel-journal" class="panel">
+      <h2 data-i18n="panel.journal.title">Journal — decision log</h2>
+      <p class="meta" data-i18n="panel.journal.meta">What you decided and why — readable cards, not raw logs.</p>
+      <div class="empty" id="decisions-empty" style="display:none">
+        <strong>No decisions recorded yet.</strong> Log a decision below when you hold, watch, defer, reopen, or dismiss. Entries appear as cards with replay context.
+      </div>
+      <div id="journal-cards" class="feed-stack"></div>
+      <h2 style="margin-top:1.25rem" data-i18n="panel.journal.record">Record a decision</h2>
+      <p class="meta" id="journal-lineage-hint" style="display:none;margin:0.25rem 0 0.5rem"></p>
+      <div class="row">
+        <label><span data-i18n="journal.label_type">Type</span>
+          <select id="rec-dt">
+            <option value="hold">Hold</option>
+            <option value="watch">Watch</option>
+            <option value="defer">Defer</option>
+            <option value="reopen_request">Reopen request</option>
+            <option value="buy">Buy</option>
+            <option value="sell">Sell</option>
+            <option value="dismiss_alert">Dismiss alert</option>
+          </select>
+        </label>
+        <label><span data-i18n="journal.label_asset">Asset ID</span> <input type="text" id="rec-aid" placeholder="required" /></label>
+      </div>
+      <label data-i18n="journal.label_note">Founder note</label><textarea id="rec-note" placeholder="Why you chose this (governed, short)"></textarea>
+      <button type="button" class="btn btn-primary" id="btn-record-decision" data-i18n="journal.btn_log">Log my decision</button>
+    </section>
+
+    <section id="panel-replay" class="panel">
+      <h2 data-i18n="panel.replay.title">Replay — time-ordered trace</h2>
+      <p class="meta" data-i18n="panel.replay.meta">Historical replay only: what was knowable at each timestamp. <strong>Decision quality</strong> (process then) is separate from <strong>outcome quality</strong> (ex-post).</p>
+      <div class="tabs" id="replay-subtabs">
+        <button type="button" class="on" data-replay-sub="timeline" data-i18n="panel.replay.tab_timeline">Replay</button>
+        <button type="button" data-replay-sub="counterfactual" data-i18n="panel.replay.tab_cf">Counterfactual Lab</button>
+      </div>
+      <div id="replay-sub-timeline">
+        <div class="replay-layout">
+          <div class="replay-main">
+            <div id="replay-lineage-context" class="meta" style="display:none;margin:0 0 0.5rem"></div>
+            <div id="replay-now-then-frame" class="meta" style="display:none;margin:0 0 0.5rem;padding:0.5rem;background:#0f1620;border-radius:6px;border:1px solid #2a4a62"></div>
+            <svg id="replay-svg" viewBox="0 0 100 36" preserveAspectRatio="none" aria-label="Illustrative timeline"></svg>
+            <p class="meta" style="margin:0.35rem 0 0" data-i18n="panel.replay.chart_note">Dashed line: illustrative rhythm only (not live prices). Green markers: decision posture index from stance codes.</p>
+            <ul class="replay-events" id="replay-event-list"></ul>
+          </div>
+          <aside class="replay-aside" id="replay-micro-brief">
+            <h3 data-i18n="panel.replay.micro">Micro-brief</h3>
+            <p class="empty" style="margin:0" data-i18n="panel.replay.micro_empty">Select an event for stance, evidence, and “known then” framing.</p>
+          </aside>
+        </div>
+        <p class="meta" id="replay-portfolio-stub" style="margin-top:0.75rem"></p>
+      </div>
+      <div id="replay-sub-counterfactual" style="display:none">
+        <p class="meta" data-i18n="panel.replay.cf_intro">Hypothetical branches — not drawn on the replay axis. No numeric engine in this build.</p>
+        <div id="cf-branches"></div>
+      </div>
+    </section>
+
+    <section id="panel-ask_ai" class="panel">
+      <h2 data-i18n="panel.ask_ai.title">Ask AI — decision copilot</h2>
+      <p class="meta" data-i18n="panel.ask_ai.meta">Bounded prompts grounded in the bundle — not a generic chat center.</p>
+      <div class="ask-brief-strip" id="ask-brief-strip">
+        <div class="brief-label" data-i18n="panel.ask_ai.brief_label">Copilot brief (now)</div>
+        <div id="ask-brief-line" class="brief-value">Loading…</div>
+      </div>
+      <div id="ask-context-strip" class="ask-context-strip" style="display:none">
+        <div class="brief-label" data-i18n="panel.ask_ai.context_label">Today / detail context</div>
+        <div id="ask-context-line" class="brief-value"></div>
+        <button type="button" class="btn" id="btn-ask-context-clear" style="margin-top:0.4rem" data-i18n="panel.ask_ai.context_clear">Clear context</button>
+      </div>
+      <div class="brief-label" style="margin-bottom:0.35rem" data-i18n="panel.ask_ai.shortcuts">Shortcuts</div>
+      <div class="shortcut-row" id="ask-shortcuts"></div>
+      <textarea id="conv-in" data-i18n-placeholder="panel.ask_ai.placeholder" placeholder="Or type a governed prompt (e.g. decision summary, information layer)…"></textarea>
+      <button type="button" class="btn btn-primary" id="btn-conv" data-i18n="panel.ask_ai.submit">Submit</button>
+      <div id="conv-out"></div>
+    </section>
+
+    <section id="panel-advanced" class="panel">
+      <h2 data-i18n="panel.advanced.title">Advanced — alerts &amp; machine detail</h2>
+      <p class="meta" data-i18n="panel.advanced.meta">Full alert workflow and filters. Default Home shows a short preview only.</p>
+      <div class="empty" id="alerts-empty" style="display:none">
+        <strong>No alerts match this filter.</strong> Alerts appear when the runtime records a change, conflict, reopen condition, or operator signal.
+      </div>
+      <div class="row">
+        <label><span data-i18n="advanced.filter_status">Status</span> <select id="flt-alert-status"><option value="">All</option><option value="open">Open</option><option value="acknowledged">Acknowledged</option><option value="resolved">Resolved</option><option value="superseded">Superseded</option><option value="dismissed">Dismissed</option></select></label>
+        <label><span data-i18n="advanced.filter_asset">Asset</span> <input type="text" id="flt-alert-asset" placeholder="optional" /></label>
+        <button type="button" class="btn" id="btn-alerts-refresh" data-i18n="advanced.btn_refresh">Refresh</button>
+      </div>
+      <ul class="alerts" id="alert-list"></ul>
+    </section>
+
+    <footer>
+      <span data-i18n="footer.tagline">Phase 47e bilingual · DESIGN_V3</span> — <code>GET /api/home/feed</code> · <code>GET /api/locale</code>. Notifications: <span id="notif-hint" class="mono"></span>
+    </footer>
+  </main>
+  <script src="/static/ops.js"></script>
+</body>
+</html>

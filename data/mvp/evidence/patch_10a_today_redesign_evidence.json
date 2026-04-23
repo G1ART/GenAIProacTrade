@@ -1,0 +1,79 @@
+{
+  "contract": "PATCH_10A_TODAY_REDESIGN_EVIDENCE_V1",
+  "milestone": "10A",
+  "patch_nature": "product_shell_rebuild_v1",
+  "scope": "Scope B — redesign the Today surface around customer comprehension, trust, next step, AI help and retention instead of operator inspection.",
+  "workorder_reference": "docs/plan/METIS_Product_Shell_Rebuild_v1_Patch_10A_Plan_KR.md#today \ub808\uc774\uc544\uc6c3",
+  "layout_order_top_to_bottom": [
+    "trust_strip",
+    "today_at_a_glance",
+    "hero_horizon_cards_x4",
+    "selected_movers",
+    "watchlist_strip_subdued",
+    "advanced_disclosure_collapsed"
+  ],
+  "user_refinements_applied": {
+    "R1_today_hero_cta_is_inline_evidence_not_research_nav": true,
+    "R2_grade_chip_and_stance_label_are_separated": true,
+    "R3_watchlist_strip_visually_subordinate_to_hero_cards": true
+  },
+  "hero_card_anatomy": {
+    "header": {
+      "horizon_title_human": "\uc608: \ub2e8\uae30 / \uc911\uae30 / \uc911\uc7a5\uae30 / \uc7a5\uae30",
+      "family_alias_human": "\uc7a5\uc548\uacfc\uc758 \uc6d0\uac70 \uac19\uc740 \uc0ac\ub78c-\uce5c\ud654 \uc774\ub984"
+    },
+    "signal_row": {
+      "grade_chip_range": ["A+", "A", "B", "C", "D", "F"],
+      "stance_label_range": [
+        "\uac15\ud55c \ub9e4\uc218 \uacbd\ud5a5",
+        "\ub9e4\uc218 \uacbd\ud5a5",
+        "\uc911\ub9bd",
+        "\ub9e4\ub3c4 \uacbd\ud5a5",
+        "\uac15\ud55c \ub9e4\ub3c4 \uacbd\ud5a5"
+      ],
+      "confidence_badge_source_keys": ["live", "live_with_caveat", "sample", "preparing"]
+    },
+    "story_sentence": "\ud55c \ubb38\uc7a5 \ub0b4\uc788\uac8c \uc815\ub9ac\ub41c \uadfc\uac70 \uc694\uc57d",
+    "position_bar": "\ub9e4\ub3c4-\uc911\ub9bd-\ub9e4\uc218 \uc2a4\ud399\ud2b8\ub7fc \uc0c1 \uc704\uce58",
+    "mini_sparkline": "SVG hand-rolled, \ub370\uc774\ud130 \ubd80\uc871 \uc2dc honest empty placeholder",
+    "cta_primary": {
+      "kind": "open_evidence_drawer",
+      "label_ko": "\uadfc\uac70 \ubcf4\uae30",
+      "label_en": "Open evidence",
+      "opens_inline_drawer_not_navigation": true
+    },
+    "cta_secondary": {
+      "kind": "research_deep_dive_disabled_in_10a",
+      "note": "Research \ud328\ub110 \uc815\uc2dd \uc7ac\uc124\uacc4\ub294 10B"
+    }
+  },
+  "trust_strip": {
+    "tier_kind_taxonomy": ["production", "sample", "degraded"],
+    "language_contract_honest_not_hype": true,
+    "surfaces_built_at_and_source_run_count": true
+  },
+  "watchlist_strip": {
+    "placement": "below selected_movers",
+    "visual_priority": "caption size, subdued surface, non-interactive chips"
+  },
+  "evidence_drawer": {
+    "rendered_in_today_panel": true,
+    "does_not_cause_navigation": true,
+    "drawer_css_class": ".ps-evidence-drawer"
+  },
+  "copy_safeguards": [
+    "No buy/sell imperative language.",
+    "Degraded state surfaces as honest 'sample / preparing' rather than masquerading as live."
+  ],
+  "source_files": [
+    "src/phase47_runtime/static/index.html",
+    "src/phase47_runtime/static/product_shell.js",
+    "src/phase47_runtime/static/product_shell.css",
+    "src/phase47_runtime/product_shell/view_models.py",
+    "src/phase47_runtime/routes.py"
+  ],
+  "tests": [
+    "src/tests/test_agh_v1_patch_10a_today_product_dto.py",
+    "src/tests/test_agh_v1_patch_10a_visual_system.py"
+  ]
+}

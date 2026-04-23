@@ -889,6 +889,40 @@ def api_counterfactual_preview(state: CockpitRuntimeState, q: dict[str, str], la
     )
 
 
+def api_product_today(
+    state: CockpitRuntimeState,
+    lang: str,
+) -> dict[str, Any]:
+    """Product Shell Rebuild v1 Patch 10A — customer-facing Today DTO.
+
+    This route is the ONLY Today entry point the Product Shell consumes.
+    The response is a ``PRODUCT_TODAY_V1`` packet produced by
+    :func:`phase47_runtime.product_shell.view_models.build_today_product_dto`,
+    which composes 4 hero cards + trust strip + at-a-glance + movers
+    + watchlist + stubs, and scrubs any engineering IDs as a final step.
+
+    Internal operators who need raw spectrum + registry state continue
+    to use the legacy ``/api/today/spectrum`` route served through the
+    env-gated ``/ops`` shell.
+    """
+    from phase47_runtime.product_shell.view_models import build_today_product_dto
+    from phase47_runtime.watchlist_order_v1 import (
+        load_watchlist_order,
+        merge_watchlist_display_order,
+    )
+
+    canon = bundle_watch_candidate_asset_ids(state.bundle)
+    stored = load_watchlist_order(state.repo_root)
+    ordered = merge_watchlist_display_order(canon, stored)
+    dto = build_today_product_dto(
+        repo_root=state.repo_root,
+        lang=lang,
+        watchlist_tickers=ordered,
+    )
+    dto["ok"] = True
+    return dto
+
+
 def dispatch_json(
     state: CockpitRuntimeState,
     *,
@@ -990,6 +1024,8 @@ def dispatch_json(
             rl = None
         sp = api_today_spectrum(state, lang, hz, mt, rows_limit=rl)
         return (200 if sp.get("ok") else 404), sp
+    if method == "GET" and p == "/api/product/today":
+        return 200, api_product_today(state, lang)
     if method == "GET" and p == "/api/today/watchlist-order":
         return 200, api_today_watchlist_order_get(state)
     if method == "POST" and p == "/api/today/watchlist-order":

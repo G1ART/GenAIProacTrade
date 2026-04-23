@@ -1,0 +1,94 @@
+{
+  "contract": "PATCH_10A_MAPPER_AND_NO_LEAK_EVIDENCE_V1",
+  "milestone": "10A",
+  "patch_nature": "product_shell_rebuild_v1",
+  "scope": "Scope D — introduce a view-model mapper layer that translates internal engineering state into customer-facing DTOs, and enforce a leak-proof surface contract across HTML / JS / CSS / DTO.",
+  "workorder_reference": "docs/plan/METIS_Product_Shell_Rebuild_v1_Patch_10A_Plan_KR.md#\uc5b8\uc5b4 \uacc4\uc57d",
+  "view_model_module": "src/phase47_runtime/product_shell/view_models.py",
+  "exposed_surface": {
+    "compose_today_product_dto": "pure composer used by tests + API route",
+    "build_today_product_dto":   "disk-backed wrapper used by /api/product/today",
+    "strip_engineering_ids":     "recursive scrubber; last line of defense before DTO returns"
+  },
+  "mappers": {
+    "_spectrum_position_to_grade": {
+      "inputs":  ["spectrum_position in [-1, 1]", "source_key in {live, live_with_caveat, sample, preparing}"],
+      "output":  "grade chip label (A+, A, B, C, D, F)",
+      "sample_aware": "sample / preparing sources cap the maximum grade so samples never read as top-tier confidence"
+    },
+    "_spectrum_position_to_stance": {
+      "inputs":  ["spectrum_position", "lang"],
+      "output":  "stance label separating direction from magnitude",
+      "labels_ko": ["\uac15\ud55c \ub9e4\uc218 \uacbd\ud5a5", "\ub9e4\uc218 \uacbd\ud5a5", "\uc911\ub9bd", "\ub9e4\ub3c4 \uacbd\ud5a5", "\uac15\ud55c \ub9e4\ub3c4 \uacbd\ud5a5"]
+    },
+    "_horizon_provenance_to_confidence": {
+      "input_provenance_enum_examples": [
+        "real_derived",
+        "real_derived_with_degraded_challenger",
+        "template_fallback",
+        "insufficient_evidence"
+      ],
+      "output_source_key_taxonomy": ["live", "live_with_caveat", "sample", "preparing"],
+      "emits": ["source_key", "label", "tooltip"],
+      "leak_free": true
+    }
+  },
+  "customer_facing_api": {
+    "method": "GET",
+    "path":   "/api/product/today",
+    "contract": "PRODUCT_TODAY_V1",
+    "response_fields": [
+      "contract",
+      "lang",
+      "as_of",
+      "trust_strip",
+      "today_at_a_glance",
+      "hero_cards",
+      "selected_movers",
+      "watchlist_strip",
+      "advanced_disclosure",
+      "stubs"
+    ]
+  },
+  "no_leak_scanner": {
+    "file": "src/tests/test_agh_v1_patch_10a_copy_no_leak.py",
+    "banned_patterns": [
+      "art_*",
+      "reg_*",
+      "factor_*",
+      "pkt_*",
+      "pit:demo:",
+      "real_derived",
+      "real_derived_with_degraded_challenger",
+      "template_fallback",
+      "insufficient_evidence",
+      "horizon_provenance",
+      "registry_entry_id",
+      "versioned_slug_regex _v\\d+"
+    ],
+    "scanned_surfaces": [
+      "src/phase47_runtime/static/index.html",
+      "src/phase47_runtime/static/product_shell.js",
+      "src/phase47_runtime/static/product_shell.css",
+      "live DTO output from /api/product/today"
+    ],
+    "result": "all scanned surfaces clean",
+    "locale_parity": {
+      "prefix": "product_shell.*",
+      "ko_key_count": 46,
+      "en_key_count": 46,
+      "missing_in_en": [],
+      "missing_in_ko": []
+    }
+  },
+  "trust_contract_degraded_copy_examples": {
+    "live":              {"label_ko": "\uc2e4\uc2dc\uac04 \ub370\uc774\ud130"},
+    "live_with_caveat":  {"label_ko": "\uc2e4\uc2dc\uac04 \ub370\uc774\ud130 (\uc77c\ubd80 \uc81c\ud55c)"},
+    "sample":            {"label_ko": "\uc0d8\ud50c \ub370\uc774\ud130"},
+    "preparing":         {"label_ko": "\uc900\ube44 \uc911"}
+  },
+  "tests": [
+    "src/tests/test_agh_v1_patch_10a_today_product_dto.py",
+    "src/tests/test_agh_v1_patch_10a_copy_no_leak.py"
+  ]
+}

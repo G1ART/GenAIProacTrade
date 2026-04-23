@@ -5,7 +5,7 @@ Guardrail: engineering/snake_case tokens (e.g. ``registry_entry_id``,
 not leak into primary UI copy — neither the ``tsr.*`` / ``research_section.*``
 / ``lineage.*`` / ``plot.*`` locale strings that the client pulls via
 ``/api/locale``, nor the inline KO/EN literals inside the TSR render
-functions in ``src/phase47_runtime/static/app.js``.
+functions in ``src/phase47_runtime/static/ops.js``.
 
 These tokens ARE allowed inside progressive-disclosure audit blocks
 (``<details>...raw identifiers...</details>``) and inside ``data-*``
@@ -154,7 +154,7 @@ def test_tsr_locale_strings_do_not_leak_eng_tokens() -> None:
 # ---------------------------------------------------------------------------
 
 
-APP_JS = REPO_ROOT / "src" / "phase47_runtime" / "static" / "app.js"
+APP_JS = REPO_ROOT / "src" / "phase47_runtime" / "static" / "ops.js"
 
 
 TSR_RENDERER_FUNCTIONS: tuple[str, ...] = (

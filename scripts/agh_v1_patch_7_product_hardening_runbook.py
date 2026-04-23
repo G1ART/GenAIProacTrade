@@ -62,8 +62,8 @@ from phase47_runtime import today_spectrum as ts  # noqa: E402
 from phase47_runtime.phase47e_user_locale import SHELL  # noqa: E402
 
 
-APP_JS = (REPO_ROOT / "src/phase47_runtime/static/app.js").read_text(encoding="utf-8")
-INDEX_HTML = (REPO_ROOT / "src/phase47_runtime/static/index.html").read_text(
+APP_JS = (REPO_ROOT / "src/phase47_runtime/static/ops.js").read_text(encoding="utf-8")
+INDEX_HTML = (REPO_ROOT / "src/phase47_runtime/static/ops.html").read_text(
     encoding="utf-8"
 )
 SCALE_NOTE = REPO_ROOT / "docs/plan/METIS_Scale_Readiness_Note_Patch7_v1.md"

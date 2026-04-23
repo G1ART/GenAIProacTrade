@@ -68,10 +68,10 @@ from phase47_runtime.phase47e_user_locale import (  # noqa: E402
 from phase51_runtime import cockpit_health_surface as health_surface  # noqa: E402
 
 
-APP_JS = (REPO_ROOT / "src/phase47_runtime/static/app.js").read_text(
+APP_JS = (REPO_ROOT / "src/phase47_runtime/static/ops.js").read_text(
     encoding="utf-8"
 )
-INDEX_HTML = (REPO_ROOT / "src/phase47_runtime/static/index.html").read_text(
+INDEX_HTML = (REPO_ROOT / "src/phase47_runtime/static/ops.html").read_text(
     encoding="utf-8"
 )
 CONTRACT_PY = (

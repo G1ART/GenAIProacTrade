@@ -291,8 +291,8 @@ def _run_s4_today_research_structured_plumbing() -> dict[str, Any]:
 
 
 def _run_s5_ui_renderer_contract() -> dict[str, Any]:
-    app_js = (REPO_ROOT / "src/phase47_runtime/static/app.js").read_text(encoding="utf-8")
-    index_html = (REPO_ROOT / "src/phase47_runtime/static/index.html").read_text(encoding="utf-8")
+    app_js = (REPO_ROOT / "src/phase47_runtime/static/ops.js").read_text(encoding="utf-8")
+    index_html = (REPO_ROOT / "src/phase47_runtime/static/ops.html").read_text(encoding="utf-8")
 
     required_fns = [
         "renderTodaySummaryRailHtml",

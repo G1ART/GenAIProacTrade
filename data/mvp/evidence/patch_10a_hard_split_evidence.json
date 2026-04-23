@@ -1,0 +1,69 @@
+{
+  "contract": "PATCH_10A_HARD_SPLIT_EVIDENCE_V1",
+  "milestone": "10A",
+  "patch_nature": "product_shell_rebuild_v1",
+  "scope": "Scope A — hard 2-file split between customer-facing Product Shell (/) and internal Ops Cockpit (/ops, env-gated).",
+  "workorder_reference": "docs/plan/METIS_Product_Shell_Rebuild_v1_Patch_10A_Plan_KR.md#\ud558\ub4dc 2-\ud30c\uc77c \ubd84\ub9ac",
+  "architectural_decision": {
+    "root_path": {
+      "serves": "src/phase47_runtime/static/index.html",
+      "pulls_in": [
+        "src/phase47_runtime/static/product_shell.css",
+        "src/phase47_runtime/static/product_shell.js"
+      ]
+    },
+    "ops_path": {
+      "serves": "src/phase47_runtime/static/ops.html",
+      "pulls_in": ["src/phase47_runtime/static/ops.js"],
+      "env_gate": "METIS_OPS_SHELL in {1,true,yes}",
+      "default_behavior": "returns 404 when env flag is unset"
+    },
+    "api_layer": {
+      "new_prefix": "/api/product/*",
+      "first_endpoint": "/api/product/today",
+      "legacy_endpoints_preserved": true
+    }
+  },
+  "file_moves": [
+    {"from": "src/phase47_runtime/static/index.html", "to": "src/phase47_runtime/static/ops.html", "git_mv": true},
+    {"from": "src/phase47_runtime/static/app.js",     "to": "src/phase47_runtime/static/ops.js",   "git_mv": true}
+  ],
+  "new_files": [
+    "src/phase47_runtime/static/index.html",
+    "src/phase47_runtime/static/product_shell.js",
+    "src/phase47_runtime/static/product_shell.css",
+    "src/phase47_runtime/product_shell/__init__.py",
+    "src/phase47_runtime/product_shell/view_models.py"
+  ],
+  "routing_touchpoints": {
+    "file": "src/phase47_runtime/app.py",
+    "root_route_serves_product_shell_html": true,
+    "ops_route_env_gated": true,
+    "product_api_dispatch_in": "src/phase47_runtime/routes.py",
+    "product_api_route_registered": "/api/product/today"
+  },
+  "regression_impact": {
+    "legacy_test_path_references_updated": [
+      "src/tests/test_agh_v1_patch6_copy_no_leak.py",
+      "src/tests/test_agh_v1_patch6_ui_renderer_surface.py",
+      "src/tests/test_agh_v1_patch7_product_hardening_surface.py",
+      "src/tests/test_agh_v1_patch8_production_graduation_surface.py",
+      "src/tests/test_agh_v1_patch9_production_surface.py"
+    ],
+    "legacy_runbook_script_path_references_updated": [
+      "scripts/agh_v1_patch_6_demo_freeze_runbook.py",
+      "scripts/agh_v1_patch_7_product_hardening_runbook.py",
+      "scripts/agh_v1_patch_8_production_graduation_runbook.py",
+      "scripts/agh_v1_patch_9_production_graduation_runbook.py"
+    ],
+    "full_regression_remains_green_excluding_pre_existing_phase39_failure": true
+  },
+  "tests": [
+    "src/tests/test_agh_v1_patch_10a_hard_split.py",
+    "src/tests/test_agh_v1_patch_10a_visual_system.py"
+  ],
+  "notes": [
+    "Ops Cockpit is preserved verbatim at /ops so operators keep every existing control while external demos touch only /.",
+    "Future patches should continue to add customer-facing data under /api/product/* and leave legacy /api/* routes untouched."
+  ]
+}

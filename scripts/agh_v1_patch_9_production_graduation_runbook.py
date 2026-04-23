@@ -42,8 +42,8 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 from phase47_runtime.phase47e_user_locale import SHELL  # noqa: E402
 
 
-APP_JS = (REPO_ROOT / "src/phase47_runtime/static/app.js").read_text(encoding="utf-8")
-INDEX_HTML = (REPO_ROOT / "src/phase47_runtime/static/index.html").read_text(
+APP_JS = (REPO_ROOT / "src/phase47_runtime/static/ops.js").read_text(encoding="utf-8")
+INDEX_HTML = (REPO_ROOT / "src/phase47_runtime/static/ops.html").read_text(
     encoding="utf-8"
 )
 MAIN_PY = (REPO_ROOT / "src/main.py").read_text(encoding="utf-8")

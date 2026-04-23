@@ -1,0 +1,53 @@
+{
+  "contract": "PATCH_10A_PRODUCT_SHELL_FREEZE_V1",
+  "generated_utc": "2026-04-23T06:53:54Z",
+  "git_head_sha": "ab230d309f2101fb236fb923142effe4d88dcc4a",
+  "copies": [
+    {
+      "source": "src/phase47_runtime/static/index.html",
+      "target": "data/mvp/evidence/screenshots_patch_10a/product_shell_index.html",
+      "bytes": 1578,
+      "sha256": "0387d1eaf9008da5718eb7835b446a09be0b09bec307cac67c6f628fe4de04dc"
+    },
+    {
+      "source": "src/phase47_runtime/static/product_shell.js",
+      "target": "data/mvp/evidence/screenshots_patch_10a/product_shell.js",
+      "bytes": 22987,
+      "sha256": "1b58c5ba48bf44bf15df1bd24ab0817a931921dfe930afe61abf095f455ba71c"
+    },
+    {
+      "source": "src/phase47_runtime/static/product_shell.css",
+      "target": "data/mvp/evidence/screenshots_patch_10a/product_shell.css",
+      "bytes": 23008,
+      "sha256": "bd799f1a8f5c1fb8f0dbc8034e11e5df9babef35282d98e3c3b7de0a431b82c5"
+    },
+    {
+      "source": "src/phase47_runtime/static/ops.html",
+      "target": "data/mvp/evidence/screenshots_patch_10a/ops_index.html",
+      "bytes": 45694,
+      "sha256": "c6d9cb1171acf1d89d1d1fe07795ff37f042f0525b1d6eb11e7e3a14c02fb3f7"
+    },
+    {
+      "source": "src/phase47_runtime/static/ops.js",
+      "target": "data/mvp/evidence/screenshots_patch_10a/ops.js",
+      "bytes": 184742,
+      "sha256": "6aefba6c535c29750b5d9a67eab7e34aebec730c4d938440cf57751cbeedfb95"
+    }
+  ],
+  "dto_samples": [
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10a/product_today_dto_sample_ko.json",
+      "bytes": 10504,
+      "sha256": "3045b06da559695c39b03b17251c6c8a8388c686912cfaa1756b7f17a2c2d960",
+      "hero_card_count": 4,
+      "trust_tier": "degraded"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10a/product_today_dto_sample_en.json",
+      "bytes": 9601,
+      "sha256": "00c5b31dc9634eda85ffc844ddb4c4afd4051758235d35523166a427781fab98",
+      "hero_card_count": 4,
+      "trust_tier": "degraded"
+    }
+  ]
+}

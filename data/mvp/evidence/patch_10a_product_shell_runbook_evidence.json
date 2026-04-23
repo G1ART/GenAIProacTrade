@@ -1,0 +1,111 @@
+{
+  "contract": "PATCH_10A_PRODUCT_SHELL_RUNBOOK_V1",
+  "generated_utc": "2026-04-23T06:56:23Z",
+  "hard_split_ok": true,
+  "routing_ok": true,
+  "visual_system_ok": true,
+  "mappers_ok": true,
+  "dto_shape_ok": true,
+  "no_leak_ok": true,
+  "locale_parity_ok": true,
+  "degraded_copy_ok": true,
+  "inline_evidence_ok": true,
+  "stub_panels_ok": true,
+  "scenarios": [
+    {
+      "scenario": "S1_hard_file_split",
+      "product_index_html_present": true,
+      "product_shell_js_present": true,
+      "product_shell_css_present": true,
+      "ops_html_present": true,
+      "ops_js_present": true,
+      "legacy_app_js_removed": true,
+      "product_index_references_product_shell_js": true,
+      "ops_index_references_ops_js": true,
+      "ops_index_does_not_reference_product_shell_js": true
+    },
+    {
+      "scenario": "S2_routes_and_env_gate",
+      "root_serves_product_index": true,
+      "ops_env_flag_referenced": true,
+      "ops_path_referenced": true,
+      "api_product_today_route": true,
+      "api_product_dispatch_wired": true
+    },
+    {
+      "scenario": "S3_visual_system",
+      "css_bytes": 23002,
+      "ps_token_count": 52,
+      "has_color_tokens": false,
+      "has_spacing_tokens": false,
+      "has_typography_tokens": true,
+      "has_radius_tokens": true,
+      "required_components_missing": [],
+      "all_required_components_present": true
+    },
+    {
+      "scenario": "S4_view_models_mapper",
+      "import_ok": true,
+      "live_high_grade": "{'key': 'a_plus', 'label': 'A+'}",
+      "sample_grade_lower_than_live": true,
+      "stance_long_label": "{'key': 'strong_long', 'label': '강한 매수 경향'}",
+      "stance_neutral_label": "{'key': 'neutral', 'label': '중립'}",
+      "real_derived_source_key": "live",
+      "template_fallback_source_key": "sample",
+      "strip_removed_banned_tokens": true
+    },
+    {
+      "scenario": "S5_compose_product_today_dto",
+      "import_ok": true,
+      "contract": "PRODUCT_TODAY_V1",
+      "hero_card_count": 4,
+      "trust_strip_tier": "production",
+      "has_today_at_a_glance": true,
+      "has_selected_movers": true,
+      "has_watchlist_strip": true,
+      "has_stubs": true
+    },
+    {
+      "scenario": "S6_no_leak_customer_surface",
+      "html_hits": [],
+      "js_hits": [],
+      "css_hits": [],
+      "html_clean": true,
+      "js_clean": true,
+      "css_clean": true
+    },
+    {
+      "scenario": "S7_locale_keys",
+      "import_ok": true,
+      "ko_product_key_count": 46,
+      "en_product_key_count": 46,
+      "parity_ok": true,
+      "missing_in_en": [],
+      "missing_in_ko": []
+    },
+    {
+      "scenario": "S8_honest_degraded_copy",
+      "template_fallback_ko_source": "sample",
+      "template_fallback_en_source": "sample",
+      "insufficient_evidence_source": "preparing",
+      "template_fallback_label_ko": "샘플 시나리오",
+      "insufficient_evidence_label_ko": "실데이터 준비 중"
+    },
+    {
+      "scenario": "S9_inline_evidence_drawer",
+      "renders_evidence_drawer": true,
+      "drawer_css_class_defined": true,
+      "cta_primary_kind_is_open_evidence_drawer": true,
+      "cta_primary_label_nonempty": true,
+      "no_research_hard_nav_from_hero": true
+    },
+    {
+      "scenario": "S10_stub_panels",
+      "research_panel_mount": true,
+      "replay_panel_mount": true,
+      "ask_panel_mount": true,
+      "js_renders_stub_card": true
+    }
+  ],
+  "all_ok": true
+}

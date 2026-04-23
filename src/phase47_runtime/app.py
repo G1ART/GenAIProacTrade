@@ -50,12 +50,32 @@ def make_handler(state: CockpitRuntimeState):
             parsed = urllib.parse.urlparse(self.path)
             path = parsed.path or "/"
             q = {k: v[0] for k, v in urllib.parse.parse_qs(parsed.query).items()}
+            # Product Shell Rebuild v1 Patch 10A — hard split between the customer
+            # surface (`/`, Product Shell) and the internal Ops Cockpit (`/ops`,
+            # env-gated). The Ops Cockpit is only served when METIS_OPS_SHELL=1.
             if path in ("/", "/index.html"):
                 p = _PKG / "static" / "index.html"
                 if not p.is_file():
-                    self._send_json(500, {"ok": False, "error": "missing_index_html"})
+                    self._send_json(
+                        500,
+                        {
+                            "ok": False,
+                            "error": "missing_product_shell_index_html",
+                            "hint": "Patch 10A: Product Shell is being rebuilt; /ops remains available for operators with METIS_OPS_SHELL=1.",
+                        },
+                    )
                     return
                 self._send(200, p.read_bytes(), _content_type("index.html"))
+                return
+            if path in ("/ops", "/ops/", "/ops/index.html"):
+                if os.environ.get("METIS_OPS_SHELL", "").strip() not in ("1", "true", "yes"):
+                    self.send_error(404)
+                    return
+                p = _PKG / "static" / "ops.html"
+                if not p.is_file():
+                    self._send_json(500, {"ok": False, "error": "missing_ops_html"})
+                    return
+                self._send(200, p.read_bytes(), _content_type("ops.html"))
                 return
             if path.startswith("/static/"):
                 rel = path[len("/static/") :].lstrip("/")

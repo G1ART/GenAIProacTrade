@@ -27,8 +27,8 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-APP_JS = REPO_ROOT / "src" / "phase47_runtime" / "static" / "app.js"
-INDEX_HTML = REPO_ROOT / "src" / "phase47_runtime" / "static" / "index.html"
+APP_JS = REPO_ROOT / "src" / "phase47_runtime" / "static" / "ops.js"
+INDEX_HTML = REPO_ROOT / "src" / "phase47_runtime" / "static" / "ops.html"
 
 
 @pytest.fixture(scope="module")

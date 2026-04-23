@@ -2,6 +2,42 @@
 
 **단일 목표**: Today/Research/Replay 세 표면을 **Metis Brain bundle + registry + message snapshot store** 라는 하나의 계약 위에 올리고, `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` §10 의 Q1–Q10 이 **자동 spec survey** 에서 전부 `ok=true` 가 되게 한다. (Build Plan §14 수직 슬라이스, §12 항상 지킬 문장.)
 
+## 2026-04-23 — Product Shell Rebuild Patch 10A: 하드 2-파일 분리 + Today 재설계 v1 (plan `product-shell-10a`)
+
+> **Patch 10A 는 "데모 광택 패치가 아니다".** 이번 패치의 목적은 기존 Phase 47 Cockpit 을 그대로 보존한 채 **사용자용 Product Shell 을 별도 `/` 로 분리**하고, 그 위에 Today 한 장을 **엔지니어링 언어 누출 없이** 올려두는 것이다. Research / Replay / Ask AI 는 10B 에서 정식 재설계하며, 10A 는 스텁 카드로 남긴다. 기준은 "UI 가 더 예쁘냐" 가 아니라 **"사용자가 첫 화면에서 엔지니어링 흔적 없이 '지금 무엇을, 왜, 얼마나 믿고 볼 수 있는가' 를 읽을 수 있느냐"** 이다.
+
+**Green run 실증 (Patch 10A)**
+
+- **A1 — 하드 2-파일 분리 + 라우팅**. `src/phase47_runtime/static/index.html` + `app.js` 를 **git mv** 로 `ops.html` + `ops.js` 로 이동. 신규 `static/index.html` + `product_shell.js` + `product_shell.css` 가 Product Shell 을 구성. `src/phase47_runtime/app.py` 라우터는 `/` → Product Shell (`static/index.html`), `/ops` → Ops Cockpit (`static/ops.html`), **`METIS_OPS_SHELL ∈ {1, true, yes}`** 일 때만 `/ops` 가 뜨고 그 외에는 404. 같은 도메인, 같은 프로세스, **두 경로**.
+- **A2 — 신규 API 접두어 `/api/product/*`**. `src/phase47_runtime/routes.py` 가 `GET /api/product/today` 를 디스패치 (`api_product_today`) — Mapper 레이어를 거쳐 나온 `PRODUCT_TODAY_V1` DTO 를 그대로 반환. 기존 `/api/*` 는 불변으로 남아 Cockpit 바인딩 유지.
+- **A3 — View-model mapper 레이어 신규**. `src/phase47_runtime/product_shell/view_models.py` 가 `compose_today_product_dto` (순수, 테스트용) / `build_today_product_dto` (디스크 로더 포함, API 라우트용) / `strip_engineering_ids` (재귀 스크러버, 마지막 방어선) 를 노출. 내부 매퍼 `_spectrum_position_to_grade(..., source_key=...)` / `_spectrum_position_to_stance(...)` / `_horizon_provenance_to_confidence(...)` 가 grade (신호 강도) / stance (방향성) / confidence (데이터 품질) 를 **3 축으로 분리**해 병치하고, 샘플 소스일 때는 grade 의 상한을 제한해 "샘플이 A+ 로 찍히는 사기" 를 차단.
+- **B1 — Today 레이아웃 v1**. 위→아래 순서로 `trust strip` → `today at a glance` → `hero horizon cards ×4 (시각 1순위)` → `selected movers` → `watchlist strip (subdued)` → `advanced disclosure (접힘)`. Hero 카드에는 `grade chip` + `stance label` + `confidence badge` 가 한 행에 나란히 서고, 한 줄 스토리, 포지션 바 (매도-중립-매수), **SVG hand-roll 미니 스파크라인** (외부 차트 라이브러리 없음), 그리고 CTA 주 "근거 보기" 가 붙는다. 데이터가 부족할 때 스파크라인은 degraded placeholder 로 바뀌어 **샘플임을 말로 노출** 한다.
+- **B2 — Inline Evidence Drawer (정제 R1 반영)**. Hero 카드의 1순위 CTA "근거 보기" 는 **Today 내부 evidence drawer 를 확장**한다 — Research 페이지로의 하드 네비게이션은 10A 에서 **disabled**. Drawer 는 "이 확신의 근거" / "가장 강한 지지 근거" 두 블록 + 최근 변화 bullet 을 제품 톤으로 보여줌.
+- **B3 — Grade/Stance 분리 (정제 R2) + Watchlist Subdued (정제 R3)**. Grade chip (A+~F, 신호 강도) 과 stance label (강한 매수 경향 / 매수 경향 / 중립 / 매도 경향 / 강한 매도 경향, 방향성) 을 병치. Watchlist strip 은 유지하되 hero 카드 아래 `selected movers` 뒤에 배치하고, 캡션 사이즈 + subdued surface + 비인터랙티브 chip 으로 **시각 우선순위를 한 단 낮춘다**.
+- **B4 — Research / Replay / Ask AI 스텁 3 패널**. 각각 "곧 도착" 안내 카드 + 한 문장 약속 + "지금은 Today 근거 보기로도 충분히 답을 드립니다" 문구. 매수/매도 권유 카피 없음, 과장된 예측 확신 없음 (Product Spec §4.3, §5.1 준수). 10B 에서 정식 재설계.
+- **C1 — 비주얼 시스템 v1**. 신규 `static/product_shell.css` 가 `--ps-color-*` / `--ps-sp-*` / `--ps-fz-*` / `--ps-fw-*` / `--ps-radius-*` / `--ps-elev-*` design tokens + **8 우선 컴포넌트** (`.ps-hero-card`, `.ps-grade-chip`, `.ps-stance-label`, `.ps-confidence-badge`, `.ps-change-bullet`, `.ps-mini-sparkline`, `.ps-mover-card`, `.ps-watchlist-chip`, `.ps-disclosure-drawer`) 를 제공. 외부 폰트 네트워크 요청 없음 (system UI stack), 외부 차트 라이브러리 없음 (SVG hand-roll). Ops Cockpit 의 인라인 스타일은 **그대로 보존**.
+- **C2 — 로캘 `product_shell.*` 46 키 KO/EN parity**. `src/phase47_runtime/phase47e_user_locale.py` 에 nav / loading / error / footer / trust strip / glance / hero CTA+tooltip / stance / confidence / movers / watchlist / disclosure / stub title 등 46 쌍을 추가. 누수 스캐너가 KO/EN 집합 parity 를 강제.
+- **C3 — Honest Degraded 언어 계약**. 내부 provenance 를 제품 `source_key` 로 번역: `real_derived` → `live` ("실시간 데이터"), `real_derived_with_degraded_challenger` → `live_with_caveat` ("실시간 데이터 (일부 제한)"), `template_fallback` → `sample` ("샘플 데이터"), `insufficient_evidence` → `preparing` ("준비 중"). **샘플일 때 샘플이라고 말한다.**
+- **D1 — No-leak 스캐너 확장**. `src/tests/test_agh_v1_patch_10a_copy_no_leak.py` 가 HTML (`static/index.html`) / JS (`product_shell.js`) / CSS (`product_shell.css`) / 실 DTO (`compose_today_product_dto` 출력) **4 면 전체** 를 regex 스캔해 `art_*`, `reg_*`, `factor_*`, `pkt_*`, `pit:demo:`, `real_derived*`, `template_fallback`, `insufficient_evidence`, `horizon_provenance`, `registry_entry_id`, `..._v\d+`, "buy/sell" 명령형 등 금지 토큰 부재를 강제.
+- **D2 — Hard split + Visual system 테스트**. `src/tests/test_agh_v1_patch_10a_hard_split.py` 가 파일 분리, 라우팅, env gate (`METIS_OPS_SHELL`), API 디스패치를 검증하고 `http.server` + `urllib.request` 로 `/`, `/ops`, `/api/product/today` 3 경로를 실제 HTTP probe. `src/tests/test_agh_v1_patch_10a_visual_system.py` 가 design tokens 존재, 8 컴포넌트 클래스 존재, JS 마운트 포인트 (`__PS__` debug hook / `/api/product/today` 호출 / SVG 스파크라인) 를 확인.
+- **Tests — 신규 10A 계열 + 회귀 업데이트**. Patch 10A 전용 테스트 4 개 파일 (DTO/Today shape, no-leak + parity, hard split, visual system) + 기존 Patch 6~9 회귀 테스트를 `static/ops.html` / `static/ops.js` 로 경로 업데이트. 전체 회귀 1425 green (`test_phase39_hypothesis_family.py::test_phase39_orchestrator_writes_artifacts` 1 건은 본 패치 이전부터 red, 범위 밖).
+- **E1 — Freeze + Runbook 스크립트**. `scripts/agh_v1_patch_10a_product_shell_freeze_snapshots.py` 가 Product Shell HTML/JS/CSS + Ops HTML/JS + DTO 샘플 (KO/EN) + SHA256 manifest 를 `data/mvp/evidence/screenshots_patch_10a/` 에 기록. `scripts/agh_v1_patch_10a_product_shell_runbook.py` 가 S1..S10 (hard split / 라우팅 / 비주얼 시스템 / 매퍼 / DTO / no-leak / 로캘 parity / degraded 카피 / inline evidence / 스텁) 을 코드 수준 플래그로 검증, 결과 10 개 `*_ok` 플래그 전부 green.
+- **E2 — Evidence JSON 6 개**. `data/mvp/evidence/patch_10a_{hard_split, today_redesign, visual_system, mapper_no_leak, product_shell_bridge, product_shell_runbook}_evidence.json` 6 개 파일이 각 scope 의 계약 + 잠금 지점을 코드 경로와 함께 기록.
+- **F1 — 신규 문서 2 건**. `docs/plan/METIS_Product_Shell_Rebuild_v1_Spec_KR.md` 가 아키텍처 하드 2-파일 분리 + Mapper 레이어 + Today 표면 계약 + 언어 계약 + 비주얼 시스템 + 10B 진입 계약을 단일 스펙으로 명문화. `docs/ops/METIS_Product_Shell_vs_Ops_Cockpit_Split_Runbook_v1.md` 가 "/ vs /ops", env gate, 배포 체크리스트, 트러블슈팅, 롤백 절차를 단일 copy-paste 런북으로 제공.
+
+**환경 변수 (Patch 10A 에서 추가 1 개)**
+
+- `METIS_OPS_SHELL` — `1` / `true` / `yes` 일 때만 `/ops` 경로가 Ops Cockpit 을 노출. 미설정 = 404 (보안 기본값).
+- 이전 Patch 8/9 의 `METIS_BRAIN_BUNDLE` / `AGH_WORKER_SLEEP` / `PORT` / `METIS_UI_INVOKE_ENABLED` / `METIS_HARNESS_LLM_PROVIDER` / `METIS_TODAY_SOURCE` / Supabase 3 종 / `EDGAR_IDENTITY` 등은 그대로. `.env.example` 이 매니페스트.
+
+**다음 단계 (Patch 10B — Research/Replay/Ask AI 정식 재설계)**
+
+- `/api/product/research`, `/api/product/replay`, `/api/product/ask` 라우트 + 매퍼 도입.
+- Today 내부 evidence drawer → 종목 전체 근거 inline expand soft-link (페이지 이동 없이) 으로 Research 확장.
+- Ask AI "근거 안에서만 답한다" 계약 (Retrieval-grounded) 명문화 후 오픈.
+
+---
+
 ## 2026-04-21 — AGH v1 Patch 9: Productionize / Self-Serve / Scale Closure (plan `agh_v1_patch_9_productionize_self_serve_scale_closure`)
 
 > **Patch 9 도 "demo-theater 패치가 아니다".** 이 패치의 목적은 Patch 8 에서 도입한 `v2` production bundle 을 **런타임 기본 경로**로 격상하고 (env override > v2 integrity-gated > v0 fallback, 그리고 v2 가 구조적으로 깨졌을 때는 조용히 덮지 않고 health degraded reason 을 낸다), Research invoke self-serve 드로어를 **실제 제품 모양**으로 다듬으며 (humanize 된 최근 요청 드로어, queued/running 에서만 뜨는 워커 tick hint, 2-column contract grid, 운영자 게이트를 말로 드러내는 copy hardening), Patch 8 Scale Note §4.3 의 이월 병목 중 **retention / packet lookup / message snapshot IO** 세 건을 실코드로 닫는 것이다. 동시에 production-tier integrity 네 가지 검사를 opt-in 으로 추가해 graduation 스크립트가 demo fingerprint 를 production 으로 승격하지 못하게 했다. 기준은 "demo 가 더 멋있느냐" 가 아니라 **"실제 배포 가능한 MVP+ 에 한 칸 더 가까워졌느냐"**이다.
