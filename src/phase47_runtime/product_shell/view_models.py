@@ -45,9 +45,11 @@ from .view_models_common import (
     HORIZON_KEYS,
     PROVENANCE_TO_SOURCE_KEY,
     best_representative_row,
+    build_shared_focus_block,
     family_alias,
     horizon_provenance_to_confidence,
     human_relative_time,
+    shared_wording,
     spectrum_position_to_grade,
     spectrum_position_to_stance,
     strip_engineering_ids,
@@ -201,6 +203,7 @@ def _build_hero_card(
     bundle: BrainBundleV0 | None,
     horizon_key: str,
     spectrum_payload: dict[str, Any] | None,
+    spectrum_by_horizon: dict[str, dict[str, Any]],
     lang: str,
 ) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
@@ -244,6 +247,12 @@ def _build_hero_card(
         "kind":  "open_evidence_drawer",
         "label": "근거 보기" if lang == "ko" else "Open evidence",
     }
+    rep_ticker = str((rep_row or {}).get("asset_id") or "").upper().strip()
+    # Patch 10C — secondary CTAs preserve focus across surfaces. We
+    # surface three bounded jumps (Research / Replay / Ask AI) so the
+    # customer can move between surfaces without losing the focus pair
+    # ``(ticker, horizon_key)``. The primary "open_evidence_drawer"
+    # stays on Today; these three all carry the same target.
     cta_secondary = {
         "kind":     "open_research",
         "label":    "리서치 열기" if lang == "ko" else "Open Research",
@@ -251,10 +260,39 @@ def _build_hero_card(
         "hint":     ("이 구간의 근거·반대 증거를 리서치 페이지에서 열어 보실 수 있습니다."
                      if lang == "ko"
                      else "Open the claim, evidence, and counter-evidence in Research."),
+        "target":   {"surface": "research", "asset_id": rep_ticker,
+                     "horizon_key": horizon_key},
     }
+    cta_more: list[dict[str, Any]] = [
+        {
+            "kind":   "open_replay",
+            "label":  "리플레이 열기" if lang == "ko" else "Open Replay",
+            "hint":   ("이 구간에서 과거에 어떤 결정이 있었는지 타임라인으로 확인합니다."
+                       if lang == "ko"
+                       else "See the past decisions for this horizon on a timeline."),
+            "target": {"surface": "replay", "asset_id": rep_ticker,
+                       "horizon_key": horizon_key},
+        },
+        {
+            "kind":   "ask_ai",
+            "label":  "Ask AI 에 질문" if lang == "ko" else "Ask AI",
+            "hint":   ("노출된 근거 안에서만 답변하는 제품 질의응답 표면으로 이동합니다."
+                       if lang == "ko"
+                       else "Jump to the bounded Q&A surface that answers only from surfaced evidence."),
+            "target": {"surface": "ask_ai", "asset_id": rep_ticker,
+                       "horizon_key": horizon_key, "seed_intent": "explain_claim"},
+        },
+    ]
     position_strength = 0.0
     if rep_pos is not None:
         position_strength = max(-1.0, min(1.0, rep_pos))
+    shared_focus = build_shared_focus_block(
+        bundle=bundle,
+        spectrum_by_horizon=spectrum_by_horizon,
+        asset_id=rep_ticker,
+        horizon_key=horizon_key,
+        lang=lang,
+    )
     return {
         "horizon_key":       horizon_key,
         "horizon_caption":   HORIZON_CAPTION.get(lang, HORIZON_CAPTION["en"]).get(horizon_key, ""),
@@ -269,7 +307,10 @@ def _build_hero_card(
         "evidence":          evidence,
         "cta_primary":       cta_primary,
         "cta_secondary":     cta_secondary,
+        "cta_more":          cta_more,
         "rows_count":        rows_count,
+        "shared_focus":      shared_focus,
+        "coherence_signature": shared_focus["coherence_signature"],
     }
 
 
@@ -569,6 +610,7 @@ def compose_today_product_dto(
             bundle=bundle,
             horizon_key=hz,
             spectrum_payload=spectrum_by_horizon.get(hz),
+            spectrum_by_horizon=spectrum_by_horizon,
             lang=lg,
         )
         hero_cards.append(hc)
@@ -579,6 +621,32 @@ def compose_today_product_dto(
         watchlist_tickers, hero_cards, spectrum_by_horizon, lang=lg
     )
     stubs = _build_stubs(lg)
+    # Patch 10C — cross-surface coherence footer. Pick the hero card
+    # with the strongest live signal (falls back to first card) as the
+    # "primary focus" a sibling surface would land on when the customer
+    # navigates from Today without picking a specific horizon.
+    live_candidates = [
+        hc for hc in hero_cards
+        if hc["confidence"]["source_key"] in ("live", "live_with_caveat")
+    ]
+    if live_candidates:
+        primary_card = max(
+            live_candidates,
+            key=lambda hc: abs(float(hc.get("position_strength") or 0.0)),
+        )
+    else:
+        primary_card = hero_cards[0] if hero_cards else None
+    primary_focus = (
+        primary_card["shared_focus"] if primary_card else None
+    )
+    focus_candidates = [
+        {
+            "asset_id":    hc["shared_focus"]["asset_id"],
+            "horizon_key": hc["shared_focus"]["horizon_key"],
+            "signature":   hc["shared_focus"]["coherence_signature"],
+        }
+        for hc in hero_cards
+    ]
     dto = {
         "contract":           "PRODUCT_TODAY_V1",
         "lang":               lg,
@@ -595,6 +663,15 @@ def compose_today_product_dto(
                       else "Operator-only detail is available at /ops."),
         },
         "stubs":              stubs,
+        # Cross-surface coherence anchors (Patch 10C).
+        "primary_focus":        primary_focus,
+        "focus_candidates":     focus_candidates,
+        "coherence_signature":  (primary_focus["coherence_signature"]
+                                 if primary_focus else None),
+        "shared_wording": {
+            "bounded_ask": shared_wording("bounded_ask", lang=lg),
+            "next_step":   shared_wording("next_step",   lang=lg),
+        },
     }
     return strip_engineering_ids(dto)
 

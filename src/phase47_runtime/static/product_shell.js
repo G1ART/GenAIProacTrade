@@ -128,6 +128,30 @@
           what_would_flip:  "무엇이 바뀌면 판단이 뒤집히나요?",
         },
       },
+      continuity: {
+        ribbon_label:    "지금 보고 있는 초점",
+        ribbon_caption:  "같은 신호를 다른 표면에서도 그대로 이어봅니다.",
+        jump_today:      "Today 요약으로",
+        jump_research:   "리서치 근거로",
+        jump_replay:     "리플레이 타임라인으로",
+        jump_ask_ai:     "Ask AI 에 묻기",
+        clear_focus:     "초점 해제",
+        horizon_prefix:  "구간",
+        signature_prefix:"근거 서명",
+        signature_hint:  "네 표면(오늘/리서치/리플레이/Ask AI) 이 동일한 근거를 말하고 있다는 암호 서명입니다.",
+      },
+      trust: {
+        production_inline: "실데이터 근거로 생성됨",
+        sample_inline:     "샘플 시나리오 — 과장된 확신을 드리지 않습니다",
+        preparing_inline:  "실데이터 준비 중 — 근거가 모이는 동안 제한된 요약만 드립니다",
+        limited_inline:    "근거가 제한적입니다 — 지금 보여드릴 수 있는 것만 말씀드립니다",
+        bounded_inline:    "이 질문은 노출된 근거 안에서만 답합니다",
+      },
+      ask_out_of_scope: {
+        title:     "노출된 근거 밖의 질문입니다",
+        body:      "METIS 는 지금 이 화면에 노출된 근거 안에서만 답변합니다. 매수·매도 권유, 특정 가격 목표, 화면에 없는 종목에 대한 판단은 드리지 않습니다.",
+        next_step: "대신 노출된 구간 중 하나를 선택해 다시 물어보거나, 리서치/리플레이 표면에서 근거를 확인해 주세요.",
+      },
     },
     en: {
       nav: {
@@ -208,6 +232,30 @@
           compare_peer:     "Compare to peers in the same family",
           what_would_flip:  "What would flip this verdict?",
         },
+      },
+      continuity: {
+        ribbon_label:    "Currently in focus",
+        ribbon_caption:  "Carry the same signal across every surface.",
+        jump_today:      "Back to Today",
+        jump_research:   "Open Research",
+        jump_replay:     "See in Replay",
+        jump_ask_ai:     "Ask AI about this",
+        clear_focus:     "Clear focus",
+        horizon_prefix:  "Horizon",
+        signature_prefix:"Evidence signature",
+        signature_hint:  "A cryptographic fingerprint that proves Today, Research, Replay, and Ask AI are citing the same evidence.",
+      },
+      trust: {
+        production_inline: "Produced from live data",
+        sample_inline:     "Sample scenario — we don't claim more certainty than we have",
+        preparing_inline:  "Live data preparing — bounded summary only while evidence gathers",
+        limited_inline:    "Limited evidence — we only share what we can currently back up",
+        bounded_inline:    "This question is answered only from evidence on screen",
+      },
+      ask_out_of_scope: {
+        title:     "Out of the surfaced evidence",
+        body:      "METIS only answers from evidence currently on screen. We do not provide buy/sell recommendations, price targets, or views on tickers that aren't surfaced here.",
+        next_step: "Pick one of the surfaced horizons to re-ask, or open Research / Replay to inspect the evidence instead.",
       },
     },
   };
@@ -713,8 +761,41 @@
       }),
     ]);
 
+    // Patch 10C — soft-link row. The primary/secondary CTAs stay above;
+    // this row is a quiet secondary surface for jumping into Replay or
+    // Ask AI for the *same* horizon (and, when a representative ticker
+    // was matched, the same asset). Purely chrome-level: no new
+    // sandbox kinds, no behaviour change to the primary CTA.
+    var moreRow = null;
+    var ctaMore = (hc.cta_more || []).filter(function (m) { return m && m.kind && m.target; });
+    if (ctaMore.length) {
+      moreRow = el("div", { className: "ps-hero-card-softlinks", role: "group" });
+      ctaMore.forEach(function (m) {
+        var target = m.target || {};
+        moreRow.appendChild(el("button", {
+          type: "button",
+          className: "ps-hero-card-softlink",
+          "data-kind": m.kind,
+          title: m.hint || "",
+          "aria-label": m.label || m.kind,
+          text: m.label || "",
+          onClick: function () {
+            var destKey = target.surface === "ask_ai" ? "ask_ai"
+                        : target.surface === "replay" ? "replay"
+                        : target.surface === "research" ? "research"
+                        : null;
+            if (!destKey) return;
+            setActivePanel(destKey, {
+              asset_id: target.asset_id || null,
+              horizon_key: target.horizon_key || hc.horizon_key || null,
+            });
+          },
+        }));
+      });
+    }
+
     return el("article", { className: "ps-hero-card", "data-horizon": hc.horizon_key || "" }, [
-      header, signalRow, story, positionBar, sparkline, cta, drawer,
+      header, signalRow, story, positionBar, sparkline, cta, moreRow, drawer,
     ]);
   }
 
@@ -986,11 +1067,16 @@
   function renderResearchDeepDive(dto) {
     var wrap = el("section", { className: "ps-research-deepdive" });
     wrap.appendChild(renderBreadcrumbs([
+      { label: T("nav.today"), onClick: function () {
+        setActivePanel("today", { asset_id: null, horizon_key: null });
+      }},
       { label: T("research.breadcrumbs_home"), onClick: function () {
         setActivePanel("research", { asset_id: null, horizon_key: null });
       }},
       { label: (dto.claim && dto.claim.ticker) || "" },
     ]));
+    var ribbon = renderFocusRibbon(dto, "research");
+    if (ribbon) wrap.appendChild(ribbon);
     var rails = el("div", { className: "ps-rails" });
     rails.appendChild(renderClaimCard(dto.claim || {}));
     rails.appendChild(renderEvidenceRail(dto.evidence || []));
@@ -1000,16 +1086,145 @@
   }
 
   function renderBreadcrumbs(crumbs) {
-    var c = el("nav", { className: "ps-breadcrumbs" });
+    var c = el("nav", { className: "ps-breadcrumbs", "aria-label": T("continuity.ribbon_label") });
     crumbs.forEach(function (b, idx) {
       if (idx > 0) c.appendChild(el("span", { className: "ps-breadcrumbs__sep", text: "/" }));
       if (b.onClick) {
         c.appendChild(el("button", { type: "button", text: b.label, onClick: b.onClick }));
       } else {
-        c.appendChild(el("span", { text: b.label }));
+        c.appendChild(el("span", { text: b.label, "aria-current": idx === crumbs.length - 1 ? "page" : null }));
       }
     });
     return c;
+  }
+
+  // -------------------------------------------------------------------
+  // Patch 10C — Shared focus ribbon
+  //
+  // A compact, persistent strip shown at the top of Research (deepdive),
+  // Replay and Ask AI whenever the user is pinned to an
+  // (asset_id, horizon_key) focus. It visualises the same grade / stance
+  // / confidence as Today's hero card so the customer never feels they
+  // left the signal, and exposes soft-links to the *other* three
+  // surfaces for the same focus. The coherence_signature digest is
+  // printed in a muted caption so advanced users can visually confirm
+  // that every surface is speaking about the same evidence.
+  //
+  // Design: "ribbon", not a full header — never competes with the
+  // surface's own h1/claim card; always uses the shared grade/stance
+  // chips so visual language matches Today.
+  // -------------------------------------------------------------------
+
+  function _focusAssetFromDto(dto, surfaceDefaults) {
+    surfaceDefaults = surfaceDefaults || {};
+    var sf = (dto && dto.shared_focus) || {};
+    var asset = sf.asset_id || surfaceDefaults.asset_id || STATE.focus.asset_id || "";
+    var horizon = sf.horizon_key || surfaceDefaults.horizon_key || STATE.focus.horizon_key || "";
+    return { asset_id: asset, horizon_key: horizon };
+  }
+
+  function _horizonCaptionFor(horizonKey, dto) {
+    // Prefer a caption already present in the DTO (Research/Replay/Ask
+    // all carry one). Fall back to the localized nav labels.
+    if (!horizonKey) return "";
+    var sf = (dto && dto.shared_focus) || {};
+    if (sf.horizon_caption) return sf.horizon_caption;
+    var focus = (dto && dto.focus) || {};
+    if (focus.horizon_caption) return focus.horizon_caption;
+    // Minimal fallback — raw key uppercased.
+    return String(horizonKey || "").toUpperCase();
+  }
+
+  function renderFocusRibbon(dto, surface) {
+    if (!dto || !dto.shared_focus) return null;
+    var sf = dto.shared_focus;
+    var asset = sf.asset_id || STATE.focus.asset_id || "";
+    var horizonKey = sf.horizon_key || STATE.focus.horizon_key || "";
+    if (!asset || !horizonKey) return null;
+
+    var grade = sf.grade || { key: "c", label: "C" };
+    var stance = sf.stance || { key: "neutral", label: "" };
+    var conf = sf.confidence || { source_key: "preparing", label: "", tooltip: "" };
+    var coh = dto.coherence_signature || {};
+    var fp = coh.fingerprint || "";
+
+    var sig = el("span", {
+      className: "ps-focus-ribbon__signature ps-tooltip",
+      "data-ps-tooltip": T("continuity.signature_hint"),
+    }, [
+      el("span", { className: "ps-focus-ribbon__signature-label", text: T("continuity.signature_prefix") + ":" }),
+      el("code", { className: "ps-focus-ribbon__signature-value", text: fp }),
+    ]);
+
+    var chips = el("div", { className: "ps-focus-ribbon__chips" }, [
+      el("span", {
+        className: "ps-grade-chip ps-tooltip",
+        "data-grade": grade.key,
+        "data-ps-tooltip": STATE.lang === "ko"
+          ? "신호 강도 등급입니다. A+ 가 가장 강하고, F 는 근거가 부족함을 뜻합니다."
+          : "Signal strength grade. A+ is the strongest; F means evidence is insufficient.",
+        text: grade.label,
+      }),
+      el("span", { className: "ps-stance-label", "data-stance": stance.key, text: stance.label || "" }),
+      el("span", {
+        className: "ps-confidence-badge ps-tooltip",
+        "data-source": conf.source_key || "",
+        "data-ps-tooltip": conf.tooltip || "",
+        text: conf.label || "",
+      }),
+    ]);
+
+    var identity = el("div", { className: "ps-focus-ribbon__identity" }, [
+      el("span", { className: "ps-focus-ribbon__caption", text: T("continuity.ribbon_label") }),
+      el("span", { className: "ps-focus-ribbon__ticker", text: asset }),
+      el("span", { className: "ps-focus-ribbon__sep", text: "·" }),
+      el("span", { className: "ps-focus-ribbon__horizon", text: _horizonCaptionFor(horizonKey, dto) }),
+    ]);
+
+    var jumps = el("div", { className: "ps-focus-ribbon__jumps", role: "group", "aria-label": T("continuity.ribbon_caption") });
+    var surfaces = [
+      { key: "today",    label: T("continuity.jump_today"),    active: surface === "today" },
+      { key: "research", label: T("continuity.jump_research"), active: surface === "research" },
+      { key: "replay",   label: T("continuity.jump_replay"),   active: surface === "replay" },
+      { key: "ask_ai",   label: T("continuity.jump_ask_ai"),   active: surface === "ask_ai" },
+    ];
+    surfaces.forEach(function (s) {
+      jumps.appendChild(el("button", {
+        type: "button",
+        className: "ps-focus-ribbon__jump",
+        "aria-current": s.active ? "page" : null,
+        disabled: s.active ? "true" : null,
+        text: s.label,
+        onClick: function () {
+          if (s.active) return;
+          setActivePanel(s.key, {
+            asset_id: s.key === "today" ? null : asset,
+            horizon_key: s.key === "today" ? null : horizonKey,
+          });
+        },
+      }));
+    });
+
+    var clear = el("button", {
+      type: "button",
+      className: "ps-focus-ribbon__clear",
+      text: T("continuity.clear_focus"),
+      onClick: function () {
+        setActivePanel("today", { asset_id: null, horizon_key: null });
+      },
+    });
+
+    return el("section", {
+      className: "ps-focus-ribbon",
+      role: "region",
+      "aria-label": T("continuity.ribbon_label"),
+      "data-surface": surface || "",
+      "data-source": conf.source_key || "",
+    }, [
+      el("div", { className: "ps-focus-ribbon__top" }, [identity, chips]),
+      el("div", { className: "ps-focus-ribbon__bottom" }, [jumps, clear]),
+      el("div", { className: "ps-focus-ribbon__meta" }, [sig]),
+    ]);
   }
 
   function renderClaimCard(claim) {
@@ -1124,7 +1339,10 @@
         setActivePanel("today", { asset_id: null, horizon_key: null });
       }},
       { label: T("nav.replay") },
-    ]));
+      (dto.focus && dto.focus.asset_id) ? { label: dto.focus.asset_id } : null,
+    ].filter(Boolean)));
+    var replayRibbon = renderFocusRibbon(dto, "replay");
+    if (replayRibbon) wrap.appendChild(replayRibbon);
 
     var focus = dto.focus || {};
     var header = el("div", { className: "ps-replay-header" }, [
@@ -1243,7 +1461,10 @@
         setActivePanel("today", { asset_id: null, horizon_key: null });
       }},
       { label: T("nav.ask_ai") },
-    ]));
+      (dto.context && dto.context.asset_id) ? { label: dto.context.asset_id } : null,
+    ].filter(Boolean)));
+    var askRibbon = renderFocusRibbon(dto, "ask_ai");
+    if (askRibbon) main.appendChild(askRibbon);
     main.appendChild(renderAskContextCard(dto.context || {}));
     if (dto.contract_banner) {
       main.appendChild(el("div", { className: "ps-caption", text: dto.contract_banner.body || "" }));

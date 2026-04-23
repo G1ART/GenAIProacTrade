@@ -1,6 +1,6 @@
 {
   "contract": "PATCH_10B_PRODUCT_SHELL_RUNBOOK_V1",
-  "generated_utc": "2026-04-23T17:20:00Z",
+  "generated_utc": "2026-04-23T19:41:51Z",
   "research_mapper_ok": true,
   "replay_mapper_ok": true,
   "ask_mapper_ok": true,
@@ -46,7 +46,7 @@
     },
     {
       "scenario": "S4_visual_system_10b",
-      "css_bytes": 40948,
+      "css_bytes": 46514,
       "required_components": 18,
       "missing_components": [],
       "all_components_present": true,
@@ -78,8 +78,8 @@
           "parity_ok": true
         },
         "product_shell.ask.": {
-          "ko_count": 21,
-          "en_count": 21,
+          "ko_count": 24,
+          "en_count": 24,
           "parity_ok": true
         }
       },

@@ -1,6 +1,6 @@
 {
   "contract": "PATCH_10B_PRODUCT_SHELL_BRIDGE_V1",
-  "generated_utc": "2026-04-23T17:20:00Z",
+  "generated_utc": "2026-04-23T19:41:51Z",
   "prior_patch": "agh_v1_patch_10a_product_shell_rebuild",
   "entry_points": [
     "/ (product shell — Today / Research / Replay / Ask AI)",

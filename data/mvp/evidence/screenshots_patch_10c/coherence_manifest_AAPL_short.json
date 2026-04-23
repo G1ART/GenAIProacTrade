@@ -1,0 +1,145 @@
+{
+  "contract": "PATCH_10C_PRODUCT_COHERENCE_FREEZE_V1",
+  "generated_utc": "2026-04-23T19:32:47Z",
+  "git_head_sha": "85626682048300a0cd2e6d8d60ca33548e7739c7",
+  "focus": {
+    "asset_id": "AAPL",
+    "horizon_key": "short"
+  },
+  "artifacts": [
+    {
+      "surface": "today",
+      "lang": "ko",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_today_dto_focus_AAPL_short_ko.json",
+      "bytes": 23907,
+      "sha256": "d42f86cd12b9ef582c01843b0e9c8818fdbf509ebff2dd0b0503e0dd64ae345c",
+      "contract": "PRODUCT_TODAY_V1",
+      "fingerprint": "7e14a85b1592"
+    },
+    {
+      "surface": "research",
+      "lang": "ko",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_research_deepdive_dto_focus_AAPL_short_ko.json",
+      "bytes": 6791,
+      "sha256": "dd6e7be470638ce6a96c1962ffb52547dd1125d851c507546e166b71040ab240",
+      "contract": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+      "fingerprint": "7e14a85b1592"
+    },
+    {
+      "surface": "replay",
+      "lang": "ko",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_replay_dto_focus_AAPL_short_ko.json",
+      "bytes": 6407,
+      "sha256": "82c7d1f3cf0cc276302d96f213685bf33a77010a4f985b56da6e3fcad1340c6a",
+      "contract": "PRODUCT_REPLAY_V1",
+      "fingerprint": "7e14a85b1592"
+    },
+    {
+      "surface": "ask_ai",
+      "lang": "ko",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_ask_landing_dto_focus_AAPL_short_ko.json",
+      "bytes": 7299,
+      "sha256": "3cb1755254059c05ddcfb5595856ae15e26b7055b90706e6dec0d1d5ca086db5",
+      "contract": "PRODUCT_ASK_V1",
+      "fingerprint": "7e14a85b1592"
+    },
+    {
+      "surface": "ask_ai_quick",
+      "lang": "ko",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_ask_quick_dto_focus_AAPL_short_ko.json",
+      "bytes": 6758,
+      "sha256": "69c1b672829332705f4929ab719ff57f82503344bec6bb59c2767ebbf7db5bb9",
+      "contract": "PRODUCT_ASK_QUICK_V1",
+      "fingerprint": "7e14a85b1592"
+    },
+    {
+      "surface": "ask_ai_out_of_scope",
+      "lang": "ko",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_ask_freetext_out_of_scope_ko.json",
+      "bytes": 483,
+      "sha256": "ee2bd983e1e7bbf2cf7070f49bcf45e8fe393d59b2d376905cd69eb867481906",
+      "contract": null,
+      "fingerprint": null
+    },
+    {
+      "surface": "today",
+      "lang": "en",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_today_dto_focus_AAPL_short_en.json",
+      "bytes": 22468,
+      "sha256": "1816f34b49b62a50fc7f3e1d151e8781720ccb78e62e7276bbaa0528e7b7eb49",
+      "contract": "PRODUCT_TODAY_V1",
+      "fingerprint": "7e14a85b1592"
+    },
+    {
+      "surface": "research",
+      "lang": "en",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_research_deepdive_dto_focus_AAPL_short_en.json",
+      "bytes": 6478,
+      "sha256": "1e70490cd6f7901c3d0a86f196e83c803a0c7cb57a55783416443307aeb8c281",
+      "contract": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+      "fingerprint": "7e14a85b1592"
+    },
+    {
+      "surface": "replay",
+      "lang": "en",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_replay_dto_focus_AAPL_short_en.json",
+      "bytes": 5896,
+      "sha256": "d522405b4e557a3f81d5440ee0630186424b96b63032528c7d308ba944f402e2",
+      "contract": "PRODUCT_REPLAY_V1",
+      "fingerprint": "7e14a85b1592"
+    },
+    {
+      "surface": "ask_ai",
+      "lang": "en",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_ask_landing_dto_focus_AAPL_short_en.json",
+      "bytes": 7020,
+      "sha256": "325e5792a3b23ae5a8b2851bced8b15347258e2adf1ff6682188c72e96e3863b",
+      "contract": "PRODUCT_ASK_V1",
+      "fingerprint": "7e14a85b1592"
+    },
+    {
+      "surface": "ask_ai_quick",
+      "lang": "en",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_ask_quick_dto_focus_AAPL_short_en.json",
+      "bytes": 6451,
+      "sha256": "0a0d93617e1673a9a8f747579428e3b4e39751fe4e85dae6de8f9e17b754210a",
+      "contract": "PRODUCT_ASK_QUICK_V1",
+      "fingerprint": "7e14a85b1592"
+    },
+    {
+      "surface": "ask_ai_out_of_scope",
+      "lang": "en",
+      "target": "data/mvp/evidence/screenshots_patch_10c/product_ask_freetext_out_of_scope_en.json",
+      "bytes": 481,
+      "sha256": "3858f352cb9f8f7c18e10b9b1f59a280a8a8f05fd000c801a14adef6b81b6873",
+      "contract": null,
+      "fingerprint": null
+    }
+  ],
+  "invariants": {
+    "ko": {
+      "fingerprints": {
+        "today": "7e14a85b1592",
+        "research": "7e14a85b1592",
+        "replay": "7e14a85b1592",
+        "ask_ai": "7e14a85b1592",
+        "ask_ai_quick": "7e14a85b1592",
+        "ask_ai_out_of_scope": null
+      },
+      "cross_surface_match": true,
+      "mismatched_surfaces": []
+    },
+    "en": {
+      "fingerprints": {
+        "today": "7e14a85b1592",
+        "research": "7e14a85b1592",
+        "replay": "7e14a85b1592",
+        "ask_ai": "7e14a85b1592",
+        "ask_ai_quick": "7e14a85b1592",
+        "ask_ai_out_of_scope": null
+      },
+      "cross_surface_match": true,
+      "mismatched_surfaces": []
+    }
+  }
+}

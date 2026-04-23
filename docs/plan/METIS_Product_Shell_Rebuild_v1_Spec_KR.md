@@ -299,3 +299,56 @@ Today 가 사용하던 `src/phase47_runtime/product_shell/view_models.py` 에서
 - Ask AI 의 **실 LLM 품질 평가 golden-set** 은 10C 이후. 지금은 `api_conversation` 래퍼가 실패·빈 응답에서 `degraded` 로 내려가는 구조적 보장만 한다.
 - Research 의 **tile 스파크라인** — 10A Today 패턴을 재사용하기로 했으나 10B 는 one-liner + grade + stance 로 한 발 먼저 납품. Sparkline 은 10C 후보.
 - Replay 의 **실제 이벤트 쓰기** (sandbox result 를 timeline 에 즉시 반영) 는 Patch 9 C·A/C·B 경로 위에서 돌고 있으며 10B 는 **읽기 표현** 만.
+
+
+## 11. Patch 10C 가 **실제로 추가한 것** (2026-04-23, coherence / trust / language closure)
+
+10C 는 "네 표면이 같은 진실을 같은 제품 언어로 말한다" 를 **코드 수준 불변식**으로 봉인한 seal patch 다. 새 페이지·새 카피·새 sandbox kind 를 **만들지 않았고**, 이미 작동하던 Today / Research / Replay / Ask AI 를 같은 근거 위에 묶었다.
+
+### 11.1 공통 계약 — `view_models_common.py` 에 3 개 새 함수
+
+- **`compute_coherence_signature(...)`** — `(asset_id, horizon_key, quantized_position, grade_key, stance_key, source_key, digest(what_changed), digest(rationale_summary))` 로부터 **언어 독립적** 12-hex SHA-256 지문(`fingerprint`) 을 만든다. 계약 버전은 `COHERENCE_V1` (대문자 V — 스크러버가 소문자 `*_vN` 을 지우기 때문에 의도적으로 대문자).
+- **`build_shared_focus_block(...)`** — 네 표면 모두가 **문자 단위로 동일하게** 포함하는 단일 soure-of-truth 블록 `{asset_id, horizon_key, horizon_caption, family_name, grade, stance, confidence, evidence_summary, coherence_signature}`. position 이 없어도 `best_representative_row` 로 최선 대표 row 를 선택한다.
+- **`SHARED_WORDING`** — 10 버킷(`sample`, `preparing`, `limited_evidence`, `production`, `freshness`, `bounded_ask`, `next_step`, `what_changed`, `knowable_then`, `out_of_scope`) 의 KO/EN 공통 카피 사전. `shared_wording(kind, lang)` 로 조회하고, 알려지지 않은 kind 는 자동으로 `limited_evidence` 로 안전 fallback.
+
+### 11.2 네 표면 통합 배선
+
+- `compose_today_product_dto` 는 각 hero card 에 `shared_focus + coherence_signature + cta_more` 를 실었고, 가장 강한 live 카드를 `primary_focus` 로 top-level 에 끌어올린다. `shared_wording` 도 top-level 에 동봉.
+- `compose_research_deepdive_dto` / `compose_replay_product_dto` / `compose_ask_product_dto` 는 모두 **같은 `shared_focus` 블록**을 top-level 에 embed 하고 `coherence_signature`, `evidence_lineage_summary`, `shared_wording`, `breadcrumbs` 를 통일된 키 이름으로 노출.
+- Research landing/Ask quick 은 deep-dive 가 아니지만, 각 tile 이 `shared_focus` 를 embed 해 같은 지문을 공유한다.
+
+### 11.3 Ask AI trust closure — 3중 grounding guard
+
+1. **pre-LLM `classify_question_scope`** — 프롬프트를 lower-casing 후 4 가지로 분류: `in_scope` / `advice_request` / `off_topic` / `foreign_ticker`. advice/off_topic/foreign 은 **LLM 호출 없이** 구조적 `out_of_scope` 답변으로 단락.
+2. **LLM-side `surfaced_context_summary`** — 화면에 보이는 focus (grade/stance/confidence + evidence 한 줄 요약) 를 **한 문단**으로 묶어 `copilot_context.surfaced_evidence` + `bounded_contract` 지시어와 함께 `api_conversation` 에 주입.
+3. **post-LLM `scan_response_for_hallucinations`** — 반환된 body 를 advice language / foreign ticker / price target 로 스캔. 1 건이라도 걸리면 **body 자체를 폐기** 하고 `partial` 답변으로 downgrade — 고객은 hallucinate 된 문장을 **한 글자도** 보지 못한다.
+
+### 11.4 Focus continuity UI — 리본 + soft-link + 통합 breadcrumb
+
+- **`.ps-focus-ribbon`** — Research (deepdive) / Replay / Ask 공통 포커스 리본. `(asset_id, horizon_key)` + 동일 grade/stance/confidence chips + coherence 지문(muted code), 그리고 네 표면을 가로지르는 soft-link 버튼 그룹 (`today / research / replay / ask_ai`) 과 "초점 해제". data-source 에 따라 좌측 accent bar 가 live(green) / sample(purple) / preparing(amber) 로 변한다.
+- **Today hero `cta_more`** — primary/secondary CTA 하단에 소프트 링크 row (chip) 로 "리플레이 열기 / Ask AI 에 질문" 을 추가. 동일 구간의 대표 ticker 가 있으면 그 포커스를 그대로 가지고 넘어간다.
+- **Breadcrumb 통일** — Research deepdive / Replay / Ask 모두 `Today / <surface> / <ticker>` 구조로 정렬. 모든 링크는 `setActivePanel` 만 사용.
+
+### 11.5 Language contract — 새 locale 3 패밀리
+
+`phase47e_user_locale.py` 에 `product_shell.continuity.*` (10 키) + `product_shell.trust.*` (5 키) + `product_shell.ask.out_of_scope.*` (3 키) = 18 쌍 KO/EN parity. `test_agh_v1_patch_10c_copy_no_leak.py` 가 세 패밀리 parity + 비어있지 않음을 강제한다.
+
+### 11.6 불변 테스트 — cross-surface coherence 를 코드로 봉인
+
+- `test_agh_v1_patch_10c_coherence.py` — 동일 focus 에 대해 Today/Research/Replay/Ask (landing/quick 포함) 의 `coherence_signature.fingerprint` 가 **KO·EN 모두** 동일함, 언어만 바꾸면 지문 불변, `rationale_summary` 또는 grade-tier 를 건너는 position 변경은 지문을 바꾼다.
+- `test_agh_v1_patch_10c_ops_product_parity.py` — Ops raw lineage (`api_governance_lineage_for_registry_entry`) 와 Product Replay DTO timeline 의 event count·sandbox count 가 일치, 원본 packet id (`pkt_*`) 는 DTO 에 단 한 글자도 노출되지 않음, outcome 은 모두 humanized localized 타이틀.
+- `test_agh_v1_patch_10c_language_contract.py` — 네 표면 모두 `shared_wording` 블록을 top-level 로 expose, preparing/sample 포커스의 evidence body 는 `SHARED_WORDING` 의 body 와 **문자 단위** 일치, Ask AI 의 out-of-scope banner title 은 `shared_wording('out_of_scope')` 와 동일.
+- `test_agh_v1_patch_10c_ask_golden_set.py` — in_scope / advice / off_topic / foreign / low-evidence / degraded / hallucinating-LLM 7 분기 골든셋 전부 pass; hallucinate LLM 의 원본 body 가 결과 DTO 로 새어 들어가지 않음을 추가 단언.
+- `test_agh_v1_patch_10c_copy_no_leak.py` — 10A/10B 금지 패턴을 계승 + 10C 내부 헬퍼 이름 (`_quantize_position`, `_short_hash`, `classify_question_scope`, `scan_response_for_hallucinations`) 까지 UI/DTO 어느 쪽에도 노출되지 않음, `coherence_signature.fingerprint` 와 `COHERENCE_V1` 은 `strip_engineering_ids` 를 **보존된 채로** 통과함을 확인.
+
+### 11.7 Evidence + Runbook
+
+- `scripts/agh_v1_patch_10c_product_coherence_freeze.py` — 같은 focus (`AAPL/short`) 에 대해 Today / Research-deepdive / Replay / Ask-landing / Ask-quick / Ask-out-of-scope 6 DTO × 2 언어 = **12 파일 + SHA256 manifest** 를 `data/mvp/evidence/screenshots_patch_10c/` 에 저장. manifest 안의 `invariants.{ko,en}.cross_surface_match` 가 `true` 로 나와야 freeze 성공.
+- `scripts/agh_v1_patch_10c_product_coherence_runbook.py` — S1..S6 시나리오 (cross-surface coherence / Ask trust closure / UI continuity / DTO refinement / language contract / no-leak+fingerprint) 를 코드 수준 플래그로 검증, 6 개 `s*_ok` + `all_ok` 전부 green.
+- 산출 evidence 6: `patch_10c_product_coherence_{runbook,bridge}_evidence.json`, `patch_10c_coherence_evidence.json`, `patch_10c_ask_trust_golden_set_evidence.json`, `patch_10c_cross_surface_alignment_evidence.json`, `patch_10c_language_contract_evidence.json`.
+
+### 11.8 10C 가 **의도적으로** 하지 않은 것
+
+- LLM-end-to-end 품질(예: free-text grounding 의 reasoning 정확도) 은 여전히 "bounded + hallucination-downgrade" 의 **구조적** 보장이지, 결과 품질의 **의미적** 보장이 아니다 — 계속 real golden-set 누적 필요.
+- Replay timeline 의 **선형적 시간축 시각화** (오늘 timeline 은 flat list) 는 10C 범위 밖. 지문·초점은 묶었지만 미감은 향후 polish 에서.
+- Research tile sparkline 도 여전히 10B 의 대기 상태다 (하지만 10A Today sparkline 패턴은 재사용 가능).

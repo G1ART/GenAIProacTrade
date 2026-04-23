@@ -1552,3 +1552,192 @@ a {
 .ps-tooltip:focus-within .ps-tooltip__bubble {
   opacity: 1;
 }
+
+/* =================================================================
+ * Patch 10C — Focus continuity ribbon & hero softlinks
+ *
+ * The ribbon is a persistent, muted strip shown above Research
+ * (deepdive) / Replay / Ask AI whenever the user is pinned to an
+ * (asset_id, horizon_key) focus. It re-uses the shared grade /
+ * stance / confidence chips from Today so visual language is
+ * identical; what it adds is horizontal soft-links to jump to the
+ * other three surfaces without losing focus, plus a muted caption
+ * that prints the coherence_signature fingerprint so advanced
+ * viewers can visually verify that the four surfaces are speaking
+ * about the same evidence.
+ * ================================================================= */
+
+.ps-focus-ribbon {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-sp-2);
+  padding: var(--ps-sp-3) var(--ps-sp-4);
+  background: linear-gradient(180deg, var(--ps-surface-2) 0%, var(--ps-surface-1) 100%);
+  border: 1px solid var(--ps-border-muted);
+  border-left: 3px solid var(--ps-border-strong);
+  border-radius: var(--ps-radius-md);
+  box-shadow: var(--ps-elev-1);
+  color: var(--ps-text-secondary);
+  font-size: var(--ps-fs-small);
+}
+.ps-focus-ribbon[data-source="live"],
+.ps-focus-ribbon[data-source="live_with_caveat"] {
+  border-left-color: var(--ps-accent-up);
+}
+.ps-focus-ribbon[data-source="preparing"] {
+  border-left-color: var(--ps-semantic-warn);
+}
+.ps-focus-ribbon[data-source="sample"] {
+  border-left-color: var(--ps-semantic-sample);
+}
+
+.ps-focus-ribbon__top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ps-sp-4);
+  flex-wrap: wrap;
+}
+.ps-focus-ribbon__identity {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--ps-sp-2);
+  min-width: 0;
+}
+.ps-focus-ribbon__caption {
+  font-size: var(--ps-fs-caption);
+  color: var(--ps-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ps-focus-ribbon__ticker {
+  font-family: var(--ps-font-mono);
+  font-weight: var(--ps-fw-semibold);
+  color: var(--ps-text-primary);
+  font-size: var(--ps-fs-body);
+}
+.ps-focus-ribbon__sep { color: var(--ps-text-muted); }
+.ps-focus-ribbon__horizon { color: var(--ps-text-secondary); }
+
+.ps-focus-ribbon__chips {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ps-sp-2);
+  flex-wrap: wrap;
+}
+
+.ps-focus-ribbon__bottom {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ps-sp-3);
+  flex-wrap: wrap;
+}
+.ps-focus-ribbon__jumps {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--ps-sp-2);
+}
+.ps-focus-ribbon__jump {
+  background: transparent;
+  border: 1px solid var(--ps-border-muted);
+  color: var(--ps-text-secondary);
+  font-size: var(--ps-fs-caption);
+  font-weight: var(--ps-fw-medium);
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color var(--ps-motion-fast) var(--ps-ease),
+              background var(--ps-motion-fast) var(--ps-ease),
+              border-color var(--ps-motion-fast) var(--ps-ease);
+}
+.ps-focus-ribbon__jump:hover {
+  color: var(--ps-text-primary);
+  background: var(--ps-surface-3);
+  border-color: var(--ps-border-strong);
+}
+.ps-focus-ribbon__jump[aria-current="page"] {
+  background: var(--ps-surface-3);
+  border-color: var(--ps-border-strong);
+  color: var(--ps-text-primary);
+  cursor: default;
+}
+.ps-focus-ribbon__jump[disabled] { opacity: 0.8; }
+
+.ps-focus-ribbon__clear {
+  background: transparent;
+  border: 0;
+  color: var(--ps-text-tertiary);
+  font-size: var(--ps-fs-caption);
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.ps-focus-ribbon__clear:hover { color: var(--ps-text-primary); }
+
+.ps-focus-ribbon__meta {
+  display: flex;
+  justify-content: flex-end;
+}
+.ps-focus-ribbon__signature {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--ps-sp-2);
+  color: var(--ps-text-muted);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+.ps-focus-ribbon__signature-label { color: var(--ps-text-muted); }
+.ps-focus-ribbon__signature-value {
+  font-family: var(--ps-font-mono);
+  color: var(--ps-text-tertiary);
+}
+
+/* ---------------------------------------------------------------
+ * Hero card soft-link row (Today → Replay / Ask AI for same focus)
+ * --------------------------------------------------------------- */
+
+.ps-hero-card-softlinks {
+  display: flex;
+  flex-direction: row;
+  gap: var(--ps-sp-2);
+  flex-wrap: wrap;
+  padding-top: var(--ps-sp-2);
+  margin-top: -6px;
+}
+.ps-hero-card-softlink {
+  background: transparent;
+  border: 1px solid var(--ps-border-muted);
+  color: var(--ps-text-tertiary);
+  font-size: var(--ps-fs-caption);
+  font-weight: var(--ps-fw-medium);
+  padding: 3px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color var(--ps-motion-fast) var(--ps-ease),
+              border-color var(--ps-motion-fast) var(--ps-ease),
+              background var(--ps-motion-fast) var(--ps-ease);
+}
+.ps-hero-card-softlink:hover {
+  color: var(--ps-text-primary);
+  border-color: var(--ps-border-strong);
+  background: var(--ps-surface-3);
+}
+.ps-hero-card-softlink[data-kind="open_replay"]::before {
+  content: "↶";
+  margin-right: 6px;
+  color: var(--ps-text-muted);
+}
+.ps-hero-card-softlink[data-kind="ask_ai"]::before {
+  content: "?";
+  margin-right: 6px;
+  color: var(--ps-text-muted);
+}
+
+/* tighten ribbon on narrow viewports */
+@media (max-width: 640px) {
+  .ps-focus-ribbon__top,
+  .ps-focus-ribbon__bottom { flex-direction: column; align-items: flex-start; }
+  .ps-focus-ribbon__meta  { justify-content: flex-start; }
+}

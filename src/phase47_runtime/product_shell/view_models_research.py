@@ -39,9 +39,12 @@ from .view_models_common import (
     HORIZON_DEFAULT_LABELS,
     HORIZON_KEYS,
     best_representative_row,
+    build_shared_focus_block,
+    evidence_lineage_summary,
     family_alias,
     horizon_provenance_to_confidence,
     human_relative_time,
+    shared_wording,
     spectrum_position_to_grade,
     spectrum_position_to_stance,
     strip_engineering_ids,
@@ -117,6 +120,8 @@ def _tile_for_row(
     confidence: dict[str, str],
     family_name: str,
     lang: str,
+    bundle: BrainBundleV0 | None,
+    spectrum_by_horizon: dict[str, dict[str, Any]],
 ) -> dict[str, Any]:
     try:
         pos = float(row.get("spectrum_position") or 0.0)
@@ -132,6 +137,13 @@ def _tile_for_row(
         "horizon_key":  horizon_key,
         "label":        "자세히 보기" if lang == "ko" else "See details",
     }
+    shared_focus = build_shared_focus_block(
+        bundle=bundle,
+        spectrum_by_horizon=spectrum_by_horizon,
+        asset_id=ticker,
+        horizon_key=horizon_key,
+        lang=lang,
+    )
     return {
         "ticker":         ticker,
         "horizon_key":    horizon_key,
@@ -142,6 +154,8 @@ def _tile_for_row(
         "confidence":     confidence,
         "summary":        summary,
         "deeplink":       deeplink,
+        "shared_focus":   shared_focus,
+        "coherence_signature": shared_focus["coherence_signature"],
     }
 
 
@@ -180,6 +194,8 @@ def _horizon_column(
             confidence=confidence,
             family_name=fam_name,
             lang=lang,
+            bundle=bundle,
+            spectrum_by_horizon=spectrum_by_horizon,
         ))
     empty_state: dict[str, str] | None = None
     if not tiles:
@@ -281,6 +297,18 @@ def compose_research_landing_dto(
         if bundle is not None else ""
     )
     last_built_label = human_relative_time(built_at, now_utc=now_utc, lang=lg)
+    # Patch 10C — cross-surface coherence footer: collect all tile
+    # signatures so the coherence test can pick any (asset_id,
+    # horizon_key) pair and verify that Research / Replay / Ask AI
+    # agree on the same focus.
+    focus_candidates: list[dict[str, Any]] = []
+    for col in columns:
+        for t in col["tiles"]:
+            focus_candidates.append({
+                "asset_id":    t["shared_focus"]["asset_id"],
+                "horizon_key": t["shared_focus"]["horizon_key"],
+                "signature":   t["shared_focus"]["coherence_signature"],
+            })
     dto = {
         "contract":         "PRODUCT_RESEARCH_LANDING_V1",
         "lang":             lg,
@@ -294,6 +322,16 @@ def compose_research_landing_dto(
             "body":  ("각 타일의 '자세히 보기' 에서 근거 5장면을 열어 보실 수 있습니다."
                       if lg == "ko"
                       else "Open the 5-card evidence rail from any tile via ‘See details’."),
+        },
+        # Cross-surface coherence anchors (Patch 10C).
+        "focus_candidates": focus_candidates,
+        "coherence_signature": (focus_candidates[0]["signature"]
+                                if focus_candidates else None),
+        "shared_wording": {
+            "bounded_ask":      shared_wording("bounded_ask", lang=lg),
+            "limited_evidence": shared_wording("limited_evidence", lang=lg),
+            "sample":           shared_wording("sample", lang=lg),
+            "preparing":        shared_wording("preparing", lang=lg),
         },
     }
     return strip_engineering_ids(dto)
@@ -641,6 +679,13 @@ def compose_research_deepdive_dto(
         if bundle is not None else ""
     )
     last_built_label = human_relative_time(built_at, now_utc=now_utc, lang=lg)
+    shared_focus = build_shared_focus_block(
+        bundle=bundle,
+        spectrum_by_horizon=spectrum_by_horizon,
+        asset_id=tkr,
+        horizon_key=hz,
+        lang=lg,
+    )
     dto = {
         "contract":         "PRODUCT_RESEARCH_DEEPDIVE_V1",
         "lang":             lg,
@@ -658,6 +703,15 @@ def compose_research_deepdive_dto(
             {"surface": "research", "label": caption,
              "target":  {"presentation": "deepdive", "asset_id": tkr, "horizon_key": hz}},
         ],
+        # Cross-surface coherence anchors (Patch 10C).
+        "shared_focus":          shared_focus,
+        "coherence_signature":   shared_focus["coherence_signature"],
+        "evidence_lineage_summary": evidence_lineage_summary(shared_focus),
+        "shared_wording": {
+            "bounded_ask":    shared_wording("bounded_ask",    lang=lg),
+            "what_changed":   shared_wording("what_changed",   lang=lg),
+            "next_step":      shared_wording("next_step",      lang=lg),
+        },
     }
     return strip_engineering_ids(dto)
 

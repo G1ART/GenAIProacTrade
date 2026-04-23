@@ -1,0 +1,21 @@
+{
+  "kind": "out_of_scope",
+  "banner": "Outside surfaced evidence",
+  "claim": [
+    "This product does not issue buy or sell guidance."
+  ],
+  "evidence": [
+    "Please consult the evidence summary and counter-evidence for the current focus instead."
+  ],
+  "insufficiency": [
+    "Detected request terms: should i buy"
+  ],
+  "grounded": false,
+  "scope": {
+    "kind": "advice_request",
+    "reason": "buy_sell_language",
+    "flagged_terms": [
+      "should i buy"
+    ]
+  }
+}

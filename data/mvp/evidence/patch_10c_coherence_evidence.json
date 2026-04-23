@@ -1,0 +1,81 @@
+{
+  "contract": "PATCH_10C_COHERENCE_V1",
+  "generated_utc": "2026-04-23T19:41:51Z",
+  "s1_snapshot": {
+    "per_lang": {
+      "ko": {
+        "fingerprints": {
+          "today": "7e14a85b1592",
+          "research": "7e14a85b1592",
+          "replay": "7e14a85b1592",
+          "ask_ai": "7e14a85b1592",
+          "ask_quick": "7e14a85b1592"
+        },
+        "all_match": true,
+        "contract_stamps": {
+          "today": "PRODUCT_TODAY_V1",
+          "research": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+          "replay": "PRODUCT_REPLAY_V1",
+          "ask_ai": "PRODUCT_ASK_V1",
+          "ask_quick": "PRODUCT_ASK_QUICK_V1"
+        }
+      },
+      "en": {
+        "fingerprints": {
+          "today": "7e14a85b1592",
+          "research": "7e14a85b1592",
+          "replay": "7e14a85b1592",
+          "ask_ai": "7e14a85b1592",
+          "ask_quick": "7e14a85b1592"
+        },
+        "all_match": true,
+        "contract_stamps": {
+          "today": "PRODUCT_TODAY_V1",
+          "research": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+          "replay": "PRODUCT_REPLAY_V1",
+          "ask_ai": "PRODUCT_ASK_V1",
+          "ask_quick": "PRODUCT_ASK_QUICK_V1"
+        }
+      }
+    },
+    "ok": true
+  },
+  "s4_snapshot": {
+    "checks": {
+      "today_ko_has_primary_focus": true,
+      "today_ko_cards_have_shared_focus": true,
+      "today_ko_has_coherence_sig": true,
+      "today_ko_has_shared_wording": true,
+      "research_ko_has_shared_focus": true,
+      "research_ko_has_coherence_sig": true,
+      "research_ko_has_shared_wording": true,
+      "replay_ko_has_shared_focus": true,
+      "replay_ko_has_coherence_sig": true,
+      "replay_ko_has_shared_wording": true,
+      "ask_ai_ko_has_shared_focus": true,
+      "ask_ai_ko_has_coherence_sig": true,
+      "ask_ai_ko_has_shared_wording": true,
+      "research_ko_has_evidence_lineage": true,
+      "replay_ko_has_evidence_lineage": true,
+      "ask_ai_ko_has_evidence_lineage": true,
+      "today_en_has_primary_focus": true,
+      "today_en_cards_have_shared_focus": true,
+      "today_en_has_coherence_sig": true,
+      "today_en_has_shared_wording": true,
+      "research_en_has_shared_focus": true,
+      "research_en_has_coherence_sig": true,
+      "research_en_has_shared_wording": true,
+      "replay_en_has_shared_focus": true,
+      "replay_en_has_coherence_sig": true,
+      "replay_en_has_shared_wording": true,
+      "ask_ai_en_has_shared_focus": true,
+      "ask_ai_en_has_coherence_sig": true,
+      "ask_ai_en_has_shared_wording": true,
+      "research_en_has_evidence_lineage": true,
+      "replay_en_has_evidence_lineage": true,
+      "ask_ai_en_has_evidence_lineage": true
+    },
+    "ok": true
+  },
+  "ok": true
+}

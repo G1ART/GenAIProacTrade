@@ -1,6 +1,6 @@
 {
   "contract": "PATCH_10A_PRODUCT_SHELL_RUNBOOK_V1",
-  "generated_utc": "2026-04-23T17:13:30Z",
+  "generated_utc": "2026-04-23T19:41:47Z",
   "hard_split_ok": true,
   "routing_ok": true,
   "visual_system_ok": true,
@@ -34,7 +34,7 @@
     },
     {
       "scenario": "S3_visual_system",
-      "css_bytes": 40948,
+      "css_bytes": 46514,
       "ps_token_count": 52,
       "has_color_tokens": false,
       "has_spacing_tokens": false,
@@ -77,8 +77,8 @@
     {
       "scenario": "S7_locale_keys",
       "import_ok": true,
-      "ko_product_key_count": 102,
-      "en_product_key_count": 102,
+      "ko_product_key_count": 120,
+      "en_product_key_count": 120,
       "parity_ok": true,
       "missing_in_en": [],
       "missing_in_ko": []

@@ -1,7 +1,7 @@
 {
   "contract": "PATCH_10B_REPLAY_TIMELINE_V1",
   "scope": "B1/B2 + E3 Replay mapper + gap/checkpoint annotation + 3-scenario",
-  "generated_utc": "2026-04-23T17:20:00Z",
+  "generated_utc": "2026-04-23T19:41:51Z",
   "replay_mapper_ok": true,
   "s2_snapshot": {
     "scenario": "S2_replay_mapper",

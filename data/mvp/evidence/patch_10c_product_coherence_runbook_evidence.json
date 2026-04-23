@@ -1,0 +1,153 @@
+{
+  "contract": "PATCH_10C_PRODUCT_COHERENCE_RUNBOOK_V1",
+  "generated_utc": "2026-04-23T19:41:51Z",
+  "git_head_sha": "85626682048300a0cd2e6d8d60ca33548e7739c7",
+  "scenarios": {
+    "s1_cross_surface_coherence": {
+      "per_lang": {
+        "ko": {
+          "fingerprints": {
+            "today": "7e14a85b1592",
+            "research": "7e14a85b1592",
+            "replay": "7e14a85b1592",
+            "ask_ai": "7e14a85b1592",
+            "ask_quick": "7e14a85b1592"
+          },
+          "all_match": true,
+          "contract_stamps": {
+            "today": "PRODUCT_TODAY_V1",
+            "research": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+            "replay": "PRODUCT_REPLAY_V1",
+            "ask_ai": "PRODUCT_ASK_V1",
+            "ask_quick": "PRODUCT_ASK_QUICK_V1"
+          }
+        },
+        "en": {
+          "fingerprints": {
+            "today": "7e14a85b1592",
+            "research": "7e14a85b1592",
+            "replay": "7e14a85b1592",
+            "ask_ai": "7e14a85b1592",
+            "ask_quick": "7e14a85b1592"
+          },
+          "all_match": true,
+          "contract_stamps": {
+            "today": "PRODUCT_TODAY_V1",
+            "research": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+            "replay": "PRODUCT_REPLAY_V1",
+            "ask_ai": "PRODUCT_ASK_V1",
+            "ask_quick": "PRODUCT_ASK_QUICK_V1"
+          }
+        }
+      },
+      "ok": true
+    },
+    "s2_ask_trust_closure": {
+      "scope_classification": {
+        "in_scope": "in_scope",
+        "advice_request": "advice_request",
+        "foreign_ticker": "foreign_ticker",
+        "off_topic": "off_topic"
+      },
+      "pre_llm_short_circuit": {
+        "advice_is_out_of_scope": true,
+        "foreign_is_out_of_scope": true,
+        "off_topic_is_out_of_scope": true
+      },
+      "grounding_paragraph_length_chars": 218,
+      "good_answer_kind": "grounded",
+      "bad_answer_kind": "partial",
+      "bad_flags": [
+        "advice_language",
+        "foreign_ticker"
+      ],
+      "degraded_answer_kind": "degraded",
+      "ok": true
+    },
+    "s3_focus_continuity_ui": {
+      "checks": {
+        "focus_ribbon_helper": true,
+        "focus_ribbon_rendered_res": true,
+        "focus_ribbon_rendered_rep": true,
+        "focus_ribbon_rendered_ask": true,
+        "hero_softlinks_group": true,
+        "hero_softlink_open_replay": true,
+        "breadcrumbs_today_first": true,
+        "ribbon_css_class": true,
+        "ribbon_softlink_css": true,
+        "softlink_css": true
+      },
+      "ok": true
+    },
+    "s4_dto_refinement": {
+      "checks": {
+        "today_ko_has_primary_focus": true,
+        "today_ko_cards_have_shared_focus": true,
+        "today_ko_has_coherence_sig": true,
+        "today_ko_has_shared_wording": true,
+        "research_ko_has_shared_focus": true,
+        "research_ko_has_coherence_sig": true,
+        "research_ko_has_shared_wording": true,
+        "replay_ko_has_shared_focus": true,
+        "replay_ko_has_coherence_sig": true,
+        "replay_ko_has_shared_wording": true,
+        "ask_ai_ko_has_shared_focus": true,
+        "ask_ai_ko_has_coherence_sig": true,
+        "ask_ai_ko_has_shared_wording": true,
+        "research_ko_has_evidence_lineage": true,
+        "replay_ko_has_evidence_lineage": true,
+        "ask_ai_ko_has_evidence_lineage": true,
+        "today_en_has_primary_focus": true,
+        "today_en_cards_have_shared_focus": true,
+        "today_en_has_coherence_sig": true,
+        "today_en_has_shared_wording": true,
+        "research_en_has_shared_focus": true,
+        "research_en_has_coherence_sig": true,
+        "research_en_has_shared_wording": true,
+        "replay_en_has_shared_focus": true,
+        "replay_en_has_coherence_sig": true,
+        "replay_en_has_shared_wording": true,
+        "ask_ai_en_has_shared_focus": true,
+        "ask_ai_en_has_coherence_sig": true,
+        "ask_ai_en_has_shared_wording": true,
+        "research_en_has_evidence_lineage": true,
+        "replay_en_has_evidence_lineage": true,
+        "ask_ai_en_has_evidence_lineage": true
+      },
+      "ok": true
+    },
+    "s5_language_contract": {
+      "locale_parity": {
+        "product_shell.continuity.": true,
+        "product_shell.trust.": true,
+        "product_shell.ask.out_of_scope.": true
+      },
+      "locale_counts": {
+        "product_shell.continuity.": 10,
+        "product_shell.trust.": 5,
+        "product_shell.ask.out_of_scope.": 3
+      },
+      "shared_wording_kinds": [
+        "sample",
+        "preparing",
+        "limited_evidence",
+        "production",
+        "freshness_prefix",
+        "what_changed",
+        "knowable_then",
+        "bounded_ask",
+        "next_step",
+        "out_of_scope"
+      ],
+      "shared_wording_kinds_ok": true,
+      "ok": true
+    },
+    "s6_no_leak_and_fingerprint": {
+      "surface_hits": {},
+      "fingerprint_survived_scrub": true,
+      "fingerprint_shape_ok": true,
+      "ok": true
+    }
+  },
+  "all_ok": true
+}

@@ -1,4 +1,4 @@
-"""Product Shell view-model composer — Ask AI surface (Patch 10B).
+"""Product Shell view-model composer — Ask AI surface.
 
 Ask AI is a **bounded decision assistant** surface, not a free-form
 chatbot. It has three user-visible elements:
@@ -21,10 +21,27 @@ A sidebar lists recent *request-state* cards (sandbox ask followups)
 so the customer can see that questions they (or the operator) sent
 were received, are running, or have blocked/completed — without
 exposing any internal packet IDs.
+
+Patch 10C (2026-04-23) — trust closure. The free-text wrapper now
+runs three grounding guards *before* and *after* the LLM call:
+
+- :func:`classify_question_scope` — detects buy/sell advice,
+  price-target, or foreign-ticker prompts that sit outside the
+  surfaced context and short-circuits them into a structured
+  ``out_of_scope`` answer without ever calling the LLM.
+- :func:`_surfaced_context_summary` — composes a small, engineering-ID-
+  scrubbed paragraph from the focus block + row evidence and passes it
+  to the conversation layer as ``copilot_context.surfaced_evidence``
+  so the LLM receives explicit grounding.
+- :func:`scan_response_for_hallucinations` — post-scans the LLM body
+  for tickers or advice not backed by the surfaced context and
+  downgrades the answer to ``partial`` (evidence carried, claim
+  scrubbed) when any guard fires.
 """
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -38,9 +55,12 @@ from .view_models_common import (
     HORIZON_DEFAULT_LABELS,
     HORIZON_KEYS,
     best_representative_row,
+    build_shared_focus_block,
+    evidence_lineage_summary,
     family_alias,
     horizon_provenance_to_confidence,
     human_relative_time,
+    shared_wording,
     spectrum_position_to_grade,
     spectrum_position_to_stance,
     strip_engineering_ids,
@@ -98,6 +118,13 @@ def _focus_context_card(
             + (f" / {tkr}" if tkr else "")
             + "."
         )
+    shared_focus = build_shared_focus_block(
+        bundle=bundle,
+        spectrum_by_horizon=spectrum_by_horizon,
+        asset_id=tkr,
+        horizon_key=hz,
+        lang=lang,
+    )
     return {
         "asset_id":        tkr,
         "horizon_key":     hz,
@@ -109,6 +136,11 @@ def _focus_context_card(
         "confidence":      confidence,
         "frame":           frame,
         "row_matched":     row is not None,
+        # Patch 10C — embed the same shared focus block and coherence
+        # signature every other surface embeds for this focus.
+        "shared_focus":           shared_focus,
+        "coherence_signature":    shared_focus["coherence_signature"],
+        "evidence_lineage_summary": evidence_lineage_summary(shared_focus),
     }
 
 
@@ -346,6 +378,11 @@ def compose_quick_answers_dto(
         "lang":     lg,
         "context":  ctx,
         "answers":  answers,
+        # Patch 10C — top-level coherence signature matches the focus
+        # context so quick-action DTOs can also participate in
+        # cross-surface coherence tests.
+        "coherence_signature": ctx["coherence_signature"],
+        "shared_focus":        ctx["shared_focus"],
     }
     return strip_engineering_ids(dto)
 
@@ -385,6 +422,281 @@ def _scrub_prompt(prompt: str) -> str:
     return (prompt or "").strip()[:400]
 
 
+# ---------------------------------------------------------------------------
+# Patch 10C — trust closure helpers
+# ---------------------------------------------------------------------------
+#
+# Ask AI is a bounded surface. We enforce the bound with three cheap
+# deterministic guards that run in addition to the ``api_conversation``
+# governance layer:
+#
+# 1. Out-of-scope classifier: intercepts buy/sell / price-target
+#    prompts before the LLM sees them so the product never returns
+#    advice-flavoured text.
+# 2. Surfaced-context injection: hands the LLM a scrubbed paragraph
+#    describing exactly what the product has already shown the
+#    customer, so the model does not have to "guess" what is in scope.
+# 3. Response scanner: catches hallucinated tickers or advice in the
+#    LLM's body and downgrades the answer to ``partial`` before it
+#    reaches the customer.
+
+
+_ADVICE_PATTERNS_KO: tuple[str, ...] = (
+    "살까", "팔까", "매수", "매도", "손절", "익절",
+    "목표가", "언제 팔", "언제 사", "언제 들어",
+    "추천해", "추천 해", "추천해줘", "추천 해줘",
+    "종목 추천", "몇 주", "수량 추천", "비중",
+    "풀 매수", "풀매수", "풀 매도", "올인",
+    "언더웨잇", "오버웨잇",
+)
+_ADVICE_PATTERNS_EN: tuple[str, ...] = (
+    "should i buy", "should i sell", "should i short",
+    "price target", "target price", "how many shares",
+    "go long", "go short", "recommend", "recommendation",
+    "overweight", "underweight", "buy this", "sell this",
+    "short this",
+)
+
+# Questions about topics the product does not model at all. We keep
+# this list short on purpose: false positives would feel paternalistic.
+_OFF_TOPIC_PATTERNS_KO: tuple[str, ...] = (
+    "옵션 만기", "콜옵션", "풋옵션", "derivatives",
+)
+_OFF_TOPIC_PATTERNS_EN: tuple[str, ...] = (
+    "option chain", "call option", "put option", "derivatives strategy",
+)
+
+_TICKER_PATTERN = re.compile(r"\b([A-Z]{2,5})\b", re.ASCII)
+_COMMON_NON_TICKER: frozenset[str] = frozenset({
+    "AI", "API", "CEO", "CFO", "COO", "EPS", "ETF", "IPO",
+    "USD", "USA", "UK", "EU", "FOMC", "CPI", "PPI", "GDP",
+    "AM", "PM", "UTC", "KST", "ESG", "SEC", "DOJ", "FDA",
+    "ML", "DL", "NLP", "IR", "PR", "QA", "QC", "RSI",
+    "MACD", "EMA", "SMA", "YTD", "TTM", "YOY", "MOM",
+    "USG", "UST",
+})
+
+
+def classify_question_scope(
+    prompt: str,
+    *,
+    context: dict[str, Any],
+) -> dict[str, Any]:
+    """Classify a free-text prompt's scope relative to surfaced context.
+
+    Returns a dict ``{"kind": str, "reason": str, "flagged_terms": list}``
+    where ``kind`` is one of:
+
+    - ``"in_scope"`` — the prompt is safe to pass to the LLM layer.
+    - ``"advice_request"`` — the prompt is asking for buy/sell or
+      price-target guidance. Product Shell never returns this kind of
+      answer, so we short-circuit to an out-of-scope response.
+    - ``"off_topic"`` — the prompt asks about a domain the product
+      does not model (options structure, etc.).
+    - ``"foreign_ticker"`` — the prompt mentions one or more tickers
+      that are not the focus asset and have no surfaced row. The
+      Product Shell cannot make claims about those.
+
+    This classification is intentionally conservative — it triggers
+    only on clearly out-of-scope prompts so legitimate clarification
+    questions pass through to the LLM.
+    """
+    lowered = (prompt or "").lower().strip()
+    if not lowered:
+        return {"kind": "in_scope", "reason": "", "flagged_terms": []}
+    for pat in _ADVICE_PATTERNS_KO + _ADVICE_PATTERNS_EN:
+        if pat in lowered:
+            return {"kind": "advice_request", "reason": "buy_sell_language",
+                    "flagged_terms": [pat]}
+    for pat in _OFF_TOPIC_PATTERNS_KO + _OFF_TOPIC_PATTERNS_EN:
+        if pat in lowered:
+            return {"kind": "off_topic", "reason": "unmodeled_topic",
+                    "flagged_terms": [pat]}
+    # Foreign-ticker check — only when the context has a focus asset
+    # and the prompt mentions a *different* uppercase ticker that is
+    # not a known acronym. We treat the absence of context asset as
+    # "pan-horizon", so tickers in the prompt are acceptable.
+    ctx_asset = str((context or {}).get("asset_id") or "").upper().strip()
+    if ctx_asset:
+        mentioned = {
+            m.group(1) for m in _TICKER_PATTERN.finditer(prompt or "")
+        } - _COMMON_NON_TICKER - {ctx_asset}
+        if mentioned:
+            return {"kind": "foreign_ticker",
+                    "reason": "ticker_not_in_surfaced_focus",
+                    "flagged_terms": sorted(mentioned)}
+    return {"kind": "in_scope", "reason": "", "flagged_terms": []}
+
+
+def _out_of_scope_answer(
+    *,
+    scope: dict[str, Any],
+    context: dict[str, Any],
+    lang: str,
+) -> dict[str, Any]:
+    """Compose the structured out-of-scope answer.
+
+    The product never fabricates advice — when the classifier fires we
+    return a short honest block steering the customer back to the
+    surfaced evidence and the quick-action chips.
+    """
+    from .view_models_common import shared_wording  # local import — no cycle
+    bucket = shared_wording("out_of_scope", lang=lang)
+    if lang == "ko":
+        if scope["kind"] == "advice_request":
+            claim = "이 제품은 매수·매도 권유를 드리지 않습니다."
+            evid = "그 대신 현재 초점의 근거 요약과 반대 근거를 확인해 주세요."
+            insuf = f"감지된 요청 문구: {', '.join(scope['flagged_terms']) or '(알 수 없음)'}"
+        elif scope["kind"] == "off_topic":
+            claim = "이 질문은 제품이 지금 보여 드린 근거 범위 밖 주제입니다."
+            evid = "이 제품은 모델이 학습한 구간에 대한 근거 요약만을 제시합니다."
+            insuf = f"감지된 주제 문구: {', '.join(scope['flagged_terms']) or '(알 수 없음)'}"
+        else:  # foreign_ticker
+            claim = "해당 종목은 현재 초점의 근거에 포함되어 있지 않습니다."
+            evid = "초점 종목을 바꾸시거나 리서치 표면에서 다른 종목의 근거를 먼저 열어 주세요."
+            insuf = f"노출 초점 종목: {context.get('asset_id') or '(없음)'} · 질문 속 종목: {', '.join(scope['flagged_terms']) or '(알 수 없음)'}"
+    else:
+        if scope["kind"] == "advice_request":
+            claim = "This product does not issue buy or sell guidance."
+            evid = "Please consult the evidence summary and counter-evidence for the current focus instead."
+            insuf = f"Detected request terms: {', '.join(scope['flagged_terms']) or '(unknown)'}"
+        elif scope["kind"] == "off_topic":
+            claim = "This question is outside the topics the product has modelled."
+            evid = "The product only surfaces evidence summaries for horizons the model has trained on."
+            insuf = f"Detected off-topic terms: {', '.join(scope['flagged_terms']) or '(unknown)'}"
+        else:  # foreign_ticker
+            claim = "That asset is not part of the currently surfaced focus."
+            evid = "Switch focus or open the Research surface first to load that asset's evidence."
+            insuf = f"Surfaced focus: {context.get('asset_id') or '(none)'}; tickers in prompt: {', '.join(scope['flagged_terms']) or '(unknown)'}"
+    return {
+        "kind":   "out_of_scope",
+        "banner": bucket["title"],
+        "claim":         [claim],
+        "evidence":      [evid],
+        "insufficiency": [insuf],
+        "grounded":      False,
+        "scope":         scope,
+    }
+
+
+def surfaced_context_summary(
+    context: dict[str, Any],
+    *,
+    lang: str,
+    max_len: int = 600,
+) -> str:
+    """Compose a compact, engineering-ID-scrubbed grounding paragraph.
+
+    This string is handed to ``api_conversation`` under
+    ``copilot_context.surfaced_evidence`` so the LLM has an explicit
+    statement of what is in scope. It mirrors the evidence block the
+    customer already sees in the context card.
+    """
+    lg = "ko" if lang == "ko" else "en"
+    asset = str(context.get("asset_id") or "").strip() or ("(없음)" if lg == "ko" else "(none)")
+    hz_cap = str(context.get("horizon_caption") or "")
+    conf = (context.get("confidence") or {}).get("label", "")
+    stance = (context.get("stance") or {}).get("label", "")
+    grade = (context.get("grade") or {}).get("label", "")
+    ev = (context.get("evidence_lineage_summary")
+          or context.get("shared_focus", {}).get("evidence_summary")
+          or {})
+    body = str(ev.get("body") or "")
+    wc = str(ev.get("what_changed") or "")
+    rs = str(ev.get("strongest_support") or "")
+    parts: list[str] = []
+    if lg == "ko":
+        parts.append(f"초점: {asset} / {hz_cap}")
+        parts.append(f"등급 {grade}, 방향 {stance}, 신뢰도 {conf}.")
+        if body:
+            parts.append(f"제품 요약: {body}")
+        if wc:
+            parts.append(f"이번 갱신의 변화: {wc}")
+        if rs:
+            parts.append(f"가장 강한 지지: {rs}")
+        parts.append("위 근거 범위 밖의 사실은 모르는 것으로 간주하고, 매수·매도는 권유하지 않습니다.")
+    else:
+        parts.append(f"Focus: {asset} / {hz_cap.lower()}")
+        parts.append(f"Grade {grade}, stance {stance.lower()}, confidence {conf.lower()}.")
+        if body:
+            parts.append(f"Product summary: {body}")
+        if wc:
+            parts.append(f"What changed this refresh: {wc}")
+        if rs:
+            parts.append(f"Strongest support: {rs}")
+        parts.append("Treat anything outside this evidence as unknown; never issue buy or sell guidance.")
+    txt = " ".join(parts).strip()
+    return strip_engineering_ids(txt)[:max_len]
+
+
+def scan_response_for_hallucinations(
+    body: str,
+    *,
+    context: dict[str, Any],
+) -> list[str]:
+    """Return a list of hallucination flag names found in ``body``.
+
+    Flags:
+    - ``"advice_language"`` — body contains explicit buy/sell/target
+      wording.
+    - ``"foreign_ticker"`` — body mentions a ticker that is not the
+      focus asset and not in the common acronym allowlist.
+    - ``"price_target"`` — body contains a numeric dollar amount paired
+      with target-target language.
+    """
+    flags: list[str] = []
+    if not body:
+        return flags
+    lowered = body.lower()
+    for pat in _ADVICE_PATTERNS_KO + _ADVICE_PATTERNS_EN:
+        if pat in lowered:
+            flags.append("advice_language")
+            break
+    ctx_asset = str((context or {}).get("asset_id") or "").upper().strip()
+    if ctx_asset:
+        mentioned = {
+            m.group(1) for m in _TICKER_PATTERN.finditer(body)
+        } - _COMMON_NON_TICKER - {ctx_asset}
+        if mentioned:
+            flags.append("foreign_ticker")
+    if re.search(r"\$\s?\d+[\d,\.]*", body):
+        if any(k in lowered for k in ("target", "목표", "mid ", "median")):
+            flags.append("price_target")
+    return flags
+
+
+def _partial_answer_after_hallucination(
+    *,
+    flags: list[str],
+    context: dict[str, Any],
+    lang: str,
+) -> dict[str, Any]:
+    """Answer envelope used when LLM output fails a hallucination guard.
+
+    We deliberately discard the raw LLM body (it was unsafe) and return
+    a short honest block referencing the surfaced evidence instead.
+    """
+    from .view_models_common import shared_wording  # local — no cycle
+    bucket = shared_wording("bounded_ask", lang=lang)
+    if lang == "ko":
+        claim = "답변이 제품 범위를 벗어나 안전 모드로 전환했습니다."
+        evid = "대신 상단 컨텍스트 카드의 근거 요약과 6개의 quick-action 중 가장 가까운 질문을 이용해 주세요."
+        insuf = f"감지된 경고: {', '.join(flags)}"
+    else:
+        claim = "The answer drifted outside scope; switched to safe mode."
+        evid = "Use the surfaced evidence in the context card above, or pick the closest quick-action."
+        insuf = f"Guard flags: {', '.join(flags)}"
+    return {
+        "kind":   "partial",
+        "banner": bucket["title"],
+        "claim":         [claim],
+        "evidence":      [evid],
+        "insufficiency": [insuf],
+        "grounded":      False,
+        "guard_flags":   flags,
+    }
+
+
 def scrub_free_text_answer(
     *,
     prompt: str,
@@ -394,10 +706,22 @@ def scrub_free_text_answer(
 ) -> dict[str, Any]:
     """Wrap a conversation-layer callable with Product-Shell contracts.
 
+    Patch 10C — three grounding guards are applied:
+
+    1. *Pre-LLM* classification. Advice / off-topic / foreign-ticker
+       prompts short-circuit to a structured ``out_of_scope`` answer
+       without calling the LLM.
+    2. *LLM failure* path. When ``conversation_callable`` raises or
+       returns ``ok=False`` / empty body, the response is the same
+       honest ``degraded`` envelope as in Patch 10B.
+    3. *Post-LLM* hallucination scan. Returned body is scanned for
+       advice language, foreign tickers, and price-target phrasings.
+       Any hit downgrades the answer to ``partial`` and discards the
+       body so the customer never sees the unsafe text.
+
     ``conversation_callable`` is a zero-argument thunk returning a
-    governed-conversation packet or ``None``. When it fails or returns
-    an insufficient packet, a structured ``degraded`` answer is returned
-    instead. All returned fields go through :func:`strip_engineering_ids`.
+    governed-conversation packet or ``None``. All returned fields pass
+    through :func:`strip_engineering_ids` as a final defense.
     """
     safe_prompt = _scrub_prompt(prompt)
     if not safe_prompt:
@@ -413,6 +737,13 @@ def scrub_free_text_answer(
             ],
             "grounded": False,
         })
+    # Guard 1 — pre-LLM out-of-scope classifier.
+    scope = classify_question_scope(safe_prompt, context=context)
+    if scope["kind"] != "in_scope":
+        return strip_engineering_ids(_out_of_scope_answer(
+            scope=scope, context=context, lang=lang,
+        ))
+    # Guard 2 — LLM availability.
     try:
         out = conversation_callable()
     except Exception:
@@ -429,9 +760,12 @@ def scrub_free_text_answer(
         return strip_engineering_ids(_degraded_answer(
             context=context, prompt=safe_prompt, lang=lang
         ))
-    # Basic structuring — put the body sentence into claim and rely on
-    # strip_engineering_ids to redact any internal tokens the LLM may
-    # have echoed.
+    # Guard 3 — post-LLM hallucination scan.
+    flags = scan_response_for_hallucinations(body, context=context)
+    if flags:
+        return strip_engineering_ids(_partial_answer_after_hallucination(
+            flags=flags, context=context, lang=lang,
+        ))
     if lang == "ko":
         banner = "노출된 근거 안에서만 답변했습니다."
     else:
@@ -575,6 +909,22 @@ def compose_ask_product_dto(
             "body":  ("quick-action 6개는 항상 답이 있습니다. 자유 입력은 LLM 계층이 준비되지 않았을 때 안전 모드로 전환됩니다."
                       if lg == "ko" else
                       "The six quick-actions always have an answer. Free-text falls back to a safe mode when the LLM layer is unavailable."),
+        },
+        "breadcrumbs": [
+            {"surface": "today",    "label": "Today" if lg == "en" else "Today"},
+            {"surface": "research", "label": "Research" if lg == "en" else "리서치",
+             "target":  {"presentation": "landing"}},
+            {"surface": "ask_ai",   "label": ctx["horizon_caption"],
+             "target":  {"asset_id": ctx["asset_id"], "horizon_key": ctx["horizon_key"]}},
+        ],
+        # Cross-surface coherence anchors (Patch 10C).
+        "shared_focus":           ctx["shared_focus"],
+        "coherence_signature":    ctx["coherence_signature"],
+        "evidence_lineage_summary": ctx["evidence_lineage_summary"],
+        "shared_wording": {
+            "bounded_ask":    shared_wording("bounded_ask", lang=lg),
+            "out_of_scope":   shared_wording("out_of_scope", lang=lg),
+            "next_step":      shared_wording("next_step", lang=lg),
         },
     }
     return strip_engineering_ids(dto)

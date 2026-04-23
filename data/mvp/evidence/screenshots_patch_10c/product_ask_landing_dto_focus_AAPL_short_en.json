@@ -1,0 +1,230 @@
+{
+  "contract": "PRODUCT_ASK_V1",
+  "lang": "en",
+  "ok": true,
+  "as_of": "2026-04-23T08:00:00Z",
+  "last_built_label": "30m ago",
+  "context": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "Short",
+    "horizon_label": "today / this week",
+    "family_name": "short-family",
+    "grade": {
+      "key": "a",
+      "label": "A"
+    },
+    "stance": {
+      "key": "strong_long",
+      "label": "Strong long bias"
+    },
+    "confidence": {
+      "source_key": "live",
+      "label": "Live-data evidence",
+      "tooltip": "Model output trained on real market data."
+    },
+    "frame": "Ask AI will answer strictly from evidence for the short horizon / AAPL.",
+    "row_matched": true,
+    "shared_focus": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "horizon_caption": "Short",
+      "horizon_label": "today / this week",
+      "family_name": "short-family",
+      "grade": {
+        "key": "a",
+        "label": "A"
+      },
+      "stance": {
+        "key": "strong_long",
+        "label": "Strong long bias"
+      },
+      "confidence": {
+        "source_key": "live",
+        "label": "Live-data evidence",
+        "tooltip": "Model output trained on real market data."
+      },
+      "position": 0.74,
+      "row_matched": true,
+      "evidence_summary": {
+        "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+        "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+        "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+      },
+      "coherence_signature": {
+        "asset_id": "AAPL",
+        "horizon_key": "short",
+        "position_quantized": 0.74,
+        "grade_key": "a",
+        "stance_key": "strong_long",
+        "source_key": "live",
+        "what_changed_digest": "8a22af46b1",
+        "rationale_digest": "3aa1dcf850",
+        "fingerprint": "7e14a85b1592",
+        "contract_version": "COHERENCE_V1"
+      }
+    },
+    "coherence_signature": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "position_quantized": 0.74,
+      "grade_key": "a",
+      "stance_key": "strong_long",
+      "source_key": "live",
+      "what_changed_digest": "8a22af46b1",
+      "rationale_digest": "3aa1dcf850",
+      "fingerprint": "7e14a85b1592",
+      "contract_version": "COHERENCE_V1"
+    },
+    "evidence_lineage_summary": {
+      "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+      "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "source_key": "live"
+    }
+  },
+  "quick_chips": [
+    {
+      "intent": "explain_claim",
+      "label": "Explain this claim"
+    },
+    {
+      "intent": "show_support",
+      "label": "Show the supporting evidence"
+    },
+    {
+      "intent": "show_counter",
+      "label": "What is the counter-evidence?"
+    },
+    {
+      "intent": "other_horizons",
+      "label": "What do other horizons say?"
+    },
+    {
+      "intent": "why_confidence",
+      "label": "Why this confidence level?"
+    },
+    {
+      "intent": "whats_missing",
+      "label": "What evidence is missing?"
+    }
+  ],
+  "free_text": {
+    "placeholder_ko": "노출된 근거 안에서 답변 드립니다. 무엇이 궁금한가요?",
+    "placeholder_en": "I answer strictly from surfaced evidence. What would you like to know?",
+    "max_length": 400
+  },
+  "requests": {
+    "contract": "PRODUCT_REQUEST_STATE_V1",
+    "lang": "en",
+    "cards": [
+      {
+        "status_key": "completed",
+        "status_label": "Completed",
+        "summary": "Sandbox ask: Completed",
+        "requested_at": "2026-04-23T07:00:00Z",
+        "resolved_at": "2026-04-23T07:05:00Z"
+      }
+    ],
+    "empty_state": null
+  },
+  "contract_banner": {
+    "title": "Ask AI answers strictly from surfaced evidence.",
+    "body": "The six quick-actions always have an answer. Free-text falls back to a safe mode when the LLM layer is unavailable."
+  },
+  "breadcrumbs": [
+    {
+      "surface": "today",
+      "label": "Today"
+    },
+    {
+      "surface": "research",
+      "label": "Research",
+      "target": {
+        "presentation": "landing"
+      }
+    },
+    {
+      "surface": "ask_ai",
+      "label": "Short",
+      "target": {
+        "asset_id": "AAPL",
+        "horizon_key": "short"
+      }
+    }
+  ],
+  "shared_focus": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "Short",
+    "horizon_label": "today / this week",
+    "family_name": "short-family",
+    "grade": {
+      "key": "a",
+      "label": "A"
+    },
+    "stance": {
+      "key": "strong_long",
+      "label": "Strong long bias"
+    },
+    "confidence": {
+      "source_key": "live",
+      "label": "Live-data evidence",
+      "tooltip": "Model output trained on real market data."
+    },
+    "position": 0.74,
+    "row_matched": true,
+    "evidence_summary": {
+      "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+      "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+    },
+    "coherence_signature": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "position_quantized": 0.74,
+      "grade_key": "a",
+      "stance_key": "strong_long",
+      "source_key": "live",
+      "what_changed_digest": "8a22af46b1",
+      "rationale_digest": "3aa1dcf850",
+      "fingerprint": "7e14a85b1592",
+      "contract_version": "COHERENCE_V1"
+    }
+  },
+  "coherence_signature": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "position_quantized": 0.74,
+    "grade_key": "a",
+    "stance_key": "strong_long",
+    "source_key": "live",
+    "what_changed_digest": "8a22af46b1",
+    "rationale_digest": "3aa1dcf850",
+    "fingerprint": "7e14a85b1592",
+    "contract_version": "COHERENCE_V1"
+  },
+  "evidence_lineage_summary": {
+    "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+    "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+    "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+    "source_key": "live"
+  },
+  "shared_wording": {
+    "bounded_ask": {
+      "title": "Answers strictly from surfaced evidence",
+      "body": "Ask AI only answers within the evidence the product has already shown.",
+      "chip": "Bounded"
+    },
+    "out_of_scope": {
+      "title": "Outside surfaced evidence",
+      "body": "This question sits outside the evidence the product has already surfaced, so it is not answered.",
+      "chip": "Out of scope"
+    },
+    "next_step": {
+      "title": "Next step",
+      "body": "A short list of what to open next — the product never issues buy or sell guidance.",
+      "chip": "Next"
+    }
+  }
+}

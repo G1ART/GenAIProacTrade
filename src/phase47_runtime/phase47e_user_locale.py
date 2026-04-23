@@ -613,6 +613,28 @@ SHELL: dict[str, dict[str, str]] = {
         "product_shell.ask.request_status.running": "진행 중",
         "product_shell.ask.request_status.completed": "완료",
         "product_shell.ask.request_status.blocked": "보류",
+        # AGH v1 Patch 10C — focus continuity ribbon, trust language, and
+        # Ask AI out-of-scope banner. These are the language contract keys
+        # that bind Today ↔ Research ↔ Replay ↔ Ask AI to a single voice
+        # whenever the user is pinned to an (asset_id, horizon_key) focus.
+        "product_shell.continuity.ribbon_label": "지금 보고 있는 초점",
+        "product_shell.continuity.ribbon_caption": "같은 신호를 다른 표면에서도 그대로 이어봅니다.",
+        "product_shell.continuity.jump_today": "Today 요약으로",
+        "product_shell.continuity.jump_research": "리서치 근거로",
+        "product_shell.continuity.jump_replay": "리플레이 타임라인으로",
+        "product_shell.continuity.jump_ask_ai": "Ask AI 에 묻기",
+        "product_shell.continuity.clear_focus": "초점 해제",
+        "product_shell.continuity.horizon_prefix": "구간",
+        "product_shell.continuity.signature_prefix": "근거 서명",
+        "product_shell.continuity.signature_hint": "네 표면(오늘/리서치/리플레이/Ask AI) 이 동일한 근거를 말하고 있다는 암호 서명입니다.",
+        "product_shell.trust.production_inline": "실데이터 근거로 생성됨",
+        "product_shell.trust.sample_inline": "샘플 시나리오 — 과장된 확신을 드리지 않습니다",
+        "product_shell.trust.preparing_inline": "실데이터 준비 중 — 근거가 모이는 동안 제한된 요약만 드립니다",
+        "product_shell.trust.limited_inline": "근거가 제한적입니다 — 지금 보여드릴 수 있는 것만 말씀드립니다",
+        "product_shell.trust.bounded_inline": "이 질문은 노출된 근거 안에서만 답합니다",
+        "product_shell.ask.out_of_scope.title": "노출된 근거 밖의 질문입니다",
+        "product_shell.ask.out_of_scope.body": "METIS 는 지금 이 화면에 노출된 근거 안에서만 답변합니다. 매수·매도 권유, 특정 가격 목표, 화면에 없는 종목에 대한 판단은 드리지 않습니다.",
+        "product_shell.ask.out_of_scope.next_step": "대신 노출된 구간 중 하나를 선택해 다시 물어보거나, 리서치/리플레이 표면에서 근거를 확인해 주세요.",
     },
     "en": {
         "shell.title": "Investment operating cockpit",
@@ -1137,6 +1159,27 @@ SHELL: dict[str, dict[str, str]] = {
         "product_shell.ask.request_status.running": "Running",
         "product_shell.ask.request_status.completed": "Completed",
         "product_shell.ask.request_status.blocked": "Blocked",
+        # AGH v1 Patch 10C — focus continuity ribbon, trust language, and
+        # Ask AI out-of-scope banner (EN parity with the KO section
+        # above).
+        "product_shell.continuity.ribbon_label": "Currently in focus",
+        "product_shell.continuity.ribbon_caption": "Carry the same signal across every surface.",
+        "product_shell.continuity.jump_today": "Back to Today",
+        "product_shell.continuity.jump_research": "Open Research",
+        "product_shell.continuity.jump_replay": "See in Replay",
+        "product_shell.continuity.jump_ask_ai": "Ask AI about this",
+        "product_shell.continuity.clear_focus": "Clear focus",
+        "product_shell.continuity.horizon_prefix": "Horizon",
+        "product_shell.continuity.signature_prefix": "Evidence signature",
+        "product_shell.continuity.signature_hint": "A cryptographic fingerprint that proves Today, Research, Replay, and Ask AI are citing the same evidence.",
+        "product_shell.trust.production_inline": "Produced from live data",
+        "product_shell.trust.sample_inline": "Sample scenario — we don't claim more certainty than we have",
+        "product_shell.trust.preparing_inline": "Live data preparing — bounded summary only while evidence gathers",
+        "product_shell.trust.limited_inline": "Limited evidence — we only share what we can currently back up",
+        "product_shell.trust.bounded_inline": "This question is answered only from evidence on screen",
+        "product_shell.ask.out_of_scope.title": "Out of the surfaced evidence",
+        "product_shell.ask.out_of_scope.body": "METIS only answers from evidence currently on screen. We do not provide buy/sell recommendations, price targets, or views on tickers that aren't surfaced here.",
+        "product_shell.ask.out_of_scope.next_step": "Pick one of the surfaced horizons to re-ask, or open Research / Replay to inspect the evidence instead.",
     },
 }
 

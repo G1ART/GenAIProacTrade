@@ -83,6 +83,20 @@ PYTHONPATH=src python3 scripts/agh_v1_patch_10a_product_shell_freeze_snapshots.p
    - `GET /api/product/requests` → `PRODUCT_REQUEST_STATE_V1` (Patch 10B).
    - `GET /api/runtime/health` → 기존 헬스 (Ops 측 계약 유지).
 3. `/ops` 접근 로그가 갑자기 늘면 **누가 내부 URL 공유했는지 추적**. 고객용 주소에는 절대 섞이지 않는다.
+4. **Patch 10C coherence 검증 (배포 후 스모크)**:
+   - 같은 focus (`asset_id=AAPL`, `horizon_key=short`) 로 네 표면 DTO 를 뽑고 `coherence_signature.fingerprint` 가 4 곳 모두 동일한지 확인:
+     ```bash
+     for p in "/api/product/today" \
+              "/api/product/research?presentation=deepdive&asset_id=AAPL&horizon_key=short" \
+              "/api/product/replay?asset_id=AAPL&horizon_key=short" \
+              "/api/product/ask?asset_id=AAPL&horizon_key=short"; do
+       curl -s "http://localhost:$PORT$p" | python3 -c 'import sys,json; d=json.load(sys.stdin); \
+         fp=(d.get("coherence_signature") or (d.get("hero_cards") or [{}])[0].get("coherence_signature") or {}).get("fingerprint"); \
+         print("'$p'",fp)'
+     done
+     ```
+   - Today 는 `hero_cards[0].coherence_signature.fingerprint` 를, 나머지는 top-level `coherence_signature.fingerprint` 를 비교. 네 값이 모두 같으면 **cross-surface coherence green**.
+   - Ask AI trust closure 검증: `POST /api/product/ask` 로 `"Buy AAPL now with a price target"` 같은 advice-style 프롬프트를 보내면 응답 body 가 `banner.kind="out_of_scope"` 로 단락되어야 한다 (LLM 호출 없음 + engineering ID 누수 0).
 
 ## 6. 트러블슈팅
 
@@ -91,7 +105,9 @@ PYTHONPATH=src python3 scripts/agh_v1_patch_10a_product_shell_freeze_snapshots.p
 | `/` 에서 500 error + "product_shell rebuild missing" | `static/index.html` 유실 | `git status` 로 파일 존재 확인; 또는 Patch 10A 브랜치 재체크아웃 |
 | `/ops` 가 404 | `METIS_OPS_SHELL` 미설정 | 의도한 경우 그대로. 필요시 env 설정 후 재시작 |
 | `/api/product/today` 가 500 | view_models 가 번들 로드 실패 | `METIS_BRAIN_BUNDLE` 경로 확인 (Patch 9 Runbook 참조) |
-| 화면에 `art_*` / `factor_*` / `template_fallback` 같은 단어가 보임 | Mapper 스크러버 우회 | `src/tests/test_agh_v1_patch_10a_copy_no_leak.py` 를 즉시 실행 후 실패 시 해당 레이어 수정 |
+| 화면에 `art_*` / `factor_*` / `template_fallback` 같은 단어가 보임 | Mapper 스크러버 우회 | `src/tests/test_agh_v1_patch_10a_copy_no_leak.py` / `test_agh_v1_patch_10b_copy_no_leak.py` / `test_agh_v1_patch_10c_copy_no_leak.py` 순서로 즉시 실행 후 실패 시 해당 레이어 수정 |
+| 네 표면 중 한 곳에서 `coherence_signature.fingerprint` 값이 다름 | `shared_focus_block` 미 embed 또는 rationale_summary 불일치 | `src/tests/test_agh_v1_patch_10c_coherence.py` 실행 후 diff 로 해당 표면 mapper 수정 |
+| Ask AI 가 advice/price target 문장을 그대로 돌려줌 | post-LLM `scan_response_for_hallucinations` 가 새 패턴 놓침 | `src/phase47_runtime/product_shell/view_models_ask.py` 의 `scan_response_for_hallucinations` regex 확장 + 골든셋 분기 추가 |
 
 ## 7. 롤백 절차
 

@@ -1,0 +1,65 @@
+{
+  "contract": "PATCH_10C_CROSS_SURFACE_ALIGNMENT_V1",
+  "generated_utc": "2026-04-23T19:41:51Z",
+  "s1_snapshot": {
+    "per_lang": {
+      "ko": {
+        "fingerprints": {
+          "today": "7e14a85b1592",
+          "research": "7e14a85b1592",
+          "replay": "7e14a85b1592",
+          "ask_ai": "7e14a85b1592",
+          "ask_quick": "7e14a85b1592"
+        },
+        "all_match": true,
+        "contract_stamps": {
+          "today": "PRODUCT_TODAY_V1",
+          "research": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+          "replay": "PRODUCT_REPLAY_V1",
+          "ask_ai": "PRODUCT_ASK_V1",
+          "ask_quick": "PRODUCT_ASK_QUICK_V1"
+        }
+      },
+      "en": {
+        "fingerprints": {
+          "today": "7e14a85b1592",
+          "research": "7e14a85b1592",
+          "replay": "7e14a85b1592",
+          "ask_ai": "7e14a85b1592",
+          "ask_quick": "7e14a85b1592"
+        },
+        "all_match": true,
+        "contract_stamps": {
+          "today": "PRODUCT_TODAY_V1",
+          "research": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+          "replay": "PRODUCT_REPLAY_V1",
+          "ask_ai": "PRODUCT_ASK_V1",
+          "ask_quick": "PRODUCT_ASK_QUICK_V1"
+        }
+      }
+    },
+    "ok": true
+  },
+  "s3_snapshot": {
+    "checks": {
+      "focus_ribbon_helper": true,
+      "focus_ribbon_rendered_res": true,
+      "focus_ribbon_rendered_rep": true,
+      "focus_ribbon_rendered_ask": true,
+      "hero_softlinks_group": true,
+      "hero_softlink_open_replay": true,
+      "breadcrumbs_today_first": true,
+      "ribbon_css_class": true,
+      "ribbon_softlink_css": true,
+      "softlink_css": true
+    },
+    "ok": true
+  },
+  "s6_snapshot": {
+    "surface_hits": {},
+    "fingerprint_survived_scrub": true,
+    "fingerprint_shape_ok": true,
+    "ok": true
+  },
+  "ok": true
+}

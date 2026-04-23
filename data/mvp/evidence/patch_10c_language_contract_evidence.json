@@ -1,0 +1,31 @@
+{
+  "contract": "PATCH_10C_LANGUAGE_CONTRACT_V1",
+  "generated_utc": "2026-04-23T19:41:51Z",
+  "s5_snapshot": {
+    "locale_parity": {
+      "product_shell.continuity.": true,
+      "product_shell.trust.": true,
+      "product_shell.ask.out_of_scope.": true
+    },
+    "locale_counts": {
+      "product_shell.continuity.": 10,
+      "product_shell.trust.": 5,
+      "product_shell.ask.out_of_scope.": 3
+    },
+    "shared_wording_kinds": [
+      "sample",
+      "preparing",
+      "limited_evidence",
+      "production",
+      "freshness_prefix",
+      "what_changed",
+      "knowable_then",
+      "bounded_ask",
+      "next_step",
+      "out_of_scope"
+    ],
+    "shared_wording_kinds_ok": true,
+    "ok": true
+  },
+  "ok": true
+}

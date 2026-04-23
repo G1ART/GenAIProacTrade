@@ -34,9 +34,12 @@ from .view_models_common import (
     HORIZON_DEFAULT_LABELS,
     HORIZON_KEYS,
     best_representative_row,
+    build_shared_focus_block,
+    evidence_lineage_summary,
     family_alias,
     horizon_provenance_to_confidence,
     human_relative_time,
+    shared_wording,
     spectrum_position_to_grade,
     spectrum_position_to_stance,
     strip_engineering_ids,
@@ -77,6 +80,33 @@ def _payload_snippet(payload: dict[str, Any], lang: str, max_len: int = 180) -> 
     return ""
 
 
+def _normalize_outcome_for_title(kind: str, outcome: str) -> str:
+    """Collapse noisy raw ``outcome`` strings down to the three title
+    buckets the user-facing labels support.
+
+    Raw outcome examples we can receive:
+
+    - ``completed`` → ``completed``
+    - ``blocked_insufficient_inputs`` → ``blocked``
+    - ``rejected_kind_not_allowed`` → ``blocked``
+    - ``errored`` → ``blocked``
+    - ``no_change`` → ``completed`` (ran cleanly, just no delta)
+    - ``applied`` / ``rolled_back`` (only for ``applied`` packets)
+    """
+    if kind == "applied":
+        return outcome or ""
+    if kind == "sandbox_result":
+        if outcome == "completed":
+            return "completed"
+        if outcome in ("blocked_insufficient_inputs",
+                       "rejected_kind_not_allowed",
+                       "errored"):
+            return "blocked"
+        if outcome == "no_change":
+            return "completed"
+    return outcome or ""
+
+
 def _event_title(kind: str, outcome: str, lang: str) -> str:
     ko = {
         "proposal":                "가설 제안",
@@ -104,11 +134,12 @@ def _event_title(kind: str, outcome: str, lang: str) -> str:
         "sandbox_result_blocked":  "Sandbox blocked",
         "sandbox_result":          "Sandbox result",
     }
+    normalized = _normalize_outcome_for_title(kind, outcome)
     key = kind
-    if kind == "applied" and outcome:
-        key = f"applied_{outcome}"
-    if kind == "sandbox_result" and outcome:
-        key = f"sandbox_result_{outcome}"
+    if kind == "applied" and normalized:
+        key = f"applied_{normalized}"
+    if kind == "sandbox_result" and normalized:
+        key = f"sandbox_result_{normalized}"
     table = ko if lang == "ko" else en
     return table.get(key) or table.get(kind) or kind
 
@@ -502,6 +533,17 @@ def compose_replay_product_dto(
                 f"Showing {sum(1 for e in events if e.get('kind') != 'gap')} recorded decisions/updates on the {caption.lower()} horizon, in order."
             )
 
+    shared_focus = build_shared_focus_block(
+        bundle=bundle,
+        spectrum_by_horizon=spectrum_by_horizon,
+        asset_id=tkr,
+        horizon_key=hz,
+        lang=lg,
+    )
+    # Patch 10C — "what was knowable then" summary. Every Replay DTO
+    # carries the same controlled phrasing so Research, Ask AI and
+    # Replay all close on the same honest framing of past knowledge.
+    knowable_then = shared_wording("knowable_then", lang=lg)
     dto = {
         "contract":         "PRODUCT_REPLAY_V1",
         "lang":             lg,
@@ -532,6 +574,24 @@ def compose_replay_product_dto(
             "hint":     ("내부 식별자와 원본 payload는 운영자 화면(/ops)에서 열 수 있습니다."
                          if lg == "ko"
                          else "Internal identifiers and raw payload are available in the operator view (/ops)."),
+        },
+        "breadcrumbs": [
+            {"surface": "today",    "label": "Today" if lg == "en" else "Today"},
+            {"surface": "research", "label": "Research" if lg == "en" else "리서치",
+             "target":  {"presentation": "landing"}},
+            {"surface": "replay",   "label": caption,
+             "target":  {"asset_id": tkr, "horizon_key": hz}},
+        ],
+        # Cross-surface coherence anchors (Patch 10C).
+        "shared_focus":           shared_focus,
+        "coherence_signature":    shared_focus["coherence_signature"],
+        "evidence_lineage_summary": evidence_lineage_summary(shared_focus),
+        "knowable_then":          knowable_then,
+        "shared_wording": {
+            "knowable_then":    knowable_then,
+            "bounded_ask":      shared_wording("bounded_ask", lang=lg),
+            "limited_evidence": shared_wording("limited_evidence", lang=lg),
+            "next_step":        shared_wording("next_step", lang=lg),
         },
     }
     return strip_engineering_ids(dto)

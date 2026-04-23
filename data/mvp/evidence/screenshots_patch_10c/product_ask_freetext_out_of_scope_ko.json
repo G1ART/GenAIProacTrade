@@ -1,0 +1,21 @@
+{
+  "kind": "out_of_scope",
+  "banner": "노출된 근거 밖의 질문",
+  "claim": [
+    "이 제품은 매수·매도 권유를 드리지 않습니다."
+  ],
+  "evidence": [
+    "그 대신 현재 초점의 근거 요약과 반대 근거를 확인해 주세요."
+  ],
+  "insufficiency": [
+    "감지된 요청 문구: 매수"
+  ],
+  "grounded": false,
+  "scope": {
+    "kind": "advice_request",
+    "reason": "buy_sell_language",
+    "flagged_terms": [
+      "매수"
+    ]
+  }
+}

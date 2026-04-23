@@ -1,0 +1,230 @@
+{
+  "contract": "PRODUCT_ASK_V1",
+  "lang": "ko",
+  "ok": true,
+  "as_of": "2026-04-23T08:00:00Z",
+  "last_built_label": "30분 전 갱신",
+  "context": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "단기",
+    "horizon_label": "오늘~이번 주",
+    "family_name": "short-가문",
+    "grade": {
+      "key": "a",
+      "label": "A"
+    },
+    "stance": {
+      "key": "strong_long",
+      "label": "강한 매수 경향"
+    },
+    "confidence": {
+      "source_key": "live",
+      "label": "실데이터 근거",
+      "tooltip": "실제 시장 데이터로 학습된 모델 출력입니다."
+    },
+    "frame": "지금 Ask AI 는 단기 구간, AAPL 종목 의 근거 안에서만 답변합니다.",
+    "row_matched": true,
+    "shared_focus": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "horizon_caption": "단기",
+      "horizon_label": "오늘~이번 주",
+      "family_name": "short-가문",
+      "grade": {
+        "key": "a",
+        "label": "A"
+      },
+      "stance": {
+        "key": "strong_long",
+        "label": "강한 매수 경향"
+      },
+      "confidence": {
+        "source_key": "live",
+        "label": "실데이터 근거",
+        "tooltip": "실제 시장 데이터로 학습된 모델 출력입니다."
+      },
+      "position": 0.74,
+      "row_matched": true,
+      "evidence_summary": {
+        "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+        "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+        "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+      },
+      "coherence_signature": {
+        "asset_id": "AAPL",
+        "horizon_key": "short",
+        "position_quantized": 0.74,
+        "grade_key": "a",
+        "stance_key": "strong_long",
+        "source_key": "live",
+        "what_changed_digest": "8a22af46b1",
+        "rationale_digest": "3aa1dcf850",
+        "fingerprint": "7e14a85b1592",
+        "contract_version": "COHERENCE_V1"
+      }
+    },
+    "coherence_signature": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "position_quantized": 0.74,
+      "grade_key": "a",
+      "stance_key": "strong_long",
+      "source_key": "live",
+      "what_changed_digest": "8a22af46b1",
+      "rationale_digest": "3aa1dcf850",
+      "fingerprint": "7e14a85b1592",
+      "contract_version": "COHERENCE_V1"
+    },
+    "evidence_lineage_summary": {
+      "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+      "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "source_key": "live"
+    }
+  },
+  "quick_chips": [
+    {
+      "intent": "explain_claim",
+      "label": "이 청구를 더 설명해 주세요"
+    },
+    {
+      "intent": "show_support",
+      "label": "지지 근거 보여 주세요"
+    },
+    {
+      "intent": "show_counter",
+      "label": "반대 근거는 무엇인가요?"
+    },
+    {
+      "intent": "other_horizons",
+      "label": "다른 구간은 어떻게 읽고 있나요?"
+    },
+    {
+      "intent": "why_confidence",
+      "label": "신뢰도는 왜 이 수준인가요?"
+    },
+    {
+      "intent": "whats_missing",
+      "label": "빠진 근거는 무엇인가요?"
+    }
+  ],
+  "free_text": {
+    "placeholder_ko": "노출된 근거 안에서 답변 드립니다. 무엇이 궁금한가요?",
+    "placeholder_en": "I answer strictly from surfaced evidence. What would you like to know?",
+    "max_length": 400
+  },
+  "requests": {
+    "contract": "PRODUCT_REQUEST_STATE_V1",
+    "lang": "ko",
+    "cards": [
+      {
+        "status_key": "completed",
+        "status_label": "완료",
+        "summary": "사이드 실험 요청: 완료",
+        "requested_at": "2026-04-23T07:00:00Z",
+        "resolved_at": "2026-04-23T07:05:00Z"
+      }
+    ],
+    "empty_state": null
+  },
+  "contract_banner": {
+    "title": "Ask AI 는 노출된 근거 안에서만 답변합니다.",
+    "body": "quick-action 6개는 항상 답이 있습니다. 자유 입력은 LLM 계층이 준비되지 않았을 때 안전 모드로 전환됩니다."
+  },
+  "breadcrumbs": [
+    {
+      "surface": "today",
+      "label": "Today"
+    },
+    {
+      "surface": "research",
+      "label": "리서치",
+      "target": {
+        "presentation": "landing"
+      }
+    },
+    {
+      "surface": "ask_ai",
+      "label": "단기",
+      "target": {
+        "asset_id": "AAPL",
+        "horizon_key": "short"
+      }
+    }
+  ],
+  "shared_focus": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "단기",
+    "horizon_label": "오늘~이번 주",
+    "family_name": "short-가문",
+    "grade": {
+      "key": "a",
+      "label": "A"
+    },
+    "stance": {
+      "key": "strong_long",
+      "label": "강한 매수 경향"
+    },
+    "confidence": {
+      "source_key": "live",
+      "label": "실데이터 근거",
+      "tooltip": "실제 시장 데이터로 학습된 모델 출력입니다."
+    },
+    "position": 0.74,
+    "row_matched": true,
+    "evidence_summary": {
+      "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+      "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+    },
+    "coherence_signature": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "position_quantized": 0.74,
+      "grade_key": "a",
+      "stance_key": "strong_long",
+      "source_key": "live",
+      "what_changed_digest": "8a22af46b1",
+      "rationale_digest": "3aa1dcf850",
+      "fingerprint": "7e14a85b1592",
+      "contract_version": "COHERENCE_V1"
+    }
+  },
+  "coherence_signature": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "position_quantized": 0.74,
+    "grade_key": "a",
+    "stance_key": "strong_long",
+    "source_key": "live",
+    "what_changed_digest": "8a22af46b1",
+    "rationale_digest": "3aa1dcf850",
+    "fingerprint": "7e14a85b1592",
+    "contract_version": "COHERENCE_V1"
+  },
+  "evidence_lineage_summary": {
+    "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+    "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+    "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+    "source_key": "live"
+  },
+  "shared_wording": {
+    "bounded_ask": {
+      "title": "노출된 근거 안에서만 답합니다",
+      "body": "Ask AI 는 제품이 이미 보여 드린 근거 범위 안에서만 답변합니다.",
+      "chip": "범위 제한"
+    },
+    "out_of_scope": {
+      "title": "노출된 근거 밖의 질문",
+      "body": "이 질문은 제품이 지금 보여 드린 근거 범위 밖에 있어 답변드리지 않습니다.",
+      "chip": "범위 밖"
+    },
+    "next_step": {
+      "title": "다음 단계",
+      "body": "다음으로 무엇을 열어 보실지 제안 드립니다. 제품은 매수·매도를 권유하지 않습니다.",
+      "chip": "다음 단계"
+    }
+  }
+}

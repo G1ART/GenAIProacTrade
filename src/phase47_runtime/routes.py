@@ -960,6 +960,7 @@ def api_product_ask_free_text(
     from phase47_runtime.product_shell.view_models_ask import (
         _focus_context_card,
         scrub_free_text_answer,
+        surfaced_context_summary,
     )
     from phase47_runtime.product_shell.view_models_common import HORIZON_KEYS
     from metis_brain.bundle import try_load_brain_bundle_v0
@@ -989,14 +990,26 @@ def api_product_ask_free_text(
         lang=lang,
     )
 
+    grounding_paragraph = surfaced_context_summary(ctx, lang=lang)
+
     def _call_llm() -> dict[str, Any] | None:
         try:
             return api_conversation(state, {
                 "text": prompt,
                 "copilot_context": {
-                    "asset_id":      ctx.get("asset_id") or "",
-                    "horizon":       ctx.get("horizon_key") or "",
-                    "surface":       "product_ask",
+                    "asset_id":          ctx.get("asset_id") or "",
+                    "horizon":           ctx.get("horizon_key") or "",
+                    "surface":           "product_ask",
+                    # Patch 10C — explicit surfaced grounding so the
+                    # LLM cannot "widen" into anything the customer has
+                    # not already seen.
+                    "surfaced_evidence": grounding_paragraph,
+                    "bounded_contract":  (
+                        "Answer only from surfaced_evidence. Never issue "
+                        "buy/sell/price-target guidance. If the question "
+                        "cannot be answered from the surfaced_evidence, "
+                        "say so explicitly and stop."
+                    ),
                 },
             })
         except Exception:
@@ -1014,6 +1027,12 @@ def api_product_ask_free_text(
         "lang":     lang,
         "context":  ctx,
         "answer":   answer,
+        # Patch 10C — expose the same coherence signature the customer's
+        # current focus carries in the Ask landing DTO, so the answer
+        # card can pin itself to the focus that produced it.
+        "coherence_signature":     ctx.get("coherence_signature"),
+        "evidence_lineage_summary": ctx.get("evidence_lineage_summary"),
+        "grounding_preview":        grounding_paragraph,
     }
 
 

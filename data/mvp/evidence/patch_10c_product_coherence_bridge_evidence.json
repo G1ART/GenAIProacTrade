@@ -1,0 +1,16 @@
+{
+  "contract": "PATCH_10C_PRODUCT_COHERENCE_BRIDGE_V1",
+  "generated_utc": "2026-04-23T19:41:51Z",
+  "prior_patch": "agh_v1_patch_10b_product_shell_rebuild_research_replay_ask",
+  "entry_points": [
+    "/ (product shell — Today / Research / Replay / Ask AI)"
+  ],
+  "new_invariants": [
+    "coherence_signature.fingerprint identical across Today / Research / Replay / Ask for the same focus (both KO/EN)",
+    "Ask AI pre-LLM scope guard + post-LLM hallucination guard; LLM output discarded on flag",
+    "SHARED_WORDING (10 kinds) + new locale families (continuity / trust / out_of_scope)",
+    "Focus ribbon + hero soft-links + unified breadcrumbs across every deep surface"
+  ],
+  "runbook_all_ok": true,
+  "follow_up_patch": null
+}

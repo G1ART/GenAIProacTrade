@@ -2,6 +2,36 @@
 
 **단일 목표**: Today/Research/Replay 세 표면을 **Metis Brain bundle + registry + message snapshot store** 라는 하나의 계약 위에 올리고, `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` §10 의 Q1–Q10 이 **자동 spec survey** 에서 전부 `ok=true` 가 되게 한다. (Build Plan §14 수직 슬라이스, §12 항상 지킬 문장.)
 
+## 2026-04-23 — Product Shell Coherence / Trust Closure Patch 10C (plan `product-shell-10c`)
+
+> **Patch 10C 는 seal patch 다 — 새 페이지·새 sandbox kind 를 만들지 않고, 10A+10B 에서 펼친 네 고객 표면이 "같은 focus 에 같은 진실을 같은 제품 언어로 말한다" 를 코드 수준 불변식으로 봉인했다.** 가시 제품 차이: (1) Research/Replay/Ask AI 상단에 **공통 focus ribbon** 이 같은 grade/stance/confidence chip + 네 표면 soft-link + coherence 지문을 보여주며, (2) Today hero 아래에 **cta_more soft-link** 가 추가돼 같은 구간의 Replay·Ask AI 로 포커스 유지한 채 이동할 수 있고, (3) Ask AI 는 **3 중 grounding guard (pre-LLM scope 분류 → surfaced-context 주입 → post-LLM hallucination 스캔)** 로 매수/매도 권유·화면에 없는 종목·가격 목표가 **단 한 글자도** 고객 DTO 에 새어나가지 않도록 닫혔다. 데모 장면: "AAPL, 단기" focus 로 Today → Research → Replay → Ask AI 네 패널을 왕복하면, 리본 우하단의 12-hex 지문이 모든 패널에서 같은 값으로 유지되고, Ask AI 에 "AAPL 지금 매수 추천해 주세요" 를 쳐도 LLM 호출 없이 "노출된 근거 밖의 질문입니다" 배너로 단락된다.
+
+**Green run 실증 (Patch 10C)**
+
+- **A — Cross-surface coherence 계약**. `src/phase47_runtime/product_shell/view_models_common.py` 에 (1) `compute_coherence_signature` — `(asset_id, horizon_key, 양자화된 position, grade_key, stance_key, source_key, digest(what_changed), digest(rationale_summary))` 로부터 **언어 독립적** 12-hex SHA-256 지문을 만들고 `contract_version="COHERENCE_V1"` (대문자 V — 스크러버가 소문자 `_v\d+` 를 지우는 것과의 충돌 회피), (2) `build_shared_focus_block` — 네 표면 모두가 **문자 단위 동일하게** embed 하는 single-source-of-truth 블록, (3) `SHARED_WORDING` — 10 버킷 (`sample`, `preparing`, `limited_evidence`, `production`, `freshness`, `bounded_ask`, `next_step`, `what_changed`, `knowable_then`, `out_of_scope`) 의 KO/EN 공통 카피 사전을 추가. `strip_engineering_ids` 는 지문과 `COHERENCE_V1` 을 **손대지 않음** 을 테스트로 pin.
+- **B — Ask AI trust closure (3 단 grounding)**. `view_models_ask.py` 에 (1) `classify_question_scope` — advice (매수/매도/목표가/추천) / off_topic (옵션·파생) / foreign_ticker (화면에 없는 티커) / in_scope 로 분류 후 out-of-scope 는 **LLM 호출 전에** 단락, (2) `surfaced_context_summary` — 화면에 보이는 focus (grade/stance/confidence + evidence 한 줄 요약) 를 scrubbed 된 한 문단으로 묶어 `copilot_context.surfaced_evidence` + `bounded_contract` 지시어와 함께 `api_conversation` 에 주입, (3) `scan_response_for_hallucinations` — 반환 body 를 advice language / foreign ticker / price target 로 스캔, 1 건이라도 걸리면 **body 자체를 폐기** 하고 `partial` 로 downgrade. `src/tests/test_agh_v1_patch_10c_ask_golden_set.py` 가 7 분기 골든셋 (in_scope/advice/off_topic/foreign_ticker/low_evidence/degraded/hallucinating) 을 전부 green 으로 통과.
+- **C — 네 표면 DTO 통합 배선**. Today (`compose_today_product_dto`) 는 각 hero card 에 `shared_focus + coherence_signature + cta_more` 를 embed 하고 strongest live 카드를 `primary_focus` 로 top-level 에 끌어올림. Research deepdive / Replay / Ask-landing / Ask-quick 는 top-level 에 `shared_focus + coherence_signature + evidence_lineage_summary + shared_wording + breadcrumbs` 를 통일된 키로 노출. `src/tests/test_agh_v1_patch_10c_coherence.py` 가 동일 focus 에 대해 네 DTO 의 `coherence_signature.fingerprint` 가 KO·EN 모두 **문자 단위** 동일함과 언어만 바꾸면 지문 불변을 단언; `rationale_summary` 변경 또는 grade-tier 를 건너는 position 이동은 지문을 바꿈을 추가 단언.
+- **D — Ops ↔ Product 패리티**. `src/tests/test_agh_v1_patch_10c_ops_product_parity.py` 가 synthetic `api_governance_lineage_for_registry_entry` 페이로드 (proposal/decision/applied/spectrum_refresh/validation/sandbox request+result, 30 일 gap 포함) 를 만든 뒤 (1) Product Replay DTO timeline 의 non-gap event 수가 raw chain event 수와 일치, (2) `total_applied`/`total_sandbox_requests` summary 가 일치, (3) 원본 packet id (`pkt_*`) 와 engineering regex 가 DTO 에 단 한 글자도 노출 안됨, (4) outcome 라벨은 humanized localized (예: `blocked_insufficient_inputs` → "Sandbox blocked" / "사이드 실험 보류"), (5) gap annotation 이 실제 시간 공백과 일치함을 단언. view_models_replay 의 `_event_title` 을 `_normalize_outcome_for_title` 로 보강해 `blocked_insufficient_inputs` 류 모든 에러 파생을 "blocked" 로 일관화.
+- **E — Focus continuity UI + 통합 breadcrumb**. `product_shell.js` 에 (1) `renderFocusRibbon(dto, surface)` — 같은 `(asset_id, horizon_key)` 에 대해 grade/stance/confidence chip + 네 표면 soft-link 버튼 그룹 + 12-hex 지문을 보여주는 persistent strip, (2) `ps-hero-card-softlinks` — Today hero 카드 하단에 cta_more (Replay/Ask AI) chip row 추가, (3) Research deepdive / Replay / Ask breadcrumb 를 `Today / <surface> / <ticker>` 로 통일. `product_shell.css` 에 `.ps-focus-ribbon` (data-source 에 따라 좌측 accent bar 가 live/preparing/sample 로 변함) + `.ps-hero-card-softlink` 컴포넌트 + 반응형 (≤640px 에서 세로 스택) 추가.
+- **F — Language contract + 신규 locale 3 패밀리**. `phase47e_user_locale.py` 에 `product_shell.continuity.*` (10 키) + `product_shell.trust.*` (5 키) + `product_shell.ask.out_of_scope.*` (3 키) = 18 쌍 KO/EN parity. `src/tests/test_agh_v1_patch_10c_language_contract.py` 가 네 표면의 `shared_wording` 블록 존재 + preparing/sample 포커스 body 가 `SHARED_WORDING` 과 문자 단위 일치 + Ask AI out-of-scope banner title 이 공유 bucket 과 동일함을 강제. `test_agh_v1_patch_10c_copy_no_leak.py` 가 10A/10B 금지 패턴 계승 + 10C 내부 헬퍼 이름 (`_quantize_position`, `_short_hash`, `classify_question_scope`, `scan_response_for_hallucinations`) 도 UI/DTO 에 노출 0 + 3 로캘 패밀리 KO/EN parity 를 함께 강제. 141 파라미터 케이스 모두 green.
+- **G — Freeze + Runbook + Evidence 6 건**. `scripts/agh_v1_patch_10c_product_coherence_freeze.py` 가 동일 focus (`AAPL/short`) 의 6 DTO × 2 언어 = 12 파일 + `coherence_manifest_AAPL_short.json` 을 `data/mvp/evidence/screenshots_patch_10c/` 에 저장 (manifest invariants 에서 4 표면 지문 완전 일치 확인). `scripts/agh_v1_patch_10c_product_coherence_runbook.py` 가 S1..S6 (cross-surface coherence / Ask trust closure / focus continuity UI / DTO refinement / language contract / no-leak+fingerprint) 를 전부 green. 산출 evidence 6: `patch_10c_product_coherence_{runbook,bridge}_evidence.json`, `patch_10c_{coherence,ask_trust_golden_set,cross_surface_alignment,language_contract}_evidence.json`.
+
+**환경 변수 (Patch 10C 에서 추가 0 개)**
+
+- 10A 에서 도입한 `METIS_OPS_SHELL` 만 유효. 10C 는 추가 env 없이 동작.
+
+**Unified Product Spec §10 대비 갭 (Patch 10C 이후)**
+
+- Q1 (Today registry-only), Q2 (message 1 급), Q3 (Research lineage), Q4 (Replay lineage), Q5 (Ask AI bounded), Q6 (Honest degraded), Q7 (Product language contract) **모두 코드 수준 불변식 + no-leak 테스트로 pin 됨**. Q8/Q9 (signal quality 누적 / 장기 관점 grid) 는 brain bundle 레이어의 Patch 11 후보.
+
+**다음 단계 (Patch 10 종료, 11 대기)**
+
+- LLM free-text 의 retrieval-grounded quality 의미적 평가 — real golden-set 누적 후 regression score. 현재 구조적 (pre/post guard) 은 봉인 완료.
+- Replay timeline 선형 시간축 시각화 + Research tile sparkline 의 polish (10A Today sparkline 패턴 재사용 가능).
+- Brain Bundle v3 — long-horizon rolling forward returns + residual score semantics 결합 (이미 진행중인 `pragmatic_brain_absorption_v1` milestone E 연장).
+
+---
+
 ## 2026-04-23 — Product Shell Rebuild Patch 10B: Research / Replay / Ask AI 정식 재설계 (plan `product-shell-10b`)
 
 > **Patch 10B 는 10A 위에 세 표면을 제품 언어로 올리는 패치다.** 10A 에서 분리한 `/` Product Shell 에 (1) horizon 그리드 + 종목 3-rail 디프다이브의 **Research**, (2) 타임라인 + 공백 주석 + 3 시나리오의 **Replay**, (3) 컨텍스트 카드 + 6 quick-action + retrieval-grounded 자유 입력의 **Ask AI** 를 정식으로 붙였다. 모든 DTO 는 `strip_engineering_ids` 를 마지막 방어선으로 통과하고, 내부 식별자 (`art_*`, `reg_*`, `factor_*`, `job_*`, `sandbox_request_id`, `process_governed_prompt`, `counterfactual_preview_v1`, `sandbox_queue`, raw provenance enum) 는 **제품 언어로 번역되거나 제거**된다. LLM 계층이 불가피하게 응답 못할 때는 `degraded` 배너로 전환되며, 절대로 매수/매도 명령형을 쓰지 않는다.
