@@ -4,7 +4,7 @@
     "msg_snap:v1:1d9c061751cb543bc6657378": {
       "asset_id": "TRGP",
       "horizon": "short",
-      "lang": "ko",
+      "lang": "en",
       "active_model_family": "shallow_value_blend_v0",
       "as_of_utc": "2026-04-01T12:00:00+00:00",
       "mock_price_tick": "0",
@@ -14,22 +14,22 @@
         "message_id": "demo_short_TRGP",
         "asset_id": "TRGP",
         "horizon": "short",
-        "headline": "팩터 'accruals' 순위 1/195 → position=1.00 (quality_like). 검증 런으로부터 생성.",
-        "one_line_take": "팩터 'accruals' 순위 1/195 → position=1.00 (quality_like). 검증 런으로부터 생성.",
-        "why_now": "팩터 'accruals' 순위 1/195 → position=1.00 (quality_like). 검증 런으로부터 생성.",
-        "what_changed": "최신 분기 팩터 순위 업데이트.",
+        "headline": "Factor 'accruals' rank 1/195 → position=1.00 (quality_like). Generated from validation run.",
+        "one_line_take": "Factor 'accruals' rank 1/195 → position=1.00 (quality_like). Generated from validation run.",
+        "why_now": "Factor 'accruals' rank 1/195 → position=1.00 (quality_like). Generated from validation run.",
+        "what_changed": "Latest quarterly factor rank refreshed.",
         "what_remains_unproven": "",
         "what_to_watch": "",
         "action_frame": "",
         "confidence_band": "high",
         "linked_model_family": "shallow_value_blend_v0",
-        "linked_evidence_summary": "팩터 'accruals' 순위 1/195 → position=1.00 (quality_like). 검증 런으로부터 생성.",
+        "linked_evidence_summary": "Factor 'accruals' rank 1/195 → position=1.00 (quality_like). Generated from validation run.",
         "linked_registry_entry_id": "reg_short_demo_v0",
         "linked_artifact_id": "art_short_demo_v0",
         "linked_evidence": [
           {
             "pointer": "spectrum_row:TRGP:short:v1",
-            "summary": "팩터 'accruals' 순위 1/195 → position=1.00 (quality_like). 검증 런으로부터 생성.",
+            "summary": "Factor 'accruals' rank 1/195 → position=1.00 (quality_like). Generated from validation run.",
             "kind": "validation"
           }
         ]
@@ -42,8 +42,8 @@
         "rank_total": 195,
         "rank_movement": "steady",
         "valuation_tension": "stretched",
-        "rationale_summary": "팩터 'accruals' 순위 1/195 → position=1.00 (quality_like). 검증 런으로부터 생성.",
-        "what_changed": "최신 분기 팩터 순위 업데이트."
+        "rationale_summary": "Factor 'accruals' rank 1/195 → position=1.00 (quality_like). Generated from validation run.",
+        "what_changed": "Latest quarterly factor rank refreshed."
       },
       "replay_lineage_join_v1": {
         "contract": "REPLAY_LINEAGE_JOIN_V1",
@@ -79,29 +79,15 @@
         "universe": "large_cap_research_slice_demo_v0",
         "scoring_endpoint_contract": "inline_spectrum_rows_v0",
         "replay_lineage_pointer": "lineage:registry:short:demo_v0",
-        "brain_overlay_ids": [
-          "ovr_short_transcript_guidance_tone_v1"
-        ],
+        "brain_overlay_ids": [],
         "brain_overlay_summary": {
           "contract": "TODAY_BRAIN_OVERLAY_SUMMARY_V1",
-          "total": 1,
-          "count_by_type": {
-            "confidence_adjustment": 1
-          },
-          "labels": [
-            {
-              "overlay_id": "ovr_short_transcript_guidance_tone_v1",
-              "overlay_type": "confidence_adjustment",
-              "short_label_ko": "트랜스크립트 톤 반영",
-              "short_label_en": "Confidence adjusted by transcript",
-              "confidence": 0.45,
-              "expiry_or_recheck_rule": "recheck_at_next_earnings_call_or_2026-07-15",
-              "expected_direction_hint": "position_weakens"
-            }
-          ]
+          "total": 0,
+          "count_by_type": {},
+          "labels": []
         }
       },
-      "stored_at_utc": "2026-04-21T18:19:12.585834+00:00"
+      "stored_at_utc": "2026-04-23T00:35:49.923187+00:00"
     },
     "msg_snap:v1:41859c06eb77c044d06adf88": {
       "asset_id": "DEMO_KR_A",

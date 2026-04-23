@@ -14,7 +14,7 @@ pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem
 </head>
 <body>
 <h1>/api/runtime/health (EN) · Patch 9 freeze</h1>
-<div class="meta">captured_at_utc=2026-04-21T18:24:29.412803+00:00 · patch=9</div>
+<div class="meta">captured_at_utc=2026-04-23T00:35:24.157997+00:00 · patch=9</div>
 <div class="note">Patch 9 A1 adds brain_bundle_path_resolved, brain_bundle_v2_exists, brain_bundle_v2_integrity_failed, brain_bundle_fallback_to_v0, brain_bundle_override_used so the tier chip can honestly render a fallback variant when v2 exists but fails the quick integrity gate.</div>
 <h2>canonical payload</h2>
 <pre>{
@@ -136,27 +136,27 @@ pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem
         &quot;active_artifact_id&quot;: &quot;art_long_demo_v0&quot;,
         &quot;active_model_family_name&quot;: &quot;owner_earnings_growth_v0&quot;,
         &quot;challenger_artifact_ids&quot;: [],
-        &quot;display_family_name_en&quot;: &quot;&quot;,
-        &quot;display_family_name_ko&quot;: &quot;&quot;,
-        &quot;display_id&quot;: &quot;&quot;,
+        &quot;display_family_name_en&quot;: &quot;Long value&quot;,
+        &quot;display_family_name_ko&quot;: &quot;장기 가치&quot;,
+        &quot;display_id&quot;: &quot;reg_long_value_v1&quot;,
         &quot;registry_entry_id&quot;: &quot;reg_long_demo_v0&quot;
       },
       &quot;medium&quot;: {
         &quot;active_artifact_id&quot;: &quot;art_medium_demo_v0&quot;,
         &quot;active_model_family_name&quot;: &quot;quality_earnings_bridge_v0&quot;,
         &quot;challenger_artifact_ids&quot;: [],
-        &quot;display_family_name_en&quot;: &quot;&quot;,
-        &quot;display_family_name_ko&quot;: &quot;&quot;,
-        &quot;display_id&quot;: &quot;&quot;,
+        &quot;display_family_name_en&quot;: &quot;Medium value — accruals&quot;,
+        &quot;display_family_name_ko&quot;: &quot;중기 가치 (발생액)&quot;,
+        &quot;display_id&quot;: &quot;art_medium_value_accruals_v1&quot;,
         &quot;registry_entry_id&quot;: &quot;reg_medium_demo_v0&quot;
       },
       &quot;medium_long&quot;: {
         &quot;active_artifact_id&quot;: &quot;art_medium_long_demo_v0&quot;,
         &quot;active_model_family_name&quot;: &quot;cycle_positioning_v0&quot;,
         &quot;challenger_artifact_ids&quot;: [],
-        &quot;display_family_name_en&quot;: &quot;&quot;,
-        &quot;display_family_name_ko&quot;: &quot;&quot;,
-        &quot;display_id&quot;: &quot;&quot;,
+        &quot;display_family_name_en&quot;: &quot;Medium-long value&quot;,
+        &quot;display_family_name_ko&quot;: &quot;중장기 가치&quot;,
+        &quot;display_id&quot;: &quot;reg_medium_long_value_v1&quot;,
         &quot;registry_entry_id&quot;: &quot;reg_medium_long_demo_v0&quot;
       },
       &quot;short&quot;: {
@@ -165,9 +165,9 @@ pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem
         &quot;challenger_artifact_ids&quot;: [
           &quot;art_short_challenger_momentum_v0&quot;
         ],
-        &quot;display_family_name_en&quot;: &quot;&quot;,
-        &quot;display_family_name_ko&quot;: &quot;&quot;,
-        &quot;display_id&quot;: &quot;&quot;,
+        &quot;display_family_name_en&quot;: &quot;Short value — accruals&quot;,
+        &quot;display_family_name_ko&quot;: &quot;단기 가치 (발생액)&quot;,
+        &quot;display_id&quot;: &quot;art_short_value_accruals_v1&quot;,
         &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;
       }
     },
@@ -188,12 +188,146 @@ pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem
     &quot;bundle_errors&quot;: [],
     &quot;bundle_path&quot;: &quot;/Users/hyunminkim/GenAIProacTrade/data/mvp/metis_brain_bundle_v2.json&quot;,
     &quot;contract&quot;: &quot;MVP_RUNTIME_BRAIN_GATE_V1&quot;,
-    &quot;horizon_provenance&quot;: {},
+    &quot;horizon_provenance&quot;: {
+      &quot;long&quot;: {
+        &quot;contributing_gates&quot;: [
+          {
+            &quot;artifact_id&quot;: &quot;art_long_demo_v0&quot;,
+            &quot;degraded&quot;: true,
+            &quot;degraded_reason&quot;: &quot;gate_export_failed:no_completed_factor_validation_summary&quot;,
+            &quot;factor_name&quot;: &quot;accruals&quot;,
+            &quot;return_basis&quot;: &quot;raw&quot;,
+            &quot;validation_horizon_type&quot;: &quot;next_year&quot;
+          }
+        ],
+        &quot;display_family_name_en&quot;: &quot;&quot;,
+        &quot;display_family_name_ko&quot;: &quot;&quot;,
+        &quot;display_id&quot;: &quot;&quot;,
+        &quot;reason&quot;: &quot;no_real_derived_gate_landed_and_no_template_fallback_configured&quot;,
+        &quot;source&quot;: &quot;insufficient_evidence&quot;
+      },
+      &quot;medium&quot;: {
+        &quot;artifact_id&quot;: &quot;art_medium_demo_v0&quot;,
+        &quot;contributing_gates&quot;: [
+          {
+            &quot;artifact_id&quot;: &quot;art_medium_demo_v0&quot;,
+            &quot;coverage_pass&quot;: true,
+            &quot;degraded&quot;: false,
+            &quot;display_family_name_en&quot;: &quot;Medium value — accruals&quot;,
+            &quot;display_family_name_ko&quot;: &quot;중기 가치 (발생액)&quot;,
+            &quot;display_id&quot;: &quot;art_medium_value_accruals_v1&quot;,
+            &quot;factor_name&quot;: &quot;accruals&quot;,
+            &quot;monotonicity_pass&quot;: true,
+            &quot;pit_pass&quot;: true,
+            &quot;pit_rule&quot;: &quot;accepted_at_signal_date_pit_rule_v0&quot;,
+            &quot;registry_entry_id&quot;: &quot;reg_medium_demo_v0&quot;,
+            &quot;return_basis&quot;: &quot;raw&quot;,
+            &quot;run_id&quot;: &quot;7023235e-d0e6-4501-8f4d-af5b25857971&quot;,
+            &quot;spectrum_row_count&quot;: 195,
+            &quot;validation_horizon_type&quot;: &quot;next_quarter&quot;
+          },
+          {
+            &quot;artifact_id&quot;: &quot;art_medium_challenger_gross_profitability_v0&quot;,
+            &quot;degraded&quot;: true,
+            &quot;degraded_reason&quot;: &quot;optional_gate_not_passing:pit=True;coverage=False;mono=True&quot;,
+            &quot;factor_name&quot;: &quot;gross_profitability&quot;,
+            &quot;return_basis&quot;: &quot;raw&quot;,
+            &quot;validation_horizon_type&quot;: &quot;next_quarter&quot;
+          }
+        ],
+        &quot;coverage_pass&quot;: true,
+        &quot;degraded&quot;: false,
+        &quot;display_family_name_en&quot;: &quot;Medium value — accruals&quot;,
+        &quot;display_family_name_ko&quot;: &quot;중기 가치 (발생액)&quot;,
+        &quot;display_id&quot;: &quot;art_medium_value_accruals_v1&quot;,
+        &quot;factor_name&quot;: &quot;accruals&quot;,
+        &quot;monotonicity_pass&quot;: true,
+        &quot;pit_pass&quot;: true,
+        &quot;pit_rule&quot;: &quot;accepted_at_signal_date_pit_rule_v0&quot;,
+        &quot;registry_entry_id&quot;: &quot;reg_medium_demo_v0&quot;,
+        &quot;return_basis&quot;: &quot;raw&quot;,
+        &quot;run_id&quot;: &quot;7023235e-d0e6-4501-8f4d-af5b25857971&quot;,
+        &quot;source&quot;: &quot;real_derived_with_degraded_challenger&quot;,
+        &quot;spectrum_row_count&quot;: 195,
+        &quot;validation_horizon_type&quot;: &quot;next_quarter&quot;
+      },
+      &quot;medium_long&quot;: {
+        &quot;contributing_gates&quot;: [
+          {
+            &quot;artifact_id&quot;: &quot;art_medium_long_demo_v0&quot;,
+            &quot;degraded&quot;: true,
+            &quot;degraded_reason&quot;: &quot;gate_export_failed:no_completed_factor_validation_summary&quot;,
+            &quot;factor_name&quot;: &quot;accruals&quot;,
+            &quot;return_basis&quot;: &quot;raw&quot;,
+            &quot;validation_horizon_type&quot;: &quot;next_half_year&quot;
+          }
+        ],
+        &quot;display_family_name_en&quot;: &quot;&quot;,
+        &quot;display_family_name_ko&quot;: &quot;&quot;,
+        &quot;display_id&quot;: &quot;&quot;,
+        &quot;reason&quot;: &quot;no_real_derived_gate_landed_and_no_template_fallback_configured&quot;,
+        &quot;source&quot;: &quot;insufficient_evidence&quot;
+      },
+      &quot;short&quot;: {
+        &quot;artifact_id&quot;: &quot;art_short_demo_v0&quot;,
+        &quot;contributing_gates&quot;: [
+          {
+            &quot;artifact_id&quot;: &quot;art_short_demo_v0&quot;,
+            &quot;coverage_pass&quot;: true,
+            &quot;degraded&quot;: false,
+            &quot;display_family_name_en&quot;: &quot;Short value — accruals&quot;,
+            &quot;display_family_name_ko&quot;: &quot;단기 가치 (발생액)&quot;,
+            &quot;display_id&quot;: &quot;art_short_value_accruals_v1&quot;,
+            &quot;factor_name&quot;: &quot;accruals&quot;,
+            &quot;monotonicity_pass&quot;: true,
+            &quot;pit_pass&quot;: true,
+            &quot;pit_rule&quot;: &quot;accepted_at_signal_date_pit_rule_v0&quot;,
+            &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+            &quot;return_basis&quot;: &quot;raw&quot;,
+            &quot;run_id&quot;: &quot;228f2af3-516f-448a-9d65-4d522ae71b4d&quot;,
+            &quot;spectrum_row_count&quot;: 195,
+            &quot;validation_horizon_type&quot;: &quot;next_month&quot;
+          },
+          {
+            &quot;artifact_id&quot;: &quot;art_short_challenger_momentum_v0&quot;,
+            &quot;coverage_pass&quot;: true,
+            &quot;degraded&quot;: false,
+            &quot;display_family_name_en&quot;: &quot;Short quality — gross profitability&quot;,
+            &quot;display_family_name_ko&quot;: &quot;단기 품질 (총이익률)&quot;,
+            &quot;display_id&quot;: &quot;art_short_quality_gross_profitability_v1&quot;,
+            &quot;factor_name&quot;: &quot;gross_profitability&quot;,
+            &quot;monotonicity_pass&quot;: true,
+            &quot;pit_pass&quot;: true,
+            &quot;pit_rule&quot;: &quot;accepted_at_signal_date_pit_rule_v0&quot;,
+            &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+            &quot;return_basis&quot;: &quot;raw&quot;,
+            &quot;run_id&quot;: &quot;228f2af3-516f-448a-9d65-4d522ae71b4d&quot;,
+            &quot;spectrum_row_count&quot;: 74,
+            &quot;validation_horizon_type&quot;: &quot;next_month&quot;
+          }
+        ],
+        &quot;coverage_pass&quot;: true,
+        &quot;degraded&quot;: false,
+        &quot;display_family_name_en&quot;: &quot;Short value — accruals&quot;,
+        &quot;display_family_name_ko&quot;: &quot;단기 가치 (발생액)&quot;,
+        &quot;display_id&quot;: &quot;art_short_value_accruals_v1&quot;,
+        &quot;factor_name&quot;: &quot;accruals&quot;,
+        &quot;monotonicity_pass&quot;: true,
+        &quot;pit_pass&quot;: true,
+        &quot;pit_rule&quot;: &quot;accepted_at_signal_date_pit_rule_v0&quot;,
+        &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
+        &quot;return_basis&quot;: &quot;raw&quot;,
+        &quot;run_id&quot;: &quot;228f2af3-516f-448a-9d65-4d522ae71b4d&quot;,
+        &quot;source&quot;: &quot;real_derived&quot;,
+        &quot;spectrum_row_count&quot;: 195,
+        &quot;validation_horizon_type&quot;: &quot;next_month&quot;
+      }
+    },
     &quot;horizon_state_v1&quot;: {
       &quot;long&quot;: &quot;insufficient_evidence&quot;,
-      &quot;medium&quot;: &quot;insufficient_evidence&quot;,
+      &quot;medium&quot;: &quot;real_derived_with_degraded_challenger&quot;,
       &quot;medium_long&quot;: &quot;insufficient_evidence&quot;,
-      &quot;short&quot;: &quot;insufficient_evidence&quot;
+      &quot;short&quot;: &quot;real_derived&quot;
     },
     &quot;horizons_ready&quot;: {
       &quot;long&quot;: true,
@@ -249,25 +383,25 @@ pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem
         &quot;spec&quot;: &quot;message snapshot 1급 저장 경로 준비&quot;
       },
       {
-        &quot;detail&quot;: &quot;horizon=short;asset_id=DEMO_KR_B&quot;,
+        &quot;detail&quot;: &quot;horizon=short;asset_id=TRGP&quot;,
         &quot;id&quot;: &quot;Q6_message_headline_why_now_rationale&quot;,
         &quot;ok&quot;: true,
         &quot;spec&quot;: &quot;spectrum row가 headline + why_now + rationale_summary 를 모두 채우는가?&quot;
       },
       {
-        &quot;detail&quot;: &quot;asset_id=DEMO_KR_B;horizons=[&#x27;long&#x27;, &#x27;medium&#x27;, &#x27;short&#x27;]&quot;,
+        &quot;detail&quot;: &quot;asset_id=TRGP;horizons=[&#x27;medium&#x27;, &#x27;short&#x27;]&quot;,
         &quot;id&quot;: &quot;Q7_same_ticker_different_horizon_position&quot;,
         &quot;ok&quot;: true,
         &quot;spec&quot;: &quot;동일 ticker가 horizon별로 다른 spectrum_position 을 갖는가?&quot;
       },
       {
-        &quot;detail&quot;: &quot;horizon=short;asset_id=DEMO_KR_A;movement=up&quot;,
+        &quot;detail&quot;: &quot;horizon=short;asset_id=MS;movement=up&quot;,
         &quot;id&quot;: &quot;Q8_rank_movement_on_mock_price_tick&quot;,
         &quot;ok&quot;: true,
         &quot;spec&quot;: &quot;mock_price_tick=1 실행 시 rank_movement 에 up 또는 down 이 1건 이상 등장하는가?&quot;
       },
       {
-        &quot;detail&quot;: &quot;horizon=short;asset_id=DEMO_KR_B&quot;,
+        &quot;detail&quot;: &quot;horizon=short;asset_id=TRGP&quot;,
         &quot;id&quot;: &quot;Q9_information_and_research_layers_present&quot;,
         &quot;ok&quot;: true,
         &quot;spec&quot;: &quot;object 단면에 information.supporting_signals &gt;=1 + research.deeper_rationale 가 존재하는가?&quot;

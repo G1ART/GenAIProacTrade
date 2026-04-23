@@ -100,7 +100,7 @@ def _try_live_build(config: dict[str, Any]) -> tuple[dict[str, Any] | None, dict
             build_bundle_full_from_validation_v1,
             fetch_joined_rows_for_factor_db,
         )
-        from market.promotion_gate_export import (
+        from metis_brain.factor_validation_gate_export_v0 import (
             export_promotion_gate_from_factor_validation_db,
         )
 
@@ -137,6 +137,40 @@ def _try_live_build(config: dict[str, Any]) -> tuple[dict[str, Any] | None, dict
             display_aliases=dict(config.get("display_aliases") or {}),
         )
         report.update({"mode": "live", "build_report": build_report})
+        if merged is not None:
+            # AGH v1 Patch 9 A2 — production-tier integrity requires
+            # non-empty ``metadata.source_run_ids`` + ``built_at_utc`` so a
+            # rollback knows exactly which Supabase run(s) produced this
+            # bundle. We harvest run ids from ``horizon_provenance`` (both
+            # top-level and contributing_gates) so every real-derived
+            # horizon contributes at least one run id.
+            provenance = build_report.get("horizon_provenance") or {}
+            run_ids: list[str] = []
+            seen: set[str] = set()
+            for hz_prov in provenance.values():
+                if not isinstance(hz_prov, dict):
+                    continue
+                candidates: list[str] = []
+                top_rid = str(hz_prov.get("run_id") or "").strip()
+                if top_rid:
+                    candidates.append(top_rid)
+                for g in hz_prov.get("contributing_gates") or []:
+                    if isinstance(g, dict):
+                        rid = str(g.get("run_id") or "").strip()
+                        if rid:
+                            candidates.append(rid)
+                for rid in candidates:
+                    if rid and rid not in seen:
+                        seen.add(rid)
+                        run_ids.append(rid)
+            meta = dict(merged.get("metadata") or {})
+            meta.setdefault("graduation_tier", "production")
+            meta["graduated_from_config"] = str(CONFIG_PATH.relative_to(REPO_ROOT))
+            meta["graduated_at_utc"] = datetime.now(timezone.utc).isoformat()
+            meta["gate_spec_count"] = len(specs)
+            meta["built_at_utc"] = meta["graduated_at_utc"]
+            meta["source_run_ids"] = run_ids
+            merged["metadata"] = meta
         return merged, report
     except Exception as exc:
         report.update({"mode": "live_failed", "error": f"{exc}"})

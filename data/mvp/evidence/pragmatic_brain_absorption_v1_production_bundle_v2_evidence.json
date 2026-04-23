@@ -1,16 +1,270 @@
 {
-  "build_mode": "template",
-  "built_at_utc": "2026-04-21T07:01:56.421996+00:00",
+  "build_mode": "live",
+  "built_at_utc": "2026-04-23T00:35:03.565823+00:00",
   "contract": "METIS_BRAIN_BUNDLE_PRODUCTION_GRADUATION_V1",
   "gate_spec_count": 6,
   "graduation_tier": "production",
   "integrity_errors": [],
   "live_report": {
-    "attempted": false,
-    "reason": "missing_supabase_env"
+    "attempted": true,
+    "build_report": {
+      "aborted_reason": null,
+      "errors": [],
+      "horizon_provenance": {
+        "long": {
+          "contributing_gates": [
+            {
+              "artifact_id": "art_long_demo_v0",
+              "degraded": true,
+              "degraded_reason": "gate_export_failed:no_completed_factor_validation_summary",
+              "factor_name": "accruals",
+              "return_basis": "raw",
+              "validation_horizon_type": "next_year"
+            }
+          ],
+          "display_family_name_en": "",
+          "display_family_name_ko": "",
+          "display_id": "",
+          "reason": "no_real_derived_gate_landed_and_no_template_fallback_configured",
+          "source": "insufficient_evidence"
+        },
+        "medium": {
+          "artifact_id": "art_medium_demo_v0",
+          "contributing_gates": [
+            {
+              "artifact_id": "art_medium_demo_v0",
+              "coverage_pass": true,
+              "degraded": false,
+              "display_family_name_en": "Medium value — accruals",
+              "display_family_name_ko": "중기 가치 (발생액)",
+              "display_id": "art_medium_value_accruals_v1",
+              "factor_name": "accruals",
+              "monotonicity_pass": true,
+              "pit_pass": true,
+              "pit_rule": "accepted_at_signal_date_pit_rule_v0",
+              "registry_entry_id": "reg_medium_demo_v0",
+              "return_basis": "raw",
+              "run_id": "7023235e-d0e6-4501-8f4d-af5b25857971",
+              "spectrum_row_count": 195,
+              "validation_horizon_type": "next_quarter"
+            },
+            {
+              "artifact_id": "art_medium_challenger_gross_profitability_v0",
+              "degraded": true,
+              "degraded_reason": "optional_gate_not_passing:pit=True;coverage=False;mono=True",
+              "factor_name": "gross_profitability",
+              "return_basis": "raw",
+              "validation_horizon_type": "next_quarter"
+            }
+          ],
+          "coverage_pass": true,
+          "degraded": false,
+          "display_family_name_en": "Medium value — accruals",
+          "display_family_name_ko": "중기 가치 (발생액)",
+          "display_id": "art_medium_value_accruals_v1",
+          "factor_name": "accruals",
+          "monotonicity_pass": true,
+          "pit_pass": true,
+          "pit_rule": "accepted_at_signal_date_pit_rule_v0",
+          "registry_entry_id": "reg_medium_demo_v0",
+          "return_basis": "raw",
+          "run_id": "7023235e-d0e6-4501-8f4d-af5b25857971",
+          "source": "real_derived_with_degraded_challenger",
+          "spectrum_row_count": 195,
+          "validation_horizon_type": "next_quarter"
+        },
+        "medium_long": {
+          "contributing_gates": [
+            {
+              "artifact_id": "art_medium_long_demo_v0",
+              "degraded": true,
+              "degraded_reason": "gate_export_failed:no_completed_factor_validation_summary",
+              "factor_name": "accruals",
+              "return_basis": "raw",
+              "validation_horizon_type": "next_half_year"
+            }
+          ],
+          "display_family_name_en": "",
+          "display_family_name_ko": "",
+          "display_id": "",
+          "reason": "no_real_derived_gate_landed_and_no_template_fallback_configured",
+          "source": "insufficient_evidence"
+        },
+        "short": {
+          "artifact_id": "art_short_demo_v0",
+          "contributing_gates": [
+            {
+              "artifact_id": "art_short_demo_v0",
+              "coverage_pass": true,
+              "degraded": false,
+              "display_family_name_en": "Short value — accruals",
+              "display_family_name_ko": "단기 가치 (발생액)",
+              "display_id": "art_short_value_accruals_v1",
+              "factor_name": "accruals",
+              "monotonicity_pass": true,
+              "pit_pass": true,
+              "pit_rule": "accepted_at_signal_date_pit_rule_v0",
+              "registry_entry_id": "reg_short_demo_v0",
+              "return_basis": "raw",
+              "run_id": "228f2af3-516f-448a-9d65-4d522ae71b4d",
+              "spectrum_row_count": 195,
+              "validation_horizon_type": "next_month"
+            },
+            {
+              "artifact_id": "art_short_challenger_momentum_v0",
+              "coverage_pass": true,
+              "degraded": false,
+              "display_family_name_en": "Short quality — gross profitability",
+              "display_family_name_ko": "단기 품질 (총이익률)",
+              "display_id": "art_short_quality_gross_profitability_v1",
+              "factor_name": "gross_profitability",
+              "monotonicity_pass": true,
+              "pit_pass": true,
+              "pit_rule": "accepted_at_signal_date_pit_rule_v0",
+              "registry_entry_id": "reg_short_demo_v0",
+              "return_basis": "raw",
+              "run_id": "228f2af3-516f-448a-9d65-4d522ae71b4d",
+              "spectrum_row_count": 74,
+              "validation_horizon_type": "next_month"
+            }
+          ],
+          "coverage_pass": true,
+          "degraded": false,
+          "display_family_name_en": "Short value — accruals",
+          "display_family_name_ko": "단기 가치 (발생액)",
+          "display_id": "art_short_value_accruals_v1",
+          "factor_name": "accruals",
+          "monotonicity_pass": true,
+          "pit_pass": true,
+          "pit_rule": "accepted_at_signal_date_pit_rule_v0",
+          "registry_entry_id": "reg_short_demo_v0",
+          "return_basis": "raw",
+          "run_id": "228f2af3-516f-448a-9d65-4d522ae71b4d",
+          "source": "real_derived",
+          "spectrum_row_count": 195,
+          "validation_horizon_type": "next_month"
+        }
+      },
+      "integrity_ok": true,
+      "panel_cache": {
+        "distinct_universes": 1,
+        "hits": 2,
+        "misses": 1,
+        "spec_count": 6
+      },
+      "steps": [
+        {
+          "artifact_id": "art_short_demo_v0",
+          "bundle_horizon": "short",
+          "degraded": false,
+          "gate_export_ok": true,
+          "gate_pass": true,
+          "joined_fetch_ok": true,
+          "merged": true,
+          "optional": false,
+          "spec": {
+            "artifact_id": "art_short_demo_v0",
+            "factor_name": "accruals",
+            "horizon_type": "next_month",
+            "return_basis": "raw",
+            "universe_name": "sp500_current"
+          },
+          "spectrum_row_count": 195
+        },
+        {
+          "artifact_id": "art_short_challenger_momentum_v0",
+          "bundle_horizon": "short",
+          "degraded": false,
+          "gate_export_ok": true,
+          "gate_pass": true,
+          "joined_fetch_ok": true,
+          "merged": true,
+          "optional": true,
+          "spec": {
+            "artifact_id": "art_short_challenger_momentum_v0",
+            "factor_name": "gross_profitability",
+            "horizon_type": "next_month",
+            "return_basis": "raw",
+            "universe_name": "sp500_current"
+          },
+          "spectrum_row_count": 74
+        },
+        {
+          "artifact_id": "art_medium_demo_v0",
+          "bundle_horizon": "medium",
+          "degraded": false,
+          "gate_export_ok": true,
+          "gate_pass": true,
+          "joined_fetch_ok": true,
+          "merged": true,
+          "optional": false,
+          "spec": {
+            "artifact_id": "art_medium_demo_v0",
+            "factor_name": "accruals",
+            "horizon_type": "next_quarter",
+            "return_basis": "raw",
+            "universe_name": "sp500_current"
+          },
+          "spectrum_row_count": 195
+        },
+        {
+          "bundle_horizon": "medium",
+          "degraded": true,
+          "degraded_reason": "optional_gate_not_passing:pit=True;coverage=False;mono=True",
+          "gate_export_ok": true,
+          "gate_pass": false,
+          "joined_fetch_ok": false,
+          "merged": false,
+          "optional": true,
+          "spec": {
+            "artifact_id": "art_medium_challenger_gross_profitability_v0",
+            "factor_name": "gross_profitability",
+            "horizon_type": "next_quarter",
+            "return_basis": "raw",
+            "universe_name": "sp500_current"
+          },
+          "spectrum_row_count": 0
+        },
+        {
+          "bundle_horizon": "medium_long",
+          "degraded": true,
+          "degraded_reason": "gate_export_failed:no_completed_factor_validation_summary",
+          "gate_export_ok": false,
+          "joined_fetch_ok": false,
+          "merged": false,
+          "optional": true,
+          "spec": {
+            "artifact_id": "art_medium_long_demo_v0",
+            "factor_name": "accruals",
+            "horizon_type": "next_half_year",
+            "return_basis": "raw",
+            "universe_name": "sp500_current"
+          },
+          "spectrum_row_count": 0
+        },
+        {
+          "bundle_horizon": "long",
+          "degraded": true,
+          "degraded_reason": "gate_export_failed:no_completed_factor_validation_summary",
+          "gate_export_ok": false,
+          "joined_fetch_ok": false,
+          "merged": false,
+          "optional": true,
+          "spec": {
+            "artifact_id": "art_long_demo_v0",
+            "factor_name": "accruals",
+            "horizon_type": "next_year",
+            "return_basis": "raw",
+            "universe_name": "sp500_current"
+          },
+          "spectrum_row_count": 0
+        }
+      ]
+    },
+    "mode": "live"
   },
-  "output_bytes": 18921,
+  "output_bytes": 438791,
   "output_path": "data/mvp/metis_brain_bundle_v2.json",
-  "output_sha256": "e86a2b7e0a6bae11934548db6bc9e6d359891cf2df618cf74243c5b7fdf27dbd",
+  "output_sha256": "be753206fa4dc7a014c214c73d3fb474cc478c187a3d89a33ef9f305f6168a3c",
   "patch": "AGH_V1_PATCH_8_D2"
 }

@@ -366,16 +366,54 @@ def _production_tier_integrity_checks(bundle: BrainBundleV0) -> list[str]:
             out.append(
                 f"production: bundle.metadata.graduation_tier={mt!r} contradicts production-tier check"
             )
+    # Map each active/challenger artifact to the horizon(s) it serves so
+    # that horizons whose provenance is *honestly degraded* (template_fallback
+    # or insufficient_evidence) can legitimately ship demo-shaped artifacts
+    # without being treated as a production violation. This matches the
+    # Pragmatic Brain Absorption v1 Milestone A contract: gates marked under
+    # ``auto_degrade_optional_gates`` in the build config fall through to
+    # template/insufficient-evidence, and their honesty is already surfaced
+    # via ``horizon_provenance.source``. The check below therefore only
+    # rejects demo-shaped artifacts on horizons that claim to be
+    # ``real_derived`` (or whose provenance is missing entirely).
+    _DEGRADED_PROVENANCE_SOURCES = {"template_fallback", "insufficient_evidence"}
+    horizon_provenance = getattr(bundle, "horizon_provenance", {}) or {}
+    artifact_to_horizons: dict[str, set[str]] = {}
     active_artifact_ids: set[str] = set()
     for ent in bundle.registry_entries:
         if ent.status != "active":
             continue
         aid = str(getattr(ent, "active_artifact_id", "") or "")
+        hz = str(getattr(ent, "horizon", "") or "")
         if aid:
             active_artifact_ids.add(aid)
-        active_artifact_ids.update(str(c) for c in (ent.challenger_artifact_ids or []) if c)
+            if hz:
+                artifact_to_horizons.setdefault(aid, set()).add(hz)
+        for c in (ent.challenger_artifact_ids or []):
+            c_str = str(c or "")
+            if not c_str:
+                continue
+            active_artifact_ids.add(c_str)
+            if hz:
+                artifact_to_horizons.setdefault(c_str, set()).add(hz)
+
+    def _all_horizons_intentionally_degraded(aid: str) -> bool:
+        horizons = artifact_to_horizons.get(aid) or set()
+        if not horizons:
+            return False
+        for hz in horizons:
+            prov = horizon_provenance.get(hz)
+            if not isinstance(prov, dict):
+                return False
+            src = str(prov.get("source") or "").strip()
+            if src not in _DEGRADED_PROVENANCE_SOURCES:
+                return False
+        return True
+
     for art in bundle.artifacts:
         if art.artifact_id not in active_artifact_ids:
+            continue
+        if _all_horizons_intentionally_degraded(art.artifact_id):
             continue
         vp = str(getattr(art, "validation_pointer", "") or "")
         cb = str(getattr(art, "created_by", "") or "")

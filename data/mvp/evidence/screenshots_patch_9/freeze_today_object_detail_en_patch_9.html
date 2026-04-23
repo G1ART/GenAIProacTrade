@@ -14,13 +14,13 @@ pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem
 </head>
 <body>
 <h1>Today — object detail (EN) · Patch 9 freeze</h1>
-<div class="meta">captured_at_utc=2026-04-21T18:24:29.063010+00:00 · patch=9</div>
+<div class="meta">captured_at_utc=2026-04-23T00:35:23.779941+00:00 · patch=9</div>
 <div class="note">English locale of the Patch 9 Today detail. Self-serve copy (enqueue / worker / approval) remains operator-gated.</div>
 <h2>canonical payload</h2>
 <pre>{
   &quot;active_model_family&quot;: &quot;shallow_value_blend_v0&quot;,
   &quot;as_of_utc&quot;: &quot;2026-04-01T12:00:00+00:00&quot;,
-  &quot;asset_id&quot;: &quot;DEMO_KR_B&quot;,
+  &quot;asset_id&quot;: &quot;TRGP&quot;,
   &quot;detail_contract&quot;: &quot;SPRINT4_MESSAGE_INFORMATION_RESEARCH_V0&quot;,
   &quot;horizon&quot;: &quot;short&quot;,
   &quot;horizon_label&quot;: &quot;Short-term&quot;,
@@ -28,45 +28,45 @@ pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem
     &quot;data_layer_note&quot;: &quot;This build uses snapshot / sample data.&quot;,
     &quot;evidence_summary&quot;: &quot;When the seed has no information_layer: showing spectrum row summary only.&quot;,
     &quot;opposing_signals&quot;: [
-      &quot;Volume spike in the last sessions.&quot;
+      &quot;Latest quarterly factor rank refreshed.&quot;
     ],
     &quot;supporting_signals&quot;: [
-      &quot;Momentum is pressing the short-horizon band upward.&quot;,
+      &quot;Factor &#x27;accruals&#x27; rank 1/195 → position=1.00 (quality_like). Generated from validation run.&quot;,
       &quot;Valuation tension: stretched&quot;
     ]
   },
   &quot;lang&quot;: &quot;en&quot;,
   &quot;message&quot;: {
     &quot;action_frame&quot;: &quot;&quot;,
-    &quot;asset_id&quot;: &quot;DEMO_KR_B&quot;,
-    &quot;confidence_band&quot;: &quot;low&quot;,
-    &quot;headline&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;,
+    &quot;asset_id&quot;: &quot;TRGP&quot;,
+    &quot;confidence_band&quot;: &quot;high&quot;,
+    &quot;headline&quot;: &quot;Factor &#x27;accruals&#x27; rank 1/195 → position=1.00 (quality_like). Generated from validation run.&quot;,
     &quot;horizon&quot;: &quot;short&quot;,
     &quot;linked_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
     &quot;linked_evidence&quot;: [
       {
         &quot;kind&quot;: &quot;validation&quot;,
-        &quot;pointer&quot;: &quot;spectrum_row:DEMO_KR_B:short:v1&quot;,
-        &quot;summary&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;
+        &quot;pointer&quot;: &quot;spectrum_row:TRGP:short:v1&quot;,
+        &quot;summary&quot;: &quot;Factor &#x27;accruals&#x27; rank 1/195 → position=1.00 (quality_like). Generated from validation run.&quot;
       }
     ],
-    &quot;linked_evidence_summary&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;,
+    &quot;linked_evidence_summary&quot;: &quot;Factor &#x27;accruals&#x27; rank 1/195 → position=1.00 (quality_like). Generated from validation run.&quot;,
     &quot;linked_model_family&quot;: &quot;shallow_value_blend_v0&quot;,
     &quot;linked_registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
-    &quot;message_id&quot;: &quot;demo_short_DEMO_KR_B&quot;,
-    &quot;one_line_take&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;,
-    &quot;what_changed&quot;: &quot;Volume spike in the last sessions.&quot;,
+    &quot;message_id&quot;: &quot;demo_short_TRGP&quot;,
+    &quot;one_line_take&quot;: &quot;Factor &#x27;accruals&#x27; rank 1/195 → position=1.00 (quality_like). Generated from validation run.&quot;,
+    &quot;what_changed&quot;: &quot;Latest quarterly factor rank refreshed.&quot;,
     &quot;what_remains_unproven&quot;: &quot;&quot;,
     &quot;what_to_watch&quot;: &quot;&quot;,
-    &quot;why_now&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;
+    &quot;why_now&quot;: &quot;Factor &#x27;accruals&#x27; rank 1/195 → position=1.00 (quality_like). Generated from validation run.&quot;
   },
-  &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:bb7d63beeb5b4eda89c7bb2c&quot;,
+  &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:1d9c061751cb543bc6657378&quot;,
   &quot;mock_price_tick&quot;: &quot;0&quot;,
   &quot;ok&quot;: true,
   &quot;registry_surface_v1&quot;: {
     &quot;active_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
     &quot;active_model_family_name&quot;: &quot;shallow_value_blend_v0&quot;,
-    &quot;active_thesis_family&quot;: &quot;shallow_value_blend_v0&quot;,
+    &quot;active_thesis_family&quot;: &quot;factor_accruals_v0&quot;,
     &quot;brain_overlay_ids&quot;: [],
     &quot;brain_overlay_summary&quot;: {
       &quot;contract&quot;: &quot;TODAY_BRAIN_OVERLAY_SUMMARY_V1&quot;,
@@ -80,15 +80,15 @@ pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem
     &quot;challengers_resolved&quot;: [
       {
         &quot;artifact_id&quot;: &quot;art_short_challenger_momentum_v0&quot;,
-        &quot;created_by&quot;: &quot;deterministic_kernel:v0&quot;,
+        &quot;created_by&quot;: &quot;artifact_from_validation_v1&quot;,
         &quot;horizon&quot;: &quot;short&quot;,
-        &quot;thesis_family&quot;: &quot;short_momentum_reversion_probe_v0&quot;
+        &quot;thesis_family&quot;: &quot;factor_gross_profitability_v0&quot;
       }
     ],
     &quot;contract&quot;: &quot;TODAY_REGISTRY_SURFACE_V1&quot;,
-    &quot;display_family_name_en&quot;: &quot;&quot;,
-    &quot;display_family_name_ko&quot;: &quot;&quot;,
-    &quot;display_id&quot;: &quot;&quot;,
+    &quot;display_family_name_en&quot;: &quot;Short value — accruals&quot;,
+    &quot;display_family_name_ko&quot;: &quot;단기 가치 (발생액)&quot;,
+    &quot;display_id&quot;: &quot;art_short_value_accruals_v1&quot;,
     &quot;horizon&quot;: &quot;short&quot;,
     &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
     &quot;replay_lineage_pointer&quot;: &quot;lineage:registry:short:demo_v0&quot;,
@@ -100,44 +100,34 @@ pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem
     &quot;contract&quot;: &quot;REPLAY_LINEAGE_JOIN_V1&quot;,
     &quot;linked_artifact_id&quot;: &quot;art_short_demo_v0&quot;,
     &quot;linked_registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
-    &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:bb7d63beeb5b4eda89c7bb2c&quot;,
+    &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:1d9c061751cb543bc6657378&quot;,
     &quot;registry_entry_id&quot;: &quot;reg_short_demo_v0&quot;,
     &quot;replay_lineage_pointer&quot;: &quot;lineage:registry:short:demo_v0&quot;,
     &quot;today_input_source&quot;: &quot;active_horizon_model_registry_v0&quot;
   },
   &quot;research&quot;: {
-    &quot;deeper_rationale&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;,
+    &quot;deeper_rationale&quot;: &quot;Factor &#x27;accruals&#x27; rank 1/195 → position=1.00 (quality_like). Generated from validation run.&quot;,
     &quot;disagreement_preserving&quot;: {
       &quot;note&quot;: &quot;Signals are not sharply contradictory — watch the next catalysts across spectrum and journal.&quot;
     },
     &quot;horizon_lens_compare&quot;: [
       {
-        &quot;headline&quot;: &quot;Some cooling vs the short-term stretch.&quot;,
+        &quot;headline&quot;: &quot;Factor &#x27;accruals&#x27; rank 1/195 → position=0.00 (risk_like). Generated from validation run.&quot;,
         &quot;horizon&quot;: &quot;medium&quot;,
         &quot;horizon_label&quot;: &quot;Medium-term&quot;,
-        &quot;rank_index&quot;: 2,
-        &quot;rank_total&quot;: 2,
-        &quot;spectrum_band&quot;: &quot;center&quot;,
-        &quot;spectrum_position&quot;: 0.38,
-        &quot;spectrum_quintile&quot;: &quot;neutral&quot;
-      },
-      {
-        &quot;headline&quot;: &quot;Strong long story but valuation load is heavy.&quot;,
-        &quot;horizon&quot;: &quot;long&quot;,
-        &quot;horizon_label&quot;: &quot;Long-term&quot;,
-        &quot;rank_index&quot;: 1,
-        &quot;rank_total&quot;: 2,
-        &quot;spectrum_band&quot;: &quot;right&quot;,
-        &quot;spectrum_position&quot;: 0.81,
-        &quot;spectrum_quintile&quot;: &quot;overpriced&quot;
+        &quot;rank_index&quot;: 195,
+        &quot;rank_total&quot;: 195,
+        &quot;spectrum_band&quot;: &quot;left&quot;,
+        &quot;spectrum_position&quot;: 0.002564,
+        &quot;spectrum_quintile&quot;: &quot;extreme_underpriced&quot;
       }
     ],
     &quot;links&quot;: {
       &quot;open_replay_panel&quot;: true,
       &quot;prefill_ask_ai&quot;: &quot;Why is this asset placed here on this horizon?&quot;,
-      &quot;replay_highlight_asset_id&quot;: &quot;DEMO_KR_B&quot;
+      &quot;replay_highlight_asset_id&quot;: &quot;TRGP&quot;
     },
-    &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:bb7d63beeb5b4eda89c7bb2c&quot;,
+    &quot;message_snapshot_id&quot;: &quot;msg_snap:v1:1d9c061751cb543bc6657378&quot;,
     &quot;model_family_context&quot;: &quot;Model context (stub): shallow_value_blend_v0 (short).&quot;,
     &quot;overlay_explanations&quot;: []
   },
@@ -204,13 +194,13 @@ pre{background:#1a1d23;border:1px solid #2a2f39;border-radius:6px;padding:0.8rem
   &quot;spectrum&quot;: {
     &quot;rank_index&quot;: 1,
     &quot;rank_movement&quot;: &quot;steady&quot;,
-    &quot;rank_total&quot;: 3,
-    &quot;rationale_summary&quot;: &quot;Momentum is pressing the short-horizon band upward.&quot;,
+    &quot;rank_total&quot;: 195,
+    &quot;rationale_summary&quot;: &quot;Factor &#x27;accruals&#x27; rank 1/195 → position=1.00 (quality_like). Generated from validation run.&quot;,
     &quot;spectrum_band&quot;: &quot;right&quot;,
-    &quot;spectrum_position&quot;: 0.72,
-    &quot;spectrum_quintile&quot;: &quot;overpriced&quot;,
+    &quot;spectrum_position&quot;: 0.997436,
+    &quot;spectrum_quintile&quot;: &quot;extreme_overpriced&quot;,
     &quot;valuation_tension&quot;: &quot;stretched&quot;,
-    &quot;what_changed&quot;: &quot;Volume spike in the last sessions.&quot;
+    &quot;what_changed&quot;: &quot;Latest quarterly factor rank refreshed.&quot;
   }
 }</pre>
 
