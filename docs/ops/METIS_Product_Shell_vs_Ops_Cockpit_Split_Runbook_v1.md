@@ -11,7 +11,7 @@
 |---|---|---|
 | `/` | 새로운 **Product Shell** (사용자용) | 항상. Patch 10A 이후 기본값. |
 | `/ops` | 기존 **Ops Cockpit** (운영자용) | `METIS_OPS_SHELL ∈ {1, true, yes}` 일 때만. 없으면 404. |
-| `/api/product/*` | Product Shell 전용 DTO | 항상. Mapper 로 엔지니어링 ID 스크러빙됨. |
+| `/api/product/*` | Product Shell 전용 DTO | 항상. Mapper 로 엔지니어링 ID 스크러빙됨. 10A=today 1 route, 10B=+research/replay/ask/ask-quick/requests = **총 6 route**. |
 | `/api/*` | 기존 내부 API | 항상. Cockpit 이 사용. |
 
 ## 2. 로컬에서 Product Shell 띄우기
@@ -75,6 +75,12 @@ PYTHONPATH=src python3 scripts/agh_v1_patch_10a_product_shell_freeze_snapshots.p
    - 내부 리뷰/데모 공용 URL 이면 `METIS_OPS_SHELL=1` 설정.
 2. 확인 경로:
    - `GET /api/product/today` → `PRODUCT_TODAY_V1` 계약 JSON.
+   - `GET /api/product/research?presentation=landing` → `PRODUCT_RESEARCH_LANDING_V1` (Patch 10B).
+   - `GET /api/product/research?presentation=deepdive&asset_id=...&horizon_key=short` → `PRODUCT_RESEARCH_DEEPDIVE_V1` (Patch 10B).
+   - `GET /api/product/replay?asset_id=...&horizon_key=short` → `PRODUCT_REPLAY_V1` (Patch 10B).
+   - `GET /api/product/ask?asset_id=...&horizon_key=short` → `PRODUCT_ASK_V1` (Patch 10B).
+   - `GET /api/product/ask/quick?intent=explain_claim&asset_id=...&horizon_key=short` → `PRODUCT_ASK_QUICK_V1` (Patch 10B).
+   - `GET /api/product/requests` → `PRODUCT_REQUEST_STATE_V1` (Patch 10B).
    - `GET /api/runtime/health` → 기존 헬스 (Ops 측 계약 유지).
 3. `/ops` 접근 로그가 갑자기 늘면 **누가 내부 URL 공유했는지 추적**. 고객용 주소에는 절대 섞이지 않는다.
 

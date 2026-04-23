@@ -1,0 +1,14 @@
+{
+  "kind": "degraded",
+  "banner": "The product LLM layer could not respond; switching to an automatic answer.",
+  "claim": [
+    "Answering strictly from surfaced evidence — current focus: Short term."
+  ],
+  "evidence": [
+    "Consult the confidence and evidence summary in the context card above, or pick the closest quick-action."
+  ],
+  "insufficiency": [
+    "Free-text questions cannot be answered right now."
+  ],
+  "grounded": false
+}

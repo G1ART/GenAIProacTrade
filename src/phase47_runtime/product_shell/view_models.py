@@ -1,26 +1,20 @@
-"""Product Shell view-model composers (Patch 10A).
+"""Product Shell view-model composers — Today surface (Patch 10A).
 
-This module is the single translation layer between METIS internal
-state (brain bundle, spectrum rows, provenance enums, registry IDs)
-and the customer-facing Product Shell DTOs served under
-``/api/product/*``.
+Patch 10B moved the shared helpers (strip / grade / stance / confidence /
+family alias / horizon constants) into :mod:`.view_models_common` so
+they can be reused by Research / Replay / Ask AI composers. This module
+now holds only the **Today** composer and its surface-specific helpers.
 
 Product Shell Rebuild v1 non-negotiables enforced here:
 
 - Engineering identifiers NEVER leave this module: any DTO produced
   here is passed through :func:`strip_engineering_ids` as a last-line
-  regex scrub. Internal IDs (``art_*``, ``reg_*``, ``factor_*``,
-  ``*_v\\d+``, raw packet/registry/artifact IDs, engineering enums
-  like ``real_derived`` / ``insufficient_evidence`` / ``template_fallback``)
-  are mapped to product-level strings (``live`` / ``live_with_caveat``
-  / ``sample`` / ``preparing``) with human-readable labels.
+  regex scrub.
 - Honest degraded language — horizons whose provenance is
   ``template_fallback`` or ``insufficient_evidence`` are surfaced as
-  "샘플 시나리오" / "실데이터 준비 중" rather than silently rendered as
-  if they were live-derived.
+  "샘플 시나리오" / "실데이터 준비 중".
 - No recommendation / buy / sell imperative copy — stance labels only
-  describe direction ("매수 경향" / "중립" / "매도 경향"), never urge
-  action.
+  describe direction.
 
 The module offers two entry points:
 
@@ -33,297 +27,55 @@ The module offers two entry points:
 
 from __future__ import annotations
 
-import re
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from metis_brain.bundle import (
     BrainBundleV0,
     try_load_brain_bundle_v0,
 )
-from phase47_runtime.phase47e_user_locale import normalize_lang, t
+from phase47_runtime.phase47e_user_locale import normalize_lang
 from phase47_runtime.today_spectrum import build_today_spectrum_payload
 
-HORIZON_KEYS: tuple[str, ...] = ("short", "medium", "medium_long", "long")
-
-_HORIZON_DEFAULT_LABELS: dict[str, dict[str, str]] = {
-    "ko": {
-        "short":       "오늘~이번 주",
-        "medium":      "이번 달",
-        "medium_long": "한 분기",
-        "long":        "반 년 이상",
-    },
-    "en": {
-        "short":       "today / this week",
-        "medium":      "this month",
-        "medium_long": "this quarter",
-        "long":        "half-year +",
-    },
-}
-
-_HORIZON_CAPTION: dict[str, dict[str, str]] = {
-    "ko": {
-        "short":       "단기",
-        "medium":      "중기",
-        "medium_long": "중장기",
-        "long":        "장기",
-    },
-    "en": {
-        "short":       "Short",
-        "medium":      "Medium",
-        "medium_long": "Medium-long",
-        "long":        "Long",
-    },
-}
-
-# Provenance enum → product-level tier. Product-facing code never sees
-# the raw engineering keys.
-_PROVENANCE_TO_SOURCE_KEY: dict[str, str] = {
-    "real_derived":                          "live",
-    "real_derived_with_degraded_challenger": "live_with_caveat",
-    "template_fallback":                     "sample",
-    "insufficient_evidence":                 "preparing",
-}
-
-
-# ---------------------------------------------------------------------------
-# Engineering-ID scrubber (last-line defense)
-# ---------------------------------------------------------------------------
-
-# Patterns that must never appear in DTO values. Keys of the DTO are allowed
-# to use product-level names like ``family_name`` / ``source_key`` / ``tier``;
-# what we strip is engineering values (free-text tokens, raw IDs).
-_ENG_ID_PATTERNS: tuple[re.Pattern[str], ...] = (
-    re.compile(r"\bart_[A-Za-z0-9_]+\b"),
-    re.compile(r"\breg_[A-Za-z0-9_]+\b"),
-    re.compile(r"\bfactor_[A-Za-z0-9_]+\b"),
-    re.compile(r"\bpkt_[A-Za-z0-9_]+\b"),
-    re.compile(r"\bpit:demo:[A-Za-z0-9_:\-]+\b"),
-    re.compile(r"\b(?:registry_entry_id|artifact_id|proposal_packet_id|decision_packet_id|replay_lineage_pointer)\b"),
-    re.compile(r"\bhorizon_provenance\b"),
-    re.compile(r"\b(?:real_derived_with_degraded_challenger|real_derived|insufficient_evidence|template_fallback)\b"),
-    re.compile(r"\b[a-zA-Z_]+_v\d+\b"),
+from .view_models_common import (
+    ENG_ID_PATTERNS,
+    HORIZON_CAPTION,
+    HORIZON_DEFAULT_LABELS,
+    HORIZON_KEYS,
+    PROVENANCE_TO_SOURCE_KEY,
+    best_representative_row,
+    family_alias,
+    horizon_provenance_to_confidence,
+    human_relative_time,
+    spectrum_position_to_grade,
+    spectrum_position_to_stance,
+    strip_engineering_ids,
 )
 
+# ---------------------------------------------------------------------------
+# Backwards-compatible aliases
+# ---------------------------------------------------------------------------
+# Patch 10A tests and scripts import the underscored names from this
+# module directly. Patch 10B keeps those names working by re-exporting
+# them from :mod:`.view_models_common`.
 
-def strip_engineering_ids(obj: Any) -> Any:
-    """Recursively scrub engineering tokens from string values in ``obj``.
+_ENG_ID_PATTERNS = ENG_ID_PATTERNS
+_PROVENANCE_TO_SOURCE_KEY = PROVENANCE_TO_SOURCE_KEY
+_HORIZON_DEFAULT_LABELS = HORIZON_DEFAULT_LABELS
+_HORIZON_CAPTION = HORIZON_CAPTION
 
-    Only *values* are scrubbed — keys are preserved because the DTO schema
-    itself uses product-level names. When a token is found, it is replaced
-    with ``[redacted]``; this is a defensive measure that should never
-    actually fire in a clean DTO (the composers intentionally emit product
-    terminology). CI regression in ``test_agh_v1_patch_10a_copy_no_leak``
-    asserts that the replacement *never* happens on a live DTO.
-    """
-    if isinstance(obj, str):
-        cleaned = obj
-        for pat in _ENG_ID_PATTERNS:
-            cleaned = pat.sub("[redacted]", cleaned)
-        return cleaned
-    if isinstance(obj, dict):
-        return {k: strip_engineering_ids(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [strip_engineering_ids(v) for v in obj]
-    if isinstance(obj, tuple):
-        return tuple(strip_engineering_ids(v) for v in obj)
-    return obj
+_spectrum_position_to_grade = spectrum_position_to_grade
+_spectrum_position_to_stance = spectrum_position_to_stance
+_horizon_provenance_to_confidence = horizon_provenance_to_confidence
+_family_alias = family_alias
+_best_representative_row = best_representative_row
+_human_relative_time = human_relative_time
 
 
 # ---------------------------------------------------------------------------
-# Atomic mappers: grade, stance, confidence
+# Today-specific helpers
 # ---------------------------------------------------------------------------
-
-
-@dataclass(frozen=True)
-class _GradeBin:
-    key: str          # A+ / A / B / C / D / F
-    label: str        # user-visible grade text
-
-
-def _spectrum_position_to_grade(
-    position: float | None,
-    *,
-    source_key: str,
-) -> dict[str, str]:
-    """Map a representative ``spectrum_position`` into a grade chip.
-
-    Grade encodes **how confidently the product is willing to speak** about
-    this horizon — it combines magnitude of the signal with evidence
-    quality:
-
-    - F: no reliable evidence (``preparing``) regardless of position.
-    - D: sample-only evidence (``sample``) regardless of position.
-    - C: real evidence with caveats AND near-neutral position.
-    - B: real evidence, moderate conviction (|pos| >= 0.2).
-    - A: real evidence, strong conviction (|pos| >= 0.5).
-    - A+: real evidence, very strong conviction (|pos| >= 0.8).
-
-    Neutral stances (|pos| < 0.2) can still be B/A when the real-evidence
-    source is ``live`` — but in practice a neutral reading with live
-    evidence is represented as C (honest about how little the signal
-    discriminates). Hence a neutral live reading returns C, not A.
-    """
-    if source_key == "preparing":
-        return {"key": "f", "label": "F"}
-    if source_key == "sample":
-        return {"key": "d", "label": "D"}
-    if position is None:
-        return {"key": "c", "label": "C"}
-    mag = abs(float(position))
-    if source_key == "live_with_caveat" and mag < 0.2:
-        return {"key": "c", "label": "C"}
-    if mag >= 0.8:
-        return {"key": "a_plus", "label": "A+"}
-    if mag >= 0.5:
-        return {"key": "a", "label": "A"}
-    if mag >= 0.2:
-        return {"key": "b", "label": "B"}
-    return {"key": "c", "label": "C"}
-
-
-def _spectrum_position_to_stance(
-    position: float | None,
-    *,
-    lang: str,
-) -> dict[str, str]:
-    """Map a representative ``spectrum_position`` into a directional label.
-
-    Stance describes direction only — never urges action. The chosen
-    taxonomy is symmetric around zero and monotonic in position.
-    """
-    if position is None:
-        key = "neutral"
-    else:
-        p = float(position)
-        if p >= 0.5:
-            key = "strong_long"
-        elif p >= 0.2:
-            key = "long"
-        elif p > -0.2:
-            key = "neutral"
-        elif p > -0.5:
-            key = "short"
-        else:
-            key = "strong_short"
-    label_ko = {
-        "strong_long":  "강한 매수 경향",
-        "long":         "매수 경향",
-        "neutral":      "중립",
-        "short":        "매도 경향",
-        "strong_short": "강한 매도 경향",
-    }
-    label_en = {
-        "strong_long":  "Strong long bias",
-        "long":         "Long bias",
-        "neutral":      "Neutral",
-        "short":        "Short bias",
-        "strong_short": "Strong short bias",
-    }
-    label = label_ko.get(key, "") if lang == "ko" else label_en.get(key, "")
-    return {"key": key, "label": label}
-
-
-def _horizon_provenance_to_confidence(
-    provenance_entry: dict[str, Any] | None,
-    *,
-    lang: str,
-) -> dict[str, str]:
-    """Translate a ``horizon_provenance[hz]`` block into a confidence badge.
-
-    The DTO carries ``source_key`` for machine-readable CSS targeting and
-    ``label`` / ``tooltip`` for user-visible text. The raw engineering
-    enum (``real_derived`` etc.) is deliberately dropped.
-    """
-    raw_src = ""
-    if provenance_entry is not None and isinstance(provenance_entry, dict):
-        raw_src = str(provenance_entry.get("source") or "").strip()
-    source_key = _PROVENANCE_TO_SOURCE_KEY.get(raw_src, "preparing")
-    ko_labels = {
-        "live":             ("실데이터 근거",
-                             "실제 시장 데이터로 학습된 모델 출력입니다."),
-        "live_with_caveat": ("실데이터 근거 (보조 지표 제한)",
-                             "실데이터 근거이지만 보조 지표 일부가 기대치에 못 미칩니다."),
-        "sample":           ("샘플 시나리오",
-                             "실데이터가 아직 충분하지 않아 샘플 시나리오를 보여 드립니다."),
-        "preparing":        ("실데이터 준비 중",
-                             "이 구간의 실데이터 근거는 수집·학습 중입니다. 제품은 과장된 확신을 드리지 않습니다."),
-    }
-    en_labels = {
-        "live":             ("Live-data evidence",
-                             "Model output trained on real market data."),
-        "live_with_caveat": ("Live with caveats",
-                             "Real-data evidence, but companion signals are below threshold."),
-        "sample":           ("Sample scenario",
-                             "Live data is not yet sufficient; showing a labelled sample scenario."),
-        "preparing":        ("Live data preparing",
-                             "Evidence for this horizon is still being gathered. No overconfident claim is made."),
-    }
-    label_map = ko_labels if lang == "ko" else en_labels
-    label, tooltip = label_map.get(source_key, label_map["preparing"])
-    return {
-        "source_key": source_key,
-        "label": label,
-        "tooltip": tooltip,
-    }
-
-
-# ---------------------------------------------------------------------------
-# Spectrum-row helpers
-# ---------------------------------------------------------------------------
-
-
-def _best_representative_row(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
-    """Pick the row with the largest ``|spectrum_position|`` — this is the
-    model's strongest statement in the horizon and drives grade/stance.
-    """
-    best: dict[str, Any] | None = None
-    best_mag: float = -1.0
-    for r in rows or []:
-        try:
-            p = float(r.get("spectrum_position") or 0.0)
-        except (TypeError, ValueError):
-            continue
-        mag = abs(p)
-        if mag > best_mag:
-            best_mag = mag
-            best = r
-    return best
-
-
-def _family_alias(
-    bundle: BrainBundleV0 | None,
-    horizon: str,
-    *,
-    lang: str,
-) -> str:
-    """Return a customer-facing family name for ``horizon``.
-
-    Uses the founder-facing alias from the active registry entry /
-    artifact (``display_family_name_ko`` / ``display_family_name_en``).
-    Never returns the raw family slug.
-    """
-    if bundle is None:
-        return ""
-    by_art = {a.artifact_id: a for a in bundle.artifacts}
-    for ent in bundle.registry_entries:
-        if ent.status != "active" or ent.horizon != horizon:
-            continue
-        art = by_art.get(ent.active_artifact_id)
-        if lang == "ko":
-            return (
-                (getattr(art, "display_family_name_ko", "") if art else "")
-                or str(getattr(ent, "display_family_name_ko", "") or "")
-                or ""
-            )
-        return (
-            (getattr(art, "display_family_name_en", "") if art else "")
-            or str(getattr(ent, "display_family_name_en", "") or "")
-            or ""
-        )
-    return ""
 
 
 def _sparkline_points(
@@ -375,7 +127,7 @@ def _story_sentence(
     - be honest about degraded / preparing states,
     - avoid raw factor / family slug tokens.
     """
-    hz_label = _HORIZON_CAPTION.get(lang, _HORIZON_CAPTION["en"]).get(horizon_key, "")
+    hz_label = HORIZON_CAPTION.get(lang, HORIZON_CAPTION["en"]).get(horizon_key, "")
     fam = family_name.strip() if family_name else ""
     if source_key == "preparing":
         if lang == "ko":
@@ -457,24 +209,24 @@ def _build_hero_card(
     prov_entry: dict[str, Any] | None = None
     if bundle is not None:
         prov_entry = (bundle.horizon_provenance or {}).get(horizon_key)
-    confidence = _horizon_provenance_to_confidence(prov_entry, lang=lang)
+    confidence = horizon_provenance_to_confidence(prov_entry, lang=lang)
     source_key = confidence["source_key"]
-    rep_row = _best_representative_row(rows)
+    rep_row = best_representative_row(rows)
     rep_pos: float | None = None
     if rep_row is not None:
         try:
             rep_pos = float(rep_row.get("spectrum_position") or 0.0)
         except (TypeError, ValueError):
             rep_pos = None
-    grade = _spectrum_position_to_grade(rep_pos, source_key=source_key)
-    stance = _spectrum_position_to_stance(rep_pos, lang=lang)
-    family_name = _family_alias(bundle, horizon_key, lang=lang)
+    grade = spectrum_position_to_grade(rep_pos, source_key=source_key)
+    stance = spectrum_position_to_stance(rep_pos, lang=lang)
+    fam_name = family_alias(bundle, horizon_key, lang=lang)
     rows_count = len(rows)
     story = _story_sentence(
         horizon_key=horizon_key,
         source_key=source_key,
         rows_count=rows_count,
-        family_name=family_name,
+        family_name=fam_name,
         representative_position=rep_pos,
         lang=lang,
     )
@@ -495,19 +247,19 @@ def _build_hero_card(
     cta_secondary = {
         "kind":     "open_research",
         "label":    "리서치 열기" if lang == "ko" else "Open Research",
-        "disabled": True,
-        "hint":     ("리서치 표면은 Patch 10B에서 정식 재설계됩니다."
+        "disabled": False,
+        "hint":     ("이 구간의 근거·반대 증거를 리서치 페이지에서 열어 보실 수 있습니다."
                      if lang == "ko"
-                     else "Research surface is being rebuilt in Patch 10B."),
+                     else "Open the claim, evidence, and counter-evidence in Research."),
     }
     position_strength = 0.0
     if rep_pos is not None:
         position_strength = max(-1.0, min(1.0, rep_pos))
     return {
         "horizon_key":       horizon_key,
-        "horizon_caption":   _HORIZON_CAPTION.get(lang, _HORIZON_CAPTION["en"]).get(horizon_key, ""),
-        "horizon_label":     _HORIZON_DEFAULT_LABELS.get(lang, _HORIZON_DEFAULT_LABELS["en"]).get(horizon_key, ""),
-        "family_name":       family_name,
+        "horizon_caption":   HORIZON_CAPTION.get(lang, HORIZON_CAPTION["en"]).get(horizon_key, ""),
+        "horizon_label":     HORIZON_DEFAULT_LABELS.get(lang, HORIZON_DEFAULT_LABELS["en"]).get(horizon_key, ""),
+        "family_name":       fam_name,
         "story":             story,
         "grade":             grade,
         "stance":            stance,
@@ -522,7 +274,7 @@ def _build_hero_card(
 
 
 # ---------------------------------------------------------------------------
-# Other sections
+# Other Today sections
 # ---------------------------------------------------------------------------
 
 
@@ -555,7 +307,7 @@ def _build_trust_strip(
         tier_kind, tier_label_ko, tier_label_en = "sample", "샘플 데모", "Sample demo"
     else:
         tier_kind, tier_label_ko, tier_label_en = "sample", "샘플 데모", "Sample demo"
-    last_built = _human_relative_time(built_at, now_utc=now_utc, lang=lang)
+    last_built = human_relative_time(built_at, now_utc=now_utc, lang=lang)
     tier_tooltip_ko = {
         "production": "실제 시장 데이터로 학습된 모델 번들입니다.",
         "degraded":   "일부 구간은 실데이터 근거이지만, 다른 구간은 아직 준비 중입니다. 제품은 과장된 확신을 드리지 않습니다.",
@@ -576,42 +328,6 @@ def _build_trust_strip(
         "tier_tooltip":     tooltip,
         "last_built_label": last_built,
     }
-
-
-def _human_relative_time(utc_str: str, *, now_utc: str, lang: str) -> str:
-    if not utc_str:
-        return "—"
-    try:
-        # Accept ``Z`` suffix as UTC.
-        s = utc_str.replace("Z", "+00:00")
-        then = datetime.fromisoformat(s)
-        if then.tzinfo is None:
-            then = then.replace(tzinfo=timezone.utc)
-        now_s = now_utc.replace("Z", "+00:00")
-        now = datetime.fromisoformat(now_s)
-        if now.tzinfo is None:
-            now = now.replace(tzinfo=timezone.utc)
-    except (TypeError, ValueError):
-        return "—"
-    delta_s = max(0, int((now - then).total_seconds()))
-    mins = delta_s // 60
-    hours = mins // 60
-    days = hours // 24
-    if lang == "ko":
-        if days >= 1:
-            return f"{days}일 전 갱신"
-        if hours >= 1:
-            return f"{hours}시간 전 갱신"
-        if mins >= 1:
-            return f"{mins}분 전 갱신"
-        return "방금 갱신"
-    if days >= 1:
-        return f"{days}d ago"
-    if hours >= 1:
-        return f"{hours}h ago"
-    if mins >= 1:
-        return f"{mins}m ago"
-    return "just now"
 
 
 def _build_today_at_a_glance(
@@ -718,8 +434,8 @@ def _build_selected_movers(
         except (TypeError, ValueError):
             pos = 0.0
         src_key = hc.get("confidence", {}).get("source_key", "preparing")
-        grade = _spectrum_position_to_grade(pos, source_key=src_key)
-        stance = _spectrum_position_to_stance(pos, lang=lang)
+        grade = spectrum_position_to_grade(pos, source_key=src_key)
+        stance = spectrum_position_to_stance(pos, lang=lang)
         direction = str(row.get("rank_movement") or "")
         if lang == "ko":
             reason = f"{hc.get('horizon_caption','')} 구간에서 순위 {'상승' if direction == 'up' else '하락'} · {stance['label']}"
@@ -774,8 +490,8 @@ def _build_watchlist_strip(
             })
             continue
         src_key = best_hc.get("confidence", {}).get("source_key", "preparing")
-        grade = _spectrum_position_to_grade(best_pos, source_key=src_key)
-        stance = _spectrum_position_to_stance(best_pos, lang=lang)
+        grade = spectrum_position_to_grade(best_pos, source_key=src_key)
+        stance = spectrum_position_to_stance(best_pos, lang=lang)
         out_tickers.append({
             "ticker":         tkr,
             "grade":          grade,
@@ -794,37 +510,38 @@ def _build_watchlist_strip(
 
 
 def _build_stubs(lang: str) -> dict[str, Any]:
+    """Ship Patch 10B surfaces as live panels — no Today-side stubs left."""
     if lang == "ko":
         research = {
-            "title":  "리서치 표면은 재설계 중입니다",
-            "body":   "히어로 카드에서 바로 근거를 여는 동작이 기본이며, 리서치 페이지는 Patch 10B 에서 제품 톤으로 정식 재설계됩니다.",
-            "eta":    "Patch 10B",
+            "title": "리서치",
+            "body":  "주요 청구와 반대 증거를 horizon 별로 정렬해 보여 드립니다.",
+            "eta":   "live",
         }
         replay = {
-            "title":  "리플레이 표면은 재설계 중입니다",
-            "body":   "과거 결정과 현재 결정을 비교하는 리플레이는 Patch 10B 에서 제품 계보 뷰로 재설계됩니다.",
-            "eta":    "Patch 10B",
+            "title": "리플레이",
+            "body":  "모델 계보와 변경 이력을 타임라인으로 보여 드립니다.",
+            "eta":   "live",
         }
         ask_ai = {
-            "title":  "Ask AI 는 재설계 중입니다",
-            "body":   "내부 작업 로그가 아닌 제품 질의응답 톤으로 Patch 10B 에서 정식 공개됩니다. 현재는 히어로 카드의 근거 보기로 대부분의 질문에 답할 수 있습니다.",
-            "eta":    "Patch 10B",
+            "title": "Ask AI",
+            "body":  "노출된 근거 안에서만 답변하는 제품 질의응답 표면입니다.",
+            "eta":   "live",
         }
     else:
         research = {
-            "title":  "Research surface is being rebuilt",
-            "body":   "Opening evidence from a hero card is the default path; a fully redesigned Research surface ships in Patch 10B.",
-            "eta":    "Patch 10B",
+            "title": "Research",
+            "body":  "Top claims and counter-evidence sorted by horizon.",
+            "eta":   "live",
         }
         replay = {
-            "title":  "Replay surface is being rebuilt",
-            "body":   "The lineage comparison view will return as a product-toned Replay surface in Patch 10B.",
-            "eta":    "Patch 10B",
+            "title": "Replay",
+            "body":  "Model lineage and changes as a timeline.",
+            "eta":   "live",
         }
         ask_ai = {
-            "title":  "Ask AI is being rebuilt",
-            "body":   "Ask AI will return in Patch 10B in a product-Q&A tone. Most of today's questions can be answered via the evidence drawer on each hero card.",
-            "eta":    "Patch 10B",
+            "title": "Ask AI",
+            "body":  "Product Q&A surface that answers only from surfaced context.",
+            "eta":   "live",
         }
     return {"research": research, "replay": replay, "ask_ai": ask_ai}
 

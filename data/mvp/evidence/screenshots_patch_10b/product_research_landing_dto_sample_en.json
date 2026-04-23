@@ -1,0 +1,386 @@
+{
+  "contract": "PRODUCT_RESEARCH_LANDING_V1",
+  "lang": "en",
+  "presentation": "landing",
+  "as_of": "2026-04-23T08:00:00Z",
+  "last_built_label": "30m ago",
+  "headline": "Live and sample/preparing horizons are mixed — badges make it explicit.",
+  "columns": [
+    {
+      "horizon_key": "short",
+      "horizon_caption": "Short",
+      "horizon_label": "today / this week",
+      "family_name": "short-family",
+      "confidence": {
+        "source_key": "live",
+        "label": "Live-data evidence",
+        "tooltip": "Model output trained on real market data."
+      },
+      "claim_headline": "Short horizon · short-family — current reading: strong long bias.",
+      "tiles": [
+        {
+          "ticker": "AAPL",
+          "horizon_key": "short",
+          "horizon_caption": "Short",
+          "family_name": "short-family",
+          "grade": {
+            "key": "a",
+            "label": "A"
+          },
+          "stance": {
+            "key": "strong_long",
+            "label": "Strong long bias"
+          },
+          "confidence": {
+            "source_key": "live",
+            "label": "Live-data evidence",
+            "tooltip": "Model output trained on real market data."
+          },
+          "summary": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "AAPL",
+            "horizon_key": "short",
+            "label": "See details"
+          }
+        },
+        {
+          "ticker": "MSFT",
+          "horizon_key": "short",
+          "horizon_caption": "Short",
+          "family_name": "short-family",
+          "grade": {
+            "key": "b",
+            "label": "B"
+          },
+          "stance": {
+            "key": "long",
+            "label": "Long bias"
+          },
+          "confidence": {
+            "source_key": "live",
+            "label": "Live-data evidence",
+            "tooltip": "Model output trained on real market data."
+          },
+          "summary": "이익 품질 스코어 소폭 상승",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "MSFT",
+            "horizon_key": "short",
+            "label": "See details"
+          }
+        },
+        {
+          "ticker": "NVDA",
+          "horizon_key": "short",
+          "horizon_caption": "Short",
+          "family_name": "short-family",
+          "grade": {
+            "key": "b",
+            "label": "B"
+          },
+          "stance": {
+            "key": "short",
+            "label": "Short bias"
+          },
+          "confidence": {
+            "source_key": "live",
+            "label": "Live-data evidence",
+            "tooltip": "Model output trained on real market data."
+          },
+          "summary": "밸류에이션 긴장도 증가",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "NVDA",
+            "horizon_key": "short",
+            "label": "See details"
+          }
+        }
+      ],
+      "empty_state": null
+    },
+    {
+      "horizon_key": "medium",
+      "horizon_caption": "Medium",
+      "horizon_label": "this month",
+      "family_name": "medium-family",
+      "confidence": {
+        "source_key": "live",
+        "label": "Live-data evidence",
+        "tooltip": "Model output trained on real market data."
+      },
+      "claim_headline": "Medium horizon · medium-family — current reading: strong long bias.",
+      "tiles": [
+        {
+          "ticker": "AAPL",
+          "horizon_key": "medium",
+          "horizon_caption": "Medium",
+          "family_name": "medium-family",
+          "grade": {
+            "key": "a",
+            "label": "A"
+          },
+          "stance": {
+            "key": "strong_long",
+            "label": "Strong long bias"
+          },
+          "confidence": {
+            "source_key": "live",
+            "label": "Live-data evidence",
+            "tooltip": "Model output trained on real market data."
+          },
+          "summary": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "AAPL",
+            "horizon_key": "medium",
+            "label": "See details"
+          }
+        },
+        {
+          "ticker": "MSFT",
+          "horizon_key": "medium",
+          "horizon_caption": "Medium",
+          "family_name": "medium-family",
+          "grade": {
+            "key": "b",
+            "label": "B"
+          },
+          "stance": {
+            "key": "long",
+            "label": "Long bias"
+          },
+          "confidence": {
+            "source_key": "live",
+            "label": "Live-data evidence",
+            "tooltip": "Model output trained on real market data."
+          },
+          "summary": "이익 품질 스코어 소폭 상승",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "MSFT",
+            "horizon_key": "medium",
+            "label": "See details"
+          }
+        },
+        {
+          "ticker": "NVDA",
+          "horizon_key": "medium",
+          "horizon_caption": "Medium",
+          "family_name": "medium-family",
+          "grade": {
+            "key": "b",
+            "label": "B"
+          },
+          "stance": {
+            "key": "short",
+            "label": "Short bias"
+          },
+          "confidence": {
+            "source_key": "live",
+            "label": "Live-data evidence",
+            "tooltip": "Model output trained on real market data."
+          },
+          "summary": "밸류에이션 긴장도 증가",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "NVDA",
+            "horizon_key": "medium",
+            "label": "See details"
+          }
+        }
+      ],
+      "empty_state": null
+    },
+    {
+      "horizon_key": "medium_long",
+      "horizon_caption": "Medium-long",
+      "horizon_label": "this quarter",
+      "family_name": "medium_long-family",
+      "confidence": {
+        "source_key": "live_with_caveat",
+        "label": "Live with caveats",
+        "tooltip": "Real-data evidence, but companion signals are below threshold."
+      },
+      "claim_headline": "Medium-long horizon · medium_long-family — current reading: strong long bias.",
+      "tiles": [
+        {
+          "ticker": "AAPL",
+          "horizon_key": "medium_long",
+          "horizon_caption": "Medium-long",
+          "family_name": "medium_long-family",
+          "grade": {
+            "key": "a",
+            "label": "A"
+          },
+          "stance": {
+            "key": "strong_long",
+            "label": "Strong long bias"
+          },
+          "confidence": {
+            "source_key": "live_with_caveat",
+            "label": "Live with caveats",
+            "tooltip": "Real-data evidence, but companion signals are below threshold."
+          },
+          "summary": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "AAPL",
+            "horizon_key": "medium_long",
+            "label": "See details"
+          }
+        },
+        {
+          "ticker": "MSFT",
+          "horizon_key": "medium_long",
+          "horizon_caption": "Medium-long",
+          "family_name": "medium_long-family",
+          "grade": {
+            "key": "b",
+            "label": "B"
+          },
+          "stance": {
+            "key": "long",
+            "label": "Long bias"
+          },
+          "confidence": {
+            "source_key": "live_with_caveat",
+            "label": "Live with caveats",
+            "tooltip": "Real-data evidence, but companion signals are below threshold."
+          },
+          "summary": "이익 품질 스코어 소폭 상승",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "MSFT",
+            "horizon_key": "medium_long",
+            "label": "See details"
+          }
+        },
+        {
+          "ticker": "NVDA",
+          "horizon_key": "medium_long",
+          "horizon_caption": "Medium-long",
+          "family_name": "medium_long-family",
+          "grade": {
+            "key": "b",
+            "label": "B"
+          },
+          "stance": {
+            "key": "short",
+            "label": "Short bias"
+          },
+          "confidence": {
+            "source_key": "live_with_caveat",
+            "label": "Live with caveats",
+            "tooltip": "Real-data evidence, but companion signals are below threshold."
+          },
+          "summary": "밸류에이션 긴장도 증가",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "NVDA",
+            "horizon_key": "medium_long",
+            "label": "See details"
+          }
+        }
+      ],
+      "empty_state": null
+    },
+    {
+      "horizon_key": "long",
+      "horizon_caption": "Long",
+      "horizon_label": "half-year +",
+      "family_name": "long-family",
+      "confidence": {
+        "source_key": "sample",
+        "label": "Sample scenario",
+        "tooltip": "Live data is not yet sufficient; showing a labelled sample scenario."
+      },
+      "claim_headline": "Long horizon · long-family: shown as a labelled sample scenario.",
+      "tiles": [
+        {
+          "ticker": "AAPL",
+          "horizon_key": "long",
+          "horizon_caption": "Long",
+          "family_name": "long-family",
+          "grade": {
+            "key": "d",
+            "label": "D"
+          },
+          "stance": {
+            "key": "strong_long",
+            "label": "Strong long bias"
+          },
+          "confidence": {
+            "source_key": "sample",
+            "label": "Sample scenario",
+            "tooltip": "Live data is not yet sufficient; showing a labelled sample scenario."
+          },
+          "summary": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "AAPL",
+            "horizon_key": "long",
+            "label": "See details"
+          }
+        },
+        {
+          "ticker": "MSFT",
+          "horizon_key": "long",
+          "horizon_caption": "Long",
+          "family_name": "long-family",
+          "grade": {
+            "key": "d",
+            "label": "D"
+          },
+          "stance": {
+            "key": "long",
+            "label": "Long bias"
+          },
+          "confidence": {
+            "source_key": "sample",
+            "label": "Sample scenario",
+            "tooltip": "Live data is not yet sufficient; showing a labelled sample scenario."
+          },
+          "summary": "이익 품질 스코어 소폭 상승",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "MSFT",
+            "horizon_key": "long",
+            "label": "See details"
+          }
+        },
+        {
+          "ticker": "NVDA",
+          "horizon_key": "long",
+          "horizon_caption": "Long",
+          "family_name": "long-family",
+          "grade": {
+            "key": "d",
+            "label": "D"
+          },
+          "stance": {
+            "key": "short",
+            "label": "Short bias"
+          },
+          "confidence": {
+            "source_key": "sample",
+            "label": "Sample scenario",
+            "tooltip": "Live data is not yet sufficient; showing a labelled sample scenario."
+          },
+          "summary": "밸류에이션 긴장도 증가",
+          "deeplink": {
+            "presentation": "deepdive",
+            "asset_id": "NVDA",
+            "horizon_key": "long",
+            "label": "See details"
+          }
+        }
+      ],
+      "empty_state": null
+    }
+  ],
+  "hint": {
+    "title": "Research speaks only from surfaced evidence.",
+    "body": "Open the 5-card evidence rail from any tile via ‘See details’."
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "contract": "PATCH_10B_PRODUCT_SHELL_FREEZE_V1",
+  "generated_utc": "2026-04-23T17:11:53Z",
+  "git_head_sha": "2be2c91bd0a2fe4b7633841ed02badbadea64d5f",
+  "copies": [
+    {
+      "source": "src/phase47_runtime/static/index.html",
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_shell_index.html",
+      "bytes": 1578,
+      "sha256": "0387d1eaf9008da5718eb7835b446a09be0b09bec307cac67c6f628fe4de04dc"
+    },
+    {
+      "source": "src/phase47_runtime/static/product_shell.js",
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_shell.js",
+      "bytes": 56260,
+      "sha256": "3edba7dbf1d050bbbf0ddf5707afa18a1f9390721c43294ec92be886c1b3efc0"
+    },
+    {
+      "source": "src/phase47_runtime/static/product_shell.css",
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_shell.css",
+      "bytes": 40956,
+      "sha256": "034a0bdef823fb69f93099c70b92c3f5d14d1a63d6e05c071a8a33355b1b9c30"
+    }
+  ],
+  "dto_samples": [
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_research_landing_dto_sample_ko.json",
+      "bytes": 12577,
+      "sha256": "fb837ee3929dea98e0ff0ba0670ef2c9446ccf3228f0e84c6d0c222079bfef60",
+      "contract": "PRODUCT_RESEARCH_LANDING_V1"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_research_deepdive_dto_sample_ko.json",
+      "bytes": 4199,
+      "sha256": "b3517248f0f2fc4f702c54e6c41a60f72ac5fe76559002da9a2cdc03c08d7d94",
+      "contract": "PRODUCT_RESEARCH_DEEPDIVE_V1"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_replay_dto_sample_ko.json",
+      "bytes": 2905,
+      "sha256": "bb411ec042b6c514cd32b1f7b887549b302108e056fb9be8def6d87bd60d3611",
+      "contract": "PRODUCT_REPLAY_V1"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_ask_landing_dto_sample_ko.json",
+      "bytes": 2470,
+      "sha256": "b0757547d175429a734f33445542dad3702840e6a2c1deb632f4bbee01737116",
+      "contract": "PRODUCT_ASK_V1"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_ask_quick_dto_sample_ko.json",
+      "bytes": 3110,
+      "sha256": "e4f46494aa2cf575c4eda6cceded23548be18f4c139b86fff4919c73dc3df46e",
+      "contract": "PRODUCT_ASK_QUICK_V1"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_ask_freetext_degraded_sample_ko.json",
+      "bytes": 516,
+      "sha256": "1fa88674faa2ee105d5b2104c7474b48699874fa6b2bf184f48a33590ff3ae15",
+      "contract": null
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_request_state_dto_sample_ko.json",
+      "bytes": 526,
+      "sha256": "41b5bdfc51d7daf85d78ab0d9d26193389888ddd9df1ac0a0e67f45629ceba3e",
+      "contract": "PRODUCT_REQUEST_STATE_V1"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_research_landing_dto_sample_en.json",
+      "bytes": 11944,
+      "sha256": "53ecabb00fb863d4cf746853a8d0253c8c76cbcd46cd2f476c5c7cfb437f81ce",
+      "contract": "PRODUCT_RESEARCH_LANDING_V1"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_research_deepdive_dto_sample_en.json",
+      "bytes": 4006,
+      "sha256": "4d2353a9f468a4abbd3836f769f3a7ea2da9bc839d9c404a8a8e4131d9801c56",
+      "contract": "PRODUCT_RESEARCH_DEEPDIVE_V1"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_replay_dto_sample_en.json",
+      "bytes": 2558,
+      "sha256": "115e1a01d65bc813f13aaa2b4b8e21dce9ad20a6e71537230b84528f888dafa1",
+      "contract": "PRODUCT_REPLAY_V1"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_ask_landing_dto_sample_en.json",
+      "bytes": 2302,
+      "sha256": "e70704506e85d2349267dab8674bbcb0fc2a364e052107fe12da73f39c290ac9",
+      "contract": "PRODUCT_ASK_V1"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_ask_quick_dto_sample_en.json",
+      "bytes": 2853,
+      "sha256": "f9fbf22fd1e08d4d6e1a8ac1846e9351f4453ddb3cbad5c3d10614cb45894ed0",
+      "contract": "PRODUCT_ASK_QUICK_V1"
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_ask_freetext_degraded_sample_en.json",
+      "bytes": 446,
+      "sha256": "2248317feef884db2cba40133886008a10afee2ab2c56d14f0f61810ae456d24",
+      "contract": null
+    },
+    {
+      "target": "data/mvp/evidence/screenshots_patch_10b/product_request_state_dto_sample_en.json",
+      "bytes": 502,
+      "sha256": "7eeb17df78ed374eb9afb28eefdef64d154cce75c52bd2bca12330ae4001972b",
+      "contract": "PRODUCT_REQUEST_STATE_V1"
+    }
+  ]
+}

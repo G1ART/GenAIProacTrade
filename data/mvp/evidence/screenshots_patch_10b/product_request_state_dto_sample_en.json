@@ -1,0 +1,21 @@
+{
+  "contract": "PRODUCT_REQUEST_STATE_V1",
+  "lang": "en",
+  "cards": [
+    {
+      "status_key": "completed",
+      "status_label": "Completed",
+      "summary": "Sandbox ask: Completed",
+      "requested_at": "2026-04-23T07:00:00Z",
+      "resolved_at": "2026-04-23T07:05:00Z"
+    },
+    {
+      "status_key": "running",
+      "status_label": "Running",
+      "summary": "Sandbox ask: Running",
+      "requested_at": "2026-04-23T07:15:00Z",
+      "resolved_at": ""
+    }
+  ],
+  "empty_state": null
+}

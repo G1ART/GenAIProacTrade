@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>METIS</title>
+  <link rel="stylesheet" href="/static/product_shell.css" />
+</head>
+<body>
+  <div class="ps-app" id="ps-app">
+    <!-- Top bar: brand + nav + lang toggle -->
+    <header class="ps-row" style="justify-content: space-between; align-items: center;">
+      <div class="ps-row" style="gap: var(--ps-sp-4);">
+        <div class="ps-h3" style="font-weight: var(--ps-fw-bold); letter-spacing: 0.04em;">METIS</div>
+        <nav class="ps-nav" id="ps-nav" aria-label="Primary"></nav>
+      </div>
+      <div class="ps-row" style="gap: var(--ps-sp-3);">
+        <div class="ps-lang-toggle" id="ps-lang-toggle" role="group" aria-label="Language"></div>
+      </div>
+    </header>
+
+    <!-- Trust strip (honest provenance header) -->
+    <section id="ps-trust-strip" class="ps-trust-strip" aria-live="polite"></section>
+    <div id="ps-degraded-banner" class="ps-hidden"></div>
+
+    <!-- Panels -->
+    <main id="ps-panels">
+      <section id="ps-panel-today"    class="ps-stack-lg" data-panel="today"></section>
+      <section id="ps-panel-research" class="ps-hidden"   data-panel="research"></section>
+      <section id="ps-panel-replay"   class="ps-hidden"   data-panel="replay"></section>
+      <section id="ps-panel-ask-ai"   class="ps-hidden"   data-panel="ask_ai"></section>
+    </main>
+
+    <footer class="ps-footer" id="ps-footer"></footer>
+  </div>
+
+  <script src="/static/product_shell.js"></script>
+</body>
+</html>

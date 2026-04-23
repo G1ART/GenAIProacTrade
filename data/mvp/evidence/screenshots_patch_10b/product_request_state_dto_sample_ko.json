@@ -1,0 +1,21 @@
+{
+  "contract": "PRODUCT_REQUEST_STATE_V1",
+  "lang": "ko",
+  "cards": [
+    {
+      "status_key": "completed",
+      "status_label": "완료",
+      "summary": "사이드 실험 요청: 완료",
+      "requested_at": "2026-04-23T07:00:00Z",
+      "resolved_at": "2026-04-23T07:05:00Z"
+    },
+    {
+      "status_key": "running",
+      "status_label": "진행 중",
+      "summary": "사이드 실험 요청: 진행 중",
+      "requested_at": "2026-04-23T07:15:00Z",
+      "resolved_at": ""
+    }
+  ],
+  "empty_state": null
+}

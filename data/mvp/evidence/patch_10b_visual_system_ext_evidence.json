@@ -1,0 +1,91 @@
+{
+  "contract": "PATCH_10B_VISUAL_SYSTEM_EXT_V1",
+  "scope": "D1 CSS component extension + hash routing + STATE.focus",
+  "generated_utc": "2026-04-23T17:20:00Z",
+  "visual_system_10b_ok": true,
+  "js_10b_ok": true,
+  "locale_and_no_leak_ok": true,
+  "s4_snapshot": {
+    "scenario": "S4_visual_system_10b",
+    "css_bytes": 40948,
+    "required_components": 18,
+    "missing_components": [],
+    "all_components_present": true,
+    "has_tooltip_variants": true
+  },
+  "s5_snapshot": {
+    "scenario": "S5_js_state_and_renderers",
+    "state_focus_present": true,
+    "hash_routing_present": true,
+    "research_renderer_present": true,
+    "replay_renderer_present": true,
+    "ask_renderer_present": true,
+    "today_to_research_softlink": true,
+    "quick_answer_fetch": true,
+    "post_free_text": true
+  },
+  "s6_snapshot": {
+    "parity": {
+      "product_shell.research.": {
+        "ko_count": 19,
+        "en_count": 19,
+        "parity_ok": true
+      },
+      "product_shell.replay.": {
+        "ko_count": 16,
+        "en_count": 16,
+        "parity_ok": true
+      },
+      "product_shell.ask.": {
+        "ko_count": 21,
+        "en_count": 21,
+        "parity_ok": true
+      }
+    },
+    "all_parity_ok": true,
+    "min_10_keys_per_family": true,
+    "all_surfaces_clean": true
+  },
+  "required_css_components": [
+    ".ps-research-landing",
+    ".ps-research-column",
+    ".ps-research-tile",
+    ".ps-evidence-card",
+    ".ps-claim-card",
+    ".ps-action-chip",
+    ".ps-replay-timeline",
+    ".ps-timeline-event",
+    ".ps-timeline-gap",
+    ".ps-timeline-checkpoint",
+    ".ps-scenario-card",
+    ".ps-ask-context-card",
+    ".ps-ask-action-chip",
+    ".ps-ask-freetext",
+    ".ps-ask-answer",
+    ".ps-request-state-card",
+    ".ps-advanced-drawer",
+    ".ps-tooltip"
+  ],
+  "tooltip_variants": [
+    "info",
+    "caution",
+    "trust"
+  ],
+  "locale_families": [
+    "product_shell.research.*",
+    "product_shell.replay.*",
+    "product_shell.ask.*"
+  ],
+  "banned_patterns_10b": [
+    "\\bjob_[A-Za-z0-9_]{3,}\\b",
+    "\\bsandbox_request_id\\b",
+    "\\bprocess_governed_prompt\\b",
+    "\\bcounterfactual_preview_v1\\b",
+    "\\bsandbox_queue\\b",
+    "\\breal_derived\\b",
+    "\\btemplate_fallback\\b",
+    "\\binsufficient_evidence\\b",
+    "\\bhorizon_provenance\\b",
+    "\\bregistry_entry_id\\b"
+  ]
+}

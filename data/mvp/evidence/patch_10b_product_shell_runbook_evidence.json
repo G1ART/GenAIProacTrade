@@ -1,0 +1,104 @@
+{
+  "contract": "PATCH_10B_PRODUCT_SHELL_RUNBOOK_V1",
+  "generated_utc": "2026-04-23T17:20:00Z",
+  "research_mapper_ok": true,
+  "replay_mapper_ok": true,
+  "ask_mapper_ok": true,
+  "visual_system_10b_ok": true,
+  "js_10b_ok": true,
+  "locale_and_no_leak_ok": true,
+  "routes_ok": true,
+  "scenarios": [
+    {
+      "scenario": "S1_research_mapper",
+      "import_ok": true,
+      "landing_contract": "PRODUCT_RESEARCH_LANDING_V1",
+      "landing_column_count": 4,
+      "landing_has_tiles": true,
+      "deepdive_contract": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+      "deepdive_evidence_count": 5,
+      "deepdive_actions_count": 3,
+      "deepdive_has_missing_card": true
+    },
+    {
+      "scenario": "S2_replay_mapper",
+      "import_ok": true,
+      "contract": "PRODUCT_REPLAY_V1",
+      "scenarios_count": 3,
+      "scenario_kinds": [
+        "baseline",
+        "weakened_evidence",
+        "stressed"
+      ],
+      "has_advanced_disclosure": true
+    },
+    {
+      "scenario": "S3_ask_mapper",
+      "import_ok": true,
+      "landing_contract": "PRODUCT_ASK_V1",
+      "quick_contract": "PRODUCT_ASK_QUICK_V1",
+      "quick_intent_count": 6,
+      "landing_has_context": true,
+      "landing_has_free_text": true,
+      "landing_quick_chip_count": 6,
+      "degraded_grounded": false,
+      "degraded_kind": "degraded"
+    },
+    {
+      "scenario": "S4_visual_system_10b",
+      "css_bytes": 40948,
+      "required_components": 18,
+      "missing_components": [],
+      "all_components_present": true,
+      "has_tooltip_variants": true
+    },
+    {
+      "scenario": "S5_js_state_and_renderers",
+      "state_focus_present": true,
+      "hash_routing_present": true,
+      "research_renderer_present": true,
+      "replay_renderer_present": true,
+      "ask_renderer_present": true,
+      "today_to_research_softlink": true,
+      "quick_answer_fetch": true,
+      "post_free_text": true
+    },
+    {
+      "scenario": "S6_locale_and_no_leak",
+      "import_ok": true,
+      "parity": {
+        "product_shell.research.": {
+          "ko_count": 19,
+          "en_count": 19,
+          "parity_ok": true
+        },
+        "product_shell.replay.": {
+          "ko_count": 16,
+          "en_count": 16,
+          "parity_ok": true
+        },
+        "product_shell.ask.": {
+          "ko_count": 21,
+          "en_count": 21,
+          "parity_ok": true
+        }
+      },
+      "all_parity_ok": true,
+      "min_10_keys_per_family": true,
+      "html_hits": [],
+      "js_hits": [],
+      "css_hits": [],
+      "all_surfaces_clean": true
+    },
+    {
+      "scenario": "S7_routes_dispatch",
+      "research_route_registered": true,
+      "replay_route_registered": true,
+      "ask_get_route_registered": true,
+      "ask_quick_route_registered": true,
+      "ask_post_route_registered": true,
+      "requests_route_registered": true
+    }
+  ],
+  "all_ok": true
+}

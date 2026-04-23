@@ -889,6 +889,248 @@ def api_counterfactual_preview(state: CockpitRuntimeState, q: dict[str, str], la
     )
 
 
+def api_product_ask(
+    state: CockpitRuntimeState,
+    lang: str,
+    q: dict[str, str],
+) -> dict[str, Any]:
+    """Product Shell Rebuild v1 Patch 10B — Ask AI landing DTO."""
+    from phase47_runtime.product_shell.view_models_ask import (
+        build_ask_product_dto,
+    )
+
+    dto = build_ask_product_dto(
+        repo_root=state.repo_root,
+        asset_id=(q.get("asset") or q.get("asset_id") or "").strip(),
+        horizon_key=(q.get("horizon") or q.get("horizon_key") or "").strip(),
+        lang=lang,
+    )
+    if dto.get("ok") is None:
+        dto["ok"] = True
+    return dto
+
+
+def api_product_ask_quick(
+    state: CockpitRuntimeState,
+    lang: str,
+    q: dict[str, str],
+) -> dict[str, Any]:
+    """Patch 10B — deterministic quick-action answers, retrieval-grounded."""
+    from phase47_runtime.product_shell.view_models_ask import (
+        build_quick_answers_product_dto,
+    )
+
+    dto = build_quick_answers_product_dto(
+        repo_root=state.repo_root,
+        asset_id=(q.get("asset") or q.get("asset_id") or "").strip(),
+        horizon_key=(q.get("horizon") or q.get("horizon_key") or "").strip(),
+        lang=lang,
+    )
+    dto.setdefault("ok", True)
+    return dto
+
+
+def api_product_ask_free_text(
+    state: CockpitRuntimeState,
+    lang: str,
+    body: dict[str, Any],
+) -> dict[str, Any]:
+    """Patch 10B — bounded free-text wrapper around ``api_conversation``.
+
+    Input::
+
+        {
+          "prompt":  "<customer question>",
+          "context": {"asset_id": "AAPL", "horizon_key": "short"}
+        }
+
+    Output::
+
+        {
+          "ok":        bool,
+          "contract":  "PRODUCT_ASK_ANSWER_V1",
+          "context":   {...bounded focus block...},
+          "answer":    {kind, banner, claim[], evidence[], insufficiency[], grounded}
+        }
+
+    The context block is rebuilt from the brain bundle (the customer
+    input is trusted only for asset/horizon identity) so the LLM
+    context never widens beyond what the product already surfaced.
+    """
+    from phase47_runtime.product_shell.view_models_ask import (
+        _focus_context_card,
+        scrub_free_text_answer,
+    )
+    from phase47_runtime.product_shell.view_models_common import HORIZON_KEYS
+    from metis_brain.bundle import try_load_brain_bundle_v0
+    from phase47_runtime.today_spectrum import build_today_spectrum_payload
+
+    raw_ctx = body.get("context") if isinstance(body, dict) else None
+    asset_id = ""
+    horizon_key = ""
+    if isinstance(raw_ctx, dict):
+        asset_id = str(raw_ctx.get("asset_id") or raw_ctx.get("asset") or "").strip()
+        horizon_key = str(raw_ctx.get("horizon_key") or raw_ctx.get("horizon") or "").strip()
+    prompt = str((body or {}).get("prompt") or "")
+    bundle, _errs = try_load_brain_bundle_v0(state.repo_root)
+    spectrum_by_hz: dict[str, dict[str, Any]] = {}
+    for hz in HORIZON_KEYS:
+        try:
+            spectrum_by_hz[hz] = build_today_spectrum_payload(
+                repo_root=state.repo_root, horizon=hz, lang=lang, rows_limit=50
+            )
+        except Exception:  # pragma: no cover — defensive
+            spectrum_by_hz[hz] = {"ok": False, "error": "build_failure"}
+    ctx = _focus_context_card(
+        bundle=bundle,
+        spectrum_by_horizon=spectrum_by_hz,
+        asset_id=asset_id,
+        horizon_key=horizon_key,
+        lang=lang,
+    )
+
+    def _call_llm() -> dict[str, Any] | None:
+        try:
+            return api_conversation(state, {
+                "text": prompt,
+                "copilot_context": {
+                    "asset_id":      ctx.get("asset_id") or "",
+                    "horizon":       ctx.get("horizon_key") or "",
+                    "surface":       "product_ask",
+                },
+            })
+        except Exception:
+            return None
+
+    answer = scrub_free_text_answer(
+        prompt=prompt,
+        context=ctx,
+        conversation_callable=_call_llm,
+        lang=lang,
+    )
+    return {
+        "ok":       True,
+        "contract": "PRODUCT_ASK_ANSWER_V1",
+        "lang":     lang,
+        "context":  ctx,
+        "answer":   answer,
+    }
+
+
+def api_product_requests(
+    state: CockpitRuntimeState,
+    lang: str,
+    q: dict[str, str],
+) -> dict[str, Any]:
+    """Patch 10B — request-state card list (sandbox followups scoped
+    to focus asset/horizon). Renders an empty-state envelope when the
+    harness store is unavailable."""
+    from phase47_runtime.product_shell.view_models_ask import (
+        compose_request_state_dto,
+    )
+    horizon = (q.get("horizon") or q.get("horizon_key") or "").strip()
+    registry_entry_id = ""
+    try:
+        if state.bundle:
+            from metis_brain.bundle import try_load_brain_bundle_v0
+            bundle, _errs = try_load_brain_bundle_v0(state.repo_root)
+            if bundle is not None:
+                for ent in bundle.registry_entries:
+                    if ent.status == "active" and (not horizon or ent.horizon == horizon):
+                        registry_entry_id = str(getattr(ent, "registry_entry_id", "") or "")
+                        break
+    except Exception:
+        registry_entry_id = ""
+    followups: list[dict[str, Any]] = []
+    if registry_entry_id:
+        try:
+            from agentic_harness.runtime import build_store  # type: ignore
+            from phase47_runtime.traceability_replay import (  # type: ignore
+                api_governance_lineage_for_registry_entry,
+            )
+            store = build_store(use_fixture=False)
+            res = api_governance_lineage_for_registry_entry(
+                store, registry_entry_id=registry_entry_id, horizon=horizon, limit=50
+            )
+            followups = list(res.get("sandbox_followups") or [])
+        except Exception:
+            followups = []
+    dto = compose_request_state_dto(followups, lang=lang)
+    dto["ok"] = True
+    return dto
+
+
+def api_product_replay(
+    state: CockpitRuntimeState,
+    lang: str,
+    q: dict[str, str],
+) -> dict[str, Any]:
+    """Product Shell Rebuild v1 Patch 10B — customer-facing Replay DTO.
+
+    Query parameters:
+
+    - ``asset`` — focus ticker (optional; when omitted, the product
+      picks the first live-data horizon's representative row).
+    - ``horizon`` — focus horizon_key.
+
+    The returned packet is produced by :mod:`view_models_replay` and
+    scrubbed of engineering identifiers before leaving this module.
+    When the harness store is unavailable or the lineage chain is
+    empty, the packet surfaces an ``empty_state`` envelope.
+    """
+    from phase47_runtime.product_shell.view_models_replay import (
+        build_replay_product_dto,
+    )
+
+    dto = build_replay_product_dto(
+        repo_root=state.repo_root,
+        asset_id=(q.get("asset") or q.get("asset_id") or "").strip(),
+        horizon_key=(q.get("horizon") or q.get("horizon_key") or "").strip(),
+        lang=lang,
+    )
+    if dto.get("ok") is None:
+        dto["ok"] = True
+    return dto
+
+
+def api_product_research(
+    state: CockpitRuntimeState,
+    lang: str,
+    q: dict[str, str],
+) -> dict[str, Any]:
+    """Product Shell Rebuild v1 Patch 10B — customer-facing Research DTO.
+
+    Query parameters (all optional for ``landing``; required for
+    ``deepdive``):
+
+    - ``presentation`` — ``landing`` (default) or ``deepdive``
+    - ``asset`` — ticker for ``deepdive``
+    - ``horizon`` — horizon_key for ``deepdive``
+
+    The returned packet is produced by :mod:`view_models_research` and
+    scrubbed of engineering identifiers before leaving this module.
+    """
+    from phase47_runtime.product_shell.view_models_research import (
+        build_research_product_dto,
+    )
+
+    presentation = (q.get("presentation") or "landing").strip().lower() or "landing"
+    if presentation not in ("landing", "deepdive"):
+        presentation = "landing"
+    asset = (q.get("asset") or q.get("asset_id") or "").strip()
+    horizon = (q.get("horizon") or q.get("horizon_key") or "").strip()
+    dto = build_research_product_dto(
+        repo_root=state.repo_root,
+        presentation=presentation,
+        asset_id=asset,
+        horizon_key=horizon,
+        lang=lang,
+    )
+    if dto.get("ok") is None:
+        dto["ok"] = True
+    return dto
+
+
 def api_product_today(
     state: CockpitRuntimeState,
     lang: str,
@@ -1026,6 +1268,18 @@ def dispatch_json(
         return (200 if sp.get("ok") else 404), sp
     if method == "GET" and p == "/api/product/today":
         return 200, api_product_today(state, lang)
+    if method == "GET" and p == "/api/product/research":
+        return 200, api_product_research(state, lang, q)
+    if method == "GET" and p == "/api/product/replay":
+        return 200, api_product_replay(state, lang, q)
+    if method == "GET" and p == "/api/product/ask":
+        return 200, api_product_ask(state, lang, q)
+    if method == "GET" and p == "/api/product/ask/quick":
+        return 200, api_product_ask_quick(state, lang, q)
+    if method == "POST" and p == "/api/product/ask":
+        return 200, api_product_ask_free_text(state, lang, raw)
+    if method == "GET" and p == "/api/product/requests":
+        return 200, api_product_requests(state, lang, q)
     if method == "GET" and p == "/api/today/watchlist-order":
         return 200, api_today_watchlist_order_get(state)
     if method == "POST" and p == "/api/today/watchlist-order":

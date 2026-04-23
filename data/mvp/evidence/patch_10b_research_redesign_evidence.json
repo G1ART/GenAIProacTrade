@@ -1,0 +1,40 @@
+{
+  "contract": "PATCH_10B_RESEARCH_REDESIGN_V1",
+  "scope": "A1/A2/A3 + E2 Research mapper + routes + renderers",
+  "generated_utc": "2026-04-23T17:20:00Z",
+  "research_mapper_ok": true,
+  "s1_snapshot": {
+    "scenario": "S1_research_mapper",
+    "import_ok": true,
+    "landing_contract": "PRODUCT_RESEARCH_LANDING_V1",
+    "landing_column_count": 4,
+    "landing_has_tiles": true,
+    "deepdive_contract": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+    "deepdive_evidence_count": 5,
+    "deepdive_actions_count": 3,
+    "deepdive_has_missing_card": true
+  },
+  "dto_contracts": [
+    "PRODUCT_RESEARCH_LANDING_V1",
+    "PRODUCT_RESEARCH_DEEPDIVE_V1"
+  ],
+  "evidence_rail_kinds": [
+    "what_changed",
+    "strongest_support",
+    "counter_or_companion",
+    "missing_or_preparing",
+    "peer_context"
+  ],
+  "action_chip_kinds": [
+    "open_replay",
+    "ask_ai",
+    "back_to_today"
+  ],
+  "route_evidence": {
+    "research_route_registered": true
+  },
+  "js_evidence": {
+    "research_renderer_present": true,
+    "today_to_research_softlink": true
+  }
+}

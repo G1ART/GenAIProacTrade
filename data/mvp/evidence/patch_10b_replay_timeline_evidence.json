@@ -1,0 +1,44 @@
+{
+  "contract": "PATCH_10B_REPLAY_TIMELINE_V1",
+  "scope": "B1/B2 + E3 Replay mapper + gap/checkpoint annotation + 3-scenario",
+  "generated_utc": "2026-04-23T17:20:00Z",
+  "replay_mapper_ok": true,
+  "s2_snapshot": {
+    "scenario": "S2_replay_mapper",
+    "import_ok": true,
+    "contract": "PRODUCT_REPLAY_V1",
+    "scenarios_count": 3,
+    "scenario_kinds": [
+      "baseline",
+      "weakened_evidence",
+      "stressed"
+    ],
+    "has_advanced_disclosure": true
+  },
+  "dto_contracts": [
+    "PRODUCT_REPLAY_V1"
+  ],
+  "timeline_kinds": [
+    "proposal",
+    "decision",
+    "applied",
+    "spectrum_refresh",
+    "validation_evaluation",
+    "sandbox_request",
+    "sandbox_result",
+    "gap",
+    "checkpoint"
+  ],
+  "scenario_kinds": [
+    "baseline",
+    "weakened_evidence",
+    "stressed"
+  ],
+  "advanced_disclosure_policy": "hint_only_no_payload",
+  "route_evidence": {
+    "replay_route_registered": true
+  },
+  "js_evidence": {
+    "replay_renderer_present": true
+  }
+}
