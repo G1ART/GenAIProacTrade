@@ -1,6 +1,6 @@
 {
   "build_mode": "live",
-  "built_at_utc": "2026-04-23T00:35:03.565823+00:00",
+  "built_at_utc": "2026-04-23T01:14:08.307688+00:00",
   "contract": "METIS_BRAIN_BUNDLE_PRODUCTION_GRADUATION_V1",
   "gate_spec_count": 6,
   "graduation_tier": "production",
@@ -265,6 +265,6 @@
   },
   "output_bytes": 438791,
   "output_path": "data/mvp/metis_brain_bundle_v2.json",
-  "output_sha256": "be753206fa4dc7a014c214c73d3fb474cc478c187a3d89a33ef9f305f6168a3c",
+  "output_sha256": "2621a671d32881b4b743028a5728a4542cf8b0dccbf0d78cbc4e632907f6ef86",
   "patch": "AGH_V1_PATCH_8_D2"
 }

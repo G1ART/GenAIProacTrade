@@ -1,6 +1,6 @@
 {
   "contract": "AGH_V1_PATCH_9_PRODUCTIONIZE_SELF_SERVE_SCALE_SNAPSHOTS_MANIFEST_V1",
-  "generated_at_utc": "2026-04-23T00:35:24.161092+00:00",
+  "generated_at_utc": "2026-04-23T02:56:30.573773+00:00",
   "milestone": 20,
   "patch_nature": "productionize_self_serve_scale_closure",
   "snapshot_count": 7,
@@ -13,32 +13,32 @@
     {
       "bytes": 505680,
       "path": "data/mvp/evidence/screenshots_patch_9/freeze_today_spectrum_short_patch_9.html",
-      "sha256": "abf508c09c47afd3068545e9cadb42b83bd0edca5609112956788376c52a6045"
+      "sha256": "c9c21e27add6df964add075a64dbc21f0218b4d589548a825ccf6ee17eb6e6c3"
     },
     {
       "bytes": 11366,
       "path": "data/mvp/evidence/screenshots_patch_9/freeze_today_object_detail_ko_patch_9.html",
-      "sha256": "3e697acae3d0ba27dc0e0b2a641659c8279e498dd60001eeec8636bd8219e4db"
+      "sha256": "0f8a4a9fea8f3c153e12b44e1097a24bc218228f07437ba5a79f83863d940345"
     },
     {
       "bytes": 11251,
       "path": "data/mvp/evidence/screenshots_patch_9/freeze_today_object_detail_en_patch_9.html",
-      "sha256": "7c162487b65e9ba7464b7c4bec14b0e230bb16b99cd6c6a916cbc43f8296b00f"
+      "sha256": "aaa591e5d1328b0bdd46f9a91f1095783def6b8758866a34c5c1f1fdb5c6acc2"
     },
     {
       "bytes": 21567,
       "path": "data/mvp/evidence/screenshots_patch_9/freeze_runtime_health_ko_patch_9.html",
-      "sha256": "20e3a77880e294b339f835f8eb6d1ac372169620e18456817a07e2b72cdbae4e"
+      "sha256": "47e0ec22643bd37fabbcc7fd2d7e296032b8ab90e2fd3c7632c6cfc3cb58e2f1"
     },
     {
       "bytes": 21538,
       "path": "data/mvp/evidence/screenshots_patch_9/freeze_runtime_health_en_patch_9.html",
-      "sha256": "3acfd3e1ded5b1d9787149c6dd9f75b8863bf3f43be0b85e56af1500e370c74d"
+      "sha256": "8dfb27c54a07e712dfb1d142140e4676ac32ac6a10abd5a8924eeeaf03cd31c2"
     },
     {
       "bytes": 1443,
       "path": "data/mvp/evidence/screenshots_patch_9/freeze_bundle_integrity_report_patch_9.html",
-      "sha256": "8b7a3b46949ab1578d809c2e43e46a8f3afc428ce18f28405eed39eb30af3264"
+      "sha256": "aa425cd64cfce2848003e5380a492f57fb36e372ff3829effc8e33aad4fad651"
     }
   ],
   "spa_shell_source_sha256": {
