@@ -8632,7 +8632,8 @@ def _cmd_harness_retention_archive(args: argparse.Namespace) -> int:
     skip_jobs = bool(getattr(args, "skip_jobs", False))
 
     try:
-        client = get_supabase_client()
+        settings = load_settings()
+        client = get_supabase_client(settings)
     except Exception as exc:
         print(
             json.dumps(
