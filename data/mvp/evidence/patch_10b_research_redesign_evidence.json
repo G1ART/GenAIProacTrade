@@ -1,7 +1,7 @@
 {
   "contract": "PATCH_10B_RESEARCH_REDESIGN_V1",
   "scope": "A1/A2/A3 + E2 Research mapper + routes + renderers",
-  "generated_utc": "2026-04-23T19:41:51Z",
+  "generated_utc": "2026-04-23T21:42:32Z",
   "research_mapper_ok": true,
   "s1_snapshot": {
     "scenario": "S1_research_mapper",

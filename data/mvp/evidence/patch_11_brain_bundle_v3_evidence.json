@@ -1,0 +1,34 @@
+{
+  "contract_version": "PATCH_11_BRAIN_BUNDLE_V3_EVIDENCE_V1",
+  "generated_utc": "2026-04-23T21:33:16Z",
+  "git_head_sha": "94a0cac273fa0478c1d805748f1a55b316e1a6ce",
+  "checks": [
+    {
+      "id": "bundle_has_long_horizon_support_by_horizon_field",
+      "ok": true
+    },
+    {
+      "id": "bundle_has_brain_overlays_field",
+      "ok": true
+    },
+    {
+      "id": "bundle_has_horizon_provenance_field",
+      "ok": true
+    }
+  ],
+  "all_ok": true,
+  "field_names": [
+    "artifacts",
+    "as_of_utc",
+    "brain_overlays",
+    "horizon_provenance",
+    "long_horizon_support_by_horizon",
+    "metadata",
+    "price_layer_note",
+    "promotion_gates",
+    "recent_governed_applies",
+    "registry_entries",
+    "schema_version",
+    "spectrum_rows_by_horizon"
+  ]
+}

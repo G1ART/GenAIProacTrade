@@ -352,3 +352,51 @@ Today 가 사용하던 `src/phase47_runtime/product_shell/view_models.py` 에서
 - LLM-end-to-end 품질(예: free-text grounding 의 reasoning 정확도) 은 여전히 "bounded + hallucination-downgrade" 의 **구조적** 보장이지, 결과 품질의 **의미적** 보장이 아니다 — 계속 real golden-set 누적 필요.
 - Replay timeline 의 **선형적 시간축 시각화** (오늘 timeline 은 flat list) 는 10C 범위 밖. 지문·초점은 묶었지만 미감은 향후 polish 에서.
 - Research tile sparkline 도 여전히 10B 의 대기 상태다 (하지만 10A Today sparkline 패턴은 재사용 가능).
+
+
+## 12. Patch 11 이 **실제로 추가한 것** (2026-04-23, Brain Bundle v3 / Signal Quality / Long-Horizon Truth)
+
+Patch 11 은 Brain layer 로 올라가는 패치다. Product Shell 의 네 고객 표면 (Today / Research / Replay / Ask AI) 은 그대로 두고, 그 아래 **shared_focus 블록 안쪽** 에 세 개의 서브 블록 — `residual_freshness`, `long_horizon_support`, `overlay_note` — 를 흘려보내 "네 표면이 같은 residual 의미, 같은 long-horizon tier, 같은 overlay note" 를 반복하게 만든다. 10C 의 12-hex 지문은 이 세 블록의 controlled key 를 추가로 흡수한다.
+
+### 12.1 `shared_focus.residual_freshness` — Brain residual semantics 를 제품 라벨로
+
+- `view_models_common.residual_freshness_block` 이 `row.residual_score_semantics_version` 이 존재할 때 `{recheck_cadence_key, invalidation_hint_kind, recheck_label_{ko,en}, invalidation_label_{ko,en}}` 을 반환. 없으면 블록 자체를 생략한다.
+- Raw slug (`monthly_after_new_filing_or_21_trading_days`, `spectrum_position_crosses_midline`, `confidence_band_drops_to_low`, `pit_validation_fails`, `residual_semantics_v1`) 은 `strip_engineering_ids` 로 DTO 에서 **지워지고**, 사용자 표면에는 오직 `RESIDUAL_WORDING` 의 KO/EN 라벨 (recheck 5 bucket + invalidation 6 bucket) 만 흐른다.
+- `message_layer_v1.MESSAGE_LAYER_V1_KEYS` 에 `residual_score_semantics_version / invalidation_hint / recheck_cadence` 3 키가 pin 돼 있어 message 계약은 unchanged 이면서 view-model 쪽에 전달된다.
+
+### 12.2 `shared_focus.long_horizon_support` — 장기 근거의 정직 tier
+
+- `src/metis_brain/long_horizon_evidence_v1.py` 가 forward-returns 패널을 horizon 별로 집계해 `LongHorizonSupportV1 {tier_key ∈ (production, limited, sample), n_rows, n_symbols, coverage_ratio, as_of_utc, reason}` 로 요약하고, `BrainBundleV0.long_horizon_support_by_horizon` 에 주입된다.
+- `long_horizon_support_integrity_errors` 가 `horizon_provenance.source=real_derived` 인데 tier=sample 이면 error 를 터뜨려 **번들이 실제보다 과장되지 않도록 강제** (`validate_active_registry_integrity` 경로에서 호출).
+- `view_models_common.long_horizon_support_note_block` 이 위 dict 를 `{tier_key, coverage_ratio, note_{ko,en}}` 으로 축약해 `shared_focus` 에 embed. 제품 쉘 4 표면이 `SHARED_WORDING.long_horizon_support.{production|limited|sample}.{ko|en}` 을 **문자 단위 동일**하게 반복한다.
+
+### 12.3 `shared_focus.overlay_note` — non-quant 보정의 공유 focus 노출
+
+- `src/metis_brain/brain_overlays_v1.py` (기존) + `view_models_common.overlay_note_block` 이 현재 focus horizon 에 해당하는 overlay 를 우선순위 (`invalidation_warning > counter_interpretation > regime_shift > catalyst_window > liquidity_caveat`) 로 하나 선택해 `{dominant_kind_key, count, counter_interpretation_present, note_{ko,en}}` 로 요약.
+- 네 표면의 consume 지점: Today hero (via `shared_focus`), Research `_evidence_cards.counter_or_companion` (counter_interpretation_present 가 true 일 때만 counter 문장 append), Ask AI `_quick_answer.why_confidence` (+`whats_missing` 가 counter_present 시 insufficiency 문장 append).
+- Raw `ovr_*` / `pcp_*` / `persona_candidate_id` / `overlay_id` / `brain_overlay_ids` 는 `strip_engineering_ids` 에 regex 5 개로 pin 돼 DTO/UI 어디에도 유출 불가.
+
+### 12.4 Coherence signature 확장
+
+- `compute_coherence_signature` 는 기존 8 개 입력 외에 `recheck_cadence_key`, `invalidation_hint_kind`, `overlay_note_kind_key` 를 추가로 양자화해 12-hex 지문에 흡수. 결과: residual cadence 변경·invalidation hint 변경·overlay dominant kind 변경은 **지문을 바꿈** (네 표면 동기), 언어 변경은 **지문을 유지** (언어 독립).
+- `test_agh_v1_patch_11_coherence_with_residual.py` 가 위 4 축 (residual cadence / invalidation / overlay kind / 언어 독립) 을 파라미터 테스트로 봉인.
+
+### 12.5 MVP spec survey 확장 — Q11 / Q12
+
+- `mvp_spec_survey_v0.build_mvp_spec_survey_v0` 가 기존 Q1..Q10 뒤에 (1) Q11 `signal_quality_accumulation_ok` (short/medium horizon 의 residual semantics 커버리지 ≥ 0.8), (2) Q12 `long_horizon_honest_tier_ok` (`long_horizon_support_by_horizon` 가 provenance 와 일관되고 integrity errors = 0) 을 **추가** — 기존 질문의 `question_id` / 순서 / 판단 로직은 **불변**.
+- `/api/runtime/health` 경로에 이미 연결돼 있어 `print-mvp-spec-survey` CLI 에서 Q1..Q12 의 12 개 상태가 한 화면에 보인다.
+
+### 12.6 Evidence + Runbook (Patch 11 산출물 6)
+
+- `patch_11_brain_bundle_v3_evidence.json` — BrainBundleV0 계약이 Patch 11 확장 3 필드를 모두 포함한다는 필드 감사.
+- `patch_11_long_horizon_truth_evidence.json` — tier 분류 3 케이스 (production/limited/sample) + honest/lie integrity 2 케이스.
+- `patch_11_signal_quality_accumulation_evidence.json` — Q11 pass/fail 2 시나리오.
+- `patch_11_ask_semantic_golden_set_evidence.json` — Ask AI 18 엔트리 regression_score (>= 0.75) + bounded_strict=1.0.
+- `patch_11_brain_truth_runbook_evidence.json` — S1..S7 시나리오 all_ok=true.
+- `patch_11_brain_truth_bridge_evidence.json` — 네 표면 coherence + no-leak 브리지.
+
+### 12.7 11 이 **의도적으로** 하지 않은 것
+
+- Real forward-returns production 파이프라인의 **운영 규율** (주기 refresh / coverage drift alert) 은 계약·tier 분류만 봉인했고, 파이프라인 자체의 production 규율은 Patch 12 후보.
+- Brain overlay 의 실제 **근거 출처** 연결 (overlay → 어떤 persona candidate / 어떤 event 에서 나왔는지) 은 `brain_overlays` 배열 안에 이미 있지만, 이를 Research 의 evidence lineage rail 에 전용 tile 로 펼치는 작업은 Patch 12 의 UI polish 에서.
+- Ask AI 의미적 품질은 여전히 구조적 (score >= 0.75) 보장이지 특정 도메인 (예: 거시·가공산업·크립토) 전문 지식의 **의미적** 보장이 아니다 — golden set 확장 필요.

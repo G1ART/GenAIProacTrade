@@ -32,7 +32,10 @@
             "summary": "Factor 'accruals' rank 1/195 → position=1.00 (quality_like). Generated from validation run.",
             "kind": "validation"
           }
-        ]
+        ],
+        "residual_score_semantics_version": "residual_semantics_v1",
+        "invalidation_hint": "horizon_returns_reverse_sign",
+        "recheck_cadence": "monthly_after_new_filing_or_21_trading_days"
       },
       "spectrum": {
         "spectrum_position": 0.997436,
@@ -87,7 +90,7 @@
           "labels": []
         }
       },
-      "stored_at_utc": "2026-04-23T00:35:49.923187+00:00"
+      "stored_at_utc": "2026-04-23T21:42:38.570815+00:00"
     },
     "msg_snap:v1:41859c06eb77c044d06adf88": {
       "asset_id": "DEMO_KR_A",
@@ -37668,7 +37671,10 @@
             "summary": "Momentum is pressing the short-horizon band upward.",
             "kind": "validation"
           }
-        ]
+        ],
+        "residual_score_semantics_version": "",
+        "invalidation_hint": "",
+        "recheck_cadence": ""
       },
       "spectrum": {
         "spectrum_position": 0.72,
@@ -37704,7 +37710,7 @@
         "scoring_endpoint_contract": "seed_inline_v0",
         "replay_lineage_pointer": "seed:replay_lineage_v0"
       },
-      "stored_at_utc": "2026-04-21T18:19:16.264461+00:00"
+      "stored_at_utc": "2026-04-23T21:42:23.999434+00:00"
     },
     "msg_snap:v1:904f4ba2245ed42f9f0daf57": {
       "asset_id": "DEMO_KR_C",
@@ -37806,7 +37812,10 @@
             "summary": "Summary: lower valuation band + catalyst gap (seed).",
             "kind": "validation"
           }
-        ]
+        ],
+        "residual_score_semantics_version": "",
+        "invalidation_hint": "",
+        "recheck_cadence": ""
       },
       "spectrum": {
         "spectrum_position": 0.18,
@@ -37842,7 +37851,7 @@
         "scoring_endpoint_contract": "seed_inline_v0",
         "replay_lineage_pointer": "seed:replay_lineage_v0"
       },
-      "stored_at_utc": "2026-04-21T18:19:16.927745+00:00"
+      "stored_at_utc": "2026-04-23T21:42:24.571581+00:00"
     },
     "msg_snap:v1:55a16023a2e8e9c93821c0fa": {
       "asset_id": "DEMO_KR_A",

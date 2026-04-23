@@ -1,0 +1,265 @@
+{
+  "contract": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+  "lang": "ko",
+  "presentation": "deepdive",
+  "ok": true,
+  "as_of": "2026-04-23T08:00:00Z",
+  "last_built_label": "30분 전 갱신",
+  "claim": {
+    "ticker": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "단기",
+    "horizon_label": "오늘~이번 주",
+    "family_name": "short-가문",
+    "grade": {
+      "key": "a",
+      "label": "A"
+    },
+    "stance": {
+      "key": "strong_long",
+      "label": "강한 매수 경향"
+    },
+    "confidence": {
+      "source_key": "live",
+      "label": "실데이터 근거",
+      "tooltip": "실제 시장 데이터로 학습된 모델 출력입니다."
+    },
+    "summary": "단기 구간 · short-가문 — 현재 읽기: 강한 매수 경향.",
+    "row_matched": true
+  },
+  "evidence": [
+    {
+      "kind": "what_changed",
+      "title": "이번 갱신의 변화",
+      "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+    },
+    {
+      "kind": "strongest_support",
+      "title": "가장 강한 지지 근거",
+      "body": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다."
+    },
+    {
+      "kind": "counter_or_companion",
+      "title": "반대/동반 근거",
+      "body": "다른 구간 동반 읽기 — 중기: 강한 매수 경향, 중장기: 강한 매수 경향, 장기: 강한 매수 경향. 브레인 비정량 주석은 이 주장에 대한 반대 해석이 존재한다고 표시합니다."
+    },
+    {
+      "kind": "missing_or_preparing",
+      "title": "누락/한계",
+      "body": "모든 시장 국면을 모형이 똑같이 잘 설명하지는 못합니다. 극단 국면에서 성능이 떨어질 수 있습니다."
+    },
+    {
+      "kind": "peer_context",
+      "title": "피어 컨텍스트",
+      "body": "유사한 위치에 있는 종목 — MSFT, NVDA.",
+      "peers": [
+        {
+          "ticker": "MSFT",
+          "stance": {
+            "key": "long",
+            "label": "매수 경향"
+          },
+          "grade": {
+            "key": "b",
+            "label": "B"
+          },
+          "position": 0.42
+        },
+        {
+          "ticker": "NVDA",
+          "stance": {
+            "key": "short",
+            "label": "매도 경향"
+          },
+          "grade": {
+            "key": "b",
+            "label": "B"
+          },
+          "position": -0.33
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "kind": "open_replay",
+      "label": "이 구간의 리플레이 열기",
+      "hint": "과거에 어떤 결정이 있었는지 타임라인으로 확인합니다.",
+      "target": {
+        "surface": "replay",
+        "asset_id": "AAPL",
+        "horizon_key": "short"
+      }
+    },
+    {
+      "kind": "ask_ai",
+      "label": "Ask AI 에 이 청구를 질문",
+      "hint": "노출된 근거 안에서만 답변하는 제품 질의응답으로 이동합니다.",
+      "target": {
+        "surface": "ask_ai",
+        "asset_id": "AAPL",
+        "horizon_key": "short",
+        "seed_intent": "explain_claim"
+      }
+    },
+    {
+      "kind": "back_to_today",
+      "label": "Today로 돌아가기",
+      "hint": "이 종목/구간이 오늘의 전체 읽기에서 어디쯤인지 확인합니다.",
+      "target": {
+        "surface": "today"
+      }
+    }
+  ],
+  "companion": [
+    {
+      "horizon_key": "medium",
+      "horizon_caption": "중기",
+      "stance": {
+        "key": "strong_long",
+        "label": "강한 매수 경향"
+      },
+      "position": 0.74
+    },
+    {
+      "horizon_key": "medium_long",
+      "horizon_caption": "중장기",
+      "stance": {
+        "key": "strong_long",
+        "label": "강한 매수 경향"
+      },
+      "position": 0.74
+    },
+    {
+      "horizon_key": "long",
+      "horizon_caption": "장기",
+      "stance": {
+        "key": "strong_long",
+        "label": "강한 매수 경향"
+      },
+      "position": 0.74
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "surface": "today",
+      "label": "Today"
+    },
+    {
+      "surface": "research",
+      "label": "리서치"
+    },
+    {
+      "surface": "research",
+      "label": "단기",
+      "target": {
+        "presentation": "deepdive",
+        "asset_id": "AAPL",
+        "horizon_key": "short"
+      }
+    }
+  ],
+  "shared_focus": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "단기",
+    "horizon_label": "오늘~이번 주",
+    "family_name": "short-가문",
+    "grade": {
+      "key": "a",
+      "label": "A"
+    },
+    "stance": {
+      "key": "strong_long",
+      "label": "강한 매수 경향"
+    },
+    "confidence": {
+      "source_key": "live",
+      "label": "실데이터 근거",
+      "tooltip": "실제 시장 데이터로 학습된 모델 출력입니다."
+    },
+    "position": 0.74,
+    "row_matched": true,
+    "evidence_summary": {
+      "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+      "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+    },
+    "coherence_signature": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "position_quantized": 0.74,
+      "grade_key": "a",
+      "stance_key": "strong_long",
+      "source_key": "live",
+      "what_changed_digest": "8a22af46b1",
+      "rationale_digest": "3aa1dcf850",
+      "recheck_cadence_key": "monthly",
+      "invalidation_hint_kind": "midline_cross",
+      "overlay_note_kind_key": "catalyst_window",
+      "fingerprint": "045d35c6bf21",
+      "contract_version": "COHERENCE_V1"
+    },
+    "residual_freshness": {
+      "contract_version": "RESIDUAL_SEMANTICS_V1",
+      "recheck_cadence_key": "monthly",
+      "recheck_cadence_label": "한 달 주기로 재점검",
+      "recheck_cadence_body": "새 공시·가격 데이터가 들어오면 한 달 주기로 이 근거를 다시 확인합니다.",
+      "invalidation_hint_kind": "midline_cross",
+      "invalidation_hint_label": "스펙트럼 중앙 교차",
+      "invalidation_hint_body": "스펙트럼 위치가 중앙 (0.5) 을 교차하면 이 방향성은 재검토됩니다."
+    },
+    "overlay_note": {
+      "contract_version": "BRAIN_OVERLAY_NOTE_V1",
+      "count": 1,
+      "dominant_kind_key": "catalyst_window",
+      "items": [
+        {
+          "kind_key": "catalyst_window",
+          "label": "이벤트 창",
+          "body": "가까운 이벤트 창이 열려 있어 결과가 크게 벌어질 수 있다는 브레인 주석이 있습니다.",
+          "counter_interpretation_present": true
+        }
+      ],
+      "counter_interpretation_present": true
+    }
+  },
+  "coherence_signature": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "position_quantized": 0.74,
+    "grade_key": "a",
+    "stance_key": "strong_long",
+    "source_key": "live",
+    "what_changed_digest": "8a22af46b1",
+    "rationale_digest": "3aa1dcf850",
+    "recheck_cadence_key": "monthly",
+    "invalidation_hint_kind": "midline_cross",
+    "overlay_note_kind_key": "catalyst_window",
+    "fingerprint": "045d35c6bf21",
+    "contract_version": "COHERENCE_V1"
+  },
+  "evidence_lineage_summary": {
+    "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+    "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+    "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+    "source_key": "live"
+  },
+  "shared_wording": {
+    "bounded_ask": {
+      "title": "노출된 근거 안에서만 답합니다",
+      "body": "Ask AI 는 제품이 이미 보여 드린 근거 범위 안에서만 답변합니다.",
+      "chip": "범위 제한"
+    },
+    "what_changed": {
+      "title": "이번 갱신의 변화",
+      "body": "직전 갱신 대비 유의미한 변화가 기록되지 않았습니다.",
+      "chip": "변화"
+    },
+    "next_step": {
+      "title": "다음 단계",
+      "body": "다음으로 무엇을 열어 보실지 제안 드립니다. 제품은 매수·매도를 권유하지 않습니다.",
+      "chip": "다음 단계"
+    }
+  }
+}

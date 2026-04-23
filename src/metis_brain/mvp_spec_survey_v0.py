@@ -156,6 +156,126 @@ def _q9_any_object_has_info_and_research_layers(
     return False, "no_object_detail_with_information_and_research_layers"
 
 
+# ---------------------------------------------------------------------------
+# Patch 11 — Q11 / Q12
+#
+# Q1..Q10 above are frozen (the Product Spec §10 contract). Q11 and Q12
+# are *additions* that measure the gaps Patch 11 targets: (a) whether
+# signal quality is accumulating in the bundle (residual semantics
+# populated per-row on horizons that claim evidence), and (b) whether
+# the long-horizon evidence tier + provenance are honestly aligned.
+# ---------------------------------------------------------------------------
+
+Q11_MIN_COVERAGE_SHORT_MEDIUM = 0.8
+
+
+def _row_has_residual_semantics(row: Any) -> bool:
+    if not isinstance(row, dict):
+        return False
+    if str(row.get("residual_score_semantics_version") or "").strip():
+        return True
+    msg = row.get("message") if isinstance(row.get("message"), dict) else {}
+    if isinstance(msg, dict):
+        if str(msg.get("residual_score_semantics_version") or "").strip():
+            return True
+    return False
+
+
+def _q11_signal_quality_accumulation(bundle) -> tuple[bool, str]:
+    """Signal-quality accumulation survey.
+
+    For each short / medium horizon: at least
+    ``Q11_MIN_COVERAGE_SHORT_MEDIUM`` of spectrum rows must carry the
+    Patch 11 residual-score semantics fields.
+
+    For medium_long / long: the horizon is only audited when the
+    bundle's ``long_horizon_support`` tier for that horizon is at
+    ``limited`` or ``production`` — honest sample tiers are exempt
+    because we do not expect signal-quality density there.
+    """
+    if bundle is None:
+        return False, "no_bundle"
+    support = getattr(bundle, "long_horizon_support_by_horizon", None) or {}
+    details: list[str] = []
+    failing: list[str] = []
+    for hz in ("short", "medium", "medium_long", "long"):
+        rows = (getattr(bundle, "spectrum_rows_by_horizon", {}) or {}).get(hz) or []
+        if not isinstance(rows, list) or not rows:
+            details.append(f"{hz}:empty")
+            continue
+        covered = sum(1 for r in rows if _row_has_residual_semantics(r))
+        ratio = covered / float(len(rows))
+        details.append(f"{hz}:{covered}/{len(rows)}")
+        if hz in ("short", "medium"):
+            if ratio < Q11_MIN_COVERAGE_SHORT_MEDIUM:
+                failing.append(f"{hz}_coverage_{ratio:.2f}<{Q11_MIN_COVERAGE_SHORT_MEDIUM}")
+        else:
+            entry = support.get(hz) if isinstance(support, dict) else None
+            tier = str((entry or {}).get("tier_key") or "sample").strip()
+            if tier in ("limited", "production"):
+                if ratio < Q11_MIN_COVERAGE_SHORT_MEDIUM:
+                    failing.append(
+                        f"{hz}_tier={tier}_coverage_{ratio:.2f}<{Q11_MIN_COVERAGE_SHORT_MEDIUM}"
+                    )
+    if failing:
+        return False, "; ".join(failing)
+    return True, "; ".join(details) or "no_rows"
+
+
+def _q12_long_horizon_honest_tier(bundle) -> tuple[bool, str]:
+    """Long-horizon honest-tier survey.
+
+    Returns true when the bundle has a ``long_horizon_support_by_horizon``
+    block for medium_long + long AND the provenance ↔ tier combination
+    is not an over-claim or an under-claim for either horizon. An
+    honest sample tier (provenance=insufficient_evidence, tier=sample)
+    is true. A lie (provenance=real_derived, tier=sample) is false.
+    """
+    if bundle is None:
+        return False, "no_bundle"
+    support = getattr(bundle, "long_horizon_support_by_horizon", None) or {}
+    provenance = getattr(bundle, "horizon_provenance", {}) or {}
+
+    def _prov_source(hz: str) -> str:
+        return str(((provenance.get(hz) or {}) if isinstance(provenance, dict) else {}).get("source") or "")
+
+    if not isinstance(support, dict) or not support:
+        # Absence-is-honesty: when the bundle makes no long-horizon claim AND
+        # provenance for medium_long/long explicitly says ``insufficient_evidence``
+        # there is nothing to lie about. An absent block with a ``real_derived``
+        # provenance IS a lie (over-claim by silence) and must fail.
+        details: list[str] = []
+        for hz in ("medium_long", "long"):
+            src = _prov_source(hz)
+            if src not in ("insufficient_evidence", "template_fallback", ""):
+                return False, f"real_derived_provenance_without_support_block:{hz}:{src}"
+            details.append(f"{hz}:source={src or 'missing'};tier=absent")
+        return True, "; ".join(details)
+    from metis_brain.long_horizon_evidence_v1 import (
+        long_horizon_support_integrity_errors,
+    )
+
+    errs = long_horizon_support_integrity_errors(
+        horizon_provenance=provenance,
+        long_horizon_support_by_horizon=support,
+    )
+    if errs:
+        return False, "; ".join(errs)
+    details = []
+    for hz in ("medium_long", "long"):
+        entry = support.get(hz)
+        src = _prov_source(hz)
+        if not isinstance(entry, dict):
+            # Missing entry but block present: honest only when provenance says absent.
+            if src not in ("insufficient_evidence", "template_fallback", ""):
+                return False, f"missing_support_for_{hz}_with_{src}_provenance"
+            details.append(f"{hz}:source={src or 'missing'};tier=absent")
+            continue
+        tier = str(entry.get("tier_key") or "")
+        details.append(f"{hz}:tier={tier};source={src}")
+    return True, "; ".join(details)
+
+
 def _q10_snapshot_store_has_lineage(
     repo_root: Path,
     payloads_by_horizon: dict[str, dict[str, Any]],
@@ -227,6 +347,9 @@ def build_mvp_spec_survey_v0(repo_root: Path) -> dict[str, Any]:
     q8_ok, q8_detail = _q8_any_rank_movement_up_or_down(payloads_tick_1)
     q9_ok, q9_detail = _q9_any_object_has_info_and_research_layers(root, payloads_by_horizon)
     q10_ok, q10_detail = _q10_snapshot_store_has_lineage(root, payloads_by_horizon)
+    # Patch 11 — Q11 + Q12 additions (Q1..Q10 above are unchanged).
+    q11_ok, q11_detail = _q11_signal_quality_accumulation(bundle)
+    q12_ok, q12_detail = _q12_long_horizon_honest_tier(bundle)
 
     questions = [
         {
@@ -288,6 +411,27 @@ def build_mvp_spec_survey_v0(repo_root: Path) -> dict[str, Any]:
             "spec": "persisted snapshot에 message_snapshot_id + registry_entry_id 가 동시에 존재하는가?",
             "ok": q10_ok,
             "detail": q10_detail,
+        },
+        {
+            "id": "Q11_signal_quality_accumulation",
+            "spec": (
+                "각 horizon의 spectrum_row가 residual-score 의미(잔존 의미 버전 + "
+                "invalidation_hint + recheck_cadence) 필드를 채우며 신호 품질이 "
+                "축적되는가? (short/medium은 항상, medium_long/long은 tier가 "
+                "limited/production 일 때 감사)"
+            ),
+            "ok": q11_ok,
+            "detail": q11_detail,
+        },
+        {
+            "id": "Q12_long_horizon_honest_tier",
+            "spec": (
+                "medium_long/long horizon에 long_horizon_support 블록이 존재하며, "
+                "horizon_provenance ↔ tier_key 사이에 과장(real_derived+sample) 또는 "
+                "저평가(insufficient_evidence+production) 부정합이 없는가?"
+            ),
+            "ok": q12_ok,
+            "detail": q12_detail,
         },
     ]
 

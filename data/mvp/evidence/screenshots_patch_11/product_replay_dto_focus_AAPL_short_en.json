@@ -1,0 +1,227 @@
+{
+  "contract": "PRODUCT_REPLAY_V1",
+  "lang": "en",
+  "ok": true,
+  "as_of": "2026-04-23T08:00:00Z",
+  "last_built_label": "30m ago",
+  "focus": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "Short",
+    "horizon_label": "today / this week",
+    "family_name": "short-family",
+    "confidence": {
+      "source_key": "live",
+      "label": "Live-data evidence",
+      "tooltip": "Model output trained on real market data."
+    },
+    "row_matched": true
+  },
+  "headline": "No replay history yet for this horizon.",
+  "summary_counts": {
+    "total_events": 0,
+    "total_applied": 0,
+    "total_sandbox_requests": 0
+  },
+  "checkpoints": [],
+  "timeline": [],
+  "scenarios": [
+    {
+      "kind": "baseline",
+      "title": "Baseline scenario",
+      "body": "Reading produced from the evidence currently on record.",
+      "grade": {
+        "key": "a",
+        "label": "A"
+      },
+      "stance": {
+        "key": "strong_long",
+        "label": "Strong long bias"
+      },
+      "position": 0.74,
+      "hint": {
+        "title": "Scenarios are sensitivity checks, not decisions.",
+        "body": "None of these are buy or sell guidance."
+      }
+    },
+    {
+      "kind": "weakened_evidence",
+      "title": "Weakened-evidence scenario",
+      "body": "How the product's reading shifts when companion signals fall below threshold.",
+      "grade": {
+        "key": "b",
+        "label": "B"
+      },
+      "stance": {
+        "key": "long",
+        "label": "Long bias"
+      },
+      "position": 0.49,
+      "hint": {
+        "title": "Scenarios are sensitivity checks, not decisions.",
+        "body": "None of these are buy or sell guidance."
+      }
+    },
+    {
+      "kind": "stressed",
+      "title": "Market-stress scenario",
+      "body": "A regime-shock scenario where the market flips sharply.",
+      "grade": {
+        "key": "a",
+        "label": "A"
+      },
+      "stance": {
+        "key": "strong_short",
+        "label": "Strong short bias"
+      },
+      "position": -0.544,
+      "hint": {
+        "title": "Scenarios are sensitivity checks, not decisions.",
+        "body": "None of these are buy or sell guidance."
+      }
+    }
+  ],
+  "empty_state": {
+    "kind": "no_lineage",
+    "title": "No replay history yet for this horizon.",
+    "body": "This horizon is either new or has been stable, so the timeline has few entries."
+  },
+  "advanced_disclosure": {
+    "label": "Advanced raw view",
+    "hint": "Internal identifiers and raw payload are available in the operator view (/ops)."
+  },
+  "breadcrumbs": [
+    {
+      "surface": "today",
+      "label": "Today"
+    },
+    {
+      "surface": "research",
+      "label": "Research",
+      "target": {
+        "presentation": "landing"
+      }
+    },
+    {
+      "surface": "replay",
+      "label": "Short",
+      "target": {
+        "asset_id": "AAPL",
+        "horizon_key": "short"
+      }
+    }
+  ],
+  "shared_focus": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "Short",
+    "horizon_label": "today / this week",
+    "family_name": "short-family",
+    "grade": {
+      "key": "a",
+      "label": "A"
+    },
+    "stance": {
+      "key": "strong_long",
+      "label": "Strong long bias"
+    },
+    "confidence": {
+      "source_key": "live",
+      "label": "Live-data evidence",
+      "tooltip": "Model output trained on real market data."
+    },
+    "position": 0.74,
+    "row_matched": true,
+    "evidence_summary": {
+      "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+      "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+    },
+    "coherence_signature": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "position_quantized": 0.74,
+      "grade_key": "a",
+      "stance_key": "strong_long",
+      "source_key": "live",
+      "what_changed_digest": "8a22af46b1",
+      "rationale_digest": "3aa1dcf850",
+      "recheck_cadence_key": "monthly",
+      "invalidation_hint_kind": "midline_cross",
+      "overlay_note_kind_key": "catalyst_window",
+      "fingerprint": "045d35c6bf21",
+      "contract_version": "COHERENCE_V1"
+    },
+    "residual_freshness": {
+      "contract_version": "RESIDUAL_SEMANTICS_V1",
+      "recheck_cadence_key": "monthly",
+      "recheck_cadence_label": "Rechecks monthly",
+      "recheck_cadence_body": "This evidence is rechecked on a monthly cadence or when new filings arrive.",
+      "invalidation_hint_kind": "midline_cross",
+      "invalidation_hint_label": "Crosses spectrum midline",
+      "invalidation_hint_body": "If the spectrum position crosses the midline (0.5) the direction is re-examined."
+    },
+    "overlay_note": {
+      "contract_version": "BRAIN_OVERLAY_NOTE_V1",
+      "count": 1,
+      "dominant_kind_key": "catalyst_window",
+      "items": [
+        {
+          "kind_key": "catalyst_window",
+          "label": "Catalyst window",
+          "body": "A non-quant brain note flags a near-term event window that may widen outcomes.",
+          "counter_interpretation_present": true
+        }
+      ],
+      "counter_interpretation_present": true
+    }
+  },
+  "coherence_signature": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "position_quantized": 0.74,
+    "grade_key": "a",
+    "stance_key": "strong_long",
+    "source_key": "live",
+    "what_changed_digest": "8a22af46b1",
+    "rationale_digest": "3aa1dcf850",
+    "recheck_cadence_key": "monthly",
+    "invalidation_hint_kind": "midline_cross",
+    "overlay_note_kind_key": "catalyst_window",
+    "fingerprint": "045d35c6bf21",
+    "contract_version": "COHERENCE_V1"
+  },
+  "evidence_lineage_summary": {
+    "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+    "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+    "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+    "source_key": "live"
+  },
+  "knowable_then": {
+    "title": "What was knowable then",
+    "body": "At that moment the product could only see the evidence below — we do not re-interpret the past with today's knowledge.",
+    "chip": "Knowable then"
+  },
+  "shared_wording": {
+    "knowable_then": {
+      "title": "What was knowable then",
+      "body": "At that moment the product could only see the evidence below — we do not re-interpret the past with today's knowledge.",
+      "chip": "Knowable then"
+    },
+    "bounded_ask": {
+      "title": "Answers strictly from surfaced evidence",
+      "body": "Ask AI only answers within the evidence the product has already shown.",
+      "chip": "Bounded"
+    },
+    "limited_evidence": {
+      "title": "Limited evidence",
+      "body": "Supporting evidence for this horizon is still thin — no firm conclusion is drawn.",
+      "chip": "Limited"
+    },
+    "next_step": {
+      "title": "Next step",
+      "body": "A short list of what to open next — the product never issues buy or sell guidance.",
+      "chip": "Next"
+    }
+  }
+}

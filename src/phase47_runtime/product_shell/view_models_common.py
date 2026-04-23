@@ -101,11 +101,15 @@ ENG_ID_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\bfactor_[A-Za-z0-9_]+\b"),
     re.compile(r"\bpkt_[A-Za-z0-9_]+\b"),
     re.compile(r"\bjob_[A-Za-z0-9_]+\b"),
+    # Patch 11 — overlay + persona-candidate engineering ids.
+    re.compile(r"\bovr_[A-Za-z0-9_]+\b"),
+    re.compile(r"\bpcp_[A-Za-z0-9_]+\b"),
+    re.compile(r"\bpersona_candidate_id\b"),
     re.compile(r"\bpit:demo:[A-Za-z0-9_:\-]+\b"),
     re.compile(
         r"\b(?:registry_entry_id|artifact_id|proposal_packet_id|"
         r"decision_packet_id|replay_lineage_pointer|sandbox_request_id|"
-        r"sandbox_result_id)\b"
+        r"sandbox_result_id|overlay_id|brain_overlay_ids)\b"
     ),
     re.compile(r"\bhorizon_provenance\b"),
     re.compile(
@@ -505,6 +509,372 @@ SHARED_WORDING_KINDS: tuple[str, ...] = (
 )
 
 
+# ---------------------------------------------------------------------------
+# Patch 11 — residual-score semantics product wording
+# ---------------------------------------------------------------------------
+#
+# Brain layer emits three raw slugs per spectrum row (see
+# ``src/metis_brain/spectrum_rows_from_validation_v1.py``):
+#
+#   - ``residual_score_semantics_version`` e.g. ``residual_semantics_v1``
+#   - ``recheck_cadence`` e.g. ``monthly_after_new_filing_or_21_trading_days``
+#   - ``invalidation_hint`` e.g. ``spectrum_position_crosses_midline``
+#
+# None of those slugs should reach the customer surface. The helpers
+# below normalize them into two short controlled-vocabulary keys
+# (``recheck_cadence_key`` and ``invalidation_hint_kind``) plus user-
+# facing KO/EN labels. The short keys feed the coherence signature so
+# that a recheck-cadence flip or an invalidation-hint change can be
+# detected by the Patch 10C fingerprint mechanism.
+
+RECHECK_CADENCE_KINDS: tuple[str, ...] = (
+    "monthly",
+    "quarterly",
+    "semi_annually",
+    "annually",
+    "unknown",
+)
+
+INVALIDATION_HINT_KINDS: tuple[str, ...] = (
+    "pit_fail",
+    "confidence_drop",
+    "midline_cross",
+    "return_reversal",
+    "unknown",
+)
+
+_RAW_RECHECK_TO_KIND: dict[str, str] = {
+    "monthly_after_new_filing_or_21_trading_days":       "monthly",
+    "quarterly_after_new_filing_or_63_trading_days":     "quarterly",
+    "semi_annually_after_new_filing_or_126_trading_days": "semi_annually",
+    "annually_after_new_filing_or_252_trading_days":     "annually",
+}
+
+_RAW_INVALIDATION_TO_KIND: dict[str, str] = {
+    "factor_validation_pit_fail":         "pit_fail",
+    "confidence_band_drops_to_low":       "confidence_drop",
+    "spectrum_position_crosses_midline":  "midline_cross",
+    "horizon_returns_reverse_sign":       "return_reversal",
+}
+
+RESIDUAL_WORDING: dict[str, dict[str, dict[str, dict[str, str]]]] = {
+    "ko": {
+        "recheck": {
+            "monthly":       {"label": "한 달 주기로 재점검",
+                               "body":  "새 공시·가격 데이터가 들어오면 한 달 주기로 이 근거를 다시 확인합니다."},
+            "quarterly":     {"label": "한 분기 주기로 재점검",
+                               "body":  "이 구간의 근거는 한 분기 주기 또는 새 공시가 들어올 때 다시 확인됩니다."},
+            "semi_annually": {"label": "반 년 주기로 재점검",
+                               "body":  "장기 근거는 반 년 주기 또는 새 공시 시점에 재점검됩니다."},
+            "annually":      {"label": "한 해 주기로 재점검",
+                               "body":  "가장 긴 관점의 근거는 한 해 주기 또는 새 공시 시점에 재점검됩니다."},
+            "unknown":       {"label": "재점검 주기 미정",
+                               "body":  "이 구간의 재점검 주기가 아직 확정되지 않았습니다."},
+        },
+        "invalidation": {
+            "pit_fail":         {"label": "근거 무효 가능",
+                                  "body":  "팩터 검증이 PIT (시점 무결성) 를 통과하지 못하면 이 주장은 다시 검증이 필요합니다."},
+            "confidence_drop":  {"label": "신뢰 band 하향",
+                                  "body":  "보조 지표의 신뢰 band 가 낮음으로 떨어지면 이 주장은 유보됩니다."},
+            "midline_cross":    {"label": "스펙트럼 중앙 교차",
+                                  "body":  "스펙트럼 위치가 중앙 (0.5) 을 교차하면 이 방향성은 재검토됩니다."},
+            "return_reversal":  {"label": "수익 방향 반전",
+                                  "body":  "이 구간의 순수익 방향이 반전되면 주장 전체가 무효 처리됩니다."},
+            "unknown":          {"label": "무효 조건 없음",
+                                  "body":  "이 주장에 대해 명시적 무효 조건이 설정되어 있지 않습니다."},
+        },
+    },
+    "en": {
+        "recheck": {
+            "monthly":       {"label": "Rechecks monthly",
+                               "body":  "This evidence is rechecked on a monthly cadence or when new filings arrive."},
+            "quarterly":     {"label": "Rechecks quarterly",
+                               "body":  "This evidence is rechecked quarterly or when new filings arrive."},
+            "semi_annually": {"label": "Rechecks semi-annually",
+                               "body":  "Long-horizon evidence is rechecked semi-annually or on new filings."},
+            "annually":      {"label": "Rechecks annually",
+                               "body":  "The longest-view evidence is rechecked annually or on new filings."},
+            "unknown":       {"label": "Recheck cadence TBD",
+                               "body":  "A recheck cadence has not yet been stamped on this horizon."},
+        },
+        "invalidation": {
+            "pit_fail":         {"label": "Claim may invalidate",
+                                  "body":  "If the factor validation fails the PIT (point-in-time) gate this claim needs re-validation."},
+            "confidence_drop":  {"label": "Confidence band drop",
+                                  "body":  "If the companion confidence band drops to low the claim is held."},
+            "midline_cross":    {"label": "Crosses spectrum midline",
+                                  "body":  "If the spectrum position crosses the midline (0.5) the direction is re-examined."},
+            "return_reversal":  {"label": "Return direction reversal",
+                                  "body":  "If this horizon's net return direction reverses the claim is invalidated."},
+            "unknown":          {"label": "No explicit invalidation rule",
+                                  "body":  "No explicit invalidation rule has been registered for this claim."},
+        },
+    },
+}
+
+
+def normalize_recheck_cadence(raw: str | None) -> str:
+    """Return one of :data:`RECHECK_CADENCE_KINDS` for a raw slug.
+
+    Unknown / empty slugs collapse to ``unknown``. Short keys are used
+    for coherence signatures and CSS targeting; they never leak as raw
+    engineering strings into customer DTOs.
+    """
+    if not raw:
+        return "unknown"
+    key = _RAW_RECHECK_TO_KIND.get(str(raw).strip())
+    return key or "unknown"
+
+
+def normalize_invalidation_hint(raw: str | None) -> str:
+    """Return one of :data:`INVALIDATION_HINT_KINDS` for a raw slug."""
+    if not raw:
+        return "unknown"
+    key = _RAW_INVALIDATION_TO_KIND.get(str(raw).strip())
+    return key or "unknown"
+
+
+def residual_wording(axis: str, kind: str, *, lang: str) -> dict[str, str]:
+    """Return ``{label, body}`` for ``axis`` ∈ {recheck, invalidation}."""
+    lg = "ko" if lang == "ko" else "en"
+    table = RESIDUAL_WORDING.get(lg, RESIDUAL_WORDING["en"]).get(axis, {})
+    block = table.get(kind) or table.get("unknown") or {"label": "", "body": ""}
+    return dict(block)
+
+
+BRAIN_OVERLAY_KINDS: tuple[str, ...] = (
+    "regime_shift",
+    "hazard_modifier",
+    "invalidation_warning",
+    "confidence_adjustment",
+    "catalyst_window",
+)
+
+BRAIN_OVERLAY_WORDING: dict[str, dict[str, dict[str, str]]] = {
+    "ko": {
+        "regime_shift": {
+            "label": "체제 변화 노트",
+            "body":  "시장 체제가 바뀌었을 수 있다는 브레인 비정량 주석이 붙어 있습니다.",
+        },
+        "hazard_modifier": {
+            "label": "위험 가중치 조정",
+            "body":  "이 구간의 위험 가중치를 비정량적으로 보정하라는 브레인 주석이 있습니다.",
+        },
+        "invalidation_warning": {
+            "label": "무효 경고",
+            "body":  "이 주장이 무효화될 수 있는 조건이 관찰되었다는 브레인 비정량 경고가 있습니다.",
+        },
+        "confidence_adjustment": {
+            "label": "신뢰도 조정 노트",
+            "body":  "이 구간의 신뢰도를 비정량적으로 낮추라는 브레인 주석이 있습니다.",
+        },
+        "catalyst_window": {
+            "label": "이벤트 창",
+            "body":  "가까운 이벤트 창이 열려 있어 결과가 크게 벌어질 수 있다는 브레인 주석이 있습니다.",
+        },
+    },
+    "en": {
+        "regime_shift": {
+            "label": "Regime-shift note",
+            "body":  "A non-quant brain note flags a possible change in market regime.",
+        },
+        "hazard_modifier": {
+            "label": "Hazard modifier",
+            "body":  "A non-quant brain note suggests adjusting the hazard weighting on this horizon.",
+        },
+        "invalidation_warning": {
+            "label": "Invalidation warning",
+            "body":  "A non-quant brain note warns that this claim may be invalidated by observed conditions.",
+        },
+        "confidence_adjustment": {
+            "label": "Confidence-adjustment note",
+            "body":  "A non-quant brain note recommends tempering the confidence band on this horizon.",
+        },
+        "catalyst_window": {
+            "label": "Catalyst window",
+            "body":  "A non-quant brain note flags a near-term event window that may widen outcomes.",
+        },
+    },
+}
+
+_OVERLAY_PRIORITY: tuple[str, ...] = (
+    "invalidation_warning",
+    "regime_shift",
+    "catalyst_window",
+    "hazard_modifier",
+    "confidence_adjustment",
+)
+
+
+def overlay_note_block(
+    *,
+    bundle: Any,
+    horizon_key: str,
+    lang: str,
+) -> dict[str, Any] | None:
+    """Translate overlays bound to ``horizon_key`` into a user-safe note.
+
+    Returns ``None`` when there are no overlays to show. The block
+    exposes only short ``kind_key`` keys (from
+    :data:`BRAIN_OVERLAY_KINDS`) and localized labels — overlay ids,
+    artifact ids, registry entry ids, and the internal
+    ``counter_interpretation_present`` flag are preserved only in a
+    boolean form.
+    """
+    if bundle is None:
+        return None
+    overlays = list(getattr(bundle, "brain_overlays", None) or [])
+    if not overlays:
+        return None
+    # Map active registry entry id + active artifact id for this horizon.
+    active_artifact_id = ""
+    active_registry_entry_id = ""
+    for ent in getattr(bundle, "registry_entries", []) or []:
+        if getattr(ent, "status", "") == "active" and getattr(ent, "horizon", "") == horizon_key:
+            active_artifact_id = str(getattr(ent, "active_artifact_id", "") or "")
+            active_registry_entry_id = str(getattr(ent, "registry_entry_id", "") or "")
+            break
+    bound: list[dict[str, Any]] = []
+    for ov in overlays:
+        if not isinstance(ov, dict):
+            continue
+        ov_art = str(ov.get("artifact_id") or "")
+        ov_reg = str(ov.get("registry_entry_id") or "")
+        if active_artifact_id and ov_art == active_artifact_id:
+            bound.append(ov)
+            continue
+        if active_registry_entry_id and ov_reg == active_registry_entry_id:
+            bound.append(ov)
+    if not bound:
+        return None
+    lg = "ko" if lang == "ko" else "en"
+    table = BRAIN_OVERLAY_WORDING.get(lg, BRAIN_OVERLAY_WORDING["en"])
+    items: list[dict[str, Any]] = []
+    kinds_present: set[str] = set()
+    counter_present = False
+    for ov in bound:
+        kind = str(ov.get("overlay_type") or "")
+        if kind not in BRAIN_OVERLAY_KINDS:
+            continue
+        kinds_present.add(kind)
+        if bool(ov.get("counter_interpretation_present")):
+            counter_present = True
+        block = table.get(kind) or {"label": "", "body": ""}
+        items.append({
+            "kind_key": kind,
+            "label":    block.get("label", ""),
+            "body":     block.get("body", ""),
+            "counter_interpretation_present": bool(
+                ov.get("counter_interpretation_present")
+            ),
+        })
+    if not items:
+        return None
+    dominant = ""
+    for k in _OVERLAY_PRIORITY:
+        if k in kinds_present:
+            dominant = k
+            break
+    return {
+        "contract_version":         "BRAIN_OVERLAY_NOTE_V1",
+        "count":                    len(items),
+        "dominant_kind_key":        dominant,
+        "items":                    items,
+        "counter_interpretation_present": counter_present,
+    }
+
+
+LONG_HORIZON_TIER_KEYS: tuple[str, ...] = ("production", "limited", "sample")
+
+
+LONG_HORIZON_SUPPORT_WORDING: dict[str, dict[str, dict[str, str]]] = {
+    "ko": {
+        "production": {"label": "장기 근거 충분",
+                        "body":  "이 장기 관점을 뒷받침할 실데이터 근거가 충분히 쌓여 있습니다."},
+        "limited":    {"label": "장기 근거 제한적",
+                        "body":  "장기 관점의 실데이터 근거가 아직 제한적입니다. 결론을 단정하지 않습니다."},
+        "sample":     {"label": "장기 근거 준비 중",
+                        "body":  "장기 관점의 실데이터 근거가 충분하지 않아 제품은 이 구간에서 과장된 확신을 드리지 않습니다."},
+    },
+    "en": {
+        "production": {"label": "Long-view evidence ample",
+                        "body":  "Enough real-data evidence backs this long-horizon view."},
+        "limited":    {"label": "Long-view evidence limited",
+                        "body":  "Long-horizon evidence is still thin. No firm conclusion is drawn."},
+        "sample":     {"label": "Long-view evidence preparing",
+                        "body":  "Long-horizon evidence is not yet sufficient, so the product avoids overconfident claims on this horizon."},
+    },
+}
+
+
+def long_horizon_support_note_block(
+    *,
+    bundle: Any,
+    horizon_key: str,
+    lang: str,
+) -> dict[str, Any] | None:
+    """Return a customer-facing note block for ``long_horizon_support[hz]``.
+
+    Returns ``None`` when the bundle carries no support block for the
+    horizon (e.g. short / medium, or legacy bundles). The block never
+    exposes ``n_rows`` / ``n_symbols`` / ``coverage_ratio`` numbers —
+    those are engineering telemetry. Only the localized tier label and
+    body are surfaced.
+    """
+    if bundle is None:
+        return None
+    support_map = getattr(bundle, "long_horizon_support_by_horizon", None) or {}
+    entry = support_map.get(horizon_key) if isinstance(support_map, dict) else None
+    if not isinstance(entry, dict):
+        return None
+    tier = str(entry.get("tier_key") or "").strip()
+    if tier not in ("production", "limited", "sample"):
+        return None
+    lg = "ko" if lang == "ko" else "en"
+    table = LONG_HORIZON_SUPPORT_WORDING.get(lg, LONG_HORIZON_SUPPORT_WORDING["en"])
+    block = table.get(tier) or table["sample"]
+    return {
+        "contract_version": "LONG_HORIZON_SUPPORT_V1",
+        "tier_key": tier,
+        "label": block["label"],
+        "body":  block["body"],
+    }
+
+
+def residual_freshness_block(
+    row: dict[str, Any] | None,
+    *,
+    lang: str,
+) -> dict[str, Any] | None:
+    """Translate spectrum-row residual slugs into a customer-facing block.
+
+    Returns ``None`` when the row carries no residual info (so composers
+    can cleanly omit the block). When present the block exposes only
+    normalized short keys and localized labels — the raw engineering
+    slugs from the Brain layer never reach the DTO.
+    """
+    if not isinstance(row, dict):
+        return None
+    raw_version = str(row.get("residual_score_semantics_version") or "").strip()
+    raw_recheck = str(row.get("recheck_cadence") or "").strip()
+    raw_hint = str(row.get("invalidation_hint") or "").strip()
+    if not (raw_version or raw_recheck or raw_hint):
+        return None
+    recheck_key = normalize_recheck_cadence(raw_recheck)
+    hint_kind = normalize_invalidation_hint(raw_hint)
+    recheck_block = residual_wording("recheck", recheck_key, lang=lang)
+    hint_block = residual_wording("invalidation", hint_kind, lang=lang)
+    return {
+        "contract_version":      "RESIDUAL_SEMANTICS_V1",
+        "recheck_cadence_key":   recheck_key,
+        "recheck_cadence_label": recheck_block["label"],
+        "recheck_cadence_body":  recheck_block["body"],
+        "invalidation_hint_kind":  hint_kind,
+        "invalidation_hint_label": hint_block["label"],
+        "invalidation_hint_body":  hint_block["body"],
+    }
+
+
 def shared_wording(kind: str, *, lang: str) -> dict[str, str]:
     """Return the shared KO/EN wording block for ``kind``.
 
@@ -567,24 +937,36 @@ def compute_coherence_signature(
     source_key: str,
     what_changed: str,
     rationale_summary: str,
+    recheck_cadence_key: str = "",
+    invalidation_hint_kind: str = "",
+    overlay_note_kind_key: str = "",
 ) -> dict[str, Any]:
     """Deterministic, language-independent cross-surface signature.
 
     Every Product Shell DTO that opines on ``(asset_id, horizon_key)``
     must embed an identical signature — the Patch 10C coherence test
-    compares them pairwise. The signature is intentionally compact: a
-    handful of comparison fields plus a 12-char fingerprint that
-    captures the evidence sentences so a silent rationale edit would be
-    detected.
+    compares them pairwise.
+
+    Patch 11 extends the fingerprint with three optional short keys
+    (``recheck_cadence_key``, ``invalidation_hint_kind``,
+    ``overlay_note_kind_key``) derived from the Brain-layer residual
+    semantics and overlays. The contract_version stays ``COHERENCE_V1``
+    because the extra inputs are concatenated at the tail and collapse
+    to an empty string for pre-11 rows — so a Patch 10C signature with
+    no residual/overlay information produces the same fingerprint as
+    before.
     """
     tkr = (asset_id or "").upper().strip()
     hz = (horizon_key or "").strip()
     pos_q = _quantize_position(position)
     wc_hash = _short_hash(str(what_changed or "").strip(), length=10)
     rs_hash = _short_hash(str(rationale_summary or "").strip(), length=10)
+    rc = str(recheck_cadence_key or "").strip()
+    ih = str(invalidation_hint_kind or "").strip()
+    ov = str(overlay_note_kind_key or "").strip()
     fp = _short_hash(
         tkr, hz, str(pos_q), str(grade_key or ""), str(stance_key or ""),
-        str(source_key or ""), wc_hash, rs_hash,
+        str(source_key or ""), wc_hash, rs_hash, rc, ih, ov,
     )
     return {
         "asset_id":            tkr,
@@ -595,6 +977,9 @@ def compute_coherence_signature(
         "source_key":          str(source_key or ""),
         "what_changed_digest": wc_hash,
         "rationale_digest":    rs_hash,
+        "recheck_cadence_key":    rc,
+        "invalidation_hint_kind": ih,
+        "overlay_note_kind_key":  ov,
         "fingerprint":         fp,
         "contract_version":    "COHERENCE_V1",
     }
@@ -693,6 +1078,25 @@ def build_shared_focus_block(
         lineage_bucket = shared_wording("limited_evidence", lang=lg)
         summary_body = lineage_bucket["body"]
 
+    residual_block = residual_freshness_block(row, lang=lg) if row_matched else None
+
+    # Patch 11 — Long-horizon support tier surfacing. For medium_long /
+    # long horizons the bundle may carry a ``long_horizon_support`` block
+    # describing how much real evidence backs the horizon. We lift the
+    # tier label into the focus so callers can render an honest
+    # "장기 근거 제한적" / "Long-view evidence limited" note without
+    # reaching into the bundle themselves.
+    long_support_block = long_horizon_support_note_block(
+        bundle=bundle, horizon_key=hz, lang=lg,
+    )
+    # Patch 11 — Brain overlay note. Surfaces bounded non-quant adjustments
+    # (catalyst windows / regime shifts / invalidation warnings ...) in
+    # the shared focus so Today / Research / Ask AI can reference the
+    # same labels without reaching into ``bundle.brain_overlays``.
+    overlay_block = overlay_note_block(
+        bundle=bundle, horizon_key=hz, lang=lg,
+    )
+
     signature = compute_coherence_signature(
         asset_id=tkr,
         horizon_key=hz,
@@ -702,6 +1106,9 @@ def build_shared_focus_block(
         source_key=source_key,
         what_changed=what_changed,
         rationale_summary=rationale,
+        recheck_cadence_key=(residual_block or {}).get("recheck_cadence_key", ""),
+        invalidation_hint_kind=(residual_block or {}).get("invalidation_hint_kind", ""),
+        overlay_note_kind_key=(overlay_block or {}).get("dominant_kind_key", ""),
     )
 
     block: dict[str, Any] = {
@@ -722,6 +1129,12 @@ def build_shared_focus_block(
         },
         "coherence_signature": signature,
     }
+    if residual_block is not None:
+        block["residual_freshness"] = residual_block
+    if long_support_block is not None:
+        block["long_horizon_support"] = long_support_block
+    if overlay_block is not None:
+        block["overlay_note"] = overlay_block
     return block
 
 

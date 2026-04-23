@@ -1,0 +1,181 @@
+{
+  "contract_version": "PATCH_11_ASK_SEMANTIC_EVIDENCE_V1",
+  "golden_set_path": "data/mvp/ask_semantic_golden_set_v1.json",
+  "entry_count": 18,
+  "rubric": {
+    "formula": "score = 0.4*grounded + 0.3*bounded + 0.3*useful",
+    "regression_threshold": 0.75,
+    "bounded_strict": true
+  },
+  "rates": {
+    "grounded_rate": 0.9444,
+    "bounded_rate": 1.0,
+    "useful_rate": 1.0
+  },
+  "regression_score": 0.9778,
+  "per_entry": [
+    {
+      "id": "Q01_explain_claim_ko",
+      "expected_kind": "grounded",
+      "realized_kind": "grounded",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q02_show_support_en",
+      "expected_kind": "grounded",
+      "realized_kind": "grounded",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q03_show_counter_ko",
+      "expected_kind": "grounded",
+      "realized_kind": "grounded",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q04_why_confidence_ko",
+      "expected_kind": "grounded",
+      "realized_kind": "grounded",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q05_whats_missing_ko",
+      "expected_kind": "grounded",
+      "realized_kind": "partial",
+      "grounded": 0.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 0.6
+    },
+    {
+      "id": "Q06_other_horizons_en",
+      "expected_kind": "grounded",
+      "realized_kind": "grounded",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q07_free_text_ok_ko",
+      "expected_kind": "grounded",
+      "realized_kind": "grounded",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q08_free_text_ok_en",
+      "expected_kind": "grounded",
+      "realized_kind": "grounded",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q09_free_text_out_of_scope_advice_ko",
+      "expected_kind": "out_of_scope",
+      "realized_kind": "out_of_scope",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q10_free_text_out_of_scope_price_target_en",
+      "expected_kind": "out_of_scope",
+      "realized_kind": "out_of_scope",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q11_free_text_foreign_ticker_en",
+      "expected_kind": "out_of_scope",
+      "realized_kind": "out_of_scope",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q12_free_text_off_topic_en",
+      "expected_kind": "out_of_scope",
+      "realized_kind": "out_of_scope",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q13_free_text_sell_recommendation_ko",
+      "expected_kind": "out_of_scope",
+      "realized_kind": "out_of_scope",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q14_degraded_sample_focus_explain_ko",
+      "expected_kind": "grounded",
+      "realized_kind": "grounded",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q15_degraded_llm_failure_ko",
+      "expected_kind": "degraded",
+      "realized_kind": "degraded",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q16_degraded_llm_failure_en",
+      "expected_kind": "degraded",
+      "realized_kind": "degraded",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q17_hallucination_demotes_to_partial_en",
+      "expected_kind": "partial",
+      "realized_kind": "partial",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    },
+    {
+      "id": "Q18_empty_prompt_rejected_en",
+      "expected_kind": "empty_prompt",
+      "realized_kind": "empty_prompt",
+      "grounded": 1.0,
+      "bounded": 1.0,
+      "useful": 1.0,
+      "score": 1.0
+    }
+  ],
+  "all_ok": true
+}

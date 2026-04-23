@@ -441,6 +441,7 @@ def _evidence_cards(
     source_key: str,
     confidence: dict[str, str],
     lang: str,
+    overlay_note: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     """5-card evidence rail. Each card is a small, self-contained block."""
     # Card 1 — what changed
@@ -493,6 +494,19 @@ def _evidence_cards(
             if lang == "ko" else
             "Other horizons do not hold enough evidence for this asset — counter-check is limited."
         )
+    # Patch 11 — append a single overlay-sourced counter sentence when a
+    # bound brain overlay flags that a counter-interpretation is present.
+    if overlay_note and overlay_note.get("counter_interpretation_present"):
+        if lang == "ko":
+            overlay_sentence = (
+                " 브레인 비정량 주석은 이 주장에 대한 반대 해석이 존재한다고 표시합니다."
+            )
+        else:
+            overlay_sentence = (
+                " A non-quant brain note flags that a counter-interpretation "
+                "is present for this claim."
+            )
+        body = (body or "") + overlay_sentence
     card_counter = {
         "kind":  "counter_or_companion",
         "title": "반대/동반 근거" if lang == "ko" else "Counter / companion evidence",
@@ -665,14 +679,6 @@ def compose_research_deepdive_dto(
         lang=lg,
     )
     peers = _peer_rows(rows, tkr, source_key=source_key, lang=lg)
-    evidence = _evidence_cards(
-        row=row,
-        companion=companion,
-        peers=peers,
-        source_key=source_key,
-        confidence=confidence,
-        lang=lg,
-    )
     actions = _action_rail(ticker=tkr, horizon_key=hz, lang=lg)
     built_at = (
         str(getattr(bundle, "metadata", {}).get("built_at_utc") or "")
@@ -685,6 +691,15 @@ def compose_research_deepdive_dto(
         asset_id=tkr,
         horizon_key=hz,
         lang=lg,
+    )
+    evidence = _evidence_cards(
+        row=row,
+        companion=companion,
+        peers=peers,
+        source_key=source_key,
+        confidence=confidence,
+        lang=lg,
+        overlay_note=shared_focus.get("overlay_note"),
     )
     dto = {
         "contract":         "PRODUCT_RESEARCH_DEEPDIVE_V1",

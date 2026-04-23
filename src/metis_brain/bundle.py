@@ -130,6 +130,13 @@ class BrainBundleV0(BaseModel):
     # templates without inspecting every artifact. Legacy bundles omit
     # this field entirely — empty dict = no claim.
     metadata: dict[str, Any] = Field(default_factory=dict)
+    # Patch 11 — optional long-horizon evidence support block. One entry
+    # per horizon (typically ``medium_long`` + ``long``) describing how
+    # much real validation evidence backs the horizon. Absent block =
+    # no claim. See ``src/metis_brain/long_horizon_evidence_v1.py``.
+    long_horizon_support_by_horizon: dict[str, dict[str, Any]] = Field(
+        default_factory=dict,
+    )
 
     @model_validator(mode="before")
     @classmethod
@@ -285,6 +292,22 @@ def validate_active_registry_integrity(
 
     if tier_norm == "production":
         errors.extend(_production_tier_integrity_checks(bundle))
+
+    # Patch 11 — honest long-horizon tier. Only fires when the bundle
+    # carries a ``long_horizon_support_by_horizon`` block. Empty = no
+    # claim (legacy bundles keep passing).
+    support = getattr(bundle, "long_horizon_support_by_horizon", None)
+    if support:
+        from metis_brain.long_horizon_evidence_v1 import (
+            long_horizon_support_integrity_errors,
+        )
+
+        errors.extend(
+            long_horizon_support_integrity_errors(
+                horizon_provenance=getattr(bundle, "horizon_provenance", {}),
+                long_horizon_support_by_horizon=support,
+            )
+        )
 
     return errors
 

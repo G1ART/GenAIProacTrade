@@ -1,17 +1,17 @@
 {
   "contract": "PATCH_10C_PRODUCT_COHERENCE_RUNBOOK_V1",
-  "generated_utc": "2026-04-23T19:41:51Z",
-  "git_head_sha": "85626682048300a0cd2e6d8d60ca33548e7739c7",
+  "generated_utc": "2026-04-23T21:42:32Z",
+  "git_head_sha": "94a0cac273fa0478c1d805748f1a55b316e1a6ce",
   "scenarios": {
     "s1_cross_surface_coherence": {
       "per_lang": {
         "ko": {
           "fingerprints": {
-            "today": "7e14a85b1592",
-            "research": "7e14a85b1592",
-            "replay": "7e14a85b1592",
-            "ask_ai": "7e14a85b1592",
-            "ask_quick": "7e14a85b1592"
+            "today": "76ede01b5d83",
+            "research": "76ede01b5d83",
+            "replay": "76ede01b5d83",
+            "ask_ai": "76ede01b5d83",
+            "ask_quick": "76ede01b5d83"
           },
           "all_match": true,
           "contract_stamps": {
@@ -24,11 +24,11 @@
         },
         "en": {
           "fingerprints": {
-            "today": "7e14a85b1592",
-            "research": "7e14a85b1592",
-            "replay": "7e14a85b1592",
-            "ask_ai": "7e14a85b1592",
-            "ask_quick": "7e14a85b1592"
+            "today": "76ede01b5d83",
+            "research": "76ede01b5d83",
+            "replay": "76ede01b5d83",
+            "ask_ai": "76ede01b5d83",
+            "ask_quick": "76ede01b5d83"
           },
           "all_match": true,
           "contract_stamps": {

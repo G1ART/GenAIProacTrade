@@ -1,0 +1,266 @@
+{
+  "contract": "PRODUCT_ASK_QUICK_V1",
+  "lang": "en",
+  "context": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "Short",
+    "horizon_label": "today / this week",
+    "family_name": "short-family",
+    "grade": {
+      "key": "a",
+      "label": "A"
+    },
+    "stance": {
+      "key": "strong_long",
+      "label": "Strong long bias"
+    },
+    "confidence": {
+      "source_key": "live",
+      "label": "Live-data evidence",
+      "tooltip": "Model output trained on real market data."
+    },
+    "frame": "Ask AI will answer strictly from evidence for the short horizon / AAPL.",
+    "row_matched": true,
+    "shared_focus": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "horizon_caption": "Short",
+      "horizon_label": "today / this week",
+      "family_name": "short-family",
+      "grade": {
+        "key": "a",
+        "label": "A"
+      },
+      "stance": {
+        "key": "strong_long",
+        "label": "Strong long bias"
+      },
+      "confidence": {
+        "source_key": "live",
+        "label": "Live-data evidence",
+        "tooltip": "Model output trained on real market data."
+      },
+      "position": 0.74,
+      "row_matched": true,
+      "evidence_summary": {
+        "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+        "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+        "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+      },
+      "coherence_signature": {
+        "asset_id": "AAPL",
+        "horizon_key": "short",
+        "position_quantized": 0.74,
+        "grade_key": "a",
+        "stance_key": "strong_long",
+        "source_key": "live",
+        "what_changed_digest": "8a22af46b1",
+        "rationale_digest": "3aa1dcf850",
+        "recheck_cadence_key": "monthly",
+        "invalidation_hint_kind": "midline_cross",
+        "overlay_note_kind_key": "catalyst_window",
+        "fingerprint": "045d35c6bf21",
+        "contract_version": "COHERENCE_V1"
+      },
+      "residual_freshness": {
+        "contract_version": "RESIDUAL_SEMANTICS_V1",
+        "recheck_cadence_key": "monthly",
+        "recheck_cadence_label": "Rechecks monthly",
+        "recheck_cadence_body": "This evidence is rechecked on a monthly cadence or when new filings arrive.",
+        "invalidation_hint_kind": "midline_cross",
+        "invalidation_hint_label": "Crosses spectrum midline",
+        "invalidation_hint_body": "If the spectrum position crosses the midline (0.5) the direction is re-examined."
+      },
+      "overlay_note": {
+        "contract_version": "BRAIN_OVERLAY_NOTE_V1",
+        "count": 1,
+        "dominant_kind_key": "catalyst_window",
+        "items": [
+          {
+            "kind_key": "catalyst_window",
+            "label": "Catalyst window",
+            "body": "A non-quant brain note flags a near-term event window that may widen outcomes.",
+            "counter_interpretation_present": true
+          }
+        ],
+        "counter_interpretation_present": true
+      }
+    },
+    "coherence_signature": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "position_quantized": 0.74,
+      "grade_key": "a",
+      "stance_key": "strong_long",
+      "source_key": "live",
+      "what_changed_digest": "8a22af46b1",
+      "rationale_digest": "3aa1dcf850",
+      "recheck_cadence_key": "monthly",
+      "invalidation_hint_kind": "midline_cross",
+      "overlay_note_kind_key": "catalyst_window",
+      "fingerprint": "045d35c6bf21",
+      "contract_version": "COHERENCE_V1"
+    },
+    "evidence_lineage_summary": {
+      "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+      "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "source_key": "live"
+    }
+  },
+  "answers": [
+    {
+      "intent": "explain_claim",
+      "label": "Explain this claim",
+      "claim": [
+        "The short horizon currently reads: strong long bias.",
+        "The signal originates from the short-family model family."
+      ],
+      "evidence": [
+        "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+        "Change: 지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+      ],
+      "insufficiency": [],
+      "grounded": true
+    },
+    {
+      "intent": "show_support",
+      "label": "Show the supporting evidence",
+      "claim": [],
+      "evidence": [
+        "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다."
+      ],
+      "insufficiency": [],
+      "grounded": true
+    },
+    {
+      "intent": "show_counter",
+      "label": "What is the counter-evidence?",
+      "claim": [],
+      "evidence": [
+        "Other horizons — Medium: strong long bias, Medium-long: strong long bias, Long: strong long bias."
+      ],
+      "insufficiency": [
+        "The model does not describe every market regime equally well; extreme regimes can degrade performance."
+      ],
+      "grounded": true
+    },
+    {
+      "intent": "other_horizons",
+      "label": "What do other horizons say?",
+      "claim": [],
+      "evidence": [
+        "Medium: strong long bias (confidence — live-data evidence).",
+        "Medium-long: strong long bias (confidence — live-data evidence).",
+        "Long: strong long bias (confidence — live data preparing)."
+      ],
+      "insufficiency": [],
+      "grounded": true
+    },
+    {
+      "intent": "why_confidence",
+      "label": "Why this confidence level?",
+      "claim": [
+        "Confidence for this horizon is 'Live-data evidence'."
+      ],
+      "evidence": [
+        "Model output trained on real market data.",
+        "Non-quant brain note — Catalyst window: A non-quant brain note flags a near-term event window that may widen outcomes."
+      ],
+      "insufficiency": [],
+      "grounded": true
+    },
+    {
+      "intent": "whats_missing",
+      "label": "What evidence is missing?",
+      "claim": [],
+      "evidence": [],
+      "insufficiency": [
+        "The model cannot incorporate every regulatory/macro event in real time.",
+        "A non-quant brain note flags that a counter-interpretation is present for this claim."
+      ],
+      "grounded": false
+    }
+  ],
+  "coherence_signature": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "position_quantized": 0.74,
+    "grade_key": "a",
+    "stance_key": "strong_long",
+    "source_key": "live",
+    "what_changed_digest": "8a22af46b1",
+    "rationale_digest": "3aa1dcf850",
+    "recheck_cadence_key": "monthly",
+    "invalidation_hint_kind": "midline_cross",
+    "overlay_note_kind_key": "catalyst_window",
+    "fingerprint": "045d35c6bf21",
+    "contract_version": "COHERENCE_V1"
+  },
+  "shared_focus": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "Short",
+    "horizon_label": "today / this week",
+    "family_name": "short-family",
+    "grade": {
+      "key": "a",
+      "label": "A"
+    },
+    "stance": {
+      "key": "strong_long",
+      "label": "Strong long bias"
+    },
+    "confidence": {
+      "source_key": "live",
+      "label": "Live-data evidence",
+      "tooltip": "Model output trained on real market data."
+    },
+    "position": 0.74,
+    "row_matched": true,
+    "evidence_summary": {
+      "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+      "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+    },
+    "coherence_signature": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "position_quantized": 0.74,
+      "grade_key": "a",
+      "stance_key": "strong_long",
+      "source_key": "live",
+      "what_changed_digest": "8a22af46b1",
+      "rationale_digest": "3aa1dcf850",
+      "recheck_cadence_key": "monthly",
+      "invalidation_hint_kind": "midline_cross",
+      "overlay_note_kind_key": "catalyst_window",
+      "fingerprint": "045d35c6bf21",
+      "contract_version": "COHERENCE_V1"
+    },
+    "residual_freshness": {
+      "contract_version": "RESIDUAL_SEMANTICS_V1",
+      "recheck_cadence_key": "monthly",
+      "recheck_cadence_label": "Rechecks monthly",
+      "recheck_cadence_body": "This evidence is rechecked on a monthly cadence or when new filings arrive.",
+      "invalidation_hint_kind": "midline_cross",
+      "invalidation_hint_label": "Crosses spectrum midline",
+      "invalidation_hint_body": "If the spectrum position crosses the midline (0.5) the direction is re-examined."
+    },
+    "overlay_note": {
+      "contract_version": "BRAIN_OVERLAY_NOTE_V1",
+      "count": 1,
+      "dominant_kind_key": "catalyst_window",
+      "items": [
+        {
+          "kind_key": "catalyst_window",
+          "label": "Catalyst window",
+          "body": "A non-quant brain note flags a near-term event window that may widen outcomes.",
+          "counter_interpretation_present": true
+        }
+      ],
+      "counter_interpretation_present": true
+    }
+  }
+}

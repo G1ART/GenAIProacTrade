@@ -1,0 +1,233 @@
+{
+  "contract_version": "ASK_SEMANTIC_GOLDEN_SET_V1",
+  "created_at_utc":   "2026-04-23T00:00:00Z",
+  "doc_ref":          "METIS_Patch_11_Workorder_BrainBundleV3_SignalQuality §M4",
+  "rubric": {
+    "formula":            "score = 0.4*grounded + 0.3*bounded + 0.3*useful",
+    "regression_threshold": 0.75,
+    "bounded_strict":     true,
+    "notes": [
+      "grounded: realized kind matches expected kind for the focus / scope.",
+      "bounded: no buy/sell/price-target/advice language appears anywhere in claim/evidence/insufficiency.",
+      "useful: in-scope answers expose at least one claim or evidence line; out-of-scope / degraded surface a non-empty insufficiency line."
+    ]
+  },
+  "entries": [
+    {
+      "id": "Q01_explain_claim_ko",
+      "question": "이 구간에서 AAPL 현재 읽기를 설명해 주세요.",
+      "lang": "ko",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "quick_action",
+      "intent": "explain_claim",
+      "expected_kind": "grounded",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q02_show_support_en",
+      "question": "Show the supporting evidence for the short-horizon claim.",
+      "lang": "en",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "quick_action",
+      "intent": "show_support",
+      "expected_kind": "grounded",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q03_show_counter_ko",
+      "question": "이 주장에 대한 반대 근거는 무엇인가요?",
+      "lang": "ko",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "quick_action",
+      "intent": "show_counter",
+      "expected_kind": "grounded",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q04_why_confidence_ko",
+      "question": "이 구간의 신뢰도는 왜 이 수준인가요?",
+      "lang": "ko",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "quick_action",
+      "intent": "why_confidence",
+      "expected_kind": "grounded",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q05_whats_missing_ko",
+      "question": "빠진 근거는 무엇인가요?",
+      "lang": "ko",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "quick_action",
+      "intent": "whats_missing",
+      "expected_kind": "grounded",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q06_other_horizons_en",
+      "question": "How do the other horizons read for this asset?",
+      "lang": "en",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "quick_action",
+      "intent": "other_horizons",
+      "expected_kind": "grounded",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q07_free_text_ok_ko",
+      "question": "지금 가장 중요한 건 무엇인가요?",
+      "lang": "ko",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "free_text",
+      "llm_mode":   "well_behaved",
+      "expected_kind": "grounded",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q08_free_text_ok_en",
+      "question": "What changed about this claim since the previous refresh?",
+      "lang": "en",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "free_text",
+      "llm_mode":   "well_behaved",
+      "expected_kind": "grounded",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q09_free_text_out_of_scope_advice_ko",
+      "question": "AAPL 매수 추천해줘.",
+      "lang": "ko",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "free_text",
+      "llm_mode":   "well_behaved",
+      "expected_kind": "out_of_scope",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q10_free_text_out_of_scope_price_target_en",
+      "question": "What is the 12-month price target for AAPL?",
+      "lang": "en",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "free_text",
+      "llm_mode":   "well_behaved",
+      "expected_kind": "out_of_scope",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q11_free_text_foreign_ticker_en",
+      "question": "How is TSLA positioned on this horizon?",
+      "lang": "en",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "free_text",
+      "llm_mode":   "well_behaved",
+      "expected_kind": "out_of_scope",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q12_free_text_off_topic_en",
+      "question": "Explain the call option chain for AAPL this week.",
+      "lang": "en",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "free_text",
+      "llm_mode":   "well_behaved",
+      "expected_kind": "out_of_scope",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q13_free_text_sell_recommendation_ko",
+      "question": "지금 AAPL 포지션을 매도해도 될까요?",
+      "lang": "ko",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "free_text",
+      "llm_mode":   "well_behaved",
+      "expected_kind": "out_of_scope",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q14_degraded_sample_focus_explain_ko",
+      "question": "이 구간의 현재 읽기를 설명해 주세요.",
+      "lang": "ko",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "sample",
+      "mode": "quick_action",
+      "intent": "show_support",
+      "expected_kind": "grounded",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q15_degraded_llm_failure_ko",
+      "question": "지금 가장 중요한 건 무엇인가요?",
+      "lang": "ko",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "free_text",
+      "llm_mode":   "failure",
+      "expected_kind": "degraded",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q16_degraded_llm_failure_en",
+      "question": "Summarize what changed since yesterday.",
+      "lang": "en",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "free_text",
+      "llm_mode":   "failure",
+      "expected_kind": "degraded",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q17_hallucination_demotes_to_partial_en",
+      "question": "Explain the current read for this horizon.",
+      "lang": "en",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "free_text",
+      "llm_mode":   "hallucinating",
+      "expected_kind": "partial",
+      "expected_bounded": true,
+      "expected_useful": true
+    },
+    {
+      "id": "Q18_empty_prompt_rejected_en",
+      "question": "   ",
+      "lang": "en",
+      "focus": {"asset_id": "AAPL", "horizon_key": "short"},
+      "context_mode": "real_derived",
+      "mode": "free_text",
+      "llm_mode":   "well_behaved",
+      "expected_kind": "empty_prompt",
+      "expected_bounded": true,
+      "expected_useful": true
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "contract_version": "PATCH_11_BRAIN_TRUTH_RUNBOOK_EVIDENCE_V1",
+  "generated_utc": "2026-04-23T21:42:32Z",
+  "git_head_sha": "94a0cac273fa0478c1d805748f1a55b316e1a6ce",
+  "scenarios": [
+    {
+      "scenario": "S1",
+      "ok": true,
+      "checks": [
+        {
+          "id": "message_layer_has_residual_keys",
+          "ok": true
+        },
+        {
+          "id": "message_layer_keys_tuple_has_residual_keys",
+          "ok": true
+        },
+        {
+          "id": "shared_focus_carries_residual_freshness",
+          "ok": true
+        },
+        {
+          "id": "residual_block_no_raw_slug",
+          "ok": true
+        },
+        {
+          "id": "residual_block_uses_controlled_keys",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "scenario": "S2",
+      "ok": true,
+      "checks": [
+        {
+          "id": "honest_sample_has_no_errors",
+          "ok": true
+        },
+        {
+          "id": "real_derived_with_sample_is_flagged",
+          "ok": true
+        },
+        {
+          "id": "insufficient_with_production_is_flagged",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "scenario": "S3",
+      "ok": true,
+      "checks": [
+        {
+          "id": "overlay_block_exists",
+          "ok": true
+        },
+        {
+          "id": "overlay_block_dominant_in_buckets",
+          "ok": true
+        },
+        {
+          "id": "overlay_block_no_raw_ids",
+          "ok": true
+        },
+        {
+          "id": "research_counter_card_mentions_counter_interpretation",
+          "ok": true
+        },
+        {
+          "id": "ask_whats_missing_notes_counter",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "scenario": "S4",
+      "ok": true,
+      "checks": [
+        {
+          "id": "overlay_kind_drift_moves_fingerprint",
+          "ok": true
+        },
+        {
+          "id": "language_independent_fingerprint",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "scenario": "S5",
+      "ok": true,
+      "checks": [
+        {
+          "id": "Q11_passes_on_honest_bundle",
+          "ok": true,
+          "detail": "short:4/4; medium:4/4; medium_long:4/4; long:0/1"
+        },
+        {
+          "id": "Q12_passes_on_honest_bundle",
+          "ok": true,
+          "detail": "medium_long:tier=limited;source=real_derived; long:tier=sample;source=insufficient_evidence"
+        },
+        {
+          "id": "Q12_fails_on_lying_bundle",
+          "ok": true,
+          "detail": "long_horizon_support: horizon 'medium_long' provenance='real_derived' claims real_derived but tier=sample (not enough evidence); long_horizon_support: horizon 'long' provenance='real_derived' claims real_derived but tier=sample (not enough evidence)"
+        }
+      ]
+    },
+    {
+      "scenario": "S6",
+      "ok": true,
+      "checks": [
+        {
+          "id": "regression_score_at_least_0_75",
+          "ok": true,
+          "detail": 0.9777777777777779
+        },
+        {
+          "id": "bounded_rate_strict_1_0",
+          "ok": true,
+          "detail": 1.0
+        },
+        {
+          "id": "grounded_rate_minimum",
+          "ok": true,
+          "detail": 0.9444444444444444
+        }
+      ],
+      "rates": {
+        "grounded_rate": 0.9444444444444444,
+        "bounded_rate": 1.0,
+        "useful_rate": 1.0,
+        "regression_score": 0.9777777777777779
+      }
+    },
+    {
+      "scenario": "S7",
+      "ok": true,
+      "checks": [
+        {
+          "id": "static_no_leak_index.html",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "static_no_leak_product_shell.js",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "static_no_leak_product_shell.css",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "freeze_manifest_no_eng_id_leaks",
+          "ok": true,
+          "detail": []
+        }
+      ]
+    }
+  ],
+  "all_ok": true
+}

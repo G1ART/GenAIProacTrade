@@ -2,6 +2,14 @@
 
 Legacy keys (`one_line_take`, `linked_model_family`, `linked_evidence_summary`) remain for `app.js`.
 `linked_registry_entry_id`, `linked_artifact_id`, `linked_evidence` satisfy the unified product contract.
+
+Patch 11 (Brain Bundle v3, 2026-04-23) also exposes residual-score
+semantics from the spectrum row so the Product Shell view-model layer
+can translate them into customer-facing ``residual_freshness`` labels
+without touching the raw engineering slugs
+(``residual_semantics_v1`` / ``monthly_after_new_filing_or_21_trading_days``
+/ ``spectrum_position_crosses_midline`` etc.). See
+``docs/plan/METIS_Residual_Score_Semantics_v1.md``.
 """
 
 from __future__ import annotations
@@ -32,6 +40,11 @@ MESSAGE_LAYER_V1_KEYS: tuple[str, ...] = (
     "linked_registry_entry_id",
     "linked_artifact_id",
     "linked_evidence",
+    # Patch 11 — residual-score semantics (raw engineering slugs; view-models
+    # translate these into customer-facing labels before exposing them).
+    "residual_score_semantics_version",
+    "invalidation_hint",
+    "recheck_cadence",
 )
 
 
@@ -107,6 +120,31 @@ def build_message_layer_v1_for_row(
     one_line = _pick_lang(m.get("one_line_take"), lang) or obj.headline[:220]
     evidence_summary = format_linked_evidence_summary_v1(obj.linked_evidence)
 
+    # Patch 11 — residual semantics passthrough. The MessageObjectV1 layer
+    # already picks these up from either the row or row["message"], but the
+    # dict return previously dropped them so the Product Shell view-models
+    # could never see them. We re-expose the raw slugs here; all customer-
+    # facing DTOs translate them via residual_freshness_block() and never
+    # surface the raw value.
+    residual_version = str(
+        getattr(obj, "residual_score_semantics_version", "")
+        or row.get("residual_score_semantics_version")
+        or (m.get("residual_score_semantics_version") if isinstance(m, dict) else "")
+        or ""
+    )
+    invalidation_hint = str(
+        getattr(obj, "invalidation_hint", "")
+        or row.get("invalidation_hint")
+        or (m.get("invalidation_hint") if isinstance(m, dict) else "")
+        or ""
+    )
+    recheck_cadence = str(
+        getattr(obj, "recheck_cadence", "")
+        or row.get("recheck_cadence")
+        or (m.get("recheck_cadence") if isinstance(m, dict) else "")
+        or ""
+    )
+
     return {
         "message_id": mid,
         "asset_id": aid,
@@ -124,4 +162,7 @@ def build_message_layer_v1_for_row(
         "linked_registry_entry_id": obj.linked_registry_entry_id,
         "linked_artifact_id": obj.linked_artifact_id,
         "linked_evidence": [x.model_dump() for x in obj.linked_evidence],
+        "residual_score_semantics_version": residual_version,
+        "invalidation_hint": invalidation_hint,
+        "recheck_cadence": recheck_cadence,
     }

@@ -319,6 +319,15 @@ def _quick_answer(
             f"Confidence for this horizon is '{conf_label}'.",
         ))
         evidence.append(conf_tip)
+        # Patch 11 — reflect a bound brain overlay in the confidence
+        # explanation when one is present.
+        overlay_block = (context.get("shared_focus") or {}).get("overlay_note")
+        if overlay_block and overlay_block.get("items"):
+            ov_first = overlay_block["items"][0]
+            evidence.append(_pair(
+                f"브레인 비정량 주석 — {ov_first['label']}: {ov_first['body']}",
+                f"Non-quant brain note — {ov_first['label']}: {ov_first['body']}",
+            ))
     elif intent == "whats_missing":
         if src_key == "preparing":
             insufficiency.append(conf_tip)
@@ -333,6 +342,16 @@ def _quick_answer(
             insufficiency.append(_pair(
                 "모든 규제/거시 이벤트를 모형이 실시간으로 반영하지는 못합니다.",
                 "The model cannot incorporate every regulatory/macro event in real time.",
+            ))
+        # Patch 11 — overlay-flagged counter-interpretation goes in
+        # whats_missing so Ask AI can say "we are honest that a
+        # counter-view exists".
+        overlay_block = (context.get("shared_focus") or {}).get("overlay_note")
+        if overlay_block and overlay_block.get("counter_interpretation_present"):
+            insufficiency.append(_pair(
+                "브레인 비정량 주석은 이 주장에 대한 반대 해석이 존재한다고 표시합니다.",
+                "A non-quant brain note flags that a counter-interpretation "
+                "is present for this claim.",
             ))
     else:
         insufficiency.append(_pair(

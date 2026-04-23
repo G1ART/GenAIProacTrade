@@ -1,6 +1,6 @@
 {
   "contract": "PATCH_10C_PRODUCT_COHERENCE_BRIDGE_V1",
-  "generated_utc": "2026-04-23T19:41:51Z",
+  "generated_utc": "2026-04-23T21:42:32Z",
   "prior_patch": "agh_v1_patch_10b_product_shell_rebuild_research_replay_ask",
   "entry_points": [
     "/ (product shell — Today / Research / Replay / Ask AI)"

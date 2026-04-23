@@ -1,6 +1,6 @@
 {
   "contract": "PATCH_10A_PRODUCT_SHELL_BRIDGE_V1",
-  "generated_utc": "2026-04-23T19:41:47Z",
+  "generated_utc": "2026-04-23T21:42:32Z",
   "prior_patch": "agentic_operating_harness_v1_milestone_20_patch_9",
   "entry_point": "/ (product shell) + /ops?METIS_OPS_SHELL=1",
   "api_prefix_added": "/api/product/",

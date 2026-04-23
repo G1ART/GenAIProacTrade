@@ -684,6 +684,20 @@ def build_bundle_full_from_validation_v1(
                 prov["reason"] = "no_real_derived_gate_landed_and_no_template_fallback_configured"
     merged["horizon_provenance"] = provenance
 
+    # Patch 11 — aggregate long-horizon evidence support per horizon so
+    # the Product Shell confidence badge on medium_long/long can show an
+    # honest tier (production / limited / sample) rather than a binary
+    # provenance label.
+    from metis_brain.long_horizon_evidence_v1 import (
+        summarize_long_horizon_support_as_dicts,
+    )
+
+    merged["long_horizon_support_by_horizon"] = summarize_long_horizon_support_as_dicts(
+        spectrum_rows_by_horizon=dict(merged.get("spectrum_rows_by_horizon") or {}),
+        as_of_utc=str(merged.get("as_of_utc") or ""),
+        horizons=("medium_long", "long"),
+    )
+
     integrity_ok, errs = validate_merged_bundle_dict(merged)
     report: dict[str, Any] = {
         "integrity_ok": integrity_ok,

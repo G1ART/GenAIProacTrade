@@ -1,0 +1,18 @@
+{
+  "contract_version": "PATCH_11_SIGNAL_QUALITY_ACCUMULATION_EVIDENCE_V1",
+  "generated_utc": "2026-04-23T21:33:16Z",
+  "git_head_sha": "94a0cac273fa0478c1d805748f1a55b316e1a6ce",
+  "scenarios": [
+    {
+      "id": "healthy_coverage_passes_q11",
+      "ok": true,
+      "detail": "short:9/10; medium:9/10; medium_long:5/5; long:0/3"
+    },
+    {
+      "id": "insufficient_short_coverage_fails_q11",
+      "ok": true,
+      "detail": "short_coverage_0.30<0.8"
+    }
+  ],
+  "all_ok": true
+}

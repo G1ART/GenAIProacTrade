@@ -1,0 +1,265 @@
+{
+  "contract": "PRODUCT_RESEARCH_DEEPDIVE_V1",
+  "lang": "en",
+  "presentation": "deepdive",
+  "ok": true,
+  "as_of": "2026-04-23T08:00:00Z",
+  "last_built_label": "30m ago",
+  "claim": {
+    "ticker": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "Short",
+    "horizon_label": "today / this week",
+    "family_name": "short-family",
+    "grade": {
+      "key": "a",
+      "label": "A"
+    },
+    "stance": {
+      "key": "strong_long",
+      "label": "Strong long bias"
+    },
+    "confidence": {
+      "source_key": "live",
+      "label": "Live-data evidence",
+      "tooltip": "Model output trained on real market data."
+    },
+    "summary": "Short horizon · short-family — current reading: strong long bias.",
+    "row_matched": true
+  },
+  "evidence": [
+    {
+      "kind": "what_changed",
+      "title": "What changed this refresh",
+      "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+    },
+    {
+      "kind": "strongest_support",
+      "title": "Strongest support",
+      "body": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다."
+    },
+    {
+      "kind": "counter_or_companion",
+      "title": "Counter / companion evidence",
+      "body": "Companion horizon readings — Medium: Strong long bias, Medium-long: Strong long bias, Long: Strong long bias. A non-quant brain note flags that a counter-interpretation is present for this claim."
+    },
+    {
+      "kind": "missing_or_preparing",
+      "title": "Known gaps",
+      "body": "The model does not describe every market regime equally well; extreme regimes can degrade performance."
+    },
+    {
+      "kind": "peer_context",
+      "title": "Peer context",
+      "body": "Assets in a similar position — MSFT, NVDA.",
+      "peers": [
+        {
+          "ticker": "MSFT",
+          "stance": {
+            "key": "long",
+            "label": "Long bias"
+          },
+          "grade": {
+            "key": "b",
+            "label": "B"
+          },
+          "position": 0.42
+        },
+        {
+          "ticker": "NVDA",
+          "stance": {
+            "key": "short",
+            "label": "Short bias"
+          },
+          "grade": {
+            "key": "b",
+            "label": "B"
+          },
+          "position": -0.33
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "kind": "open_replay",
+      "label": "Open Replay for this horizon",
+      "hint": "See the past decisions that led to the current reading.",
+      "target": {
+        "surface": "replay",
+        "asset_id": "AAPL",
+        "horizon_key": "short"
+      }
+    },
+    {
+      "kind": "ask_ai",
+      "label": "Ask AI about this claim",
+      "hint": "Jump to the bounded Q&A surface that answers only from surfaced evidence.",
+      "target": {
+        "surface": "ask_ai",
+        "asset_id": "AAPL",
+        "horizon_key": "short",
+        "seed_intent": "explain_claim"
+      }
+    },
+    {
+      "kind": "back_to_today",
+      "label": "Back to Today",
+      "hint": "See where this asset/horizon sits in today's overall reading.",
+      "target": {
+        "surface": "today"
+      }
+    }
+  ],
+  "companion": [
+    {
+      "horizon_key": "medium",
+      "horizon_caption": "Medium",
+      "stance": {
+        "key": "strong_long",
+        "label": "Strong long bias"
+      },
+      "position": 0.74
+    },
+    {
+      "horizon_key": "medium_long",
+      "horizon_caption": "Medium-long",
+      "stance": {
+        "key": "strong_long",
+        "label": "Strong long bias"
+      },
+      "position": 0.74
+    },
+    {
+      "horizon_key": "long",
+      "horizon_caption": "Long",
+      "stance": {
+        "key": "strong_long",
+        "label": "Strong long bias"
+      },
+      "position": 0.74
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "surface": "today",
+      "label": "Today"
+    },
+    {
+      "surface": "research",
+      "label": "Research"
+    },
+    {
+      "surface": "research",
+      "label": "Short",
+      "target": {
+        "presentation": "deepdive",
+        "asset_id": "AAPL",
+        "horizon_key": "short"
+      }
+    }
+  ],
+  "shared_focus": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "horizon_caption": "Short",
+    "horizon_label": "today / this week",
+    "family_name": "short-family",
+    "grade": {
+      "key": "a",
+      "label": "A"
+    },
+    "stance": {
+      "key": "strong_long",
+      "label": "Strong long bias"
+    },
+    "confidence": {
+      "source_key": "live",
+      "label": "Live-data evidence",
+      "tooltip": "Model output trained on real market data."
+    },
+    "position": 0.74,
+    "row_matched": true,
+    "evidence_summary": {
+      "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+      "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+      "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선"
+    },
+    "coherence_signature": {
+      "asset_id": "AAPL",
+      "horizon_key": "short",
+      "position_quantized": 0.74,
+      "grade_key": "a",
+      "stance_key": "strong_long",
+      "source_key": "live",
+      "what_changed_digest": "8a22af46b1",
+      "rationale_digest": "3aa1dcf850",
+      "recheck_cadence_key": "monthly",
+      "invalidation_hint_kind": "midline_cross",
+      "overlay_note_kind_key": "catalyst_window",
+      "fingerprint": "045d35c6bf21",
+      "contract_version": "COHERENCE_V1"
+    },
+    "residual_freshness": {
+      "contract_version": "RESIDUAL_SEMANTICS_V1",
+      "recheck_cadence_key": "monthly",
+      "recheck_cadence_label": "Rechecks monthly",
+      "recheck_cadence_body": "This evidence is rechecked on a monthly cadence or when new filings arrive.",
+      "invalidation_hint_kind": "midline_cross",
+      "invalidation_hint_label": "Crosses spectrum midline",
+      "invalidation_hint_body": "If the spectrum position crosses the midline (0.5) the direction is re-examined."
+    },
+    "overlay_note": {
+      "contract_version": "BRAIN_OVERLAY_NOTE_V1",
+      "count": 1,
+      "dominant_kind_key": "catalyst_window",
+      "items": [
+        {
+          "kind_key": "catalyst_window",
+          "label": "Catalyst window",
+          "body": "A non-quant brain note flags a near-term event window that may widen outcomes.",
+          "counter_interpretation_present": true
+        }
+      ],
+      "counter_interpretation_present": true
+    }
+  },
+  "coherence_signature": {
+    "asset_id": "AAPL",
+    "horizon_key": "short",
+    "position_quantized": 0.74,
+    "grade_key": "a",
+    "stance_key": "strong_long",
+    "source_key": "live",
+    "what_changed_digest": "8a22af46b1",
+    "rationale_digest": "3aa1dcf850",
+    "recheck_cadence_key": "monthly",
+    "invalidation_hint_kind": "midline_cross",
+    "overlay_note_kind_key": "catalyst_window",
+    "fingerprint": "045d35c6bf21",
+    "contract_version": "COHERENCE_V1"
+  },
+  "evidence_lineage_summary": {
+    "what_changed": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+    "strongest_support": "단기 추세 강세가 지속되며 변동성이 축소되는 국면입니다.",
+    "body": "지난 주 대비 상위 10% 구간에서 상대 강도 +8% 개선",
+    "source_key": "live"
+  },
+  "shared_wording": {
+    "bounded_ask": {
+      "title": "Answers strictly from surfaced evidence",
+      "body": "Ask AI only answers within the evidence the product has already shown.",
+      "chip": "Bounded"
+    },
+    "what_changed": {
+      "title": "What changed this refresh",
+      "body": "No material change vs. the previous refresh.",
+      "chip": "Change"
+    },
+    "next_step": {
+      "title": "Next step",
+      "body": "A short list of what to open next — the product never issues buy or sell guidance.",
+      "chip": "Next"
+    }
+  }
+}
