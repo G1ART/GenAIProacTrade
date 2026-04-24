@@ -2,6 +2,24 @@
 
 **단일 목표**: Today/Research/Replay 세 표면을 **Metis Brain bundle + registry + message snapshot store** 라는 하나의 계약 위에 올리고, `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` §10 의 Q1–Q10 이 **자동 spec survey** 에서 전부 `ok=true` 가 되게 한다. (Build Plan §14 수직 슬라이스, §12 항상 지킬 문장.)
 
+## 2026-04-23 — Patch 12.1 — ES256 JWT REST Fallback + Magic Link Hash Fix (field hotfix)
+
+> **Patch 12 를 실제 Supabase 프로젝트 (metisprism.up.railway.app) 에 배포하면서 발견된 두 가지 실전 이슈를 고정 패치.** (1) `emailRedirectTo` 에 `#callback` hash 를 붙여 보냈더니 Supabase 가 자기 토큰을 뒤에 덧붙여 `/login.html#callback#access_token=...` **이중 hash** 가 만들어지고 supabase-js 가 세션 파싱에 실패해 localStorage 에 세션이 남지 않음 → 로그인 루프. (2) 2025 년 이후 신규 Supabase 프로젝트는 기본 JWT 서명이 **ES256 (비대칭 키)** 이고 HS256 legacy secret 은 더 이상 기본이 아님 → Patch 12 의 stdlib-only HS256 verifier 가 `unsupported_alg` 로 거부. 가시 변화: magic link → 세션 파싱 성공 + ES256 토큰도 `/api/auth/session` / `/api/auth/me` 에서 정상 통과. Brain / Product DTO 계약은 여전히 0 byte 변경.
+
+**Green run 실증 (Patch 12.1)**
+
+- **Fix A — hash 단순화**. `src/phase47_runtime/static/login.js` 의 `emailRedirectTo` 를 `window.location.origin + "/login.html"` 로 바꿔 Supabase 가 `#access_token=...` 만 붙이도록 정리. 기존 `#callback` marker 는 login.js 로직상 불필요 (supabase-js `detectSessionInUrl: true` 가 자동 파싱).
+- **Fix B — ES256 REST fallback (stdlib 유지)**. `src/phase47_runtime/auth/supabase_user_verify.py` 가 `urllib.request` 만 써서 `GET {SUPABASE_URL}/auth/v1/user` 에 `Authorization: Bearer <token>` + `apikey: <anon>` 로 토큰 유효성을 Supabase 에 위임 (ECDSA 검증을 Supabase 가 대신 수행). `src/phase47_runtime/auth/access_token_resolver.py` 의 `resolve_access_token` 이 로컬 HS256 verify → (실패 reason 이 `unsupported_alg` / `bad_signature` / `empty_secret` 일 때만) REST fallback 순서를 묶고 **정의 가능한 claim 위반 (expired / wrong_audience / malformed / missing_sub / missing_role / not_yet_valid) 에는 fallback 을 타지 않도록** 명시적 allowlist `_FALLBACK_TRIGGERS` 를 고정. `guard.py:require_auth` 와 `routes_auth.py:api_auth_session` 둘 다 기본 verifier 를 `resolve_access_token` 으로 전환. **auth-configured 판정** 도 (HS256 secret) OR (SUPABASE_URL + ANON_KEY) 로 확장 — 이전에는 HS256 secret 없으면 guard 를 무조건 graceful downgrade 했으나, ES256 + REST fallback 으로만 동작하는 Supabase 기본 프로젝트도 정상 auth-required 모드로 잡힘.
+- **14 테스트 추가**. `src/tests/test_agh_v1_patch_12_1_es256_rest_fallback.py` 가 (1) REST verify 200 성공 + claims 형상, (2) `SUPABASE_URL` / `ANON_KEY` 미설정 시 `supabase_not_configured`, (3) HTTP 401/403 mapping, (4) empty token / missing sub 분기, (5) resolver HS256 성공 시 **REST 0-round-trip** (성능 보장), (6) `unsupported_alg` 시 fallback, (7) `bad_signature` 시 fallback, (8) `empty_secret` 시 fallback, (9) `expired` 시 **fallback 금지** (forgery 회피), (10) REST 미설정이면 원래 HS256 reason 유지, (11) REST 실패 시 `rest_<reason>` prefix 로 구분, (12) guard 가 HS256 secret 없이 anon-only 구성에서도 ES256 토큰 accept, (13) HS256/REST 둘 다 미설정이면 `auth_not_configured` graceful 유지 등 14 케이스 all green. **기존 Patch 12 테스트 62 건 + 새 14 건 = 76 / 76 all green**, 전체 2007 passed (사전 존재 phase39 실패 1 건 외 무관).
+
+**운영 지침 변화**
+
+- Supabase Dashboard 에서 Legacy HS256 secret 을 쓸 필요 없이 **기본 ES256 그대로** 사용 가능. `SUPABASE_ANON_KEY` 만 Railway 에 세팅되어 있으면 `/auth/v1/user` REST 로 검증됨.
+- `SUPABASE_JWT_SECRET` 은 여전히 선택 사항 — 있으면 fast-path (local HS256) 로 무-네트워크 검증, 없으면 REST fallback 1-round-trip.
+- `docs/ops/METIS_Private_Beta_Deployment_Runbook_v1.md` 의 env 표에서 `SUPABASE_JWT_SECRET` 을 "optional — only needed if your project still uses legacy HS256 signing" 으로 해석하면 된다. `SUPABASE_ANON_KEY` + `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` 3 개면 최소 구성 성립.
+
+---
+
 ## 2026-04-23 — Private Beta: Invite-Only Auth + Account-Level Usage Tracking Patch 12 (plan `patch-12-private-beta-auth`)
 
 > **Patch 12 는 온라인 전환 패치다 — Patch 11 까지 닫은 Brain 계약과 Product DTO 언어는 한 글자도 건드리지 않고, 제품 외부 경계 (인증 / 세션 / 이벤트 / 배포 / RLS) 만 추가했다.** 가시 제품 차이: (1) `/login.html` 에 이메일 한 줄 입력 + "Send secure sign-in link" 를 누르면 Supabase magic link 로 invite-only 로그인이 열리고, (2) 로그인한 beta 유저의 panel 전환 / Ask quick-chip / free-text / degraded banner 가 account-level 텔레메트리로 `product_usage_events_v1` 에 적재되며, (3) admin/internal role 유저만 `/ops` 에 새로 생긴 **Beta Admin** 탭에서 "초대 상태 · 최근 24h 세션 · 최근 7일 top events · trust signals" 를 본다. 데모 장면: invite 된 유저가 매직 링크 → `/` → Today → Research 로 이동하면 서버가 `session_started, page_view(today), research_opened` 3 건을 차곡차곡 쌓고, revoked 된 유저는 `/login.html` 에서도 `/api/auth/session` 이 401 `beta_revoked` 로 막힌다.

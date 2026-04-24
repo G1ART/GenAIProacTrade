@@ -22,13 +22,14 @@ import time
 import uuid
 from typing import Any, Optional
 
+from phase47_runtime.auth.access_token_resolver import resolve_access_token
 from phase47_runtime.auth.beta_allowlist import (
     ALLOWLIST_MODE_OFF,
     BetaAllowlistResult,
     verify_user_is_active_beta,
 )
 from phase47_runtime.auth.guard import AuthDecision, user_id_alias
-from phase47_runtime.auth.jwt_verifier import verify_supabase_jwt
+from phase47_runtime.auth.jwt_verifier import verify_supabase_jwt  # noqa: F401  (re-exported for tests)
 from phase47_runtime.auth.supabase_rest import SupabaseRestClient, SupabaseRestError
 
 
@@ -74,12 +75,19 @@ def _sanitized_profile_dto(
     }
 
 
+def _rest_fallback_configured() -> bool:
+    url_ok = bool((os.environ.get("SUPABASE_URL") or "").strip())
+    key_ok = bool((os.environ.get("SUPABASE_ANON_KEY") or "").strip())
+    return url_ok and key_ok
+
+
 def api_auth_session(
     raw: dict[str, Any],
     *,
     now_epoch: Optional[int] = None,
     rest_client: Optional[SupabaseRestClient] = None,
     allowlist_override: Optional[BetaAllowlistResult] = None,
+    verifier=resolve_access_token,
 ) -> tuple[int, dict[str, Any]]:
     """Verify the posted JWT and activate the beta session.
 
@@ -94,10 +102,12 @@ def api_auth_session(
         return 400, {"ok": False, "error": "missing_access_token", "contract": "AUTH_V1"}
 
     secret = _jwt_secret()
-    if not secret:
+    # Patch 12.1 — auth is considered configured if EITHER HS256 secret is
+    # set OR the REST fallback (SUPABASE_URL + ANON_KEY) is available.
+    if not secret and not _rest_fallback_configured():
         return 503, {"ok": False, "error": "auth_not_configured", "contract": "AUTH_V1"}
 
-    vr = verify_supabase_jwt(token, secret=secret, now_epoch=now_epoch)
+    vr = verifier(token, secret=secret, now_epoch=now_epoch)
     if not vr.ok or vr.claims is None:
         return 401, {
             "ok": False,

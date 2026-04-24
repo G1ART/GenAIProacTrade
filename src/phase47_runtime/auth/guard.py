@@ -18,12 +18,13 @@ import os
 from dataclasses import dataclass
 from typing import Any, Iterable, Optional
 
+from phase47_runtime.auth.access_token_resolver import resolve_access_token
 from phase47_runtime.auth.beta_allowlist import (
     ALLOWLIST_MODE_OFF,
     BetaAllowlistResult,
     verify_user_is_active_beta,
 )
-from phase47_runtime.auth.jwt_verifier import JwtVerifyResult, verify_supabase_jwt
+from phase47_runtime.auth.jwt_verifier import JwtVerifyResult, verify_supabase_jwt  # noqa: F401  (re-exported for tests)
 
 
 PUBLIC_API_PATHS: frozenset[str] = frozenset(
@@ -89,6 +90,19 @@ def _jwt_secret() -> str:
     return (os.environ.get("SUPABASE_JWT_SECRET") or "").strip()
 
 
+def _rest_fallback_configured() -> bool:
+    """Patch 12.1 — true when SUPABASE_URL + ANON_KEY are set.
+
+    Required because new Supabase projects (2025+) ship ES256 JWTs that
+    our stdlib HS256 verifier cannot check locally. With URL+anon key we
+    can still verify by calling ``GET /auth/v1/user`` on Supabase itself.
+    """
+
+    url_ok = bool((os.environ.get("SUPABASE_URL") or "").strip())
+    key_ok = bool((os.environ.get("SUPABASE_ANON_KEY") or "").strip())
+    return url_ok and key_ok
+
+
 def require_auth(
     *,
     method: str,
@@ -98,7 +112,7 @@ def require_auth(
     jwt_secret: Optional[str] = None,
     allowlist_result: Optional[BetaAllowlistResult] = None,
     now_epoch: Optional[int] = None,
-    verifier=verify_supabase_jwt,
+    verifier=resolve_access_token,
     allowlist=verify_user_is_active_beta,
 ) -> AuthDecision:
     """Gate an API request. ``dispatch_json`` calls this first."""
@@ -131,10 +145,12 @@ def require_auth(
         )
 
     secret = jwt_secret if jwt_secret is not None else _jwt_secret()
-    if not secret:
-        # Graceful downgrade — the operator has not deployed the private beta
-        # yet (SUPABASE_JWT_SECRET missing), so the guard is a no-op. This is
-        # what keeps local dev + CI test suites working unchanged.
+    # Patch 12.1 — auth is considered "configured" if EITHER the HS256 secret
+    # is set (legacy path) OR the REST fallback (SUPABASE_URL + ANON_KEY) is
+    # available. Only when neither is present do we downgrade to no-op, which
+    # keeps local dev + CI test suites working unchanged.
+    rest_ok = _rest_fallback_configured()
+    if not secret and not rest_ok:
         return AuthDecision(
             ok=True,
             http_status=200,

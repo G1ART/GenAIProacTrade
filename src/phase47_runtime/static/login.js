@@ -161,7 +161,12 @@ FORM.addEventListener("submit", async (ev) => {
   SUBMIT.disabled = true;
   say("info", tr("sending"));
   try {
-    const redirect = window.location.origin + "/login.html#callback";
+    // NOTE: do NOT append a hash here. Supabase preserves the hash and
+    // appends its own ``#access_token=...`` after it, producing a broken
+    // ``/login.html#callback#access_token=...`` double-hash that
+    // supabase-js cannot parse. Passing the bare page URL lets Supabase
+    // replace the hash cleanly with ``#access_token=...``.
+    const redirect = window.location.origin + "/login.html";
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: redirect },
