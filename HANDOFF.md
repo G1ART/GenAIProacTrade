@@ -2,6 +2,29 @@
 
 **단일 목표**: Today/Research/Replay 세 표면을 **Metis Brain bundle + registry + message snapshot store** 라는 하나의 계약 위에 올리고, `docs/plan/METIS_MVP_Unified_Product_Spec_KR_v1.md` §10 의 Q1–Q10 이 **자동 spec survey** 에서 전부 `ok=true` 가 되게 한다. (Build Plan §14 수직 슬라이스, §12 항상 지킬 문장.)
 
+## 2026-04-24 — Patch 12.2 — HTTP Glue Authorization Passthrough + urlopen Timeout Keyword Fix (field hotfix)
+
+> **Patch 12.1 재배포 직후 실제 Supabase magic-link 로그인을 시도하자 `/api/auth/session` 이 Railway `502 Application failed to respond` 로, `/api/auth/me` 는 `401 missing_bearer_token` 으로 떨어졌다.** 원인은 Patch 12 단위 테스트가 `require_auth` / `dispatch_json` 을 직접 호출해 glue layer 를 우회했기 때문에 두 통합 버그가 동시에 살아남아 있었던 것. Patch 12.2 는 integration path 만 고친 점 패치 — Brain 계약 / Product DTO / Auth 알고리즘은 0 byte 변경.
+
+**두 통합 버그**
+
+- **Fix C — `phase47_runtime/app.py` 의 HTTP glue 가 `Authorization` 헤더를 dispatch 로 넘기지 않고 있었다.** `do_GET` / `do_POST` 모두 요청 헤더 중 `X-User-Language` / `X-Cockpit-Lang` / `X-Source-Id` / webhook 계열만 화이트리스트로 복사해서 `dispatch_json(..., headers=hdrs)` 로 전달하는 구조였고, Patch 12 가 auth 를 추가할 때 `Authorization` 을 이 목록에 넣지 않아 브라우저가 `Authorization: Bearer ...` 를 제대로 보내도 서버 `require_auth` 에는 **빈 dict** 가 들어가 전부 `missing_bearer_token` → 401. 단위 테스트는 dispatch 를 직접 호출했기 때문에 이 경로는 검증되지 않았다.
+- **Fix D — `supabase_user_verify.verify_via_supabase_user_endpoint` 의 urlopen 호출이 timeout 을 positional 로 넘기고 있었다.** 기본 opener 가 `urllib.request.urlopen` 이고 그 시그니처는 `urlopen(url, data=None, timeout=...)` 이라, `opener(req, 5.0)` 는 `5.0` 을 **`data`** 로 밀어넣어 GET 를 malformed POST 로 바꿨다. urllib 내부에서 float 을 body 로 encode 하려다 `TypeError` 가 올라오는데 해당 함수의 except 절이 `URLError` / `OSError` / `TimeoutError` 만 잡아서 예외가 `dispatch_json` 밖으로 탈출 → Railway edge 에서 502. Patch 12.1 단위 테스트는 테스트용 opener 를 주입했기 때문에 이 경로도 노출되지 않았다.
+
+**Green run 실증 (Patch 12.2)**
+
+- **Fix C**. `src/phase47_runtime/app.py` 의 `do_GET` / `do_POST` 에 `"Authorization": (self.headers.get("Authorization") or "")` 를 whitelist 에 추가. 빈 문자열 convention 은 기존 다른 헤더와 동일 — `require_auth` 의 `_extract_bearer` 가 빈 문자열을 `missing_bearer_token` 으로 깔끔히 맵핑.
+- **Fix D**. `src/phase47_runtime/auth/supabase_user_verify.py` 에 `_default_opener(request, timeout) -> urlopen(request, timeout=timeout)` 내부 wrapper 를 두어 positional `(request, timeout)` convention 을 양쪽 (실제 / 테스트) 에 통일하고, 혹시라도 남을 미지의 예외를 위해 **마지막 안전망 `except Exception: return SupabaseUserVerifyResult(False, None, "network_error")`** 를 추가. 이제 REST fallback 경로에서 어떤 크래시가 나도 502 가 아니라 401 로 끝난다.
+- **6 테스트 추가**. `src/tests/test_agh_v1_patch_12_2_hotfix.py` 가 (1) GET `/api/auth/me` 에서 `Authorization: Bearer <783자>` 가 그대로 dispatch 까지 살아서 도달, (2) POST `/api/auth/session` 에서도 동일 + 기존 `X-Source-Id` 도 유지, (3) Authorization 누락 시 dict 에 빈 문자열로 통과 (None 이 아닌 "" convention), (4) 기본 opener 가 real `urlopen` 에 `timeout=` keyword 로 전달 + GET method 유지, (5) opener 내부 `TypeError` 가 `network_error` 로 포섭 (502 방지의 핵심 증거), (6) 임의 `RuntimeError` 도 동일하게 포섭. 6/6 all green. **기존 Patch 12 (62) + Patch 12.1 (14) + Patch 12.2 (6) = 82 / 82 all green**, 전체 2013 passed (사전 존재 phase39 실패 1 건 외 무관).
+
+**운영 지침 변화**
+
+- Patch 12.2 이후 **모든 `/api/*` 라우트가 Authorization 헤더를 실제로 받는다** — auth_bootstrap.js 의 fetch 래퍼가 붙이는 Bearer 가 이제 서버 `require_auth` 까지 정상 도달.
+- `GET /auth/v1/user` REST fallback 경로는 이제 어떤 예외가 나도 502 가 아니라 401 `auth_invalid` 에 귀결. magic-link 재시도로 복구 가능.
+- 배포 확인: Railway redeploy 후 브라우저 DevTools Console 에서 `(async () => { const k = Object.keys(localStorage).find(x=>x.startsWith("sb-") && x.endsWith("-auth-token")); const tok = JSON.parse(localStorage.getItem(k)).access_token; const s = await fetch("/api/auth/session",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({access_token:tok,preferred_lang:"ko"})}); console.log("SESSION", s.status, await s.text()); const m = await fetch("/api/auth/me",{headers:{Authorization:"Bearer "+tok}}); console.log("ME", m.status, await m.text()); })();` 를 돌리면 `SESSION 200` + `ME 200 {"ok":true,...}` 가 나와야 한다.
+
+---
+
 ## 2026-04-23 — Patch 12.1 — ES256 JWT REST Fallback + Magic Link Hash Fix (field hotfix)
 
 > **Patch 12 를 실제 Supabase 프로젝트 (metisprism.up.railway.app) 에 배포하면서 발견된 두 가지 실전 이슈를 고정 패치.** (1) `emailRedirectTo` 에 `#callback` hash 를 붙여 보냈더니 Supabase 가 자기 토큰을 뒤에 덧붙여 `/login.html#callback#access_token=...` **이중 hash** 가 만들어지고 supabase-js 가 세션 파싱에 실패해 localStorage 에 세션이 남지 않음 → 로그인 루프. (2) 2025 년 이후 신규 Supabase 프로젝트는 기본 JWT 서명이 **ES256 (비대칭 키)** 이고 HS256 legacy secret 은 더 이상 기본이 아님 → Patch 12 의 stdlib-only HS256 verifier 가 `unsupported_alg` 로 거부. 가시 변화: magic link → 세션 파싱 성공 + ES256 토큰도 `/api/auth/session` / `/api/auth/me` 에서 정상 통과. Brain / Product DTO 계약은 여전히 0 byte 변경.

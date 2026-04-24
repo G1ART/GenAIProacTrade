@@ -112,12 +112,28 @@ def verify_via_supabase_user_endpoint(
             "Accept": "application/json",
         },
     )
-    opener = http_opener if http_opener is not None else urllib.request.urlopen
+    # Patch 12.2 — ``urllib.request.urlopen`` takes ``data`` as the second
+    # positional argument (``urlopen(url, data=None, timeout=...)``), so the
+    # original ``opener(req, timeout_s)`` call smuggled ``5.0`` into ``data``.
+    # That flipped the GET to a POST with a float body, which blew up before
+    # our except clauses could even catch ``URLError`` and surfaced as
+    # Railway ``502 Application failed to respond``. Wrap the default so both
+    # the real ``urlopen`` and the test opener share the positional
+    # ``(request, timeout)`` convention.
+    def _default_opener(request: urllib.request.Request, timeout: float) -> Any:
+        return urllib.request.urlopen(request, timeout=timeout)
+
+    opener = http_opener if http_opener is not None else _default_opener
     try:
         resp = opener(req, timeout_s)
     except urllib.error.HTTPError as e:
         return SupabaseUserVerifyResult(False, None, _http_reason(int(getattr(e, "code", 0) or 0)))
     except (urllib.error.URLError, TimeoutError, OSError):
+        return SupabaseUserVerifyResult(False, None, "network_error")
+    except Exception:
+        # Defense-in-depth: any other unexpected error (e.g. TypeError from a
+        # pathological opener, SSL oddities) must *not* escape the guard and
+        # turn into a 502. Surface it as a generic network_error.
         return SupabaseUserVerifyResult(False, None, "network_error")
 
     try:

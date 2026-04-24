@@ -100,9 +100,17 @@ def make_handler(state: CockpitRuntimeState):
                 self._send(200, sp.read_bytes(), _content_type(rel))
                 return
             if path.startswith("/api/"):
+                # Patch 12.2 — Authorization MUST flow through for the auth
+                # guard (``require_auth``) to read the Bearer token. Before
+                # this fix the glue only whitelisted X-User-Language /
+                # X-Cockpit-Lang, so every authenticated GET (``/api/auth/me``,
+                # ``/api/events``, ``/api/admin/beta/*``) saw
+                # ``missing_bearer_token`` even when the client sent a valid
+                # header.
                 hdrs = {
                     "X-User-Language": (self.headers.get("X-User-Language") or ""),
                     "X-Cockpit-Lang": (self.headers.get("X-Cockpit-Lang") or ""),
+                    "Authorization": (self.headers.get("Authorization") or ""),
                 }
                 code, obj = dispatch_json(state, method="GET", path=path, body=None, query=q, headers=hdrs)
                 self._send_json(code, obj)
@@ -115,12 +123,15 @@ def make_handler(state: CockpitRuntimeState):
             length = int(self.headers.get("Content-Length") or 0)
             body = self.rfile.read(length) if length > 0 else None
             if path.startswith("/api/"):
+                # Patch 12.2 — same Authorization passthrough for POST paths
+                # (``/api/auth/session``, ``/api/events``, ``/api/events/batch``).
                 hdrs = {
                     "X-Source-Id": (self.headers.get("X-Source-Id") or ""),
                     "X-Webhook-Secret": (self.headers.get("X-Webhook-Secret") or ""),
                     "X-Webhook-Timestamp": (self.headers.get("X-Webhook-Timestamp") or ""),
                     "X-Webhook-Signature": (self.headers.get("X-Webhook-Signature") or ""),
                     "X-Webhook-Nonce": (self.headers.get("X-Webhook-Nonce") or ""),
+                    "Authorization": (self.headers.get("Authorization") or ""),
                 }
                 code, obj = dispatch_json(state, method="POST", path=path, body=body, query={}, headers=hdrs)
                 self._send_json(code, obj)
