@@ -1,0 +1,138 @@
+/*
+ * Patch 12 — /login.html styling.
+ *
+ * Reuses the Product Shell CSS variables (product_shell.css) so the
+ * magic-link page lands with the same premium dark tone the rest of
+ * the shell uses. No external webfonts, no tracking scripts.
+ */
+
+html, body { height: 100%; margin: 0; }
+body.ps-app-root {
+  background: var(--ps-bg);
+  color: var(--ps-text-primary);
+  font-family: var(--ps-font-sans);
+  font-size: var(--ps-fs-body);
+  line-height: var(--ps-lh-normal);
+  min-height: 100vh;
+}
+
+.lg-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ps-sp-8) var(--ps-sp-4);
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(76, 195, 138, 0.08), transparent 70%),
+    radial-gradient(1000px 500px at 80% 110%, rgba(142, 126, 224, 0.08), transparent 70%),
+    var(--ps-bg);
+}
+
+.lg-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--ps-surface-1);
+  border: 1px solid var(--ps-border-muted);
+  border-radius: var(--ps-radius-lg);
+  padding: var(--ps-sp-8);
+  box-shadow: var(--ps-elev-3);
+}
+
+.lg-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--ps-sp-6);
+}
+.lg-brand {
+  font-weight: var(--ps-fw-bold);
+  letter-spacing: 0.08em;
+  font-size: var(--ps-fs-h3);
+}
+.lg-sub {
+  font-size: var(--ps-fs-caption);
+  color: var(--ps-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.lg-title {
+  font-size: var(--ps-fs-h2);
+  font-weight: var(--ps-fw-semibold);
+  line-height: var(--ps-lh-tight);
+  margin: 0 0 var(--ps-sp-3) 0;
+}
+.lg-copy {
+  color: var(--ps-text-secondary);
+  margin: 0 0 var(--ps-sp-6) 0;
+  font-size: var(--ps-fs-small);
+}
+
+.lg-form { display: flex; flex-direction: column; gap: var(--ps-sp-2); }
+.lg-label {
+  font-size: var(--ps-fs-caption);
+  color: var(--ps-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.lg-input {
+  background: var(--ps-surface-2);
+  color: var(--ps-text-primary);
+  border: 1px solid var(--ps-border-strong);
+  border-radius: var(--ps-radius-md);
+  padding: var(--ps-sp-3) var(--ps-sp-4);
+  font-size: var(--ps-fs-body);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.lg-input:focus {
+  border-color: var(--ps-accent-up);
+  box-shadow: 0 0 0 3px var(--ps-accent-up-soft);
+}
+
+.lg-cta {
+  margin-top: var(--ps-sp-4);
+  background: var(--ps-accent-up);
+  color: #0a1310;
+  border: 0;
+  border-radius: var(--ps-radius-md);
+  padding: var(--ps-sp-3) var(--ps-sp-4);
+  font-size: var(--ps-fs-body);
+  font-weight: var(--ps-fw-semibold);
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.05s ease;
+}
+.lg-cta:hover:not(:disabled)   { filter: brightness(1.05); }
+.lg-cta:active:not(:disabled)  { transform: translateY(1px); }
+.lg-cta:disabled               { opacity: 0.55; cursor: not-allowed; }
+
+.lg-status {
+  min-height: 1.4em;
+  margin: var(--ps-sp-4) 0 0 0;
+  font-size: var(--ps-fs-small);
+  color: var(--ps-text-secondary);
+}
+.lg-status.is-error   { color: var(--ps-accent-down); }
+.lg-status.is-success { color: var(--ps-accent-up);   }
+
+.lg-footer { margin-top: var(--ps-sp-8); border-top: 1px solid var(--ps-border-muted); padding-top: var(--ps-sp-4); }
+.lg-footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ps-sp-3);
+  justify-content: space-between;
+  align-items: center;
+}
+.lg-footer-note { color: var(--ps-text-tertiary); font-size: var(--ps-fs-caption); }
+.lg-link {
+  color: var(--ps-text-secondary);
+  font-size: var(--ps-fs-caption);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--ps-text-tertiary);
+}
+.lg-link:hover { color: var(--ps-text-primary); }
+
+/* language toggle */
+body[data-lg-lang="ko"] [data-lang="en"] { display: none; }
+body[data-lg-lang="en"] [data-lang="ko"] { display: none; }

@@ -1,0 +1,55 @@
+{
+  "all_ok": true,
+  "contract": "PATCH_12_PRIVATE_BETA_RUNBOOK_V1",
+  "generated_utc": "2026-04-24T00:42:20.420194+00:00",
+  "ok": true,
+  "scenarios": [
+    {
+      "alias": "bu_666ff6ccaa5b",
+      "http": 200,
+      "leaks": [],
+      "name": "S1_auth_session",
+      "ok": true
+    },
+    {
+      "http": 403,
+      "leaks": [],
+      "name": "S2_revoked_guard",
+      "ok": true,
+      "reason": "allowlist_revoked"
+    },
+    {
+      "http": 200,
+      "inserted_count": 1,
+      "leaks": [],
+      "name": "S3_event_accepted",
+      "ok": true
+    },
+    {
+      "http": 400,
+      "inserted_count": 0,
+      "leaks": [],
+      "name": "S4_off_taxonomy_rejected",
+      "ok": true
+    },
+    {
+      "accepted_n": 5,
+      "name": "S5_rate_limit_boundary",
+      "ok": true,
+      "overflow_http": 429
+    },
+    {
+      "admin_http": 200,
+      "admin_items": 1,
+      "beta_http": 403,
+      "leaks": [],
+      "name": "S6_admin_rbac",
+      "ok": true
+    },
+    {
+      "leaks": [],
+      "name": "S7_aggregated_no_leak",
+      "ok": true
+    }
+  ]
+}

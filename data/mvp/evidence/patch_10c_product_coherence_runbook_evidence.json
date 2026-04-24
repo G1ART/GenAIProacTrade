@@ -1,7 +1,7 @@
 {
   "contract": "PATCH_10C_PRODUCT_COHERENCE_RUNBOOK_V1",
-  "generated_utc": "2026-04-23T21:42:32Z",
-  "git_head_sha": "94a0cac273fa0478c1d805748f1a55b316e1a6ce",
+  "generated_utc": "2026-04-24T00:42:24Z",
+  "git_head_sha": "39274dfa9df68141fa5239883249d645174ca82a",
   "scenarios": {
     "s1_cross_surface_coherence": {
       "per_lang": {

@@ -90,7 +90,7 @@
           "labels": []
         }
       },
-      "stored_at_utc": "2026-04-23T21:42:38.570815+00:00"
+      "stored_at_utc": "2026-04-24T00:42:29.055350+00:00"
     },
     "msg_snap:v1:41859c06eb77c044d06adf88": {
       "asset_id": "DEMO_KR_A",
@@ -37710,7 +37710,7 @@
         "scoring_endpoint_contract": "seed_inline_v0",
         "replay_lineage_pointer": "seed:replay_lineage_v0"
       },
-      "stored_at_utc": "2026-04-23T21:42:23.999434+00:00"
+      "stored_at_utc": "2026-04-24T00:42:02.738183+00:00"
     },
     "msg_snap:v1:904f4ba2245ed42f9f0daf57": {
       "asset_id": "DEMO_KR_C",
@@ -37851,7 +37851,7 @@
         "scoring_endpoint_contract": "seed_inline_v0",
         "replay_lineage_pointer": "seed:replay_lineage_v0"
       },
-      "stored_at_utc": "2026-04-23T21:42:24.571581+00:00"
+      "stored_at_utc": "2026-04-24T00:42:03.381550+00:00"
     },
     "msg_snap:v1:55a16023a2e8e9c93821c0fa": {
       "asset_id": "DEMO_KR_A",

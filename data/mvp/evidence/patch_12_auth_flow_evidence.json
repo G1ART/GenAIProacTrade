@@ -1,0 +1,40 @@
+{
+  "auth_me": {
+    "body": {
+      "ok": true,
+      "user": {
+        "allowlist_mode": "enforce",
+        "allowlist_status": "active",
+        "display_name": null,
+        "preferred_lang": null,
+        "role": "beta_user",
+        "session_id": "",
+        "user_id_alias": "bu_666ff6ccaa5b"
+      }
+    },
+    "http": 200
+  },
+  "auth_session": {
+    "body": {
+      "ok": true,
+      "session_id": "<mint>",
+      "user": {
+        "allowlist_mode": "enforce",
+        "allowlist_status": "active",
+        "display_name": null,
+        "preferred_lang": "ko",
+        "role": "beta_user",
+        "session_id": "<mint>",
+        "user_id_alias": "bu_666ff6ccaa5b"
+      }
+    },
+    "http": 200
+  },
+  "contract": "PATCH_12_EVIDENCE_V1",
+  "generated_utc": "2026-04-24T00:33:58.310484+00:00",
+  "jwt_verify": {
+    "ok": true,
+    "reason": null,
+    "sub": "11111111-2222-3333-4444-555555555555"
+  }
+}

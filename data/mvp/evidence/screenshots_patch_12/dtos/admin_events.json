@@ -1,0 +1,28 @@
+{
+  "body": {
+    "contract": "ADMIN_V1",
+    "count": 3,
+    "items": [
+      {
+        "event_count": 83,
+        "event_name": "page_view",
+        "unique_sessions": 12,
+        "unique_users": 5
+      },
+      {
+        "event_count": 27,
+        "event_name": "ask_quick_action_clicked",
+        "unique_sessions": 9,
+        "unique_users": 4
+      },
+      {
+        "event_count": 18,
+        "event_name": "research_opened",
+        "unique_sessions": 8,
+        "unique_users": 4
+      }
+    ],
+    "ok": true
+  },
+  "http_status": 200
+}

@@ -9,8 +9,29 @@ from typing import Any
 from phase46.alert_ledger import list_alerts, update_alert_status
 from phase46.decision_trace_ledger import DECISION_TYPES, append_decision, list_decisions
 
+from phase47_runtime.auth.guard import (
+    PUBLIC_API_PATHS,
+    AuthDecision,
+    require_auth,
+)
 from phase47_runtime.governed_conversation import process_governed_prompt
 from phase47_runtime.notification_hooks import emit_notification, list_notifications
+from phase47_runtime.routes_auth import (
+    api_auth_me,
+    api_auth_session,
+    api_auth_signout,
+    api_runtime_auth_config,
+)
+from phase47_runtime.routes_admin import (
+    api_admin_beta_events,
+    api_admin_beta_sessions,
+    api_admin_beta_trust,
+    api_admin_beta_users,
+)
+from phase47_runtime.routes_events import (
+    api_events_batch_post,
+    api_events_post,
+)
 from phase47_runtime.runtime_state import CockpitRuntimeState
 from phase47_runtime.traceability_replay import (
     TRACEABILITY_VIEWS,
@@ -1216,6 +1237,37 @@ def dispatch_json(
             raw = json.loads(body.decode("utf-8"))
         except json.JSONDecodeError:
             return 400, {"ok": False, "error": "invalid_json"}
+
+    # Patch 12 — invite-only guard. Applies to any ``/api/*`` path not in
+    # the PUBLIC_API_PATHS allowlist. Public routes (health / auth bootstrap
+    # / auth callback / signout) still work without a Bearer so the login
+    # flow itself can load.
+    auth_decision: AuthDecision | None = None
+    if p.startswith("/api/"):
+        auth_decision = require_auth(method=method, path=p, headers=headers)
+        if not auth_decision.ok:
+            return auth_decision.http_status, auth_decision.to_error_payload()
+
+    if method == "POST" and p == "/api/auth/session":
+        return api_auth_session(raw)
+    if method == "POST" and p == "/api/auth/signout":
+        return api_auth_signout()
+    if method == "GET" and p == "/api/auth/me":
+        return api_auth_me(decision=auth_decision)
+    if method == "GET" and p == "/api/runtime/auth-config":
+        return api_runtime_auth_config()
+    if method == "POST" and p == "/api/events":
+        return api_events_post(raw, decision=auth_decision)
+    if method == "POST" and p == "/api/events/batch":
+        return api_events_batch_post(raw, decision=auth_decision)
+    if method == "GET" and p == "/api/admin/beta/users":
+        return api_admin_beta_users(decision=auth_decision, query=q)
+    if method == "GET" and p == "/api/admin/beta/sessions":
+        return api_admin_beta_sessions(decision=auth_decision)
+    if method == "GET" and p == "/api/admin/beta/events":
+        return api_admin_beta_events(decision=auth_decision)
+    if method == "GET" and p == "/api/admin/beta/trust":
+        return api_admin_beta_trust(decision=auth_decision)
 
     if method == "GET" and p == "/api/meta":
         return 200, {"ok": True, **api_meta(state)}

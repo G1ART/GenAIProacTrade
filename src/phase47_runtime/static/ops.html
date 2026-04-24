@@ -376,6 +376,7 @@
         <span class="tsr-chip tsr-chip--neutral tsr-bundle-tier-chip" id="tsr-bundle-tier" hidden data-i18n-title="tsr.bundle_tier.tip" title=""></span>
         <button type="button" data-panel="journal" class="nav-utility-btn" data-i18n="nav.journal">Journal</button>
         <button type="button" data-panel="advanced" class="nav-utility-btn" data-i18n="nav.advanced">Advanced</button>
+        <button type="button" data-panel="beta_admin" class="nav-utility-btn" data-i18n="nav.beta_admin">Beta Admin</button>
         <button type="button" class="nav-utility-btn reload" id="btn-reload" data-i18n="nav.reload">Reload bundle</button>
       </div>
     </nav>
@@ -546,6 +547,16 @@
       <div id="conv-out"></div>
     </section>
 
+    <section id="panel-beta_admin" class="panel">
+      <h2 data-i18n="panel.beta_admin.title">Beta Admin — private beta telemetry</h2>
+      <p class="meta" data-i18n="panel.beta_admin.meta">Patch 12 — invite allowlist, recent sessions, top events, and trust signals. Read-only; never exposed to customer surfaces.</p>
+      <div id="beta-admin-root" class="feed-stack"><p class="empty" data-i18n="panel.beta_admin.empty">Click "Refresh" to load. Requires admin / internal role on beta_users_v1.</p></div>
+      <div class="row" style="margin-top:0.75rem">
+        <button type="button" class="btn btn-primary" id="btn-beta-admin-refresh" data-i18n="panel.beta_admin.refresh">Refresh</button>
+        <span class="meta" id="beta-admin-status" style="margin-left:0.75rem"></span>
+      </div>
+    </section>
+
     <section id="panel-advanced" class="panel">
       <h2 data-i18n="panel.advanced.title">Advanced — alerts &amp; machine detail</h2>
       <p class="meta" data-i18n="panel.advanced.meta">Full alert workflow and filters. Default Home shows a short preview only.</p>
@@ -565,5 +576,6 @@
     </footer>
   </main>
   <script src="/static/ops.js"></script>
+  <script src="/static/ops_admin.js"></script>
 </body>
 </html>

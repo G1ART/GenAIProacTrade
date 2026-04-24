@@ -439,6 +439,16 @@
     STATE.ask.selected_intent = intent;
     STATE.ask.answer = { status: "loading" };
     renderAskPanel();
+    try {
+      if (typeof window.metisEmitEvent === "function") {
+        window.metisEmitEvent("ask_quick_action_clicked", {
+          surface: "ask_ai",
+          asset_id: STATE.focus.asset_id || null,
+          horizon_key: STATE.focus.horizon_key || null,
+          metadata: { intent: String(intent || "") },
+        });
+      }
+    } catch (_e) {}
     return fetch(url, { headers: { "Accept": "application/json", "X-User-Language": STATE.lang } })
       .then(function (r) { if (!r.ok) throw new Error("http_" + r.status); return r.json(); })
       .then(function (dto) {
@@ -448,10 +458,38 @@
           if (list[i].intent === intent) { found = list[i]; break; }
         }
         STATE.ask.answer = found || { status: "degraded", claim: "", evidence: [], missing: [] };
+        try {
+          if (typeof window.metisEmitEvent === "function") {
+            var state = String(STATE.ask.answer && STATE.ask.answer.status || "");
+            window.metisEmitEvent("ask_answer_rendered", {
+              surface: "ask_ai",
+              asset_id: STATE.focus.asset_id || null,
+              horizon_key: STATE.focus.horizon_key || null,
+              result_state: state || null,
+              metadata: { intent: String(intent || "") },
+            });
+            if (state === "degraded") {
+              window.metisEmitEvent("ask_degraded_shown", {
+                surface: "ask_ai",
+                result_state: state,
+                metadata: { intent: String(intent || "") },
+              });
+            }
+          }
+        } catch (_e) {}
         renderAskPanel();
       })
       .catch(function () {
         STATE.ask.answer = { status: "degraded", claim: T("ask_ai.degraded_banner"), evidence: [], missing: [] };
+        try {
+          if (typeof window.metisEmitEvent === "function") {
+            window.metisEmitEvent("ask_degraded_shown", {
+              surface: "ask_ai",
+              result_state: "degraded",
+              metadata: { intent: String(intent || "") },
+            });
+          }
+        } catch (_e) {}
         renderAskPanel();
       });
   }
@@ -462,6 +500,16 @@
     STATE.ask.submitting = true;
     STATE.ask.answer = { status: "loading" };
     renderAskPanel();
+    try {
+      if (typeof window.metisEmitEvent === "function") {
+        window.metisEmitEvent("ask_free_text_submitted", {
+          surface: "ask_ai",
+          asset_id: STATE.focus.asset_id || null,
+          horizon_key: STATE.focus.horizon_key || null,
+          metadata: { len: text.length },
+        });
+      }
+    } catch (_e) {}
     var body = JSON.stringify({
       message: text,
       asset_id: STATE.focus.asset_id || null,
@@ -481,11 +529,38 @@
       .then(function (res) {
         STATE.ask.answer = res.body || { status: "degraded", claim: "", evidence: [], missing: [] };
         STATE.ask.submitting = false;
+        try {
+          if (typeof window.metisEmitEvent === "function") {
+            var state = String(STATE.ask.answer && STATE.ask.answer.status || "");
+            window.metisEmitEvent("ask_answer_rendered", {
+              surface: "ask_ai",
+              asset_id: STATE.focus.asset_id || null,
+              horizon_key: STATE.focus.horizon_key || null,
+              result_state: state || null,
+            });
+            if (state === "degraded") {
+              window.metisEmitEvent("ask_degraded_shown", {
+                surface: "ask_ai",
+                result_state: state,
+              });
+            } else if (state === "out_of_scope") {
+              window.metisEmitEvent("ask_degraded_shown", {
+                surface: "ask_ai",
+                result_state: state,
+              });
+            }
+          }
+        } catch (_e) {}
         renderAskPanel();
       })
       .catch(function () {
         STATE.ask.answer = { status: "degraded", claim: T("ask_ai.degraded_banner"), evidence: [], missing: [] };
         STATE.ask.submitting = false;
+        try {
+          if (typeof window.metisEmitEvent === "function") {
+            window.metisEmitEvent("ask_degraded_shown", { surface: "ask_ai", result_state: "degraded" });
+          }
+        } catch (_e) {}
         renderAskPanel();
       });
   }
@@ -547,6 +622,22 @@
     if (key === "research") fetchResearchDto();
     else if (key === "replay") fetchReplayDto();
     else if (key === "ask_ai") fetchAskDto();
+    // Patch 12 — bounded telemetry: record surface navigation. No PII,
+    // only the surface/route + current focus (asset_id/horizon_key).
+    try {
+      if (typeof window.metisEmitEvent === "function") {
+        var evName = key === "today"    ? "page_view"
+                   : key === "research" ? "research_opened"
+                   : key === "replay"   ? "replay_opened"
+                   : key === "ask_ai"   ? "ask_opened"
+                   : "page_view";
+        window.metisEmitEvent(evName, {
+          surface: key === "ask_ai" ? "ask_ai" : key,
+          asset_id: STATE.focus.asset_id || null,
+          horizon_key: STATE.focus.horizon_key || null,
+        });
+      }
+    } catch (_e) { /* telemetry is best-effort */ }
   }
 
   function updateHashFromState() {
@@ -1637,11 +1728,37 @@
     setActivePanel: setActivePanel,
   };
 
-  document.addEventListener("DOMContentLoaded", function () {
+  function _bootstrapThenRender() {
     document.documentElement.lang = STATE.lang;
     renderAll();
     fetchTodayDto();
     window.addEventListener("hashchange", applyHash);
     applyHash();
+    try {
+      if (typeof window.metisEmitEvent === "function") {
+        window.metisEmitEvent("session_started", { surface: "system", lang: STATE.lang });
+        window.metisEmitEvent("page_view", {
+          surface: STATE.activePanel === "ask_ai" ? "ask_ai" : (STATE.activePanel || "today"),
+          lang: STATE.lang,
+        });
+      }
+    } catch (_e) {}
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // Patch 12 — if auth_bootstrap.js is present, gate on the bootstrap
+    // promise so /login.html redirect happens before first paint. When
+    // the server runs without auth configured, the bootstrap resolves
+    // immediately and the shell boots as before.
+    if (typeof window.metisAuthBootstrap === "function") {
+      window.metisAuthBootstrap()
+        .then(function (res) {
+          if (res && res.authRequired && !res.authed) return; // already redirected
+          _bootstrapThenRender();
+        })
+        .catch(function () { _bootstrapThenRender(); });
+    } else {
+      _bootstrapThenRender();
+    }
   });
 })();

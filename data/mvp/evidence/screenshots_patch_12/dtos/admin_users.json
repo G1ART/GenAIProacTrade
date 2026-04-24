@@ -1,0 +1,34 @@
+{
+  "body": {
+    "contract": "ADMIN_V1",
+    "count": 3,
+    "items": [
+      {
+        "activated_at": "2026-04-20T00:10:00Z",
+        "email_masked": "a••••@metis.ai",
+        "invited_at": "2026-04-20T00:00:00Z",
+        "role": "admin",
+        "status": "active",
+        "user_id_alias": "bu_bc4818164980"
+      },
+      {
+        "activated_at": "2026-04-22T08:00:00Z",
+        "email_masked": "u••••@example.com",
+        "invited_at": "2026-04-22T00:00:00Z",
+        "role": "beta_user",
+        "status": "active",
+        "user_id_alias": "bu_2a30cfaec83c"
+      },
+      {
+        "activated_at": null,
+        "email_masked": "u••••@example.com",
+        "invited_at": "2026-04-23T00:00:00Z",
+        "role": "beta_user",
+        "status": "invited",
+        "user_id_alias": "bu_6e532321ea38"
+      }
+    ],
+    "ok": true
+  },
+  "http_status": 200
+}

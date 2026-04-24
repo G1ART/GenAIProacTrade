@@ -1,0 +1,11 @@
+{
+  "body": {
+    "anon_key": "anon-public-key-placeholder",
+    "configured": true,
+    "contract": "AUTH_V1",
+    "ok": true,
+    "redirect_url": "",
+    "supabase_url": "https://example-freeze.supabase.co"
+  },
+  "http_status": 200
+}

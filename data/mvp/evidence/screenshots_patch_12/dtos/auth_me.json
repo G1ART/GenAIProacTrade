@@ -1,0 +1,15 @@
+{
+  "body": {
+    "ok": true,
+    "user": {
+      "allowlist_mode": "enforce",
+      "allowlist_status": "active",
+      "display_name": null,
+      "preferred_lang": null,
+      "role": "beta_user",
+      "session_id": "",
+      "user_id_alias": "bu_666ff6ccaa5b"
+    }
+  },
+  "http_status": 200
+}

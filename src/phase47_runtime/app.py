@@ -67,6 +67,17 @@ def make_handler(state: CockpitRuntimeState):
                     return
                 self._send(200, p.read_bytes(), _content_type("index.html"))
                 return
+            # Patch 12 — /login.html + sibling assets for the private beta.
+            if path in ("/login", "/login.html", "/login.js", "/login.css", "/auth_bootstrap.js"):
+                name = path.lstrip("/") or "login.html"
+                if name == "login":
+                    name = "login.html"
+                p = _PKG / "static" / name
+                if not p.is_file():
+                    self.send_error(404)
+                    return
+                self._send(200, p.read_bytes(), _content_type(name))
+                return
             if path in ("/ops", "/ops/", "/ops/index.html"):
                 if os.environ.get("METIS_OPS_SHELL", "").strip() not in ("1", "true", "yes"):
                     self.send_error(404)

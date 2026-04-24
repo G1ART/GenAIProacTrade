@@ -1,0 +1,15 @@
+{
+  "body": {
+    "contract": "ADMIN_V1",
+    "ok": true,
+    "trust": {
+      "ask_degraded_rate": 0.125,
+      "blocked_count": 1,
+      "degraded_count": 5,
+      "out_of_scope_count": 3,
+      "out_of_scope_rate": 0.075,
+      "total_ask_events": 40
+    }
+  },
+  "http_status": 200
+}

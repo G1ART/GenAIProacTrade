@@ -1,0 +1,106 @@
+{
+  "allowlist_sample": [
+    {
+      "accepted": true,
+      "event_name": "ask_answer_rendered",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "ask_degraded_shown",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "ask_free_text_submitted",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "ask_opened",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "ask_quick_action_clicked",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "auth_signout",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "page_view",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "replay_opened",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "research_opened",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "sandbox_enqueue_clicked",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "sandbox_request_blocked",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "session_ended",
+      "reason": null
+    },
+    {
+      "accepted": true,
+      "event_name": "session_started",
+      "reason": null
+    }
+  ],
+  "contract": "PATCH_12_EVIDENCE_V1",
+  "field_drop": {
+    "accepted": true,
+    "metadata_keys": [
+      "intent"
+    ],
+    "row_keys": [
+      "asset_id",
+      "event_name",
+      "horizon_key",
+      "lang",
+      "metadata",
+      "result_state",
+      "route",
+      "session_id",
+      "surface",
+      "user_id"
+    ]
+  },
+  "generated_utc": "2026-04-24T00:33:58.311084+00:00",
+  "rejections": [
+    {
+      "accepted": false,
+      "input": "steal_pii",
+      "reason": "event_name_not_allowlisted"
+    },
+    {
+      "accepted": false,
+      "input": "",
+      "reason": "event_name_not_allowlisted"
+    },
+    {
+      "accepted": false,
+      "input": "buy_stock_now",
+      "reason": "event_name_not_allowlisted"
+    }
+  ]
+}

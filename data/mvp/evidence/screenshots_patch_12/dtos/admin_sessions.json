@@ -1,0 +1,22 @@
+{
+  "body": {
+    "contract": "ADMIN_V1",
+    "count": 1,
+    "items": [
+      {
+        "event_count": 12,
+        "session_id": "s-1",
+        "session_last_event_at": "2026-04-23T08:45:00Z",
+        "session_started_at": "2026-04-23T08:10:00Z",
+        "surfaces_touched": [
+          "today",
+          "research",
+          "ask_ai"
+        ],
+        "user_id_alias": "bu_2a30cfaec83c"
+      }
+    ],
+    "ok": true
+  },
+  "http_status": 200
+}

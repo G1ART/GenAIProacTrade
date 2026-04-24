@@ -1,0 +1,16 @@
+{
+  "body": {
+    "ok": true,
+    "session_id": "<volatile-session-id>",
+    "user": {
+      "allowlist_mode": "enforce",
+      "allowlist_status": "active",
+      "display_name": "Jane",
+      "preferred_lang": "ko",
+      "role": "beta_user",
+      "session_id": "<volatile-session-id>",
+      "user_id_alias": "bu_666ff6ccaa5b"
+    }
+  },
+  "http_status": 200
+}

@@ -30,6 +30,20 @@ class Settings(BaseModel):
     sentry_dsn: Optional[str] = Field(default=None, alias="SENTRY_DSN")
     fmp_api_key: Optional[str] = Field(default=None, alias="FMP_API_KEY")
     transcripts_provider: Optional[str] = Field(default=None, alias="TRANSCRIPTS_PROVIDER")
+    # Patch 12 — Private Beta auth + telemetry. All optional so local dev
+    # (no .env) and CI stay green. If these are missing the server does
+    # NOT gate /api/* (graceful downgrade).
+    supabase_anon_key: Optional[str] = Field(default=None, alias="SUPABASE_ANON_KEY")
+    supabase_jwt_secret: Optional[str] = Field(default=None, alias="SUPABASE_JWT_SECRET")
+    supabase_auth_redirect_url: Optional[str] = Field(
+        default=None, alias="SUPABASE_AUTH_REDIRECT_URL"
+    )
+    metis_beta_allowlist_mode: Optional[str] = Field(
+        default=None, alias="METIS_BETA_ALLOWLIST_MODE"
+    )
+    metis_telemetry_enabled: Optional[str] = Field(
+        default=None, alias="METIS_TELEMETRY_ENABLED"
+    )
 
     model_config = {"populate_by_name": True}
 
@@ -70,5 +84,10 @@ def load_settings(*, env_path: Optional[Path] = None) -> Settings:
         "SENTRY_DSN": os.getenv("SENTRY_DSN", "").strip() or None,
         "FMP_API_KEY": os.getenv("FMP_API_KEY", "").strip() or None,
         "TRANSCRIPTS_PROVIDER": os.getenv("TRANSCRIPTS_PROVIDER", "fmp").strip() or None,
+        "SUPABASE_ANON_KEY": os.getenv("SUPABASE_ANON_KEY", "").strip() or None,
+        "SUPABASE_JWT_SECRET": os.getenv("SUPABASE_JWT_SECRET", "").strip() or None,
+        "SUPABASE_AUTH_REDIRECT_URL": os.getenv("SUPABASE_AUTH_REDIRECT_URL", "").strip() or None,
+        "METIS_BETA_ALLOWLIST_MODE": os.getenv("METIS_BETA_ALLOWLIST_MODE", "").strip() or None,
+        "METIS_TELEMETRY_ENABLED": os.getenv("METIS_TELEMETRY_ENABLED", "").strip() or None,
     }
     return Settings.model_validate(data)

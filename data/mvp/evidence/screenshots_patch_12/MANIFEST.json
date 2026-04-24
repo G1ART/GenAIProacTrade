@@ -1,0 +1,20 @@
+{
+  "captured_at_utc": "2026-04-24T00:32:05.788702+00:00",
+  "contract": "PATCH_12_BETA_FREEZE_V1",
+  "file_count": 12,
+  "ok": true,
+  "sha256_manifest": {
+    "dtos/admin_events.json": "2b3bb740aa90b8088d6e600892d789cfc1bbb7ca8235e72f811b8ee33e3421d0",
+    "dtos/admin_sessions.json": "f3a1bc3a1c29b60ec8ae71b8d8deeefaa5d707f85e7b098f97ab6fccd473460e",
+    "dtos/admin_trust.json": "a0e21e952f3537cb0c98820c8ca6cbd0e7b1110dc3b23a34a03fe39a9e71c390",
+    "dtos/admin_users.json": "8d25dece82f7c7382835b1dc3409a138b251c19ae266cc5c47ca024d30df1417",
+    "dtos/auth_config.json": "bc8a786214534c68bb85c38b51ca13474313d7e8bc7d56f286926811a544a8a1",
+    "dtos/auth_me.json": "5bf97d234bfc7f83919ffa8e2f92c98a8efca4fa7265fb64d2274dd2ff38aad8",
+    "dtos/auth_session.json": "9bd605d1a965d660be89c094f58deb8caf1d93e3d7f1d49659dcd2a8467bd1fc",
+    "static/auth_bootstrap.js": "906d5a25f50dbb01e786e6eecb40f40b6d8bccf4a640f09b086e925b46e6e063",
+    "static/login.css": "c85c87cb7b586d7bc6e6fe3ab5f70aed68e6b5936b0780a543585d327e5f2815",
+    "static/login.html": "384603da1614ff3caf05c02a97054a58685d1c8d5833f1581392a34edd27d43f",
+    "static/login.js": "69782abb291d5ebe916c361e6663e1af2c1360d3a49cc6849b1d7a979114b2c6",
+    "static/ops_admin.js": "704afaeb97d278e1700eb0febbbf823b3b2d1755dae9fb28035ec42dbbf402eb"
+  }
+}
